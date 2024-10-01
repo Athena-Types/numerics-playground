@@ -11,6 +11,8 @@ Module NumberExpr.
      This is the same as forcing delta to be non-negative; however, it's a
      little more annoying to model this in Coq. *)
 
+  (** * Defining expressions *)
+
   (* Real-valued expressions, no error whatsoever. *)
   Inductive exprR : Type :=
     | injR : R -> exprR
@@ -247,4 +249,6 @@ Module NumberExpr.
       field_simplify.
       reflexivity.
   Defined.
+
+  (** * Defining distance, absolute error, relative error, and relative precision metrics *)
 End NumberExpr.
