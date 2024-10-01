@@ -125,7 +125,7 @@ Module NumberExpr.
           (addF e1 x1 x2, addF e2 y1 y2)
       | subP e1 e2 a b =>
           let '((x1, y1) , (x2, y2)) := (paired_round_eval a, paired_round_eval b) in
-          (subF e1 x1 y2, subF e2 x2 y1)
+          (addF e1 x1 y2, addF e2 x2 y1)
       | mulP e1 e2 e3 e4 e5 e6 a b =>
           let '((x1, y1) , (x2, y2)) := (paired_round_eval a, paired_round_eval b) in
           (addF e2 (mulF e1 x1 x2) (mulF e3 y1 y2), addF e5 (mulF e4 x1 y2) (mulF e6 y1 x2))
