@@ -184,4 +184,67 @@ Module NumberExpr.
       ring_simplify.
       reflexivity.
   Defined.
+
+  Fixpoint zero_errors_P (exp : exprP) : exprP :=
+  match exp with
+    | injP _ r => injP err0 r
+    | subP _ _ a b=> subP err0 err0 (zero_errors_P a) (zero_errors_P b)
+    | addP _ _ a b => addP err0 err0 (zero_errors_P a) (zero_errors_P b)
+    | mulP _ _ _ _ _ _ a b =>
+        mulP err0 err0 err0 err0 err0 err0 (zero_errors_P a) (zero_errors_P b)
+  end.
+
+  (* Proof that when we have zero errors when rounding, it is equivalent to the
+     ideal computation *)
+  Theorem zero_errors_when_rounding_is_ideal : forall p,
+      float_round_eval (convertF (paired_round_eval (zero_errors_P p))) =
+        convertR (paired_ideal_eval p).
+  Proof.
+    intros.
+    induction p.
+    * simpl.
+      destruct (Rlt_le_dec r 0); simpl; field_simplify_eq; reflexivity.
+    * unfold paired_ideal_eval. fold paired_ideal_eval.
+      unfold convertR in *.
+      remember (paired_ideal_eval p1) as n. remember (paired_ideal_eval p2) as m.
+      destruct n. destruct m.
+      replace (r + r1 - (r0 + r2)) with ((r - r0) + (r1-r2))
+        by (field_simplify_eq; reflexivity).
+      rewrite <- IHp1. rewrite <- IHp2.
+      simpl.
+      remember (paired_round_eval (zero_errors_P p1)) as n'.
+      remember (paired_round_eval (zero_errors_P p2)) as m'.
+      destruct n'. destruct m'.
+      simpl.
+      field_simplify.
+      reflexivity.
+    * unfold paired_ideal_eval. fold paired_ideal_eval.
+      unfold convertR in *.
+      remember (paired_ideal_eval p1) as n. remember (paired_ideal_eval p2) as m.
+      destruct n. destruct m.
+      replace (r + r2 - (r1 + r0)) with ((r - r0) - (r1-r2))
+        by (field_simplify_eq; reflexivity).
+      rewrite <- IHp1. rewrite <- IHp2.
+      simpl.
+      remember (paired_round_eval (zero_errors_P p1)) as n'.
+      remember (paired_round_eval (zero_errors_P p2)) as m'.
+      destruct n'. destruct m'.
+      simpl.
+      field_simplify.
+      reflexivity.
+    * unfold paired_ideal_eval. fold paired_ideal_eval.
+      unfold convertR in *.
+      remember (paired_ideal_eval p1) as n. remember (paired_ideal_eval p2) as m.
+      destruct n. destruct m.
+      replace (r * r1 + r0 * r2 - (r * r2 + r0 * r1)) with ((r - r0) * (r1-r2))
+        by (field_simplify_eq; reflexivity).
+      rewrite <- IHp1. rewrite <- IHp2.
+      simpl.
+      remember (paired_round_eval (zero_errors_P p1)) as n'.
+      remember (paired_round_eval (zero_errors_P p2)) as m'.
+      destruct n'. destruct m'.
+      simpl.
+      field_simplify.
+      reflexivity.
+  Defined.
 End NumberExpr.
