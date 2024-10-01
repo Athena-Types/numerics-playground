@@ -1,5 +1,6 @@
 Require Import Reals Reals.Reals Reals.RIneq Reals.Rdefinitions.
 Local Open Scope R_scope.
+Require Import Lra.
 
 (* A module for a floating point precision representation with error parameter delta. *)
 Module NumberExpr.
@@ -302,4 +303,72 @@ Module NumberExpr.
       field_simplify_eq.
       reflexivity.
   Defined.
+
+  (* TODO: add relative metrics. *)
+
+  (** * Bounding worst-case errors between representations *)
+
+  (* First, we need a definition for what it means for two floating and paired
+     expressions to be equivalent (ignoring error). *)
+  Fixpoint f_p_equiv (f : exprF) (p : exprP) : Prop :=
+    match (f, p) with
+      | (injF _ r1, injP _ r2) => r1 = r2
+      | (addF _ e1 e2, addP _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
+      | (subF _ e1 e2, subP _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
+      | (mulF _ e1 e2, mulP _ _ _ _ _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
+      | _ => False
+    end.
+  Ltac distribute :=
+        repeat
+          (try rewrite ->! Rmult_plus_distr_r;
+           try rewrite ->! Rmult_plus_distr_l).
+
+  Theorem abs_error_bounds_hold : forall f, exists p, f_p_equiv f p /\ abs_errorF f <= abs_errorP p.
+  Proof.
+    intros.
+    induction f.
+    * exists (injP e r). simpl.
+      split; auto.
+      rewrite abs_errorP_equiv.
+      unfold abs_errorP_alt.
+      simpl.
+      destruct (Rlt_le_dec r 0); unfold convertF; unfold abs_errorF.
+      - assert (real_eval (ignore_error_f (injF e r))
+                =
+                real_eval (ignore_error_f (subF err0 (injF err0 0) (injF e (- r)))))
+        by (simpl; field_simplify_eq; reflexivity).
+        rewrite H. simpl.
+        right. f_equal.
+        field_simplify_eq. reflexivity.
+      - assert (real_eval (ignore_error_f (injF e r))
+                =
+                real_eval (ignore_error_f (subF err0 (injF err0 0) (injF e (- r)))))
+        by (simpl; field_simplify_eq; reflexivity).
+        rewrite H. simpl.
+        right. f_equal.
+        field_simplify_eq. reflexivity.
+    * destruct IHf1. destruct IHf2.
+      exists (addP e err0 x x0).
+      destruct H. destruct H0.
+      split.
+      - simpl. auto.
+      - rewrite abs_errorP_equiv in *.
+        unfold abs_errorP_alt in *.
+        simpl.
+        remember (paired_round_eval x).
+        remember (paired_round_eval x0).
+        destruct p. destruct p0.
+        unfold convertF.
+        unfold abs_errorF in *.
+        simpl in *.
+        replace (1 + 0) with 1 in * by lra.
+        assert (forall x : R, x * 1 = x) by (auto with real).
+        rewrite ->! H3 in *.
+        distribute.
+        replace ((float_round_eval f1 + float_round_eval f2) * (1 + proj1_sig e))
+                  with ((float_round_eval f1 + float_round_eval f2) + ((float_round_eval f1 + float_round_eval f2) * proj1_sig e))
+        by lra.
+        distribute.
+        give_up.
+    Admitted.
 End NumberExpr.
