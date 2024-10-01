@@ -79,9 +79,11 @@ Module NumberExpr.
   Hint Resolve rabs_zero_leq_everything: real.
   Obligation Tactic := Tactics.program_simpl; auto with real.
 
+  Program Definition err0 : error := 0.
+
   Program Fixpoint convertF (x : exprF * exprF) : exprF :=
     match x with
-      | (a, b) => subF 0 a b
+      | (a, b) => subF err0 a b
     end.
 
   Inductive exprP : Type :=
@@ -113,12 +115,12 @@ Module NumberExpr.
           (x1 * x2 + y1 * y2, x1 * y2 + y1 * x2)
     end.
 
-  Program Fixpoint paired_round_eval (exp : exprP) : (exprF * exprF) :=
+  Fixpoint paired_round_eval (exp : exprP) : (exprF * exprF) :=
     match exp with
       | injP e r =>
           match Rlt_le_dec r 0 with
-            | left _ => (injF 0 0, injF e (-r))
-            | right _ => (injF e r, injF 0 0)
+            | left _ => (injF err0 0, injF e (-r))
+            | right _ => (injF e r, injF err0 0)
           end
       | addP e1 e2 a b =>
           let '((x1, y1) , (x2, y2)) := (paired_round_eval a, paired_round_eval b) in
