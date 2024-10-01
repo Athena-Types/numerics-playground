@@ -250,5 +250,56 @@ Module NumberExpr.
       reflexivity.
   Defined.
 
-  (** * Defining distance, absolute error, relative error, and relative precision metrics *)
+  (** * Defining absolute error, relative error, and relative precision metrics *)
+
+  (* Below are definitions for the absolute error between rounded and ideal
+     computations, for both float and paired expressions respectively *)
+  Definition abs_errorF (f : exprF) : R :=
+    Rabs (
+        float_round_eval f -
+        real_eval (ignore_error_f f)
+      ).
+
+  Definition abs_errorP (p : exprP) : R :=
+    Rabs (
+        float_round_eval (convertF (paired_round_eval p)) -
+        real_eval (ignore_error_p p)
+      ).
+
+  (* Here is an equivalent definition of abs_errorP, using abs_errorF. *)
+  Definition abs_errorP_alt (p : exprP) : R :=
+    abs_errorF (convertF (paired_round_eval p)).
+
+  (* Proof that [abs_errorP] and [abs_errorP_alt] are pointwise equal. *)
+  Theorem abs_errorP_equiv : forall p, abs_errorP p = abs_errorP_alt p.
+  Proof.
+    intro.
+    unfold abs_errorP. unfold abs_errorP_alt.
+    unfold abs_errorF.
+    f_equal.
+    f_equal.
+    induction p; simpl.
+    * destruct (Rlt_le_dec r 0); simpl; field_simplify_eq; reflexivity.
+    * remember (paired_round_eval p1) as n.
+      remember (paired_round_eval p2) as m.
+      destruct n. destruct m.
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+    * remember (paired_round_eval p1) as n.
+      remember (paired_round_eval p2) as m.
+      destruct n. destruct m.
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+    * remember (paired_round_eval p1) as n.
+      remember (paired_round_eval p2) as m.
+      destruct n. destruct m.
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+  Defined.
 End NumberExpr.
