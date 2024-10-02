@@ -310,14 +310,19 @@ Module NumberExpr.
 
   (* First, we need a definition for what it means for two floating and paired
      expressions to be equivalent (ignoring error). *)
-  Fixpoint f_p_equiv (f : exprF) (p : exprP) : Prop :=
+  (* Old version. *)
+  Fixpoint f_p_equiv' (f : exprF) (p : exprP) : Prop :=
     match (f, p) with
       | (injF _ r1, injP _ r2) => r1 = r2
-      | (addF _ e1 e2, addP _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
-      | (subF _ e1 e2, subP _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
-      | (mulF _ e1 e2, mulP _ _ _ _ _ _ e3 e4) => f_p_equiv e1 e3 /\ f_p_equiv e2 e4
+      | (addF _ e1 e2, addP _ _ e3 e4) => f_p_equiv' e1 e3 /\ f_p_equiv' e2 e4
+      | (subF _ e1 e2, subP _ _ e3 e4) => f_p_equiv' e1 e3 /\ f_p_equiv' e2 e4
+      | (mulF _ e1 e2, mulP _ _ _ _ _ _ e3 e4) => f_p_equiv' e1 e3 /\ f_p_equiv' e2 e4
       | _ => False
     end.
+
+  (* Easier to use definition. *)
+  Definition f_p_equiv f p : Prop := ignore_error_f f = ignore_error_p p.
+
   Ltac distribute :=
         repeat
           (try rewrite ->! Rmult_plus_distr_r;
@@ -328,7 +333,7 @@ Module NumberExpr.
     intros.
     induction f.
     * exists (injP e r). simpl.
-      split; auto.
+      split; simpl; try reflexivity.
       rewrite abs_errorP_equiv.
       unfold abs_errorP_alt.
       simpl.
@@ -350,8 +355,9 @@ Module NumberExpr.
     * destruct IHf1. destruct IHf2.
       exists (addP e err0 x x0).
       destruct H. destruct H0.
+      unfold f_p_equiv in *.
       split.
-      - simpl. auto.
+      - simpl. congruence.
       - rewrite abs_errorP_equiv in *.
         unfold abs_errorP_alt in *.
         simpl.
