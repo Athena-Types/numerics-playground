@@ -188,6 +188,15 @@ Module NumberExpr.
       reflexivity.
   Defined.
 
+  Fixpoint zero_errors_F (exp : exprF) : exprF :=
+  match exp with
+    | injF _ r => injF err0 r
+    | subF _ a b=> subF err0 (zero_errors_F a) (zero_errors_F b)
+    | addF _ a b => addF err0 (zero_errors_F a) (zero_errors_F b)
+    | mulF _ a b =>
+        mulF err0 (zero_errors_F a) (zero_errors_F b)
+  end.
+
   Fixpoint zero_errors_P (exp : exprP) : exprP :=
   match exp with
     | injP _ r => injP err0 r
@@ -328,7 +337,38 @@ Module NumberExpr.
           (try rewrite ->! Rmult_plus_distr_r;
            try rewrite ->! Rmult_plus_distr_l).
 
-  Theorem abs_error_bounds_hold : forall f, exists p, f_p_equiv f p /\ abs_errorF f <= abs_errorP p.
+
+  Program Definition minus_error (err: error) : error :=
+    - (proj1_sig err).
+  Next Obligation.
+    unfold proj1_sig.
+    unfold error in err.
+    destruct err.
+    unfold Rabs in *.
+    destruct (Rcase_abs x);
+      destruct (Rcase_abs (- x));
+      destruct (Rcase_abs delta);
+      lra.
+  Defined.
+
+  (* Santiy check theorems *)
+  Theorem ignore_error_is_best_P :
+    forall p, abs_errorP (zero_errors_P p) <= abs_errorP p.
+  Proof.
+  Admitted.
+
+  Theorem ignore_error_is_best_F :
+    forall f, abs_errorF (zero_errors_F f) <= abs_errorF f.
+  Proof.
+  Admitted.
+
+  Theorem abs_error_bounds_hold_strong :
+    forall f, exists p, f_p_equiv f p /\ abs_errorF f = abs_errorP p.
+  Proof.
+  Admitted.
+
+  Theorem abs_error_bounds_hold_weak :
+    forall f, exists p, f_p_equiv f p /\ abs_errorF f <= abs_errorP p.
   Proof.
     intros.
     induction f.
