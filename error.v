@@ -376,6 +376,8 @@ Module NumberExpr.
   Proof.
   Admitted.
 
+  (** * Proof of bisimulation result and that (absolute) error bounds hold. **)
+
   Theorem bisimulation :
     forall f, exists p, f_p_equiv f p /\ float_round_eval f = float_round_eval (convertF (paired_round_eval p)).
   Proof.
@@ -408,9 +410,46 @@ Module NumberExpr.
         reflexivity.
     * destruct IHf1. destruct IHf2.
       destruct H. destruct H0.
-      give_up.
-    * give_up.
-  Admitted.
+      exists (subP e e x x0).
+      split.
+      + unfold f_p_equiv in *.
+        simpl.
+        rewrite H. rewrite H0.
+        reflexivity.
+      + simpl.
+        destruct (paired_round_eval x).
+        destruct (paired_round_eval x0).
+        simpl.
+        simpl in H1.
+        field_simplify_eq in H1.
+        simpl in H2.
+        field_simplify_eq in H2.
+        rewrite H1.
+        rewrite H2.
+        field_simplify_eq.
+        reflexivity.
+    * destruct IHf1. destruct IHf2.
+      destruct H. destruct H0.
+      Print paired_round_eval.
+      exists (mulP err0 e err0 err0 e err0 x x0).
+      split.
+      + unfold f_p_equiv in *.
+        simpl.
+        rewrite H. rewrite H0.
+        reflexivity.
+      + simpl.
+        destruct (paired_round_eval x).
+        destruct (paired_round_eval x0).
+        simpl.
+        simpl in H1.
+        field_simplify_eq in H1.
+        simpl in H2.
+        field_simplify_eq in H2.
+        rewrite H1.
+        rewrite H2.
+        field_simplify_eq.
+        reflexivity.
+  Defined.
 
   Theorem abs_error_bounds_hold_strong :
     forall f, exists p, f_p_equiv f p /\ abs_errorF f = abs_errorP p.
