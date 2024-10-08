@@ -337,6 +337,20 @@ Module NumberExpr.
           (try rewrite ->! Rmult_plus_distr_r;
            try rewrite ->! Rmult_plus_distr_l).
 
+  Ltac distribute_in H :=
+        repeat
+          (try rewrite ->! Rmult_plus_distr_r in H;
+           try rewrite ->! Rmult_plus_distr_l in H).
+
+  Ltac find_rabs_destruct_goal :=
+    match goal with
+      | [ _ : context[if Rcase_abs ?X then _ else _] |- _] => destruct (Rcase_abs X)
+      | [ |- context[(Rcase_abs ?X)]] => destruct (Rcase_abs X)
+    end.
+
+  Ltac rabs_destruct_goal := unfold Rabs in *;
+                             repeat find_rabs_destruct_goal;
+                             try lra.
 
   Program Definition minus_error (err: error) : error :=
     - (proj1_sig err).
@@ -362,59 +376,68 @@ Module NumberExpr.
   Proof.
   Admitted.
 
-  Theorem abs_error_bounds_hold_strong :
-    forall f, exists p, f_p_equiv f p /\ abs_errorF f = abs_errorP p.
-  Proof.
-  Admitted.
-
-  Theorem abs_error_bounds_hold_weak :
-    forall f, exists p, f_p_equiv f p /\ abs_errorF f <= abs_errorP p.
+  Theorem bisimulation :
+    forall f, exists p, f_p_equiv f p /\ float_round_eval f = float_round_eval (convertF (paired_round_eval p)).
   Proof.
     intros.
     induction f.
-    * exists (injP e r). simpl.
-      split; simpl; try reflexivity.
-      rewrite abs_errorP_equiv.
-      unfold abs_errorP_alt.
-      simpl.
-      destruct (Rlt_le_dec r 0); unfold convertF; unfold abs_errorF.
-      - assert (real_eval (ignore_error_f (injF e r))
-                =
-                real_eval (ignore_error_f (subF err0 (injF err0 0) (injF e (- r)))))
-        by (simpl; field_simplify_eq; reflexivity).
-        rewrite H. simpl.
-        right. f_equal.
-        field_simplify_eq. reflexivity.
-      - assert (real_eval (ignore_error_f (injF e r))
-                =
-                real_eval (ignore_error_f (subF err0 (injF err0 0) (injF e (- r)))))
-        by (simpl; field_simplify_eq; reflexivity).
-        rewrite H. simpl.
-        right. f_equal.
-        field_simplify_eq. reflexivity.
-    * destruct IHf1. destruct IHf2.
-      exists (addP e err0 x x0).
-      destruct H. destruct H0.
-      unfold f_p_equiv in *.
+    * exists (injP e r).
       split.
-      - simpl. congruence.
-      - rewrite abs_errorP_equiv in *.
-        unfold abs_errorP_alt in *.
+      + reflexivity.
+      + simpl.
+        destruct (Rlt_le_dec r 0); simpl; field_simplify_eq; reflexivity.
+    * destruct IHf1. destruct IHf2.
+      destruct H. destruct H0.
+      exists (addP e e x x0).
+      split.
+      + unfold f_p_equiv in *.
         simpl.
-        remember (paired_round_eval x).
-        remember (paired_round_eval x0).
-        destruct p. destruct p0.
-        unfold convertF.
-        unfold abs_errorF in *.
-        simpl in *.
-        replace (1 + 0) with 1 in * by lra.
-        assert (forall x : R, x * 1 = x) by (auto with real).
-        rewrite ->! H3 in *.
-        distribute.
-        replace ((float_round_eval f1 + float_round_eval f2) * (1 + proj1_sig e))
-                  with ((float_round_eval f1 + float_round_eval f2) + ((float_round_eval f1 + float_round_eval f2) * proj1_sig e))
-        by lra.
-        distribute.
-        give_up.
-    Admitted.
+        rewrite H. rewrite H0.
+        reflexivity.
+      + simpl.
+        destruct (paired_round_eval x).
+        destruct (paired_round_eval x0).
+        simpl.
+        simpl in H1.
+        field_simplify_eq in H1.
+        simpl in H2.
+        field_simplify_eq in H2.
+        rewrite H1.
+        rewrite H2.
+        field_simplify_eq.
+        reflexivity.
+    * destruct IHf1. destruct IHf2.
+      destruct H. destruct H0.
+      give_up.
+    * give_up.
+  Admitted.
+
+  Theorem abs_error_bounds_hold_strong :
+    forall f, exists p, f_p_equiv f p /\ abs_errorF f = abs_errorP p.
+  Proof.
+    intros.
+    pose proof (bisimulation f).
+    destruct H. destruct H.
+    exists x.
+    split.
+    - apply H.
+    - unfold abs_errorF.
+      unfold abs_errorP.
+      rewrite <- H0.
+      unfold f_p_equiv in H.
+      rewrite H.
+      reflexivity.
+  Defined.
+
+  Theorem abs_error_bounds_hold :
+    forall f, exists p, f_p_equiv f p /\ abs_errorF f <= abs_errorP p.
+  Proof.
+    intros.
+    pose proof (abs_error_bounds_hold_strong f).
+    destruct H. destruct H.
+    exists x.
+    split.
+    - apply H.
+    - right. apply H0.
+  Defined.
 End NumberExpr.
