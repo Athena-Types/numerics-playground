@@ -479,4 +479,68 @@ Module NumberExpr.
     - apply H.
     - right. apply H0.
   Defined.
+
+  (** * Relative error *)
+  Definition rel_errorF (f : exprF) : R :=
+    (abs_errorF f) / (Rabs (real_eval (ignore_error_f f))).
+
+  Definition rel_errorP (p : exprP) : R :=
+    (abs_errorP p) / Rabs (real_eval (ignore_error_p p)).
+
+  Definition rel_errorP_alt (p : exprP) : R :=
+    rel_errorF (convertF (paired_round_eval p)).
+
+  Theorem rel_errorP_equiv : forall p, rel_errorP p = rel_errorP_alt p.
+  Proof.
+    intros.
+    unfold rel_errorP.
+    unfold rel_errorP_alt.
+    pose proof (abs_errorP_equiv p).
+    unfold abs_errorP in *.
+    unfold abs_errorP_alt in *.
+    rewrite H.
+    unfold rel_errorF.
+    f_equal.
+    f_equal.
+    clear H.
+    induction p; simpl.
+    * destruct (Rlt_le_dec r 0);
+        simpl;
+        field_simplify_eq;
+        reflexivity.
+    * destruct (paired_round_eval p1).
+      destruct (paired_round_eval p2).
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+    * destruct (paired_round_eval p1).
+      destruct (paired_round_eval p2).
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+    * destruct (paired_round_eval p1).
+      destruct (paired_round_eval p2).
+      rewrite IHp1. rewrite IHp2.
+      simpl.
+      field_simplify_eq.
+      reflexivity.
+  Defined.
+
+  Theorem rel_error_bounds_hold_strong :
+    forall f, exists p, f_p_equiv f p /\ rel_errorF f = rel_errorP p.
+  Proof.
+    intros.
+    pose proof (abs_error_bounds_hold_strong f).
+    destruct H. destruct H.
+    exists x.
+    split.
+    - apply H.
+    - unfold rel_errorF. unfold rel_errorP.
+      rewrite H0.
+      unfold f_p_equiv in *.
+      rewrite H.
+      reflexivity.
+  Defined.
 End NumberExpr.
