@@ -126,83 +126,53 @@ type fpcore = symbol option * argument list * property list * fpexpr
 [@@deriving sexp]
 
 let load_fpcore filename = 
-  match Parsexp_io.load (module Parsexp.Single) ~filename with
-  | Ok f -> print_endline "good"; f
+  match Parsexp_io.load (module Parsexp.Many) ~filename with
+  | Ok f -> print_endline "Loaded fpcore file"; f
   | Error _ -> failwith "Not a valid sexp!"
 
-let op_table = [
-  ("+", Plus);
-  ("-", Minus);
-  ("*", Times);
-  ("/", Divide);
-  ("fabs", Fabs);
-  ("fma", Fma);
-  ("exp", Exp);
-  ("exp2", Exp2);
-  ("expm1", Expm1);
-  ("log", Log);
-  ("log10", Log10);
-  ("log2", Log2);
-  ("log1p", Log1p);
-  ("pow", Pow);
-  ("sqrt", Sqrt);
-  ("cbrt", Cbrt);
-  ("hypot", Hypot);
-  ("sin", Sin);
-  ("cos", Cos);
-  ("tan", Tan);
-  ("asin", Asin);
-  ("acos", Acos);
-  ("atan", Atan);
-  ("atan2", Atan2);
-  ("sinh", Sinh);
-  ("cosh", Cosh);
-  ("tanh", Tanh);
-  ("asinh", Asinh);
-  ("acosh", Acosh);
-  ("atanh", Atanh);
-  ("erf", Erf);
-  ("erfc", Erfc);
-  ("tgamma", Tgamma);
-  ("lgamma", Lgamma);
-  ("ceil", Ceil);
-  ("floor", Floor);
-  ("fmod", Fmod);
-  ("remainder", Remainder);
-  ("fmax", Fmax);
-  ("fmin", Fmin);
-  ("fdim", Fdim);
-  ("copysign", Copysign);
-  ("trunc", Trunc);
-  ("round", Round);
-  ("nearbyint", Nearbyint);
-  ("<", Lt);
-  (">", Gt);
-  ("<=", Leq);
-  (">=", Geq);
-  ("==", Eq);
-  ("!=", Neq);
-  ("&&", And);
-  ("||", Or);
-  ("!", Not);
-  ("isfinite", Isfinite);
-  ("isinf", Isinf);
-  ("isnan", Isnan);
-  ("isnormal", Isnormal);
-  ("signbit", Signbit)]
+let op_table = 
+  [ 
+    ("+", Plus); ("-", Minus); ("*", Times); 
+    ("/", Divide); ("fabs", Fabs); ("fma", Fma); 
+    ("exp", Exp); ("exp2", Exp2); ("expm1", Expm1); 
+    ("log", Log); ("log10", Log10); ("log2", Log2); 
+    ("log1p", Log1p); ("pow", Pow); ("sqrt", Sqrt);
+    ("cbrt", Cbrt); ("hypot", Hypot); ("sin", Sin); 
+    ("cos", Cos); ("tan", Tan); ("asin", Asin); 
+    ("acos", Acos); ("atan", Atan); ("atan2", Atan2); 
+    ("sinh", Sinh); ("cosh", Cosh); ("tanh", Tanh); 
+    ("asinh", Asinh); ("acosh", Acosh); ("atanh", Atanh); 
+    ("erf", Erf); ("erfc", Erfc); ("tgamma", Tgamma);
+    ("lgamma", Lgamma); ("ceil", Ceil); ("floor", Floor);
+    ("fmod", Fmod); ("remainder", Remainder); ("fmax", Fmax);
+    ("fmin", Fmin); ("fdim", Fdim); ("copysign", Copysign);
+    ("trunc", Trunc); ("round", Round); ("nearbyint", Nearbyint); 
+    ("<", Lt); (">", Gt); ("<=", Leq); (">=", Geq); ("==", Eq); 
+    ("!=", Neq); ("&&", And); ("||", Or); ("!", Not); 
+    ("isfinite", Isfinite); ("isinf", Isinf); ("isnan", Isnan); 
+    ("isnormal", Isnormal); ("signbit", Signbit)
+]
+let const_table = 
+  [ 
+    "E"; "LOG2E"; "LOG10E"; "LN2";
+    "LN10"; "PI"; "PI_2"; "PI_4";
+    "M_1_PI"; "M_2_PI"; "M_2_SQRTPI";
+    "SQRT2"; "SQRT1_2"; "INFINITY";
+    "NAN"; "TRUE"; "FALSE"
+  ]
 
 let lookup_op (op_str : string) : operation option = 
   let open Option.Let_syntax in
   let%bind result = (List.nth (List.filter op_table (fun x -> String.equal op_str (fst x))) 0) in
   Some (snd result)
 
-let lookup_arg (args : argument list) (arg_str : string) : dimension list option = 
-  let open Option.Let_syntax in
-  let%bind first_arg_match = 
-    List.nth (List.filter args 
-      (fun x -> String.equal (x.sym) arg_str )) 0 in
-  Some first_arg_match.dim
+let lookup_const (const : string) : bool =
+  List.exists const_table (String.equal const)
 
+let lookup_arg (args : argument list) (arg_str : string) : argument option = 
+  let open Option.Let_syntax in
+  List.nth (List.filter args 
+    (fun x -> String.equal (x.sym) arg_str )) 0
 
 (* TODO: make fail loudly if the list is empty*)
 let all_but_last (l : 'a list) : ('a list) =
@@ -233,9 +203,17 @@ let rec parse_fpexpr (vars : argument list) (s : Sexp.t) : fpexpr option =
   let open Option.Let_syntax in
   match s with 
   | Sexp.Atom a -> 
-      (match parse_number a with
-      | Some num -> Some (Num num)
-      | None -> failwith ("Failed to parse number: " ^ a))
+      if lookup_const a
+      then Some (Const a)
+      else 
+        (match lookup_arg vars a with
+        | Some var -> Some (Sym var.sym)
+        | None -> 
+            (match parse_number a with
+            | Some num -> Some (Num num)
+            (* Some programs in the benchmark do not declare every argument, e.g. himmilbeau,
+               so it is good to fall back to declaring an atom as a symbol. *)
+            | None -> Some (Sym a))) 
   | Sexp.List l ->
     let parse_bind (x : Sexp.t) : (symbol * fpexpr) = 
       (match x with 
@@ -329,34 +307,41 @@ let parse_args (s : Sexp.t) : argument list =
       | None -> [])
   | Sexp.Atom e -> failwith ("Args should be a list, instead got: " ^ e)
 
+let print_fpcore (prog : fpcore) =
+  print_endline (Sexp.to_string_hum (sexp_of_fpcore prog)); prog
+
 let parse_fpcore (s : Sexp.t) : fpcore option = 
   let open Option.Let_syntax in
-  match s with
-  | Sexp.Atom _ -> failwith "Not a valid fpcore file"
-  | Sexp.List l -> 
-      match l with
-      | Sexp.Atom a :: tail -> 
-          if (String.equal a "FPCore") then 
-            let%bind (sym, tail_opt) = List.nth tail 0 >>= fun item ->
-                (match item with 
-                | Sexp.Atom b -> Some (Some b, tl tail)
-                | Sexp.List _ -> Some (None, Some tail)) in (* try again; parse as args *)
-            let%bind tail' = tail_opt in
-            let%bind unparsed_args = List.nth tail' 0 in
-            let args = parse_args unparsed_args in
-            let new_tail = List.drop tail' 1 in
-            let props = fst (parse_property (List.take new_tail ((List.length new_tail) - 1))) in
-            let%bind unparsed_expr = List.last new_tail in 
-            let%bind expr = parse_fpexpr args unparsed_expr in
-            Some (sym, args, props, expr)
-          else failwith ("Not a valid fpcore file:" ^ a)
-      | _ -> failwith "Not a valid fpcore file"
+  let%bind prog = 
+    (match s with
+    | Sexp.Atom _ -> failwith "Not a valid fpcore file"
+    | Sexp.List l -> 
+        match l with
+        | Sexp.Atom a :: tail -> 
+            if (String.equal a "FPCore") then 
+              let%bind (sym, tail_opt) = List.nth tail 0 >>= fun item ->
+                  (match item with 
+                  | Sexp.Atom b -> Some (Some b, tl tail)
+                  | Sexp.List _ -> Some (None, Some tail)) in (* try again; parse as args *)
+              let%bind tail' = tail_opt in
+              let%bind unparsed_args = List.nth tail' 0 in
+              let args = parse_args unparsed_args in
+              let new_tail = List.drop tail' 1 in
+              let props = fst (parse_property (List.take new_tail ((List.length new_tail) - 1))) in
+              let%bind unparsed_expr = List.last new_tail in 
+              let%bind expr = parse_fpexpr args unparsed_expr in
+              Some (sym, args, props, expr)
+            else failwith ("Not a valid fpcore file:" ^ a)
+        | _ -> failwith "Not a valid fpcore file") in
+  Some (print_fpcore prog)
 
-let () = 
+let main =
   let open Option.Let_syntax in
-  let file = load_fpcore "../benchmarks/sum.fpcore" in
-  match parse_fpcore file with
-  | Some parsed_fpcore ->
-      print_endline (Sexp.to_string_hum (sexp_of_fpcore parsed_fpcore))
-  | None -> ()
+  match List.nth (Array.to_list (Sys.get_argv ())) 1 with
+  | Some filename -> 
+    let unparsed_progs = load_fpcore filename in
+    let progs = Option.all (List.map unparsed_progs parse_fpcore) in
+    "parser good"
+  | None -> failwith "No filename provided"
 
+let () = print_endline main
