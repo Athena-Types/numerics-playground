@@ -21,5 +21,3 @@ ex0 float<ieee_64,ne>= ((a * a) + (b * b));
 
 # Relative error, a posterori
 { (Mx1 in [-5, 5] /\ Mx2 in [-5, 5] /\ ex0 = 1) -> |(ex0 - Mex0) / ex0| in ? }
-
-
