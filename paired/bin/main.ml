@@ -183,12 +183,13 @@ let match_regex (regex_expr : string) (candidate : string) : bool =
   Re2.matches re candidate
 
 let parse_number (a : string) : number option = 
-  if match_regex "[+]?[0-9]+/[0-9]*[1-9][0-9]*" a then Some (Rat (true, a))
-  else if match_regex "-[0-9]+/[0-9]*[1-9][0-9]*" a then Some (Rat (false, a))
-  else if match_regex "[+]?0x([0-9a-f]+(\\.[0-9a-f]+)?|\\.[0-9a-f]+)(p[-+]?[0-9]+)?" a then Some (Hex (true, a))
-  else if match_regex "-?0x([0-9a-f]+(\\.[0-9a-f]+)?|\\.[0-9a-f]+)(p[-+]?[0-9]+)?" a then Some (Hex (false, a))
-  else if match_regex "[+]?([0-9]+(\\.[0-9]+)?|\\.[0-9]+)(e[-+]?[0-9]+)?" a then Some (Dec (true, a))
-  else if match_regex "-?([0-9]+(\\.[0-9]+)?|\\.[0-9]+)(e[-+]?[0-9]+)?" a then Some (Dec (false, a))
+  (*print_endline ("number parsed: " ^ a);*)
+  if match_regex "^[+]?[0-9]+/[0-9]*[1-9][0-9]*$" a then Some (Rat (true, a))
+  else if match_regex "^-[0-9]+/[0-9]*[1-9][0-9]*$" a then Some (Rat (false, a))
+  else if match_regex "^[+]?0x([0-9a-f]+(\\.[0-9a-f]+)?|\\.[0-9a-f]+)(p[-+]?[0-9]+)?$" a then Some (Hex (true, a))
+  else if match_regex "^-0x([0-9a-f]+(\\.[0-9a-f]+)?|\\.[0-9a-f]+)(p[-+]?[0-9]+)?$" a then Some (Hex (false, a))
+  else if match_regex "^[+]?([0-9]+(\\.[0-9]+)?|\\.[0-9]+)(e[-+]?[0-9]+)?$" a then Some (Dec (true, a))
+  else if match_regex "^-([0-9]+(\\.[0-9]+)?|\\.[0-9]+)(e[-+]?[0-9]+)?$" a then Some (Dec (false, a))
   else None
 
 let parse_symbol (s : Sexp.t) : symbol option =
@@ -259,12 +260,18 @@ let rec parse_data (s : Sexp.t) : data option =
   let open Option.Let_syntax in
   match s with
   | Sexp.Atom e -> 
-    (match parse_symbol s with 
-    | Some s -> Some (SymData s)
+    (match parse_number e with
+    | Some n -> Some (NumData n)
     | None -> 
-        (match parse_number e with
-        | Some n -> Some (NumData n)
-        | None -> Some (StringData e)))
+      (match parse_symbol s with 
+      | Some s -> Some (SymData s)
+      | None -> Some (StringData e)))
+    (*(match parse_symbol s with *)
+    (*| Some s -> Some (SymData s)*)
+    (*| None -> *)
+    (*    (match parse_number e with*)
+    (*    | Some n -> Some (NumData n)*)
+    (*    | None -> Some (StringData e)))*)
   | Sexp.List l -> 
       let%bind data = (Option.all (List.map l parse_data)) in 
       Some (Data data)
