@@ -37,6 +37,9 @@ type property = (symbol * data) [@@deriving sexp]
 type argument = {sym : symbol; prop : property list; dim : dimension list}
 [@@deriving sexp]
 
+let update_arg_sym (arg: argument) (new_sym : symbol) =
+  {arg with sym = new_sym }
+
 type constant = string (* placeholder *)
 [@@deriving sexp]
 
@@ -126,7 +129,7 @@ type fpcore = symbol option * argument list * property list * fpexpr
 [@@deriving sexp]
 
 let load_fpcore filename = 
-  match Parsexp_io.load (module Parsexp.Many) ~filename with
+  match Parsexp_io.load (module Parsexp.Single) ~filename with
   | Ok f -> print_endline "Loaded fpcore file"; f
   | Error _ -> failwith "Not a valid sexp!"
 
@@ -340,15 +343,163 @@ let parse_fpcore (s : Sexp.t) : fpcore option =
               Some (sym, args, props, expr)
             else failwith ("Not a valid fpcore file:" ^ a)
         | _ -> failwith "Not a valid fpcore file") in
-  Some (print_fpcore prog)
+  Some prog
+
+let mk_fresh_var (fresh : int ref) : fpexpr = 
+  let var = Sym ("v " ^ string_of_int (!fresh)) in
+  incr fresh;
+  var
+
+(*let rec interpert_expr (expr: fpexpr) (func: fpexpr -> 'a -> 'k -> 'b) (state: 'a) : 'b =*)
+(*let rec interpert_expr (expr: fpexpr) (func: fpexpr -> 'a -> 'b) (state: 'a) : 'b =*)
+(*let rec interpert_expr expr k : 'b =*)
+(*  match expr with *)
+(*  | _ -> k expr func expr state interpert_expr*)
+
+(* NB: The only constructs we consider are let and operations; all other constructs are unhandled. *)
+
+(*let rec transform (expr: fpexpr) (state : argument list * int ref) (cont : fpexpr -> (fpexpr -> 'a -> 'k -> 'b) -> 'a)=*)
+(*let rec transform (expr: fpexpr) (state : argument list * int ref) k =*)
+(*  let (args, fresh) = state in*)
+let rec transform (expr: fpexpr) (args : argument list) (fresh : int ref) (env : symbol -> fpexpr * fpexpr): (fpexpr * fpexpr) option =
+  let open Option.Let_syntax in
+  match expr with 
+  | Op (operation, vars) ->
+      let%bind paired_args = Option.all (List.map vars (fun x -> transform x args fresh env)) in
+      (match operation with 
+      (* TODO: move the let from the interpreter into the expression to allow analysis to share common subexpressions during analysis.*)
+      | Plus -> 
+          let%bind (larg_p, larg_n) = nth paired_args 0 in
+          let%bind (rarg_p, rarg_n) = nth paired_args 1 in
+          Some (Op (Plus, [larg_p; rarg_p]), Op (Plus, [larg_n; rarg_n]))
+      | Minus ->
+          let%bind (larg_p, larg_n) = nth paired_args 0 in
+          let%bind (rarg_p, rarg_n) = nth paired_args 1 in
+          Some (Op (Plus, [larg_p; rarg_n]), Op (Plus, [larg_n; rarg_p]))
+      | Times ->
+          let%bind (larg_p, larg_n) = nth paired_args 0 in
+          let%bind (rarg_p, rarg_n) = nth paired_args 1 in
+          Some 
+            ( Op (Plus, [Op (Times, [larg_p; rarg_p]); Op (Times, [larg_n; rarg_n])]),
+              Op (Plus, [Op (Times, [larg_p; rarg_n]); Op (Times, [larg_p; rarg_n])]))
+      | Divide -> failwith "unhandled operation divide"
+      | _ -> failwith "unhandled operation")
+      (* inline and compute paired version of (non-recursive) let exprs *)
+  | Let (binders, expr) ->
+      let rec update_env env binders = 
+        (match binders with 
+        | (hd_sym, hd_expr) :: tl -> 
+            (match transform hd_expr args fresh env with 
+             | Some (pexpr, nexpr) -> 
+                 update_env 
+                 (fun (x : symbol) -> 
+                   print_endline hd_sym;  (* debug *)
+                   if (String.equal x hd_sym) then (pexpr, nexpr) else env x) 
+                 tl
+             | None -> update_env env tl)
+        | [] -> env) in
+      let env' = update_env env binders in
+      transform expr args fresh env'
+  | Sym var -> Some (env var)
+  | Num var -> 
+      let (varp, varn) = 
+        (match var with 
+        | Rat (true, n) -> (Rat (true, n), Dec (true, "0"))
+        | Rat (false, n) -> (Dec (true, "0"), Rat (true, n))
+        | Dec (true, n) -> (Dec (true, n), Dec (true, "0"))
+        | Dec (false, n) -> (Dec (true, "0"), Dec (true, n))
+        | Hex (true, n) -> (Hex (true, n), Hex (true, "0"))
+        | Hex (false, n) -> (Hex (true, "0"), Hex (true, n)))
+        in
+      Some (Num varp, Num varn)
+  | _ -> failwith "unhandled expr"
+  (*| _ -> interpert_expr expr transform_ops_expr state*)
+
+let rec default_env args env = 
+  match args with
+  | hd_arg :: tl_arg -> 
+      default_env 
+      tl_arg
+      (fun x -> if (String.equal hd_arg.sym x) then (Sym (hd_arg.sym ^ "p"), Sym (hd_arg.sym ^ "n")) else env x)
+  | [] -> env
+
+(*let check_*)
+
+(* If a condition looks like a <= x <= a for some constant a and program 
+   variable x, return true. Otherwise, return false. *)
+(*let check_first_order (conds: data list) =*)
+
+let rec transform_args args = 
+  match args with
+  | hd_arg :: tl_arg -> 
+      update_arg_sym hd_arg (hd_arg.sym ^ "p") :: 
+        update_arg_sym hd_arg (hd_arg.sym ^ "n") ::
+          transform_args tl_arg
+  | [] -> []
+
+let rec transform_cond (cond: data) (args: argument list) =
+  match cond with
+  | SymData sym -> 
+      (match lookup_arg args sym with
+      | Some arg -> Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]
+      | None -> SymData sym)
+  | NumData num -> NumData num
+  | StringData s -> StringData s
+  | Data dl -> Data (List.map dl (fun x -> transform_cond x args))
+
+let rec transform_conds (conds: data list) (args: argument list) = 
+  List.map conds (fun x -> transform_cond x args)
+
+let rec transform_preconds new_preconds (props: data) (args: argument list) = 
+  match props with 
+  | Data (SymData ("and") :: conds) -> Data (List.append (SymData ("and") :: new_preconds) (transform_conds conds args))
+  (*| Data (SymData ("or") :: conds) -> Data (SymData ("or") :: transform_conds conds args)*)
+  | _ -> failwith "failed to transform preconds"
+
+let rec gen_new_preconds args = 
+  match args with
+  | hd_arg :: tl_arg -> 
+      (Data [(SymData "<="); (NumData (Dec (true, "0"))); SymData (hd_arg.sym ^ "p")]) :: 
+        (Data [(SymData "<="); SymData (hd_arg.sym ^ "p"); (NumData (Dec (true, "0")))]) :: 
+          gen_new_preconds tl_arg 
+  | [] -> []
+
+let rec transform_props (props: property list) (args : argument list) = 
+  let new_preconds = gen_new_preconds args in
+  match props with
+  | hd_prop :: tl_props -> 
+      (match hd_prop with
+      | (":pre", data) -> (":pre", transform_preconds new_preconds data args) :: tl_props
+      | _ -> hd_prop :: transform_props tl_props args)
+  | [] -> props
+
+let transform_ops_fpcore (prog : fpcore) : fpcore option = 
+  let open Option.Let_syntax in
+  match prog with 
+  | (symbol, args, props, expr) -> 
+      let env = default_env args (fun x -> failwith ("unhandled env lookup: " ^ x)) in
+      let%bind (pos_prog, neg_prog) = transform expr args (ref 0) env in
+      let transformed_args = transform_args args in
+      let transformed_props = transform_props props args in
+      Some (symbol, transformed_args, transformed_props, 
+        Let 
+        (
+          [("pos", pos_prog); ("neg", neg_prog)], 
+          Op (Minus, [Sym "pos"; Sym "neg"])
+        ))
+
+let transform_prog (prog: fpcore) : fpcore option = transform_ops_fpcore prog
 
 let main =
   let open Option.Let_syntax in
-  match List.nth (Array.to_list (Sys.get_argv ())) 1 with
-  | Some filename -> 
-    let unparsed_progs = load_fpcore filename in
-    let progs = Option.all (List.map unparsed_progs parse_fpcore) in
-    "parser good"
-  | None -> failwith "No filename provided"
+  let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
+  let unparsed_prog = load_fpcore filename in
+  let%bind prog = parse_fpcore unparsed_prog in
+  let _ = print_fpcore prog in
+  let%bind transformed_prog = transform_prog prog in
+  let _ = print_fpcore transformed_prog in
+  Some "transform good"
 
-let () = print_endline main
+let () = 
+  let result = Option.value main ~default:"transform bad" in 
+  print_endline result
