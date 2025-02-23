@@ -186,7 +186,6 @@ let match_regex (regex_expr : string) (candidate : string) : bool =
   Re2.matches re candidate
 
 let parse_number (a : string) : number option = 
-  (*print_endline ("number parsed: " ^ a);*)
   if match_regex "^[+]?[0-9]+/[0-9]*[1-9][0-9]*$" a then Some (Rat (true, a))
   else if match_regex "^-[0-9]+/[0-9]*[1-9][0-9]*$" a then Some (Rat (false, a))
   else if match_regex "^[+]?0x([0-9a-f]+(\\.[0-9a-f]+)?|\\.[0-9a-f]+)(p[-+]?[0-9]+)?$" a then Some (Hex (true, a))
@@ -457,7 +456,6 @@ let rec transform (expr: fpexpr) (args : argument list) (fresh : int ref) (env :
              | Some (pexpr, nexpr) -> 
                  update_env 
                  (fun (x : symbol) -> 
-                   print_endline hd_sym;  (* debug *)
                    if (String.equal x hd_sym) then (pexpr, nexpr) else env x) 
                  tl
              | None -> update_env env tl)
@@ -506,7 +504,6 @@ let rec transform_cond (cond: data) (args: argument list) =
   | SymData sym -> 
       (match lookup_arg args sym with
       | Some arg -> 
-          print_endline ("looked up in transform_cond " ^ sym);
           Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]
       | None -> SymData sym)
   | NumData num -> NumData num
