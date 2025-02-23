@@ -103,7 +103,7 @@ type operation =
   | Isnan : operation
   | Isnormal : operation
   | Signbit : operation
-[@@deriving sexp]
+[@@deriving sexp, eq]
 
 type fpexpr = 
   | Num : number -> fpexpr
@@ -317,8 +317,72 @@ let parse_args (s : Sexp.t) : argument list =
       | None -> [])
   | Sexp.Atom e -> failwith ("Args should be a list, instead got: " ^ e)
 
-let print_fpcore (prog : fpcore) =
-  print_endline (Sexp.to_string_hum (sexp_of_fpcore prog)); prog
+let rec string_join_list strings separator = 
+  match strings with 
+  | hd_str :: tl_strs ->
+      (match tl_strs with
+       | _ :: _ -> hd_str ^ separator ^ string_join_list tl_strs separator
+       | [] -> hd_str)
+  | [] -> ""
+
+(* assume no property or dims to translate *)
+let print_argument arg = 
+  if (List.is_empty arg.prop) && (List.is_empty arg.dim) 
+  then arg.sym
+  else failwith "non empty prop or dim; unhandled"
+
+let wrap_paren str = "(" ^ str ^ ")"
+
+let print_optional_sym sym =
+  match sym with
+  | Some s -> wrap_paren s
+  | None -> ""
+
+let rec print_num num = 
+  match num with
+  | Rat (sign, rnum) -> rnum
+  | Dec (sign, dnum) -> dnum
+  | Hex (sign, hnum) ->  hnum
+  | Digits (d1, d2, d3) -> 
+      "(digits " ^ print_num (Dec d1) ^ " " ^ print_num (Dec d2) ^ " " ^ print_num (Dec d3) ^ ")"
+
+let rec print_data data =
+  match data with
+  | SymData sym -> sym
+  | NumData num -> print_num num
+  | StringData s -> s
+  | Data dl -> "(" ^ (string_join_list (List.map dl print_data) " ") ^ ")"
+
+let print_property (sym, data) = sym ^ " " ^ print_data data
+
+let print_op (operation) : string = 
+  let open Option.Let_syntax in
+  match (List.nth (List.filter op_table (fun x -> equal_operation operation (snd x))) 0) with
+  | Some op_entry -> fst op_entry
+  | None -> failwith "could not find op in lookup table"
+
+let rec print_expr expr = 
+  match expr with 
+  | Num num -> print_num num
+  | Const c -> c
+  | Sym sym -> sym
+  | Op (op, args) -> "(" ^ print_op op ^ " " ^ (string_join_list (List.map args print_expr) " ") ^ ")"
+  | Let (bindings, expr) -> 
+      "(let " ^ wrap_paren 
+                  (string_join_list 
+                    (List.map bindings 
+                      (fun (v, e) -> "(" ^ v ^ " " ^ (print_expr e) ^ ")")) " ")
+              ^ " " 
+              ^ print_expr expr
+      ^ ")"
+  | _ -> failwith "unhandled expression to print"
+
+let print_fpcore (sym, args, props, expr) =
+  let sym_str = print_optional_sym sym in
+  let args_str = "(" ^ (string_join_list (List.map args print_argument) " ") ^ ")" in
+  let props_str = (string_join_list (List.map props print_property) "\n") in
+  let expr_str = print_expr expr in
+  "(FPCore " ^ sym_str ^ args_str ^ "\n" ^ props_str ^ "\n" ^ expr_str ^ ")"
 
 let parse_fpcore (s : Sexp.t) : fpcore option = 
   let open Option.Let_syntax in
@@ -441,7 +505,9 @@ let rec transform_cond (cond: data) (args: argument list) =
   match cond with
   | SymData sym -> 
       (match lookup_arg args sym with
-      | Some arg -> Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]
+      | Some arg -> 
+          print_endline ("looked up in transform_cond " ^ sym);
+          Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]
       | None -> SymData sym)
   | NumData num -> NumData num
   | StringData s -> StringData s
@@ -495,9 +561,9 @@ let main =
   let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
   let unparsed_prog = load_fpcore filename in
   let%bind prog = parse_fpcore unparsed_prog in
-  let _ = print_fpcore prog in
+  let _ = print_endline (print_fpcore prog) in
   let%bind transformed_prog = transform_prog prog in
-  let _ = print_fpcore transformed_prog in
+  let _ = print_endline (print_fpcore transformed_prog) in
   Some "transform good"
 
 let () = 
