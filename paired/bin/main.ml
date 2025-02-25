@@ -558,7 +558,7 @@ let main =
   let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
   let unparsed_prog = load_fpcore filename in
   let%bind prog = parse_fpcore unparsed_prog in
-  let _ = print_endline (print_fpcore prog) in
+  (*let _ = print_endline (print_fpcore prog) in*)
   let%bind transformed_prog = transform_prog prog in
   let _ = print_endline (print_fpcore transformed_prog) in
   Some "transform good"
