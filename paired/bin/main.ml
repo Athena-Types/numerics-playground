@@ -130,7 +130,7 @@ type fpcore = symbol option * argument list * property list * fpexpr
 
 let load_fpcore filename = 
   match Parsexp_io.load (module Parsexp.Single) ~filename with
-  | Ok f -> print_endline "Loaded fpcore file"; f
+  | Ok f -> f
   | Error _ -> failwith "Not a valid sexp!"
 
 let op_table = 
@@ -565,4 +565,5 @@ let main =
 
 let () = 
   let result = Option.value main ~default:"transform bad" in 
-  print_endline result
+  ()
+  (*Printf.eprintf result*)
