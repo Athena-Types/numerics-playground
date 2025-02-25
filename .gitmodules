@@ -1,0 +1,3 @@
+[submodule "deps/FPBench"]
+	path = deps/FPBench
+	url = https://github.com/FPBench/FPBench.git
