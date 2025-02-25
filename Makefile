@@ -1,4 +1,4 @@
-FPCORE_FILES = $(filter-out $(benchmarks/*-paired.fpcore), $(wildcard benchmarks/*.fpcore))
+FPCORE_FILES = $(filter-out $(wildcard benchmarks/*-paired.fpcore), $(wildcard benchmarks/*.fpcore))
 
 PAIRED_FILES=$(patsubst %.fpcore, %-paired.fpcore, $(FPCORE_FILES))
 
@@ -13,7 +13,7 @@ $(BENCHMARK_NAMES): paired/_build/default/bin/main.exe
 all: $(BENCHMARK_NAMES)
 
 clean:
-	rm benchmarks/*-paired.fpcore
+	rm -f benchmarks/*-paired.fpcore
 	cd paired && opam exec dune clean
 
 .PHONY: all clean $(BENCHMARK_NAMES)
