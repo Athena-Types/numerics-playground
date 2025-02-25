@@ -1,0 +1,5 @@
+(FPCore (x0p x0n x1p x1n x2p x2n)
+:name test01_sum3
+:precision binary32
+:pre (and (<= 0 x0p) (<= x0p 0) (<= 0 x1p) (<= x1p 0) (<= 0 x2p) (<= x2p 0) (< 1 (- x0p x0n) 2) (< 1 (- x1p x1n) 2) (< 1 (- x2p x2n) 2))
+(let ((pos (+ (+ (+ (+ x0p x1p) x2n) (+ (+ x1p x2p) x0n)) (+ (+ x2p x0p) x1n))) (neg (+ (+ (+ (+ x0n x1n) x2p) (+ (+ x1n x2n) x0p)) (+ (+ x2n x0n) x1p)))) (- pos neg)))
