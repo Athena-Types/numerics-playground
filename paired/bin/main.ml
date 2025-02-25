@@ -437,8 +437,9 @@ let rec transform (expr: fpexpr) (args : argument list) (fresh : int ref) (env :
           Some (Op (Plus, [larg_p; rarg_p]), Op (Plus, [larg_n; rarg_n]))
       | Minus ->
           let%bind (larg_p, larg_n) = nth paired_args 0 in
-          let%bind (rarg_p, rarg_n) = nth paired_args 1 in
-          Some (Op (Plus, [larg_p; rarg_n]), Op (Plus, [larg_n; rarg_p]))
+          (match nth paired_args 1 with
+          | Some ((rarg_p, rarg_n)) -> Some (Op (Plus, [larg_p; rarg_n]), Op (Plus, [larg_n; rarg_p]))
+          | None -> Some ((larg_n, larg_p)))
       | Times ->
           let%bind (larg_p, larg_n) = nth paired_args 0 in
           let%bind (rarg_p, rarg_n) = nth paired_args 1 in
@@ -517,6 +518,7 @@ let rec transform_preconds new_preconds (props: data) (args: argument list) =
   match props with 
   | Data (SymData ("and") :: conds) -> Data (List.append (SymData ("and") :: new_preconds) (transform_conds conds args))
   (*| Data (SymData ("or") :: conds) -> Data (SymData ("or") :: transform_conds conds args)*)
+  | Data (conds) -> Data (transform_conds conds args)
   | _ -> failwith "failed to transform preconds"
 
 let rec gen_new_preconds args = 
@@ -558,7 +560,6 @@ let main =
   let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
   let unparsed_prog = load_fpcore filename in
   let%bind prog = parse_fpcore unparsed_prog in
-  (*let _ = print_endline (print_fpcore prog) in*)
   let%bind transformed_prog = transform_prog prog in
   let _ = print_endline (print_fpcore transformed_prog) in
   Some "transform good"
