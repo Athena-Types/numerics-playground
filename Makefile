@@ -9,7 +9,7 @@ benchmarks/%-paired.fpcore: paired/_build/default/bin/main.exe
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --lang g benchmarks/$*.fpcore benchmarks/$*.g 
-	python benchmark.py benchmarks/$*.g 
+	python compute_bound.py benchmarks/$*.g 
 
 benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
