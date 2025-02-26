@@ -32,7 +32,7 @@ $(BENCHMARK_NAMES_STAGE_1): %-fpcore: benchmarks/%-paired.fpcore
 
 fpcore: $(BENCHMARK_NAMES_STAGE_1)
 
-$(BENCHMARK_NAMES_STAGE_2): %-gappa: benchmarks/%.g benchmarks/%-relative.g benchmarks/%-paired.g benchmarks/%-relative.g
+$(BENCHMARK_NAMES_STAGE_2): %-gappa: benchmarks/%.g benchmarks/%-relative.g benchmarks/%-paired.g benchmarks/%-paired-relative.g 
 
 gappa: $(BENCHMARK_NAMES_STAGE_2)
 
