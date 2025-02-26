@@ -50,6 +50,7 @@ all: .WAIT gappa gappa-run
 clean:
 	rm -f benchmarks/*-paired.fpcore
 	rm -f benchmarks/*.g
+	rm -f benchmarks/*.out
 	cd paired && opam exec dune clean
 
 .PHONY: fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)

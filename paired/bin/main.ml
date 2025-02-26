@@ -499,7 +499,7 @@ let rec default_env args env =
   | hd_arg :: tl_arg -> 
       default_env 
       tl_arg
-      (fun x -> if (String.equal hd_arg.sym x) then (Sym (hd_arg.sym ^ "p"), Sym (hd_arg.sym ^ "n")) else env x)
+      (fun x -> if (String.equal hd_arg.sym x) then (Sym (hd_arg.sym ^ "p"), Sym (hd_arg.sym ^ "m")) else env x)
   | [] -> env
 
 (*let check_*)
@@ -512,7 +512,7 @@ let rec transform_args args =
   match args with
   | hd_arg :: tl_arg -> 
       update_arg_sym hd_arg (hd_arg.sym ^ "p") :: 
-        update_arg_sym hd_arg (hd_arg.sym ^ "n") ::
+        update_arg_sym hd_arg (hd_arg.sym ^ "m") ::
           transform_args tl_arg
   | [] -> []
 
@@ -521,7 +521,7 @@ let rec transform_cond (cond: data) (args: argument list) =
   | SymData sym -> 
       (match lookup_arg args sym with
       | Some arg -> 
-          [Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]]
+          [Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "m")]]
       | None -> [SymData sym])
   | NumData num -> [NumData num]
   | StringData s -> [StringData s]
@@ -531,15 +531,15 @@ let rec transform_cond (cond: data) (args: argument list) =
           let lb_int = number_to_int lb in
           let ub_int = number_to_int ub in
           if (Float.compare lb_int Float.zero <= 0)
-          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
-          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
           else
           if (Float.compare ub_int Float.zero >= 0)
-          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")]]*)
-          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")])]
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "m"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "m"); SymData ("0")])]
           else
-          (*Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)]]*)
-          [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)])]
+          (*Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "m"); NumData (ub)]]*)
+          [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "m"); NumData (ub)])]
       | None -> [cond])
   | Data (SymData ("<") :: NumData (lb) :: SymData (var) :: NumData (ub) :: []) -> 
       (match lookup_arg args var with
@@ -547,15 +547,15 @@ let rec transform_cond (cond: data) (args: argument list) =
           let lb_int = number_to_int lb in
           let ub_int = number_to_int ub in
           if (Float.compare lb_int Float.zero <= 0)
-          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
-          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
           else
           if (Float.compare ub_int Float.zero >= 0)
-          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")]]*)
-          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")])]
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "m"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "m"); SymData ("0")])]
           else
-          (*Data [(SymData "and"); Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)]]*)
-          [(Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)])]
+          (*Data [(SymData "and"); Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "m"); NumData (ub)]]*)
+          [(Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "m"); NumData (ub)])]
       | None -> [cond])
   | Data dl -> 
       (*let _ = print_endline ("transform cond: " ^ (string_of_int (List.length dl))) in*)
