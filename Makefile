@@ -19,9 +19,11 @@ paired/_build/default/bin/main.exe: paired/bin/main.ml
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --lang g benchmarks/$*.fpcore benchmarks/$*.g 
+	python benchmark.py benchmarks/$*.g 
 
 benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
+	python benchmark.py benchmarks/$*-relative.g 
 
 gappa: $(patsubst %.fpcore, %.g, $(FPCORE_FILES))
 
