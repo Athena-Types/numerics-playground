@@ -19,6 +19,18 @@ type number =
   | Digits : decnum * decnum * decnum -> number
 [@@deriving sexp]
 
+let number_to_int number = 
+  match number with 
+  | Dec (_, dnum) -> Float.of_string dnum
+  | Rat (_, rnum) -> 
+      (match (String.lsplit2 rnum ~on:'/') with
+      | Some (p_str, q_str) ->
+        let p = int_of_string p_str in
+        let q = int_of_string q_str in
+        (Float.of_int p) /. (Float.of_int q)
+      | None -> failwith ("Bad rat: " ^ rnum))
+  | Hex (_, hnum) -> Float.of_string hnum
+
 type dimension = 
   | SymDim : symbol -> dimension
   | NumDim : number -> dimension (*can be any number in the spec*)
@@ -350,9 +362,13 @@ let rec print_data data =
   | SymData sym -> sym
   | NumData num -> print_num num
   | StringData s -> s
-  | Data dl -> "(" ^ (string_join_list (List.map dl print_data) " ") ^ ")"
+  | Data dl -> wrap_paren (string_join_list (List.map dl print_data) " ")
 
-let print_property (sym, data) = sym ^ " " ^ print_data data
+let print_property (sym, data) = 
+  match sym with
+  | ":precision" -> sym ^ " " ^ print_data data
+  | ":pre" -> sym ^ " " ^ print_data data
+  | _ -> sym ^ " \"" ^ print_data data ^ "\""
 
 let print_op (operation) : string = 
   let open Option.Let_syntax in
@@ -505,20 +521,56 @@ let rec transform_cond (cond: data) (args: argument list) =
   | SymData sym -> 
       (match lookup_arg args sym with
       | Some arg -> 
-          Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]
-      | None -> SymData sym)
-  | NumData num -> NumData num
-  | StringData s -> StringData s
-  | Data dl -> Data (List.map dl (fun x -> transform_cond x args))
+          [Data [(SymData "-"); SymData (arg.sym ^ "p"); SymData (arg.sym ^ "n")]]
+      | None -> [SymData sym])
+  | NumData num -> [NumData num]
+  | StringData s -> [StringData s]
+  | Data (SymData ("<=") :: NumData (lb) :: SymData (var) :: NumData (ub) :: []) -> 
+      (match lookup_arg args var with
+      | Some arg -> 
+          let lb_int = number_to_int lb in
+          let ub_int = number_to_int ub in
+          if (Float.compare lb_int Float.zero <= 0)
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
+          else
+          if (Float.compare ub_int Float.zero >= 0)
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")])]
+          else
+          (*Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)]]*)
+          [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<="); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)])]
+      | None -> [cond])
+  | Data (SymData ("<") :: NumData (lb) :: SymData (var) :: NumData (ub) :: []) -> 
+      (match lookup_arg args var with
+      | Some arg -> 
+          let lb_int = number_to_int lb in
+          let ub_int = number_to_int ub in
+          if (Float.compare lb_int Float.zero <= 0)
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "n"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")])]
+          else
+          if (Float.compare ub_int Float.zero >= 0)
+          (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")]]*)
+          then [(Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "p"); NumData (ub)]); (Data [(SymData "=="); SymData (arg.sym ^ "n"); SymData ("0")])]
+          else
+          (*Data [(SymData "and"); Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]; Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)]]*)
+          [(Data [(SymData "<"); NumData (lb); SymData (arg.sym ^ "p"); SymData("0")]); (Data [(SymData "<"); SymData("0"); SymData (arg.sym ^ "n"); NumData (ub)])]
+      | None -> [cond])
+  | Data dl -> 
+      (*let _ = print_endline ("transform cond: " ^ (string_of_int (List.length dl))) in*)
+      [Data (List.join (List.map dl (fun x -> transform_cond x args)))]
 
 let rec transform_conds (conds: data list) (args: argument list) = 
-  List.map conds (fun x -> transform_cond x args)
+  List.join (List.map conds (fun x -> transform_cond x args))
 
+(* TODO: find a better way to transform preconds such that FPBench can process it *)
 let rec transform_preconds new_preconds (props: data) (args: argument list) = 
   match props with 
   | Data (SymData ("and") :: conds) -> Data (List.append (SymData ("and") :: new_preconds) (transform_conds conds args))
   (*| Data (SymData ("or") :: conds) -> Data (SymData ("or") :: transform_conds conds args)*)
-  | Data (conds) -> Data (transform_conds conds args)
+  | Data (conds) -> Data (List.append (SymData ("and") :: new_preconds) [Data (transform_conds conds args)])
+  (*| Data (conds) -> Data (SymData ("and") :: new_preconds)*)
   | _ -> failwith "failed to transform preconds"
 
 let rec gen_new_preconds args = 
@@ -547,11 +599,12 @@ let transform_ops_fpcore (prog : fpcore) : fpcore option =
       let transformed_args = transform_args args in
       let transformed_props = transform_props props args in
       Some (symbol, transformed_args, transformed_props, 
-        Let 
-        (
+        Let ( 
           [("pos", pos_prog); ("neg", neg_prog)], 
           Op (Minus, [Sym "pos"; Sym "neg"])
-        ))
+        ) 
+        )
+        (*Op (Minus, [pos_prog; neg_prog])*)
 
 let transform_prog (prog: fpcore) : fpcore option = transform_ops_fpcore prog
 
@@ -560,6 +613,7 @@ let main =
   let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
   let unparsed_prog = load_fpcore filename in
   let%bind prog = parse_fpcore unparsed_prog in
+  (*let _ = print_endline (Sexp.to_string_hum (sexp_of_fpcore prog)) in*)
   let%bind transformed_prog = transform_prog prog in
   let _ = print_endline (print_fpcore transformed_prog) in
   Some "transform good"
