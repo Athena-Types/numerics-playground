@@ -643,7 +643,7 @@ let rec gen_new_preconds (args : argument list) =
   match args with
   | hd_arg :: tl_arg -> 
       ((Data [(SymData "<="); (NumData (Dec (true, "0"))); SymData (hd_arg.sym ^ "p")]) :: 
-        (Data [(SymData "<="); SymData (hd_arg.sym ^ "p"); (NumData (Dec (true, "0")))]) :: 
+        (Data [(SymData "<="); (NumData (Dec (true, "0"))); SymData (hd_arg.sym ^ "m")]) :: 
           (gen_new_preconds tl_arg))
   | [] -> []
 
