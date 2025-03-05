@@ -1,3 +1,7 @@
 [submodule "deps/FPBench"]
 	path = deps/FPBench
 	url = https://github.com/FPBench/FPBench.git
+[submodule "deps/NumFuzz"]
+	path = deps/NumFuzz
+	url = https://github.com/Athena-Types/NumFuzz.git
+	branch = paired-lite
