@@ -19,6 +19,14 @@ benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 benchmarks/%.g.out: benchmarks/%.g
 	gappa benchmarks/$*.g &> benchmarks/$*.g.out
 
+### Running NumFuzz
+./deps/NumFuzz/_build/install/default/bin/nfuzz: 
+	cd deps/NumFuzz && opam exec -- dune build
+ 
+benchmarks/%.fz: benchmarks/%.g.out ./deps/NumFuzz/_build/install/default/bin/nfuzz
+	cp benchmarks/$*.fz deps/NumFuzz/examples/NumFuzz/
+	cd deps/NumFuzz && ./_build/install/default/bin/nfuzz examples/NumFuzz/$*.fz &> ../../benchmarks/$*.fz.out
+
 ################################################################################
 
 ### Defining phony stages
@@ -45,7 +53,11 @@ gappa: $(BENCHMARK_NAMES_STAGE_2)
 BENCHMARK_NAMES_STAGE_3 = $(patsubst %, %.out, $(wildcard benchmarks/*.g))
 gappa-run: $(BENCHMARK_NAMES_STAGE_3)
 
-all: .WAIT gappa gappa-run
+# Stage 4: Run NumFuzz
+BENCHMARK_NAMES_STAGE_4 = $(wildcard benchmarks/*.fz)
+numfuzz: $(BENCHMARK_NAMES_STAGE_4)
+
+all: .WAIT gappa gappa-run numfuzz
 
 clean:
 	rm -f benchmarks/*-paired.fpcore
