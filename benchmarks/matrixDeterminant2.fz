@@ -1,0 +1,75 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+function matrixDeterminant2
+  (a' : ![1.0]num) 
+  (b' : ![2.0]num) 
+  (c' : ![2.0]num) 
+  (d' : ![2.0]num) 
+  (e' : ![1.0]num) 
+  (f' : ![2.0]num) 
+  (g' : ![2.0]num) 
+  (h' : ![2.0]num) 
+  (i' : ![1.0]num)
+{
+  let [a] = a';
+  let [b] = b';
+  let [c] = c';
+  let [d] = d';
+  let [e] = e';
+  let [f] = f';
+  let [g] = g';
+  let [h] = h';
+  let [i] = i';
+
+  m1 = mulfp64(e, i);
+  let s1 = m1;
+  m1_1 = mulfp64(a, s1);
+  let s1_1 = m1_1;
+
+  m2 = mulfp64(b, f);
+  let s2 = m2;
+  m2_1 = mulfp64(g, s2);
+  let s2_1 = m2_1;
+
+  m3 = mulfp64(d, h);
+  let s3 = m3;
+  m3_1 = mulfp64(c, s3);
+  let s3_1 = m3_1;
+
+  m_add_1_1 = addfp64(|s2_1, s3_1|);
+  let s_add_1_1 = m_add_1_1;
+
+  m_add_1_2 = addfp64(|s1_1, s_add_1_1|);
+  let s_add_1_2 = m_add_1_2;
+
+  //
+
+  m4 = mulfp64(c, g);
+  let s4 = m4;
+  m4_1 = mulfp64(e, s4);
+  let s4_1 = m4_1;
+
+  m5 = mulfp64(b, d);
+  let s5 = m5;
+  m5_1 = mulfp64(i, s5);
+  let s5_1 = m5_1;
+
+  m6 = mulfp64(f, h);
+  let s6 = m6;
+  m6_1 = mulfp64(a, s6);
+  let s6_1 = m6_1;
+
+  m_add_2_1 = addfp64(|s5_1, s6_1|);
+  let s_add_2_1 = m_add_2_1;
+
+  m_add_2_2 = addfp64(|s4_1, s_add_2_1|);
+  let s_add_2_2 = m_add_2_2;
+
+  // final sub
+  fin = subfp64(|s_add_1_1, s_add_2_2|);
+  fin
+}
+
+matrixDeterminant2

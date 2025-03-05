@@ -1,0 +1,34 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/divfp64.fz"
+
+
+function sineOrder3
+   (x' : ![4.0]num)
+{
+  let [x] = x';
+
+  s1 = divfp64(238732414637843.0, 250000000000000.0);
+  let c1 = s1;
+
+  s2 = divfp64(6450306886639899.0, 50000000000000000.0);
+  let c2 = s2;
+
+  s3 = mulfp64(c1, x);
+  let a3 = s3;
+
+  s4 = mulfp64(x, x);
+  let a4 = s4;
+
+  s5 = mulfp64(a4, x);
+  let a5 = s5;
+
+  s6 = mulfp64(c2, a5);
+  let a6 = s6;
+
+  s7 = subfp64(|a3, a6|);
+  s7
+}
+
+sineOrder3
