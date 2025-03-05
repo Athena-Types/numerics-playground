@@ -1,7 +1,5 @@
-#include "float_ops/mulfp64.fz"
 #include "float_ops/addfp64.fz"
 #include "float_ops/subfp64.fz"
-#include "float_ops/minus.fz"
 
 function sum
   (x0' : ![3.0]num)

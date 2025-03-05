@@ -1,5 +1,0 @@
-(FPCore (x1p x1n y1p y1n x2p x2n y2p y2n x3p x3n y3p y3n)
-:name "Shoelace formula"
-:description "Introduced in 'polygon-area'"
-:precision binary64
-(let ((pos (+ (* 1/2 (+ (+ (+ (+ (* x1p y2p) (* x1n y2n)) (+ (* y1p x2n) (* y1p x2n))) (+ (+ (* x2p y3p) (* x2n y3n)) (+ (* y2p x3n) (* y2p x3n)))) (+ (+ (* x3p y1p) (* x3n y1n)) (+ (* y3p x1n) (* y3p x1n))))) (* 0 (+ (+ (+ (+ (* x1p y2n) (* x1p y2n)) (+ (* y1p x2p) (* y1n x2n))) (+ (+ (* x2p y3n) (* x2p y3n)) (+ (* y2p x3p) (* y2n x3n)))) (+ (+ (* x3p y1n) (* x3p y1n)) (+ (* y3p x1p) (* y3n x1n))))))) (neg (+ (* 1/2 (+ (+ (+ (+ (* x1p y2n) (* x1p y2n)) (+ (* y1p x2p) (* y1n x2n))) (+ (+ (* x2p y3n) (* x2p y3n)) (+ (* y2p x3p) (* y2n x3n)))) (+ (+ (* x3p y1n) (* x3p y1n)) (+ (* y3p x1p) (* y3n x1n))))) (* 1/2 (+ (+ (+ (+ (* x1p y2n) (* x1p y2n)) (+ (* y1p x2p) (* y1n x2n))) (+ (+ (* x2p y3n) (* x2p y3n)) (+ (* y2p x3p) (* y2n x3n)))) (+ (+ (* x3p y1n) (* x3p y1n)) (+ (* y3p x1p) (* y3n x1n)))))))) (- pos neg)))
