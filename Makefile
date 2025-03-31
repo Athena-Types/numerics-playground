@@ -4,7 +4,8 @@ paired/_build/default/bin/main.exe: paired/bin/main.ml
 	cd paired && opam exec -- dune build
 
 benchmarks/%-paired.fpcore: paired/_build/default/bin/main.exe
-	./paired/_build/default/bin/main.exe benchmarks/$*.fpcore > benchmarks/$*-paired.fpcore
+	racket deps/FPBench/transform.rkt --precondition-ranges benchmarks/$*.fpcore benchmarks/$*.simple.fpcore
+	./paired/_build/default/bin/main.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
 
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
@@ -61,6 +62,7 @@ all: .WAIT gappa gappa-run numfuzz
 
 clean:
 	rm -f benchmarks/*-paired.fpcore
+	rm -f benchmarks/*.simple.fpcore
 	rm -f benchmarks/*.g
 	rm -f benchmarks/*.out
 	cd paired && opam exec dune clean
