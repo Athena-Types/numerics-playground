@@ -1,5 +1,6 @@
 *.out
 *.g
+*.ipynb_checkpoints
 
 *.annot
 *.cmo
