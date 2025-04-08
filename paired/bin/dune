@@ -1,8 +1,11 @@
 (executable
  (public_name paired)
  (name main)
- (libraries paired base parsexp_io stdlib re2)
- (preprocess (pps ppx_let ppx_sexp_conv ppx_deriving.eq)))
+ (libraries base parsexp_io stdlib re2 fpcore)
+ (preprocess
+  (pps ppx_let ppx_sexp_conv ppx_deriving.eq)))
+
 (env
-  (dev
-    (flags (:standard -warn-error -A))))
+ (dev
+  (flags
+   (:standard -warn-error -A))))

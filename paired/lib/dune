@@ -1,2 +1,11 @@
 (library
- (name paired))
+ (public_name paired.fpcore)
+ (name fpcore)
+ (libraries base parsexp_io stdlib re2)
+ (preprocess
+  (pps ppx_let ppx_sexp_conv ppx_deriving.eq)))
+
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))

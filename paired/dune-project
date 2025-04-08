@@ -19,7 +19,7 @@
  (name paired)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune zarith ppx_let ppx_deriving)
+ (depends ocaml dune zarith ppx_let ppx_deriving fpcore)
  (tags
   (topics "to describe" your project)))
 

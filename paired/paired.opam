@@ -15,6 +15,7 @@ depends: [
   "zarith"
   "ppx_let"
   "ppx_deriving"
+  "fpcore"
   "odoc" {with-doc}
 ]
 build: [
