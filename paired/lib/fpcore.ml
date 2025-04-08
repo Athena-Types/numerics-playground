@@ -154,6 +154,13 @@ let load_fpcore filename =
   | Error _ ->
       failwith "Not a valid sexp!"
 
+let load_fpcores filename =
+  match Parsexp_io.load (module Parsexp.Many) ~filename with
+  | Ok f ->
+      f
+  | Error _ ->
+      failwith "Not a valid sexp!"
+
 let op_table =
   [ ("+", Plus)
   ; ("-", Minus)

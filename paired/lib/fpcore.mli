@@ -134,7 +134,8 @@ type fpcore =
     symbol Base.option * argument Base.list * property Base.list * fpexpr
 val fpcore_of_sexp : Sexplib0.Sexp.t -> fpcore
 val sexp_of_fpcore : fpcore -> Sexplib0.Sexp.t
-val load_fpcore : string -> Parsexp.Single.parsed_value
+val load_fpcore : string -> Base.Sexp.t
+val load_fpcores : string -> Base.Sexp.t list
 val op_table : (string * operation) list
 val const_table : string list
 val lookup_op : Base.string -> operation Base.option
