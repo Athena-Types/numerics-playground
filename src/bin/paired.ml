@@ -133,8 +133,8 @@ let rec transform_cond (cond : data) (args : argument list) =
   | Data [SymData "<="; NumData lb; SymData var; NumData ub] -> (
     match lookup_arg args var with
     | Some arg ->
-        let lb_int = number_to_int lb in
-        let ub_int = number_to_int ub in
+        let lb_int = number_to_float lb in
+        let ub_int = number_to_float ub in
         if
           Float.compare lb_int Float.zero <= 0
           (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
@@ -157,8 +157,8 @@ let rec transform_cond (cond : data) (args : argument list) =
   | Data [SymData "<"; NumData lb; SymData var; NumData ub] -> (
     match lookup_arg args var with
     | Some arg ->
-        let lb_int = number_to_int lb in
-        let ub_int = number_to_int ub in
+        let lb_int = number_to_float lb in
+        let ub_int = number_to_float ub in
         if
           Float.compare lb_int Float.zero <= 0
           (*then Data [(SymData "and"); Data [(SymData "<="); NumData (lb); SymData (arg.sym ^ "m"); NumData (ub)]; Data [(SymData "=="); SymData (arg.sym ^ "p"); SymData ("0")]]*)
@@ -188,8 +188,8 @@ let rec transform_conds (conds : data list) (args : argument list) =
   | [SymData "<="; NumData lb; SymData var; NumData ub] -> (
     match lookup_arg args var with
     | Some arg ->
-        let lb_int = number_to_int lb in
-        let ub_int = number_to_int ub in
+        let lb_int = number_to_float lb in
+        let ub_int = number_to_float ub in
         if Float.compare lb_int Float.zero >= 0 then
           [ Data
               [ SymData "and"
@@ -223,8 +223,8 @@ let rec transform_conds (conds : data list) (args : argument list) =
   | [SymData "<"; NumData lb; SymData var; NumData ub] -> (
     match lookup_arg args var with
     | Some arg ->
-        let lb_int = number_to_int lb in
-        let ub_int = number_to_int ub in
+        let lb_int = number_to_float lb in
+        let ub_int = number_to_float ub in
         (*let _ =  print_endline ("here" ^ (string_of_int (Float.compare lb_int Float.zero))) in*)
         (*let _ =  print_endline ("here" ^ (string_of_int (Float.compare ub_int Float.zero))) in*)
         if Float.compare lb_int Float.zero >= 0 then
@@ -352,17 +352,20 @@ let transform_ops_fpcore (prog : fpcore) : fpcore option =
 
 let transform_prog (prog : fpcore) : fpcore option = transform_ops_fpcore prog
 
-let main =
+let cli =
   let open Option.Let_syntax in
   let%bind filename = List.nth (Array.to_list (Sys.get_argv ())) 1 in
   let unparsed_prog = load_fpcore filename in
-  let%bind prog = parse_fpcore unparsed_prog in
-  (*let _ = print_endline (Sexp.to_string_hum (sexp_of_fpcore prog)) in*)
+  parse_fpcore unparsed_prog
+
+let main = 
+  let open Option.Let_syntax in
+  let%bind prog = cli in
   let%bind transformed_prog = transform_prog prog in
   let _ = print_endline (print_fpcore transformed_prog) in
   Some "transform good"
 
 let () =
-  let result = Option.value main ~default:"transform bad" in
+  let prog = Option.value main ~default:"transform bad" in
   ()
 (*Printf.eprintf result*)

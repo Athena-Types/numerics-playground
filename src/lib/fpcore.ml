@@ -21,7 +21,7 @@ type number =
   | Digits : decnum * decnum * decnum -> number
 [@@deriving sexp]
 
-let number_to_int number =
+let number_to_float number =
   match number with
   | Dec (_, dnum) ->
       Float.of_string dnum

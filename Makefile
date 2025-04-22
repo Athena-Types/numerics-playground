@@ -1,11 +1,11 @@
 
 ### Lowering, i.e. FPCore (unpaired) -> FPCore (paired)
-paired/_build/default/bin/main.exe: paired/bin/main.ml
+src/_build/default/bin/main.exe: paired/bin/main.ml
 	cd paired && opam exec -- dune build
 
-benchmarks/%-paired.fpcore: paired/_build/default/bin/main.exe
+benchmarks/%-paired.fpcore: src/_build/default/bin/main.exe
 	racket deps/FPBench/transform.rkt --precondition-ranges benchmarks/$*.fpcore benchmarks/$*.simple.fpcore
-	./paired/_build/default/bin/main.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
+	./src/_build/default/bin/main.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
 
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
@@ -65,7 +65,7 @@ clean:
 	rm -f benchmarks/*.simple.fpcore
 	rm -f benchmarks/*.g
 	rm -f benchmarks/*.out
-	cd paired && opam exec dune clean
+	cd src && opam exec dune clean
 
 .PHONY: fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
 .NOTINTERMEDIATE: $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2) $(PAIRED_FILES) benchmarks/%-paired.fpcore benchmarks/%.g benchmarks/%.out

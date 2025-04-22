@@ -1,6 +1,6 @@
 (lang dune 3.16)
 
-(name paired)
+(name numerics-playground)
 
 (generate_opam_files true)
 
@@ -16,10 +16,10 @@
 (documentation https://url/to/documentation)
 
 (package
- (name paired)
+ (name numerics-playground)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune zarith ppx_let ppx_deriving fpcore)
+ (depends ocaml dune zarith ppx_let ppx_deriving ppx_inline_test fpcore)
  (tags
   (topics "to describe" your project)))
 

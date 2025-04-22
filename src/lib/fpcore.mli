@@ -17,7 +17,7 @@ type number =
   | Digits : decnum * decnum * decnum -> number
 val number_of_sexp : Sexplib0.Sexp.t -> number
 val sexp_of_number : number -> Sexplib0.Sexp.t
-val number_to_int : number -> Base.Float.t
+val number_to_float : number -> Base.Float.t
 type dimension = SymDim : symbol -> dimension | NumDim : number -> dimension
 val dimension_of_sexp : Sexplib0.Sexp.t -> dimension
 val sexp_of_dimension : dimension -> Sexplib0.Sexp.t

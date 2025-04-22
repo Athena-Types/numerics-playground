@@ -1,5 +1,5 @@
 (library
- (public_name paired.fpcore)
+ (public_name numerics-playground.fpcore)
  (name fpcore)
  (libraries base parsexp_io stdlib re2)
  (preprocess
