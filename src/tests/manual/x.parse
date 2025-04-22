@@ -1,0 +1,18 @@
+Raw internal representation:
+(() (((sym x) (prop ()) (dim ())))
+ ((:name (SymData identity)) (:description (SymData bleh))
+  (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (true 0))) (SymData x)
+       (NumData (Dec (true 10)))))))))
+ (Sym x))
+Pretty external representation:
+(FPCore (x)
+:name "identity"
+:description "bleh"
+:precision binary64
+:pre (and (<= 0 x 10))
+x)

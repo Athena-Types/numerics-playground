@@ -335,6 +335,7 @@ let rec parse_fpexpr (vars : argument list) (s : Sexp.t) : fpexpr option =
           let bindings = List.map unparsed_bindings parse_bind in
           let%bind expr = parse_fpexpr vars expr in
           Some (LetStar (bindings, expr))
+      | Sexp.Atom var :: [] -> Some (Sym var)
       | Sexp.Atom op_str :: unparsed_args -> (
         match lookup_op op_str with
         | Some op -> (

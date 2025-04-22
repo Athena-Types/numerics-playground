@@ -7,3 +7,8 @@ return_code = 0
 command = "opam exec -- dune exec parse {filename}"
 output.parse = "-"
 return_code = 0
+
+[envs.absint]
+command = "opam exec -- dune exec absint {filename}"
+output.absint = "-"
+return_code = 0
