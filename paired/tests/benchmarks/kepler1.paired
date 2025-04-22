@@ -1,0 +1,5 @@
+(FPCore (x1p x1m x2p x2m x3p x3m x4p x4m)
+:name "kepler1"
+:precision binary64
+:pre (and (<= 4 x1m 159/25) (== x1p 0) (<= 4 x2m 159/25) (== x2p 0) (<= 4 x3m 159/25) (== x3p 0) (<= 4 x4m 159/25) (== x4p 0))
+(let ((pos (+ (+ (+ (+ (+ (+ (+ (* (+ (* x1p x4p) (* x1m x4m)) (+ (+ (+ x1m x2p) x3p) x4m)) (* (+ (* x1p x4m) (* x1p x4m)) (+ (+ (+ x1p x2m) x3m) x4p))) (+ (* x2p (+ (+ (+ x1p x2m) x3p) x4p)) (* x2m (+ (+ (+ x1m x2p) x3m) x4m)))) (+ (* x3p (+ (+ (+ x1p x2p) x3m) x4p)) (* x3m (+ (+ (+ x1m x2m) x3p) x4m)))) (+ (* (+ (* x2p x3p) (* x2m x3m)) x4m) (* (+ (* x2p x3p) (* x2m x3m)) x4m))) (+ (* x1p x3m) (* x1p x3m))) (+ (* x1p x2m) (* x1p x2m))) x4m)) (neg (+ (+ (+ (+ (+ (+ (+ (* (+ (* x1p x4p) (* x1m x4m)) (+ (+ (+ x1p x2m) x3m) x4p)) (* (+ (* x1p x4p) (* x1m x4m)) (+ (+ (+ x1p x2m) x3m) x4p))) (+ (* x2p (+ (+ (+ x1m x2p) x3m) x4m)) (* x2p (+ (+ (+ x1m x2p) x3m) x4m)))) (+ (* x3p (+ (+ (+ x1m x2m) x3p) x4m)) (* x3p (+ (+ (+ x1m x2m) x3p) x4m)))) (+ (* (+ (* x2p x3p) (* x2m x3m)) x4p) (* (+ (* x2p x3m) (* x2p x3m)) x4m))) (+ (* x1p x3p) (* x1m x3m))) (+ (* x1p x2p) (* x1m x2m))) x4p))) (- pos neg)))

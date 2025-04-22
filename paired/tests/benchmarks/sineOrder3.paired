@@ -1,0 +1,9 @@
+(FPCore (xp xm)
+:name "sineOrder3"
+:cite "(darulova-kuncak-2014 solovyev-et-al-2015)"
+:fpbench-domain "mathematics"
+:precision binary64
+:pre (and (< -2 xp 0) (< 0 xm 2))
+:rosa-post "(=> res (< -1 res 1))"
+:rosa-ensuring "1/100000000000000"
+(let ((pos (+ (+ (* 238732414637843/250000000000000 xp) (* 0 xm)) (+ (* 6450306886639899/50000000000000000 (+ (* (+ (* xp xp) (* xm xm)) xm) (* (+ (* xp xp) (* xm xm)) xm))) (* 6450306886639899/50000000000000000 (+ (* (+ (* xp xp) (* xm xm)) xm) (* (+ (* xp xp) (* xm xm)) xm)))))) (neg (+ (+ (* 238732414637843/250000000000000 xm) (* 238732414637843/250000000000000 xm)) (+ (* 6450306886639899/50000000000000000 (+ (* (+ (* xp xp) (* xm xm)) xp) (* (+ (* xp xm) (* xp xm)) xm))) (* 0 (+ (* (+ (* xp xp) (* xm xm)) xm) (* (+ (* xp xp) (* xm xm)) xm))))))) (- pos neg)))

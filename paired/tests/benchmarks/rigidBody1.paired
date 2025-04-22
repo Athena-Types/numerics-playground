@@ -1,0 +1,7 @@
+(FPCore (x1p x1m x2p x2m x3p x3m)
+:name "rigidBody1"
+:cite "(darulova-kuncak-2014 solovyev-et-al-2015)"
+:fpbench-domain "science"
+:precision binary64
+:pre (and (<= -15 x1p 0) (<= 0 x1m 15) (<= -15 x2p 0) (<= 0 x2m 15) (<= -15 x3p 0) (<= 0 x3m 15))
+(let ((pos (+ (+ (+ (+ (* x1p x2m) (* x1p x2m)) (+ (* (+ (* 2 x2p) (* 0 x2m)) x3m) (* (+ (* 2 x2p) (* 0 x2m)) x3m))) x1m) x3m)) (neg (+ (+ (+ (+ (* x1p x2p) (* x1m x2m)) (+ (* (+ (* 2 x2p) (* 0 x2m)) x3p) (* (+ (* 2 x2m) (* 2 x2m)) x3m))) x1p) x3p))) (- pos neg)))
