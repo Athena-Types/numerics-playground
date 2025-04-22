@@ -1,1 +1,0 @@
-turnt -j tests/*/*.fpcore
