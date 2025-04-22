@@ -1,0 +1,9 @@
+[envs.paired]
+command = "opam exec -- dune exec paired {filename}"
+output.paired = "-"
+return_code = 0
+
+[envs.parse]
+command = "opam exec -- dune exec parse {filename}"
+output.parse = "-"
+return_code = 0

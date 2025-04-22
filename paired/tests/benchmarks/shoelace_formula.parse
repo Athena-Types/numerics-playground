@@ -1,0 +1,27 @@
+Raw internal representation:
+(()
+ (((sym x1) (prop ()) (dim ())) ((sym y1) (prop ()) (dim ()))
+  ((sym x2) (prop ()) (dim ())) ((sym y2) (prop ()) (dim ()))
+  ((sym x3) (prop ()) (dim ())) ((sym y3) (prop ()) (dim ())))
+ ((:name (SymData "Shoelace formula"))
+  (:description (SymData "Introduced in 'polygon-area'"))
+  (:precision (SymData binary64)))
+ (Let
+  ((s1
+    (Op Minus
+     ((Op Times ((Sym x1) (Sym y2))) (Op Times ((Sym y1) (Sym x2))))))
+   (s2
+    (Op Minus
+     ((Op Times ((Sym x2) (Sym y3))) (Op Times ((Sym y2) (Sym x3))))))
+   (s3
+    (Op Minus
+     ((Op Times ((Sym x3) (Sym y1))) (Op Times ((Sym y3) (Sym x1)))))))
+  (Op Times
+   ((Num (Rat (true 1/2)))
+    (Op Plus ((Op Plus ((Sym s1) (Sym s2))) (Sym s3)))))))
+Pretty external representation:
+(FPCore (x1 y1 x2 y2 x3 y3)
+:name "Shoelace formula"
+:description "Introduced in 'polygon-area'"
+:precision binary64
+(let ((s1 (- (* x1 y2) (* y1 x2))) (s2 (- (* x2 y3) (* y2 x3))) (s3 (- (* x3 y1) (* y3 x1)))) (* 1/2 (+ (+ s1 s2) s3))))

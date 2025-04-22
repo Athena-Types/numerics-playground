@@ -1,0 +1,76 @@
+Raw internal representation:
+(() (((sym x1) (prop ()) (dim ())) ((sym x2) (prop ()) (dim ())))
+ ((:name (SymData floudas2)) (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (true 0))) (SymData x1)
+       (NumData (Dec (true 3)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 0))) (SymData x2)
+       (NumData (Dec (true 4)))))
+     (Data
+      ((SymData >=)
+       (Data
+        ((SymData -)
+         (Data
+          ((SymData +)
+           (Data
+            ((SymData -)
+             (Data
+              ((SymData *) (NumData (Dec (true 2)))
+               (Data
+                ((SymData *) (Data ((SymData *) (SymData x1) (SymData x1)))
+                 (Data ((SymData *) (SymData x1) (SymData x1)))))))
+             (Data
+              ((SymData *)
+               (Data
+                ((SymData *) (NumData (Dec (true 8)))
+                 (Data ((SymData *) (SymData x1) (SymData x1)))))
+               (SymData x1)))))
+           (Data
+            ((SymData *)
+             (Data ((SymData *) (NumData (Dec (true 8))) (SymData x1)))
+             (SymData x1)))))
+         (SymData x2)))
+       (NumData (Dec (true 0)))))
+     (Data
+      ((SymData >=)
+       (Data
+        ((SymData -)
+         (Data
+          ((SymData +)
+           (Data
+            ((SymData -)
+             (Data
+              ((SymData +)
+               (Data
+                ((SymData -)
+                 (Data
+                  ((SymData *) (NumData (Dec (true 4)))
+                   (Data
+                    ((SymData *)
+                     (Data ((SymData *) (SymData x1) (SymData x1)))
+                     (Data ((SymData *) (SymData x1) (SymData x1)))))))
+                 (Data
+                  ((SymData *)
+                   (Data
+                    ((SymData *) (NumData (Dec (true 32)))
+                     (Data ((SymData *) (SymData x1) (SymData x1)))))
+                   (SymData x1)))))
+               (Data
+                ((SymData *)
+                 (Data ((SymData *) (NumData (Dec (true 88))) (SymData x1)))
+                 (SymData x1)))))
+             (Data ((SymData *) (NumData (Dec (true 96))) (SymData x1)))))
+           (NumData (Dec (true 36)))))
+         (SymData x2)))
+       (NumData (Dec (true 0)))))))))
+ (Op Minus ((Op Minus ((Sym x1))) (Sym x2))))
+Pretty external representation:
+(FPCore (x1 x2)
+:name "floudas2"
+:precision binary64
+:pre (and (<= 0 x1 3) (<= 0 x2 4) (>= (- (+ (- (* 2 (* (* x1 x1) (* x1 x1))) (* (* 8 (* x1 x1)) x1)) (* (* 8 x1) x1)) x2) 0) (>= (- (+ (- (+ (- (* 4 (* (* x1 x1) (* x1 x1))) (* (* 32 (* x1 x1)) x1)) (* (* 88 x1) x1)) (* 96 x1)) 36) x2) 0))
+(- (- x1) x2))

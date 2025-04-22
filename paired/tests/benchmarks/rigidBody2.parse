@@ -1,0 +1,40 @@
+Raw internal representation:
+(()
+ (((sym x1) (prop ()) (dim ())) ((sym x2) (prop ()) (dim ()))
+  ((sym x3) (prop ()) (dim ())))
+ ((:name (SymData rigidBody2))
+  (:cite
+   (Data ((SymData darulova-kuncak-2014) (SymData solovyev-et-al-2015))))
+  (:fpbench-domain (SymData science)) (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (false -15))) (SymData x1)
+       (NumData (Dec (true 15)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -15))) (SymData x2)
+       (NumData (Dec (true 15)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -15))) (SymData x3)
+       (NumData (Dec (true 15)))))))))
+ (Op Minus
+  ((Op Plus
+    ((Op Minus
+      ((Op Plus
+        ((Op Times
+          ((Op Times ((Op Times ((Num (Dec (true 2))) (Sym x1))) (Sym x2)))
+           (Sym x3)))
+         (Op Times ((Op Times ((Num (Dec (true 3))) (Sym x3))) (Sym x3)))))
+       (Op Times
+        ((Op Times ((Op Times ((Sym x2) (Sym x1))) (Sym x2))) (Sym x3)))))
+     (Op Times ((Op Times ((Num (Dec (true 3))) (Sym x3))) (Sym x3)))))
+   (Sym x2))))
+Pretty external representation:
+(FPCore (x1 x2 x3)
+:name "rigidBody2"
+:cite "(darulova-kuncak-2014 solovyev-et-al-2015)"
+:fpbench-domain "science"
+:precision binary64
+:pre (and (<= -15 x1 15) (<= -15 x2 15) (<= -15 x3 15))
+(- (+ (- (+ (* (* (* 2 x1) x2) x3) (* (* 3 x3) x3)) (* (* (* x2 x1) x2) x3)) (* (* 3 x3) x3)) x2))

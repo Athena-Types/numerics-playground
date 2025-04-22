@@ -1,0 +1,6 @@
+(FPCore (xp xm)
+:name "identity"
+:description "bleh"
+:precision binary64
+:pre (and (<= 0 xm 10) (== xp 0))
+(let ((pos xp) (neg xm)) (- pos neg)))

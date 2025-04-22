@@ -1,0 +1,31 @@
+Raw internal representation:
+(() (((sym x) (prop ()) (dim ())))
+ ((:name (SymData sqroot))
+  (:cite
+   (Data ((SymData darulova-kuncak-2014) (SymData solovyev-et-al-2015))))
+  (:fpbench-domain (SymData mathematics))
+  (:pre
+   (Data
+    ((SymData <=) (NumData (Dec (true 0))) (SymData x)
+     (NumData (Dec (true 1)))))))
+ (Op Minus
+  ((Op Plus
+    ((Op Minus
+      ((Op Plus
+        ((Num (Dec (true 1))) (Op Times ((Num (Rat (true 1/2))) (Sym x)))))
+       (Op Times ((Op Times ((Num (Rat (true 1/8))) (Sym x))) (Sym x)))))
+     (Op Times
+      ((Op Times ((Op Times ((Num (Rat (true 1/16))) (Sym x))) (Sym x)))
+       (Sym x)))))
+   (Op Times
+    ((Op Times
+      ((Op Times ((Op Times ((Num (Rat (true 5/128))) (Sym x))) (Sym x)))
+       (Sym x)))
+     (Sym x))))))
+Pretty external representation:
+(FPCore (x)
+:name "sqroot"
+:cite "(darulova-kuncak-2014 solovyev-et-al-2015)"
+:fpbench-domain "mathematics"
+:pre (<= 0 x 1)
+(- (+ (- (+ 1 (* 1/2 x)) (* (* 1/8 x) x)) (* (* (* 1/16 x) x) x)) (* (* (* (* 5/128 x) x) x) x)))

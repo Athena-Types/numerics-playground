@@ -1,0 +1,34 @@
+Raw internal representation:
+(() (((sym x1) (prop ()) (dim ())) ((sym x2) (prop ()) (dim ())))
+ ((:name (SymData floudas3)) (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (true 0))) (SymData x1)
+       (NumData (Dec (true 2)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 0))) (SymData x2)
+       (NumData (Dec (true 3)))))
+     (Data
+      ((SymData >=)
+       (Data
+        ((SymData +)
+         (Data
+          ((SymData *) (NumData (Dec (false -2)))
+           (Data
+            ((SymData *) (Data ((SymData *) (SymData x1) (SymData x1)))
+             (Data ((SymData *) (SymData x1) (SymData x1)))))))
+         (NumData (Dec (true 2)))))
+       (SymData x2)))))))
+ (Op Plus
+  ((Op Minus
+    ((Op Times ((Num (Dec (false -12))) (Sym x1)))
+     (Op Times ((Num (Dec (true 7))) (Sym x2)))))
+   (Op Times ((Sym x2) (Sym x2))))))
+Pretty external representation:
+(FPCore (x1 x2)
+:name "floudas3"
+:precision binary64
+:pre (and (<= 0 x1 2) (<= 0 x2 3) (>= (+ (* -2 (* (* x1 x1) (* x1 x1))) 2) x2))
+(+ (- (* -12 x1) (* 7 x2)) (* x2 x2)))

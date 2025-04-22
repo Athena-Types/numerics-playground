@@ -1,0 +1,32 @@
+Raw internal representation:
+(() (((sym x) (prop ()) (dim ())))
+ ((:name (SymData sineOrder3))
+  (:cite
+   (Data ((SymData darulova-kuncak-2014) (SymData solovyev-et-al-2015))))
+  (:fpbench-domain (SymData mathematics)) (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData <) (NumData (Dec (false -2))) (SymData x)
+     (NumData (Dec (true 2))))))
+  (:rosa-post
+   (Data
+    ((SymData =>) (SymData res)
+     (Data
+      ((SymData <) (NumData (Dec (false -1))) (SymData res)
+       (NumData (Dec (true 1))))))))
+  (:rosa-ensuring (NumData (Rat (true 1/100000000000000)))))
+ (Op Minus
+  ((Op Times ((Num (Rat (true 238732414637843/250000000000000))) (Sym x)))
+   (Op Times
+    ((Num (Rat (true 6450306886639899/50000000000000000)))
+     (Op Times ((Op Times ((Sym x) (Sym x))) (Sym x))))))))
+Pretty external representation:
+(FPCore (x)
+:name "sineOrder3"
+:cite "(darulova-kuncak-2014 solovyev-et-al-2015)"
+:fpbench-domain "mathematics"
+:precision binary64
+:pre (< -2 x 2)
+:rosa-post "(=> res (< -1 res 1))"
+:rosa-ensuring "1/100000000000000"
+(- (* 238732414637843/250000000000000 x) (* 6450306886639899/50000000000000000 (* (* x x) x))))

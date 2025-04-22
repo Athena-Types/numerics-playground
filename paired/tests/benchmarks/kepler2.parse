@@ -1,0 +1,71 @@
+Raw internal representation:
+(()
+ (((sym x1) (prop ()) (dim ())) ((sym x2) (prop ()) (dim ()))
+  ((sym x3) (prop ()) (dim ())) ((sym x4) (prop ()) (dim ()))
+  ((sym x5) (prop ()) (dim ())) ((sym x6) (prop ()) (dim ())))
+ ((:name (SymData kepler2)) (:precision (SymData binary64))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x1)
+       (NumData (Rat (true 159/25)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x2)
+       (NumData (Rat (true 159/25)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x3)
+       (NumData (Rat (true 159/25)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x4)
+       (NumData (Rat (true 159/25)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x5)
+       (NumData (Rat (true 159/25)))))
+     (Data
+      ((SymData <=) (NumData (Dec (true 4))) (SymData x6)
+       (NumData (Rat (true 159/25)))))))))
+ (Op Minus
+  ((Op Minus
+    ((Op Minus
+      ((Op Minus
+        ((Op Plus
+          ((Op Plus
+            ((Op Times
+              ((Op Times ((Sym x1) (Sym x4)))
+               (Op Plus
+                ((Op Plus
+                  ((Op Minus
+                    ((Op Plus
+                      ((Op Plus ((Op Minus ((Sym x1))) (Sym x2))) (Sym x3)))
+                     (Sym x4)))
+                   (Sym x5)))
+                 (Sym x6)))))
+             (Op Times
+              ((Op Times ((Sym x2) (Sym x5)))
+               (Op Plus
+                ((Op Minus
+                  ((Op Plus
+                    ((Op Plus ((Op Minus ((Sym x1) (Sym x2))) (Sym x3)))
+                     (Sym x4)))
+                   (Sym x5)))
+                 (Sym x6)))))))
+           (Op Times
+            ((Op Times ((Sym x3) (Sym x6)))
+             (Op Minus
+              ((Op Plus
+                ((Op Plus
+                  ((Op Minus ((Op Plus ((Sym x1) (Sym x2))) (Sym x3)))
+                   (Sym x4)))
+                 (Sym x5)))
+               (Sym x6)))))))
+         (Op Times ((Op Times ((Sym x2) (Sym x3))) (Sym x4)))))
+       (Op Times ((Op Times ((Sym x1) (Sym x3))) (Sym x5)))))
+     (Op Times ((Op Times ((Sym x1) (Sym x2))) (Sym x6)))))
+   (Op Times ((Op Times ((Sym x4) (Sym x5))) (Sym x6))))))
+Pretty external representation:
+(FPCore (x1 x2 x3 x4 x5 x6)
+:name "kepler2"
+:precision binary64
+:pre (and (<= 4 x1 159/25) (<= 4 x2 159/25) (<= 4 x3 159/25) (<= 4 x4 159/25) (<= 4 x5 159/25) (<= 4 x6 159/25))
+(- (- (- (- (+ (+ (* (* x1 x4) (+ (+ (- (+ (+ (- x1) x2) x3) x4) x5) x6)) (* (* x2 x5) (+ (- (+ (+ (- x1 x2) x3) x4) x5) x6))) (* (* x3 x6) (- (+ (+ (- (+ x1 x2) x3) x4) x5) x6))) (* (* x2 x3) x4)) (* (* x1 x3) x5)) (* (* x1 x2) x6)) (* (* x4 x5) x6)))

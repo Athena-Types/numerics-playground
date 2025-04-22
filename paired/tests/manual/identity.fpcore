@@ -1,0 +1,7 @@
+(FPCore (x)
+:name "identity"
+:description "bleh"
+:precision binary64
+:pre 
+(and (<= 0 x 10))
+(let ((x x)) x))

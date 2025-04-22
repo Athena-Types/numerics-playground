@@ -1,0 +1,54 @@
+Raw internal representation:
+(()
+ (((sym a) (prop ()) (dim ())) ((sym b) (prop ()) (dim ()))
+  ((sym c) (prop ()) (dim ())) ((sym d) (prop ()) (dim ()))
+  ((sym e) (prop ()) (dim ())) ((sym f) (prop ()) (dim ()))
+  ((sym g) (prop ()) (dim ())) ((sym h) (prop ()) (dim ()))
+  ((sym i) (prop ()) (dim ())))
+ ((:name (SymData matrixDeterminant))
+  (:pre
+   (Data
+    ((SymData and)
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData a)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData b)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData c)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData d)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData e)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData f)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData g)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData h)
+       (NumData (Dec (true 10)))))
+     (Data
+      ((SymData <=) (NumData (Dec (false -10))) (SymData i)
+       (NumData (Dec (true 10)))))))))
+ (Op Minus
+  ((Op Plus
+    ((Op Plus
+      ((Op Times ((Op Times ((Sym a) (Sym e))) (Sym i)))
+       (Op Times ((Op Times ((Sym b) (Sym f))) (Sym g)))))
+     (Op Times ((Op Times ((Sym c) (Sym d))) (Sym h)))))
+   (Op Plus
+    ((Op Plus
+      ((Op Times ((Op Times ((Sym c) (Sym e))) (Sym g)))
+       (Op Times ((Op Times ((Sym b) (Sym d))) (Sym i)))))
+     (Op Times ((Op Times ((Sym a) (Sym f))) (Sym h))))))))
+Pretty external representation:
+(FPCore (a b c d e f g h i)
+:name "matrixDeterminant"
+:pre (and (<= -10 a 10) (<= -10 b 10) (<= -10 c 10) (<= -10 d 10) (<= -10 e 10) (<= -10 f 10) (<= -10 g 10) (<= -10 h 10) (<= -10 i 10))
+(- (+ (+ (* (* a e) i) (* (* b f) g)) (* (* c d) h)) (+ (+ (* (* c e) g) (* (* b d) i)) (* (* a f) h))))
