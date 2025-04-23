@@ -160,7 +160,7 @@ val print_num : number -> Base.string
 val print_data : data -> symbol
 val print_property : Base.String.t * data -> Base.String.t
 val print_op : operation -> Base.string
-val print_expr : fpexpr -> Base.string
+val print_fpexpr : fpexpr -> Base.string
 val print_fpcore :
   Base.String.t option * argument Base.List.t *
   (Base.String.t * data) Base.List.t * fpexpr -> Base.String.t

@@ -495,7 +495,7 @@ let print_op operation : string =
   | None ->
       failwith "could not find op in lookup table"
 
-let rec print_expr expr =
+let rec print_fpexpr expr =
   match expr with
   | Num num ->
       print_num num
@@ -505,16 +505,16 @@ let rec print_expr expr =
       sym
   | Op (op, args) ->
       "(" ^ print_op op ^ " "
-      ^ string_join_list (List.map args print_expr) " "
+      ^ string_join_list (List.map args print_fpexpr) " "
       ^ ")"
   | Let (bindings, expr) ->
       "(let "
       ^ wrap_paren
           (string_join_list
              (List.map bindings (fun (v, e) ->
-                  "(" ^ v ^ " " ^ print_expr e ^ ")" ) )
+                  "(" ^ v ^ " " ^ print_fpexpr e ^ ")" ) )
              " " )
-      ^ " " ^ print_expr expr ^ ")"
+      ^ " " ^ print_fpexpr expr ^ ")"
   | _ ->
       failwith "unhandled expression to print"
 
@@ -524,7 +524,7 @@ let print_fpcore (sym, args, props, expr) =
     "(" ^ string_join_list (List.map args print_argument) " " ^ ")"
   in
   let props_str = string_join_list (List.map props print_property) "\n" in
-  let expr_str = print_expr expr in
+  let expr_str = print_fpexpr expr in
   "(FPCore " ^ sym_str ^ args_str ^ "\n" ^ props_str ^ "\n" ^ expr_str ^ ")"
 
 let parse_fpcore (s : Sexp.t) : fpcore option =
