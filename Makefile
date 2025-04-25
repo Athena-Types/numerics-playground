@@ -10,7 +10,7 @@ benchmarks/%-paired.fpcore: src/_build/default/bin/main.exe
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --lang g benchmarks/$*.fpcore benchmarks/$*.g 
-	python compute_bound.py benchmarks/$*.g 
+	python src/compute_bound.py benchmarks/$*.g 
 
 benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
@@ -60,6 +60,12 @@ numfuzz: $(BENCHMARK_NAMES_STAGE_4)
 
 all: .WAIT gappa gappa-run numfuzz
 
+build:
+	cd src && opam exec -- dune build
+
+paper:
+	cd paper && pdflatex main.tex
+
 clean:
 	rm -f benchmarks/*-paired.fpcore
 	rm -f benchmarks/*.simple.fpcore
@@ -67,5 +73,5 @@ clean:
 	rm -f benchmarks/*.out
 	cd src && opam exec dune clean
 
-.PHONY: fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
+.PHONY: build fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
 .NOTINTERMEDIATE: $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2) $(PAIRED_FILES) benchmarks/%-paired.fpcore benchmarks/%.g benchmarks/%.out
