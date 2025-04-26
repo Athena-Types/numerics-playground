@@ -15,16 +15,24 @@ programs; in particular,
 
   * `lib/fpcore.ml` is a somewhat messy library to help parse fpcore programs;
 
+- `paper/` contains a writeup of the technical details regarding this approach;
+in particular,
+
+  * `sections/*.tex` splits up the portions of the paper into logical sections,
+    and
+
+  * `main.tex` collates the sections and adds title and metadata and whatnot;
+
 - `plots/` contains preliminary results and some plotting code;
 
-- `deps/` contains the project dependencies as git submodules; and
+- `deps/` contains the project dependencies as git submodules;
 
 - `benchmarks/` contains the fpcore and NumFuzz benchmarks that are being
-evaluated against.
+evaluated against;
 
-- `run.sh` contains a script to run everything 
+- `run.sh` contains a script to run everything; and
 
-- `test.sh` contains a script to test everything
+- `test.sh` contains a script to test everything.
 
 NB: The Makefile is a bit buggy right now, need to figure out what's going on.
 The test / run scripts are a hacky workaround until I fix the Makefile.
