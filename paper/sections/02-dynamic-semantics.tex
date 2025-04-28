@@ -1,1 +1,89 @@
 \section{Dynamic Semantics}
+
+\subsection{Operational Semantics}
+\begin{figure}
+\begin{center}
+
+\begin{equation*}
+\begin{aligned}[c]
+	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
+	\mathbf{op}(v) &\mapsto op(v)\\
+	(\lambda x.e) \ v &\mapsto e[v/x] 
+\end{aligned}
+\quad
+%\begin{aligned}[c]
+%  \tlet (x, y) = (v, w)\ \tin e &\mapsto e[v/x][w/y] \\
+%	\tlet [x] = [v] \ \tin e &\mapsto e[v/x] \\
+%	\letbind(\ret v, x.e) &\mapsto e[v/x] 
+%\end{aligned}
+\begin{aligned}[c]
+  \letdestruct (x, y) = (v, w)\ \tin e &\mapsto e[v/x][w/y] \\
+	\letcobind x = [v] \ \tin e &\mapsto e[v/x] \\
+	\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] 
+\end{aligned}
+\end{equation*}
+\vskip -1em
+\begin{align*}
+	\qquad \mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  \mapsto e_i[v/x]
+  \qquad\qquad(i \in \{1, 2 \})
+\end{align*}
+\vskip -1.75em
+\begin{align*}
+	\letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g)
+\end{align*}
+%\begin{align*}
+%	\letbind(\letbind(v,x.f),y.g) &\mapsto \letbind(v,x.\letbind(f,y.g)) \quad x\notin FV(g)
+%\end{align*}
+\vskip -0.25em
+
+	%\AXC{$e \mapsto e'$}
+	%\UIC{$\tlet x = e \ \tin f \mapsto \tlet x = e' \ \tin f$}
+	%\DisplayProof
+
+	\AXC{$e \mapsto e'$}
+	\UIC{$\letassign x = e \ \tin f \mapsto \letassign x = e' \ \tin f$}
+	\DisplayProof
+
+\end{center}
+    \caption{Evaluation rules for \Lang.}
+    \label{fig:eval_rules}
+\end{figure}
+
+
+%\begin{figure}
+%\begin{center}
+%\begin{equation*}
+%\begin{aligned}[c]
+%	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
+%	\mathbf{op}(v) &\mapsto op(v)\\
+%	(\lambda x.e) \ v &\mapsto e[v/x] 
+%\end{aligned}
+%
+%\quad
+%\begin{aligned}[c]
+%  \letdestruct (x, y) = (v, w)\ \tin e &\mapsto e[v/x][w/y] \\
+%	\letcobind [x] = [v] \ \tin e &\mapsto e[v/x] \\
+%	\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] 
+%\end{aligned}
+%\end{equation*}
+%
+%\vskip -1em
+%\begin{align*}
+%	\qquad \mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in_1} \ x.e_l \ | \ \mathbf{in_2} \ x.e_r )  \mapsto e_i[v/x]
+%  \qquad\qquad(i \in \{1, 2 \})
+%\end{align*}
+%\vskip -1.75em
+%\begin{align*}
+%	\letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g)
+%\end{align*}
+%\vskip -0.25em
+%
+%	\AXC{$e \mapsto e'$}
+%	\UIC{$\letassign x = e \ \tin f \mapsto \letassign x = e' \ \tin f$}
+%	\DisplayProof
+%
+%\end{center}
+%    \caption{Evaluation rules for \Lang.}
+%    \label{fig:eval_rules}
+%\end{figure}
+%
