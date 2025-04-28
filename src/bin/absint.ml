@@ -150,5 +150,3 @@ let () =
   match cli with
   | Some result -> print_endline (print_interval result)
   | _ -> failwith "Not able to interpret"
-
-  (*abstract_interpret prog*)
