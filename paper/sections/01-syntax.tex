@@ -25,19 +25,17 @@
          \mid {\ret v} 
          \mid \letbind x = \rnd v \ \tin f \\
          &\text{Terms } e, f &::=~ & v
-	\mid v~w
+         \mid v~w
          \mid {\pi}_i\ v
          \mid \langle v,e \rangle 
          \mid  (e, f)
          \mid \inl \ e
          \mid \inr \ e
-         \mid \letdestruct \ (x,y) = e \ \tin f
-         \mid \mathbf{case} \ v \ \mathbf{of} \ (\inl x.e \ | \ \inr x.f) 
-         \\
-         & & & \mid
-          \letcobind x = e \ \tin  f
-         \mid {\letbind x = e \ \tin f} 
-         \mid \letassign x  = e \ \tin  f 
+         \mid \letdestruct \ (x,y) = e \ \tin f \\
+         & & & \mid \mathbf{case} \ v \ \mathbf{of} \ (\inl x.e \ | \ \inr x.f) 
+         \mid \letcobind x = e \ \tin  f
+         \mid {\letbind x = e \ \tin f} \\
+         & & & \mid \letassign x  = e \ \tin  f 
          \mid \mathbf{op}(v) \quad \mathbf{op} \in \mathcal{O}
   \end{alignat*}
   \caption{Types, values, and terms.}
