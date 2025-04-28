@@ -1,1 +1,43 @@
 \section{Language Syntax}
+
+\begin{figure}[tbp]
+  \begin{alignat*}{3}
+         &\text{Types } \sigma, \tau &::=~ &\mathbf{unit}
+         \mid \num
+         \mid \sigma \times \tau 
+         \mid \sigma \otimes \tau
+         \mid \sigma + \tau 
+         \mid \sigma \multimap \tau
+         \mid {\bang{s} \sigma}
+         \mid {M_u \tau}
+         \\
+         &\text{Values } v, w \ &::=~ &x
+         \mid \langle \rangle
+         \mid k \in R
+         \mid \langle v,w \rangle 
+         \mid  (v, w)
+         \mid \inl \ v
+         \mid \inr \ v
+         \\
+         & & & \mid \lambda x.~e 
+         \mid [v]
+         \mid\rnd v
+         \mid {\ret v} 
+         \mid \letbind(\rnd v,x.f) \\
+         &\text{Terms } e, f &::=~ & v
+	\mid v~w
+         \mid {\pi}_i\ v
+         \mid \mathbf{let} \ (x,y) = v \ \tin e
+         \mid \mathbf{case} \ v \ \mathbf{of} \ (\inl x.e \ | \ \inr x.f) 
+         \\
+         & & & \mid
+          \tlet [x]  = v \ \tin  e
+         \mid {\letbind (v,x.f)} 
+         \mid \tlet x  = e \ \tin  f 
+         \mid \mathbf{op}(v) \quad \mathbf{op} \in \mathcal{O}
+  \end{alignat*}
+  \caption{Types, values, and terms.}
+  \label{fig:syntax}
+\end{figure}
+
+
