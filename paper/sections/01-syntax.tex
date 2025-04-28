@@ -15,9 +15,8 @@
          \mid \langle \rangle
          \mid k \in R
          \mid \langle v,w \rangle 
-         \mid  (v, w)
-         \mid \inl \ v
-         \mid \inr \ v
+         \mid (v, w)
+         \mid \tin_i \ v
          \\
          & & & \mid \lambda x.~e 
          \mid [v]
@@ -28,17 +27,17 @@
          \mid e~f
          \mid {\pi}_i\ e
          \mid \langle e,f \rangle 
-         \mid  (e, f)
-         \mid \inl \ e
-         \mid \inr \ e
+         \mid (e, f)
+         \mid \tin_i \ e
          \mid \letdestruct \ (x,y) = e \ \tin f \\
-         & & & \mid \mathbf{case} \ v \ \mathbf{of} \ (\inl x.e \ | \ \inr x.f) 
+         & & & \mid 
+          \mathbf{case} \ v \ \mathbf{of} \ (\tin_1 \ x.e \ | \ \tin_2 \ x.f) 
          \mid \letcobind x = e \ \tin  f
          \mid {\letbind x = e \ \tin f} \\
          & & & \mid \letassign x  = e \ \tin  f 
          \mid \mathbf{op}(v) \quad \mathbf{op} \in \mathcal{O}
   \end{alignat*}
-  \caption{Types, values, and terms.}
+  \caption{Types, values, and terms. $i \in \{1, 2\}$.}
   \label{fig:syntax}
 \end{figure}
 
