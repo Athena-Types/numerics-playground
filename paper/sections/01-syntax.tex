@@ -23,21 +23,23 @@
          \mid [v]
          \mid\rnd v
          \mid {\ret v} 
-         \mid \letbind(\rnd v,x.f) \\
+         \mid \letbind x = \rnd v \ \tin f \\
          &\text{Terms } e, f &::=~ & v
 	\mid v~w
          \mid {\pi}_i\ v
-         \mid \mathbf{let} \ (x,y) = v \ \tin e
+         \mid \letdestruct \ (x,y) = v \ \tin e
          \mid \mathbf{case} \ v \ \mathbf{of} \ (\inl x.e \ | \ \inr x.f) 
          \\
          & & & \mid
-          \tlet [x]  = v \ \tin  e
-         \mid {\letbind (v,x.f)} 
-         \mid \tlet x  = e \ \tin  f 
+          \letcobind x = v \ \tin  e
+         \mid {\letbind x = v \ \tin f} 
+         \mid \letassign x  = e \ \tin  f 
          \mid \mathbf{op}(v) \quad \mathbf{op} \in \mathcal{O}
   \end{alignat*}
   \caption{Types, values, and terms.}
   \label{fig:syntax}
 \end{figure}
 
+% Max: For now, I've separated \letbind, \letcobind, \letdestruct, and
+% \letassign to make things more clear.
 
