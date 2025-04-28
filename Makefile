@@ -1,11 +1,11 @@
 
 ### Lowering, i.e. FPCore (unpaired) -> FPCore (paired)
-src/_build/default/bin/main.exe: paired/bin/main.ml
-	cd paired && opam exec -- dune build
+src/_build/default/bin/paired.exe: src/bin/paired.ml
+	cd src && opam exec -- dune build
 
-benchmarks/%-paired.fpcore: src/_build/default/bin/main.exe
+benchmarks/%-paired.fpcore: src/_build/default/bin/paired.exe
 	racket deps/FPBench/transform.rkt --precondition-ranges benchmarks/$*.fpcore benchmarks/$*.simple.fpcore
-	./src/_build/default/bin/main.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
+	./src/_build/default/bin/paired.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
 
 ### FPCore -> Gappa
 benchmarks/%.g: fpcore benchmarks/%.fpcore
@@ -14,7 +14,7 @@ benchmarks/%.g: fpcore benchmarks/%.fpcore
 
 benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
-	python benchmark.py benchmarks/$*-relative.g 
+	python src/benchmark.py benchmarks/$*-relative.g 
 
 ### Running Gappa
 benchmarks/%.g.out: benchmarks/%.g
@@ -63,8 +63,10 @@ all: .WAIT gappa gappa-run numfuzz
 build:
 	cd src && opam exec -- dune build
 
-paper:
+paper/main.pdf: paper/main.tex $(wildcard paper/sections/*.tex)
 	cd paper && pdflatex main.tex
+
+paper: paper/main.pdf
 
 clean:
 	rm -f benchmarks/*-paired.fpcore
