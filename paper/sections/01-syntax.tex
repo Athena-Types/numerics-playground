@@ -36,7 +36,9 @@
           \mathbf{case} \ v \ \mathbf{of} \ (\tin_1 \ x.e \ | \ \tin_2 \ x.f) \\
          & & & 
          \mid \letcobind x = e \ \tin \ f
-         \mid {\letbind x = e \ \tin \ f}
+         \mid {\letbind x = e \ \tin \ f} \\
+         & & &
+         \mid \factor e \ f
   \end{alignat*}
   \caption{
     Types, values, and terms. 
