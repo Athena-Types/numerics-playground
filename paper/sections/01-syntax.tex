@@ -23,7 +23,7 @@
          \mid {\ret v} 
          \mid \letbind x = \rnd v \ \tin f 
          \\
-         &\text{Terms } e, f &::=~ & v
+         &\text{Terms } e, f, g &::=~ & v
          \mid \mathbf{op}(v)
          \mid e~f
          \mid {\pi}_i\ e
@@ -33,7 +33,7 @@
          \mid \letassign x  = e \ \tin \ f \\
          & & & \mid \tin_i \ e
          \mid 
-          \mathbf{case} \ v \ \mathbf{of} \ (\tin_1 \ x.e \ | \ \tin_2 \ x.f) \\
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f \ | \ \tin_2 \ x.g) \\
          & & & 
          \mid \letcobind x = e \ \tin \ f
          \mid {\letbind x = e \ \tin \ f} \\
