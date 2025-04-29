@@ -105,7 +105,8 @@
 \AXC{$\Theta, x:_s \sigma \vdash e : \rho$ \qquad
 $\Theta, x:_s \tau \vdash f: \rho$}
 \RightLabel{($+$ E)}
-\BIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ v \ \mathbf{of} \ (\mathbf{in}_1 x.e \ | \ \mathbf{in}_2 x.f) : \rho$}
+\AXC{$s > 0$}
+\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ v \ \mathbf{of} \ (\mathbf{in}_1 x.e \ | \ \mathbf{in}_2 x.f) : \rho$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
