@@ -64,7 +64,7 @@
 \AXC{$\Gamma \vdash e : \sigma \tensor \tau$ }
 \AXC{$\Theta,x:_s \sigma,y:_s\tau \vdash f: \rho $}
 \RightLabel{($\tensor$ E)}
-\BIC{$s * \Gamma + \Theta \vdash \letdestruct (x,y) \ = \ e \ \tin \ f : \rho $}
+\BIC{$s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \rho $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -189,11 +189,11 @@ $\Theta, x:_s \tau \vdash g: \rho$}
 
 
 % factor
-\AXC{$\Gamma \vdash e : \langle M_q \tau, \ M_r \sigma \rangle$}
+\AXC{$\Gamma \vdash e : (M_q \tau) \times \ (M_r \sigma)$}
 %\AXC{$r + q \leq s$}
 %\AXC{$s = max(r,q)$}
 \RightLabel{(Factor)}
-\UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} \langle \tau, \sigma \rangle$}
+\UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} (\tau \times \sigma)$}
 \bottomAlignProof
 \DisplayProof
 

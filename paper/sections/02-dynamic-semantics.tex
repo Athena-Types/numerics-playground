@@ -9,19 +9,19 @@
 	\mathbf{op}(v) &\mapsto op(v)\\
 	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
 	(\lambda x.e) \ v &\mapsto e[v/x] \\
-	\factor e \ f &\mapsto \langle e, f \rangle 
+	%\factor v \ &\mapsto v
 \end{aligned}
 \quad
 \begin{aligned}[c]
 	\letassign x = v \ \tin \ e &\mapsto e[v/x] \\
-  \letdestruct (x, y) = (v, w)\ \tin e &\mapsto e[v/x][w/y] \\
-	\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] \\
-	\letcobind x = [v] \ \tin \ e &\mapsto e[v/x] \\
+  \letpair (x, y) = (v, w) \ \tin \ e &\mapsto e[v/x][w/y] \\
+	\letcobind x = [v] \ \tin \ e &\mapsto e[v/x]
+	%\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] \\
 \end{aligned}
 \end{equation*}
 \vskip -1em
 \begin{align*}
-	\letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g)
+  \letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g) 
 \end{align*}
 \vskip -1.75em
 \begin{align*}
@@ -35,6 +35,6 @@
 	\DisplayProof
 
 \end{center}
-    \caption{Evaluation rules for \Lang.}
+    \caption{Evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions.}
     \label{fig:eval_rules}
 \end{figure}

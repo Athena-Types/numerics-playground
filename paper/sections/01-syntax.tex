@@ -21,24 +21,28 @@
          & & & \mid [v]
          \mid\rnd v
          \mid {\ret v} 
-         \mid \letbind x = \rnd v \ \tin f 
+         \mid \factor v
+         \mid \letbind x = v \ \tin \ f 
          \\
          &\text{Terms } e, f, g &::=~ & v
-         \mid \mathbf{op}(v)
+         \mid \mathbf{op}(e)
          \mid e~f
          \mid {\pi}_i\ e
          \mid \langle e,f \rangle 
          \mid (e, f) \\
-         & & & \mid \letdestruct \ (x,y) = e \ \tin \ f
+         & & & \mid \letpair \ (x,y) = e \ \tin \ f
          \mid \letassign x  = e \ \tin \ f \\
          & & & \mid \tin_i \ e
          \mid 
           \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f \ | \ \tin_2 \ x.g) \\
-         & & & 
-         \mid \letcobind x = e \ \tin \ f
-         \mid {\letbind x = e \ \tin \ f} \\
          & & &
-         \mid \factor e \ f
+         \mid [e]
+         \mid \rnd e
+         \mid {\ret e} 
+         \mid \factor e \\
+         & & & 
+         \mid {\letbind x = e \ \tin \ f}
+         \mid \letcobind x = e \ \tin \ f
   \end{alignat*}
   \caption{
     Types, values, and terms. 
@@ -48,6 +52,6 @@
   \label{fig:syntax}
 \end{figure}
 
-% Max: For now, I've separated \letbind, \letcobind, \letdestruct, and
+% Max: For now, I've separated \letbind, \letcobind, \letpair, and
 % \letassign to make things more clear.
 
