@@ -54,6 +54,13 @@ running in an enviroment $\sigma$ mapping variables like $x_1$ to value $v_1$
 with type $\tau_1$ and sensitivity budget $s_1$ to a $e'$ with type $\tau'$ and
 enviroment $\sigma'$.
 
+For an enviroment $\sigma$ compatible with typing context $\Gamma$, $\llbracket
+\sigma \rrbracket$ is interpreted as a point within metric space $\llbracket
+\Gamma \rrbracket$. Similarly, $\llbracket \sigma \Vdash e : \tau \rrbracket$ is
+interpreted as the point in $\llbracket \sigma \Vdash e : \tau \rrbracket$ is
+interpreted as the point in the metric space $\llbracket \tau \rrbracket$
+obtained by running e at $\sigma$.
+
 Useful theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
 \Vdash e' : \tau'$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
 \llbracket \sigma' \Vdash e' : \tau' \rrbracket$.
@@ -61,6 +68,12 @@ Useful theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
 Potentially wrong / bad theorem. If $\llbracket \sigma \Vdash e : \tau
 \rrbracket = \llbracket \sigma' \Vdash v : \tau' \rrbracket$, then $\sigma
 \Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v : \tau'$
+
+Another theorem. For $\llbracket \Gamma \vdash e : \tau \rrbracket$ and a
+$\sigma, \sigma'$ compatible with $\Gamma$, the distance between $\llbracket
+\sigma \rrbracket$ and $\llbracket \sigma' \rrbracket$ in metric space
+$\llbracket \Gamma \rrbracket$ is less than or equal to the distance between
+$\llbracket \sigma \Vdash e : \tau \rrbracket$ and $\llbracket \sigma' \Vdash e : \tau \rrbracket$.
 
 % Max: this \Vdash notation is intentionally highly suggestive.
 % Max: not sure what to call this theorem, probably, there is something like
