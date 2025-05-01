@@ -78,11 +78,21 @@ $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
 \tau'$ and $\llbracket \tau \rrbracket = \llbracket \tau' \rrbracket$.
 
 An error-soundness flavored theorem. For $\llbracket \Gamma \vdash e : \tau
-\rrbracket$ and a $\sigma, \sigma' \in \Gamma$, the distance between $\llbracket
-\sigma \rrbracket$ and $\llbracket \sigma' \rrbracket$ in metric space
-$\llbracket \Gamma \rrbracket$ is less than or equal to the distance between
-$\llbracket \sigma \Vdash e : \tau \rrbracket$ and $\llbracket \sigma' \Vdash e
-: \tau \rrbracket$.
+\rrbracket$ and $\sigma, \sigma' \in \Gamma$ and
+$$\sigma \Vdash e : \tau \rightsquigarrow^* \sigma_{idc} \Vdash v : \tau'$$ 
+and 
+$$\sigma' \Vdash e : \tau \rightsquigarrow^* \sigma_{idc'} \Vdash v' : \tau''$$
+
+%the distance between $\llbracket \sigma \rrbracket$ and $\llbracket \sigma'
+%\rrbracket$ in metric space $\llbracket \Gamma \rrbracket$ is greater than or
+%equal to the distance between $\llbracket \sigma \Vdash e : \tau \rrbracket$ and
+%$\llbracket \sigma' \Vdash e : \tau \rrbracket$. In other words,
+
+then
+
+$$
+d_{\llbracket \tau \rrbracket}(v, v') \leq d_{\llbracket \Gamma \rrbracket}(\sigma, \sigma')
+$$
 
 % Max: this \Vdash notation is intentionally highly suggestive.
 % Max: not sure what to call this theorem, probably, there is something like
