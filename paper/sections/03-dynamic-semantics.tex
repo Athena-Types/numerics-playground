@@ -47,16 +47,20 @@ necessarily to values).
 \subsection{(Typed) Enviroment-style Operational Semantics}
 The following is defined over typed terms. In particular, we define the
 operational semantics rewrite relation $\rightsquigarrow$ to map from a typed
-term in an enviroment to a typed term in an enviroment.
+term in an program enviroment to a typed term in an program enviroment.
 
 To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
 running in an enviroment $\sigma$ mapping variables like $x_1$ to value $v_1$
 with type $\tau_1$ and sensitivity budget $s_1$ to a $e'$ with type $\tau'$ and
 enviroment $\sigma'$.
 
-Useful theorem. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma' \Vdash e' :
-\tau'$, then $\llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket \sigma
-\Vdash e : \tau \rrbracket$.
+Useful theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
+\Vdash e' : \tau'$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
+\llbracket \sigma' \Vdash e' : \tau' \rrbracket$.
+
+Potentially wrong / bad theorem. If $\llbracket \sigma \Vdash e : \tau
+\rrbracket = \llbracket \sigma' \Vdash v : \tau' \rrbracket$, then $\sigma
+\Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v : \tau'$
 
 % Max: this \Vdash notation is intentionally highly suggestive.
 % Max: not sure what to call this theorem, probably, there is something like
