@@ -1,6 +1,11 @@
 \section{Dynamic Semantics}
 
-\subsection{Operational Semantics}
+\subsection{Substitution-style Operational Semantics}
+The following is defined over untyped terms. In particular, we define the
+operational semantics rewrite relation $\mapsto$ to map from (untyped) \Lang
+to (untyped) \Lang. In other words, untypable programs can step (but not
+necessarily to values).
+
 \begin{figure}
 \begin{center}
 
@@ -35,6 +40,28 @@
 	\DisplayProof
 
 \end{center}
-    \caption{Evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions.}
-    \label{fig:eval_rules}
+    \caption{Substitution-style evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions.}
+    \label{fig:sub_eval_rules}
 \end{figure}
+
+\subsection{(Typed) Enviroment-style Operational Semantics}
+The following is defined over typed terms. In particular, we define the
+operational semantics rewrite relation $\rightsquigarrow$ to map from a typed
+term in an enviroment to a typed term in an enviroment.
+
+To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
+running in an enviroment $\sigma$ mapping variables like $x_1$ to value $v_1$
+with type $\tau_1$ and sensitivity budget $s_1$ to a $e'$ with type $\tau'$ and
+enviroment $\sigma'$.
+
+Useful theorem. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma' \Vdash e' :
+\tau'$, then $\llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket \sigma
+\Vdash e : \tau \rrbracket$.
+
+% Max: this \Vdash notation is intentionally highly suggestive.
+% Max: not sure what to call this theorem, probably, there is something like
+% this in prior work.
+% Max [May 1st, 1 AM]: I still need to figure out what $\llbracket \sigma
+% \Vdash e : \tau \rrbracket$ means. One option is to just erase the values and
+% interpret it the same way as in the original NumFuzz paper (from metric spaces
+% to metric spaces). This probably works, but there might be another way.
