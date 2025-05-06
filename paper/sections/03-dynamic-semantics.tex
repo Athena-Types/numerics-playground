@@ -48,7 +48,8 @@ necessarily to values).
 The following is defined over typed terms. In particular, we define the
 operational semantics rewrite relation $\rightsquigarrow$ to map from a typed
 term in an program enviroment to a typed term in an program enviroment. Note
-that in this setup, $\letbind x = v \ \tin \ f$ is \textit{not} a value.
+that in this setup, $\letbind x = v \ \tin \ f$ and $[x]$ are \textit{not}
+values.
 
 To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
 running in an enviroment $\sigma$ mapping variables like $x_1$ to value $v_1$
@@ -105,6 +106,26 @@ $$
 \forall (x \mapsto v :_s \tau) \in \sigma_{empty}, \sigma_{empty'}, s = 0
 $$
 
-% Max: this \Vdash notation is intentionally highly suggestive.
-% Max: not sure what to call this theorem, probably, there is something like
-% this in prior work.
+\begin{figure}
+\begin{center}
+\begin{equation*}
+  \begin{aligned}[c]
+    % [e] rule
+    \sigma \Vdash [e] \ : \ !_s \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
+    % let-bind rule
+    \sigma \Vdash \letbind x = e \ : M_{s * r + q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
+    \mapsto e :_s M_r \tau]
+    \Vdash f : M_q \tau \\
+  \end{aligned}
+\end{equation*}
+	%
+	%\AXC{$e \mapsto e'$}
+	% \UIC{$\sigma \Vdash [e] : !_s \tau \rightsquigarrow \sigma * s \Vdash e : \tau$}
+	%\DisplayProof
+
+\end{center}
+    \caption{Enviroment-style evaluation rules for \Lang. Note that during type
+    checking but prior to running the operational semanitcs, the original
+    arithmetic expressions used to compute the grades should be preserved.}
+    \label{fig:sub_eval_rules}
+\end{figure}
