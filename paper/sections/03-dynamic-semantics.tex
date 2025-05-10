@@ -110,12 +110,23 @@ $$
 \begin{center}
 \begin{equation*}
   \begin{aligned}[c]
+    % more spicy rules
     % [e] rule
     \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
     % let-bind rule
     \sigma \Vdash \textbf{let-bind}_{(s, r)} \ x = e \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
     \mapsto e :_s M_r \tau]
     \Vdash f : M_q \tau \\
+    % lam app
+    \sigma \Vdash (\lambda x : \tau' .e) \ v : \tau &\rightsquigarrow \sigma[x
+    \mapsto v :_1 \tau'] \Vdash e : \tau \\
+    % more boring rules
+    % op(v) rule
+    \sigma \Vdash \mathbf{op}(v) : \tau &\rightsquigarrow \sigma \Vdash op(v) :
+    \tau \\
+    % proj rule
+    \sigma \Vdash \pi_i\langle v_1,v_2 \rangle : \tau &\rightsquigarrow \sigma
+    \Vdash v_i : \tau \\ 
   \end{aligned}
 \end{equation*}
 	%
@@ -126,8 +137,9 @@ $$
 \end{center}
     \caption{Enviroment-style evaluation rules for \Lang. Note that during type
     checking but prior to running the operational semanitcs, the sensitivity
-    information (tracked with metavar $s$) and error (tracked with metavars $r,
-    q$) is preserved as annotations in the syntax, written $[e]_s$ and
-    $\textbf{let-bind}_{(s, r)}$.}
+    information (tracked with metavar $s$), error (tracked with metavars $r,
+    q$), and type of bound variables $\tau_1, \tau_2$, is preserved as
+    annotations in the syntax, written $[e]_s$ and $\textbf{let-bind}_{(s, r)}$
+    and $\lambda x : \tau_1 . e $.}
     \label{fig:sub_eval_rules}
 \end{figure}
