@@ -106,16 +106,14 @@ $$
 \forall (x \mapsto v :_s \tau) \in \sigma_{empty}, \sigma_{empty'}, s = 0
 $$
 
-% Max: these don't work; syntatic (and likely semantic) preservation does not
-% hold.
 \begin{figure}
 \begin{center}
 \begin{equation*}
   \begin{aligned}[c]
     % [e] rule
-    \sigma \Vdash [e] \ : \ !_s \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
+    \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
     % let-bind rule
-    \sigma \Vdash \letbind x = e \ : M_{s * r + q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
+    \sigma \Vdash \textbf{let-bind}_{(s, r)} \ x = e \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
     \mapsto e :_s M_r \tau]
     \Vdash f : M_q \tau \\
   \end{aligned}
@@ -127,8 +125,9 @@ $$
 
 \end{center}
     \caption{Enviroment-style evaluation rules for \Lang. Note that during type
-    checking but prior to running the operational semanitcs, the original
-    arithmetic expressions used to compute the corresponding grades should be
-    kept.}
+    checking but prior to running the operational semanitcs, the sensitivity
+    information (tracked with metavar $s$) and error (tracked with metavars $r,
+    q$) is preserved as annotations in the syntax, written $[e]_s$ and
+    $\textbf{let-bind}_{(s, r)}$.}
     \label{fig:sub_eval_rules}
 \end{figure}
