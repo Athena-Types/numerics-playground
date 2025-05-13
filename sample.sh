@@ -1,6 +1,7 @@
 bash src/abstest.sh benchmarks/delta.fpcore &>plots/samples/delta.sample.$(date -Ins)
 bash src/abstest.sh benchmarks/delta4.fpcore &>plots/samples/delta4.sample.$(date -Ins)
 bash src/abstest.sh benchmarks/rigidBody1.fpcore &>plots/samples/rigidBody1.sample.$(date -Ins)
+bash src/abstest.sh benchmarks/rigidBody2.fpcore &>plots/samples/rigidBody2.sample.$(date -Ins)
 bash src/abstest.sh benchmarks/kepler0.fpcore &>plots/samples/kepler0.sample.$(date -Ins)
 bash src/abstest.sh benchmarks/kepler1.fpcore &>plots/samples/kepler1.sample.$(date -Ins)
 bash src/abstest.sh benchmarks/kepler2.fpcore &>plots/samples/kepler2.sample.$(date -Ins)
