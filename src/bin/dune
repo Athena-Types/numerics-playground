@@ -1,7 +1,7 @@
 (executables
  (public_names absint abstest paired parse)
  (names absint abstest paired parse)
- (libraries base parsexp_io stdlib re2 fpcore)
+ (libraries base parsexp_io stdlib re2 fpcore zarith)
  ; (package fpcore)
  (preprocess
   (pps ppx_let ppx_sexp_conv ppx_deriving.eq ppx_inline_test)))

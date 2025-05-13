@@ -2,7 +2,6 @@ open Fpcore
 open Base
 open List
 open String
-(*open Float*)
 open Int
 
 type bound = 
