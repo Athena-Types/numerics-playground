@@ -28,13 +28,25 @@ benchmarks/%.fz: benchmarks/%.g.out ./deps/NumFuzz/_build/install/default/bin/nf
 	cp benchmarks/$*.fz deps/NumFuzz/examples/NumFuzz/
 	cd deps/NumFuzz && ./_build/install/default/bin/nfuzz examples/NumFuzz/$*.fz &> ../../benchmarks/$*.fz.out
 
-################################################################################
 
 ### Defining phony stages
 UNPAIRED_FPCORE_FILES = $(filter-out $(wildcard benchmarks/*-paired.fpcore), $(wildcard benchmarks/*.fpcore))
 FPCORE_FILES=$(wildcard benchmarks/*.fpcore)
 
 PAIRED_FILES=$(patsubst %.fpcore, %-paired.fpcore, $(UNPAIRED_FPCORE_FILES))
+
+################################################################################
+### Abstract Testing
+benchmarks/%.scala: fpcore benchmarks/%.fpcore
+	racket deps/FPBench/export.rkt --lang scala benchmarks/$*.fpcore benchmarks/$*.scala
+
+SCALA =$(patsubst benchmarks/%.fpcore, benchmarks/%.scala, $(UNPAIRED_FPCORE_FILES))
+
+scala: $(SCALA)
+
+################################################################################
+
+## NumFuzz (extended) analysis
 
 # Stage 1: Generate FPCore
 BENCHMARK_NAMES_STAGE_1 =$(patsubst benchmarks/%.fpcore, %-fpcore, $(UNPAIRED_FPCORE_FILES))
@@ -56,17 +68,20 @@ gappa-run: $(BENCHMARK_NAMES_STAGE_3)
 
 # Stage 4: Run NumFuzz
 BENCHMARK_NAMES_STAGE_4 = $(wildcard benchmarks/*.fz)
-numfuzz: $(BENCHMARK_NAMES_STAGE_4)
+
+################################################################################
+## Paper stuff
+
+paper/main.pdf: paper/main.tex $(wildcard paper/sections/*.tex)
+	cd paper && pdflatex main.tex
+
+################################################################################
+## Meta stuff
 
 all: .WAIT gappa gappa-run numfuzz
 
 build:
 	cd src && opam exec -- dune build
-
-paper/main.pdf: paper/main.tex $(wildcard paper/sections/*.tex)
-	cd paper && pdflatex main.tex
-
-paper: paper/main.pdf
 
 clean:
 	rm -f benchmarks/*-paired.fpcore
@@ -75,5 +90,11 @@ clean:
 	rm -f benchmarks/*.out
 	cd src && opam exec dune clean
 
-.PHONY: build fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
+numfuzz: $(BENCHMARK_NAMES_STAGE_4)
+
+paper: paper/main.pdf
+
+abstest: scala
+
+.PHONY: scala abstest build fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
 .NOTINTERMEDIATE: $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2) $(PAIRED_FILES) benchmarks/%-paired.fpcore benchmarks/%.g benchmarks/%.out

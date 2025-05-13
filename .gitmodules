@@ -5,3 +5,6 @@
 	path = deps/NumFuzz
 	url = https://github.com/Athena-Types/NumFuzz.git
 	branch = paired-lite
+[submodule "deps/daisy"]
+	path = deps/daisy
+	url = git@github.com:malyzajko/daisy.git
