@@ -22,8 +22,8 @@ programs; in particular,
 
   * `lib/fpcore.ml` is a somewhat messy library to help parse fpcore programs;
 
-- `paper/` contains a writeup of the technical details regarding this approach;
-in particular,
+- `paper/` contains a writeup of the technical details regarding how to extend
+NumFuzz in various ways; in particular,
 
   * `sections/*.tex` splits up the portions of the paper into logical sections,
     and
