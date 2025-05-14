@@ -117,9 +117,13 @@ relation).
   \begin{aligned}[c]
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % more spicy rules
-    % THE important rule for an enviroment-style semantics: lookup!
-    \sigma[x \mapsto v :_s \tau] \Vdash \ x \ : \tau &\rightsquigarrow 
+    % Lookup (sensitivity budget 1)
+    \sigma[x \mapsto v :_1 \tau] \Vdash \ x \ : \tau &\rightsquigarrow 
     \sigma \Vdash v : \tau \\
+    % Lookup (sensitivity budget greater than 1)
+    \sigma[x \mapsto v :_{s} \tau] \Vdash \ x \ : \tau &\rightsquigarrow
+    \sigma[x \mapsto v :_{s-1} \tau] \Vdash v : \tau \quad{(\text{with } 1 < s)}
+    \\
     % let-bind rule
     \sigma \Vdash \textbf{let-bind}_{(s, \tau_1)} \ x = v \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
     \mapsto v :_s \tau_1]
