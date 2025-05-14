@@ -110,20 +110,22 @@ $$
 \begin{center}
 \begin{equation*}
   \begin{aligned}[c]
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % more spicy rules
-    % [e] rule
-    \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
     % let-bind rule
     \sigma \Vdash \textbf{let-bind}_{(s, \tau_1)} \ x = v \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
     \mapsto v :_s \tau_1]
     \Vdash f : M_q \tau \\
     % let-cobind rule
-    \sigma \Vdash \textbf{let-cobind}_{(s, t)} \ x = v \ : \tau \ \tin \ f &\rightsquigarrow (\sigma[x
+    \sigma \Vdash \textbf{let-cobind}_{(s, t, \tau_1)} \ x = v \ : \tau \ \tin \ f &\rightsquigarrow (\sigma[x
     \mapsto v :_s \tau_1]) * t
     \Vdash f : \tau \\
+    % [e] rule
+    \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
     % lam app
     \sigma \Vdash (\lambda x : \tau_1 .e) \ v : \tau &\rightsquigarrow \sigma[x
     \mapsto v :_1 \tau_1] \Vdash e : \tau \\
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % more boring rules
     % op(v) rule
     \sigma \Vdash \mathbf{op}(v) : \tau &\rightsquigarrow \sigma \Vdash op(v) :
@@ -131,6 +133,7 @@ $$
     % proj rule
     \sigma \Vdash \pi_i\langle v_1,v_2 \rangle : \tau &\rightsquigarrow \sigma
     \Vdash v_i : \tau \\ 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \end{aligned}
 \end{equation*}
 	%
@@ -141,9 +144,9 @@ $$
 \end{center}
     \caption{Enviroment-style evaluation rules for \Lang. Note that during type
     checking but prior to running the operational semanitcs, the sensitivity
-    information (tracked with metavar $s$), error (tracked with metavars $r,
-    q$), and type of bound variables $\tau_1, \tau_2$, is preserved as
-    annotations in the syntax, written $[e]_s$ and $\textbf{let-bind}_{(s,
-    \tau_1)}$, $\textbf{let-cobind}_{(s, t)}$, and $\lambda x : \tau_1 . e $.}
+    information (tracked with metavar $s$) and type of bound variables $\tau_1,
+    \tau_2$, is preserved as annotations in the syntax, written $[e]_s$ and
+    $\textbf{let-bind}_{(s, \tau_1)}$, $\textbf{let-cobind}_{(s, t, \tau_1)}$,
+    and $\lambda x : \tau_1 . e $.}
     \label{fig:sub_eval_rules}
 \end{figure}
