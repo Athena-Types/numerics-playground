@@ -10,11 +10,11 @@ open Random
 
 (* supported options *)
 let unit_roundoff = div_2exp one (53)
-let debug = false
+let debug = true
+let sterbenz = true
 
-(* currently unsupported options *)
-let sterbenz = false
-let shared = true (* perform this using fpcore transformations? *)
+(* currently unsupported options (these are sound) *)
+let shared = true (* implement with fpcore transformations to be more aggro? *)
 
 (* should refactor these funcs into the shared library *)
 type bound = 
@@ -152,7 +152,13 @@ let rec interpret_expr fpexpr sample_env round eps_up ?(debug=false) =
       | Some y -> 
         let%bind x_evaled = interpret_expr x sample_env round eps_up ~debug in
         let%bind y_evaled = interpret_expr y sample_env round (not eps_up) ~debug in
-        Some (rnd (x_evaled - y_evaled))
+        (* Check for Sterbenz's lemma conditions *)
+        if debug then print_endline ("Sterbenz detected subtracting " ^
+        to_string x_evaled ^ " - " ^ to_string y_evaled);
+        if (sterbenz && leq (div_2exp y_evaled 1) x_evaled && leq x_evaled
+        (mul_2exp y_evaled 1))
+        then Some (x_evaled - y_evaled)
+        else Some (rnd (x_evaled - y_evaled))
       | None -> 
         let%bind x_evaled = interpret_expr x sample_env round (not eps_up) ~debug in
         Some (- x_evaled))
@@ -196,6 +202,9 @@ let cli =
   let args = Array.to_list (Sys.get_argv ()) in
   let%bind seed = List.nth args 2 in
   if debug then print_endline ("seed is "^ seed);
+  if debug then print_endline ("unit roundoff is "^ to_string unit_roundoff);
+  if debug then print_endline ("sterbenz is "^ Bool.to_string sterbenz);
+  if debug then print_endline ("shared is "^ Bool.to_string shared);
   Random.init (int_of_string seed);
   let%bind filename = List.nth args 1 in
   let unparsed_prog = load_fpcore filename in
