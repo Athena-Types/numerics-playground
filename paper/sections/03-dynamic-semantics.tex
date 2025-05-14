@@ -80,15 +80,15 @@ Useful adequacy-flavored theorem to prove. If $\sigma \Vdash e : \tau \rightsqui
 \llbracket \sigma' \Vdash e' : \tau' \rrbracket$.
 
 Another adequacy-flavored theorem (in reverse). If $\llbracket \sigma \Vdash e :
-\tau \rrbracket = \llbracket \sigma' \Vdash v : \tau' \rrbracket$, then $\sigma
-\Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v : \tau'$
+\tau \rrbracket = \llbracket \sigma_{empty} \Vdash v : \tau' \rrbracket$, then $\sigma
+\Vdash e : \tau \rightsquigarrow^{*} \sigma_{empty} \Vdash v : \tau'$
 
 A syntatic type-soundness flavored theorem. If $\Gamma \vdash e : \tau$, then
 $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
 \sigma' \ v \ \tau', \sigma \Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v :
 \tau'$ and $\llbracket \tau \rrbracket = \llbracket \tau' \rrbracket$.
 
-An error-soundness flavored theorem. For $\llbracket \Gamma \vdash e : \tau
+Another flavored soundness theorem. For $\llbracket \Gamma \vdash e : \tau
 \rrbracket$ and $\sigma, \sigma' \in \Gamma$ and
 $$\sigma \Vdash e : \tau \rightsquigarrow^* \sigma_{empty} \Vdash v : \tau'$$ 
 and 
@@ -146,12 +146,16 @@ relation).
     \sigma \Vdash \pi_i\langle v_1,v_2 \rangle : \tau &\rightsquigarrow \sigma
     \Vdash v_i : \tau \\ 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % let stepping rule
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \end{aligned}
 \end{equation*}
-	%
-	%\AXC{$e \mapsto e'$}
-	% \UIC{$\sigma \Vdash [e] : !_s \tau \rightsquigarrow \sigma * s \Vdash e : \tau$}
-	%\DisplayProof
+
+  \AXC{$\sigma \Vdash e : \tau_1 \rightsquigarrow \sigma' \Vdash e' : \tau_2$}
+  \UIC{$\sigma \Vdash \textbf{let}^* \ x = e \ : \tau_1 \ \tin \ \tau_2
+  \rightsquigarrow \sigma' \Vdash \textbf{let}^* \ x = e' \ : \tau_1 \
+  \tin \ \tau_2$}
+	\DisplayProof
 
 \end{center}
     \caption{Enviroment-style evaluation rules for \Lang. Note that during type
@@ -159,6 +163,7 @@ relation).
     information (tracked with metavar $s$) and type of bound variables $\tau_1,
     \tau_2$, is preserved as annotations in the syntax, written $[e]_s$ and
     $\textbf{let-bind}_{(s, \tau_1)}$, $\textbf{let-cobind}_{(s, t, \tau_1)}$,
-    and $\lambda x : \tau_1 . e $.}
+    and $\lambda x : \tau_1 . e $. Note that $\textbf{let}^*$ is syntactic sugar
+    for matching all let expressions and their corresponding annotations.}
     \label{fig:sub_eval_rules}
 \end{figure}
