@@ -39,6 +39,17 @@ necessarily to values).
 	\UIC{$\letassign x = e \ \tin \ f \mapsto \letassign x = e' \ \tin f$}
 	\DisplayProof
 
+  \vskip 0.4em
+	\AXC{$e_1 \mapsto e_1'$}
+	\AXC{$e_2 \mapsto e_2'$}
+  \BIC{$(e_1, e_2) \mapsto (e_1', e_2')$}
+	\DisplayProof
+
+  \vskip 0.4em
+	\AXC{$e_1 \mapsto e_1'$}
+	\AXC{$e_2 \mapsto e_2'$}
+  \BIC{$\langle e_1, e_2 \rangle \mapsto \langle e_1', e_2' \rangle$}
+	\DisplayProof
 \end{center}
     \caption{Substitution-style evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions.}
     \label{fig:sub_eval_rules}
@@ -62,26 +73,28 @@ $\llbracket \sigma \rrbracket$ is a point within metric space $\llbracket \Gamma
 \rrbracket$ (after erasing $\sigma$'s $0$-sensitive variables). Abusing notation
 a little, I write this like so: $\llbracket \sigma \rrbracket \in \llbracket
 \Gamma \rrbracket$.
+% spell out definiion more
 
-\begin{equation*}
-  \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket 
-  \triangleq \forall
-  \\ 
-  (x \mapsto v :_s \tau) \in \sigma, 0 < s \implies (x :_s \tau) \in \llbracket
-  \Gamma \rrbracket
-\end{equation*}
+% \begin{equation*}
+%   \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket 
+%   \triangleq \forall
+%   \\ 
+%   (x \mapsto v :_s \tau) \in \sigma, 0 < s \implies (x :_s \tau) \in 
+%   \Gamma
+% \end{equation*}
 
+% spell out definiion more
 Similarly, $\llbracket \sigma \Vdash e : \tau \rrbracket$ is
 interpreted as the point in the metric space $\llbracket \tau \rrbracket$
 obtained by running e at $\sigma$.
 
 Useful adequacy-flavored theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
-\Vdash e' : \tau'$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
-\llbracket \sigma' \Vdash e' : \tau' \rrbracket$.
+\Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
+\llbracket \sigma' \Vdash e' : \tau \rrbracket$.
 
 Another adequacy-flavored theorem (in reverse). If $\llbracket \sigma \Vdash e :
-\tau \rrbracket = \llbracket \sigma_{empty} \Vdash v : \tau' \rrbracket$, then $\sigma
-\Vdash e : \tau \rightsquigarrow^{*} \sigma_{empty} \Vdash v : \tau'$
+\tau \rrbracket = \llbracket \sigma_{empty} \Vdash v : \tau \rrbracket$, then $\sigma
+\Vdash e : \tau \rightsquigarrow^{*} \sigma_{empty} \Vdash v : \tau$
 
 A syntatic type-soundness flavored theorem. If $\Gamma \vdash e : \tau$, then
 $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
@@ -125,15 +138,15 @@ relation).
     \sigma[x \mapsto v :_{s-1} \tau] \Vdash v : \tau \quad{(\text{with } 1 < s)}
     \\
     % let-bind rule
-    \sigma \Vdash \textbf{let-bind}_{(s, \tau_1)} \ x = v \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
-    \mapsto v :_s \tau_1]
-    \Vdash f : M_q \tau \\
+    % \sigma \Vdash \textbf{let-bind}_{(s, \tau_1)} \ x = v \ : M_{q} \tau \ \tin \ f &\rightsquigarrow \sigma[x
+    % \mapsto v :_s \tau_1]
+    % \Vdash f : M_q \tau \\
     % let-cobind rule
-    \sigma \Vdash \textbf{let-cobind}_{(s, t, \tau_1)} \ x = v \ : \tau \ \tin \ f &\rightsquigarrow (\sigma[x
-    \mapsto v :_s \tau_1]) * t
-    \Vdash f : \tau \\
+    % \sigma \Vdash \textbf{let-cobind}_{(s, t, \tau_1)} \ x = v \ : \tau \ \tin \ f &\rightsquigarrow (\sigma[x
+    % \mapsto v :_s \tau_1]) * t
+    % \Vdash f : \tau \\
     % [e] rule
-    \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
+    % \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
     % lam app
     \sigma \Vdash (\lambda x : \tau_1 .e) \ v : \tau &\rightsquigarrow \sigma[x
     \mapsto v :_1 \tau_1] \Vdash e : \tau \\
@@ -145,20 +158,39 @@ relation).
     % proj rule
     \sigma \Vdash \pi_i\langle v_1,v_2 \rangle : \tau &\rightsquigarrow \sigma
     \Vdash v_i : \tau \\ 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % let stepping rule
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \end{aligned}
 \end{equation*}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % sharing rule 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \vskip 0.3em
+    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* \sigma_1 \Vdash e_1' : \tau_1$}
+    \AXC{$\sigma \Vdash e_2 : \tau_2 \rightsquigarrow^* \sigma_2' \Vdash e_2' : \tau_2$}
+    \BIC{$\sigma \Vdash \langle e_1, e_2 \rangle \ : \tau
+    \rightsquigarrow \sigma_1' \cap \sigma_2' \Vdash \langle e_1', e_2'
+    \rangle : \tau$}
+    % todo: define \sigma
+    \DisplayProof
 
-  \AXC{$\sigma \Vdash e : \tau_1 \rightsquigarrow \sigma' \Vdash e' : \tau_2$}
-  \UIC{$\sigma \Vdash \textbf{let}^* \ x = e \ : \tau_1 \ \tin \ \tau_2
-  \rightsquigarrow \sigma' \Vdash \textbf{let}^* \ x = e' \ : \tau_1 \
-  \tin \ \tau_2$}
-	\DisplayProof
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % misc stepping rules
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \vskip 0.3em
+    \AXC{$\sigma \Vdash e : \tau_1 \rightsquigarrow \sigma' \Vdash e' : \tau_2$}
+    \UIC{$\sigma \Vdash \textbf{let}^* \ x = e \ : \tau_1 \ \tin \ \tau_2
+    \rightsquigarrow \sigma' \Vdash \textbf{let}^* \ x = e' \ : \tau_1 \
+    \tin \ \tau_2$}
+    \DisplayProof
+
+    \vskip 0.3em
+    \AXC{$\sigma \Vdash e : \tau_1 \rightsquigarrow \sigma' \Vdash e' : \tau_1'$}
+    \UIC{$\sigma \Vdash \factor e \ : \tau \rightsquigarrow \sigma' \Vdash
+    \factor e' : \tau $}
+    \DisplayProof
 
 \end{center}
-    \caption{Enviroment-style evaluation rules for \Lang. Note that during type
+    \caption{Enviroment-style evaluation rules for \Lang, ordered by precedence. Note that during type
     checking but prior to running the operational semanitcs, the sensitivity
     information (tracked with metavar $s$) and type of bound variables $\tau_1,
     \tau_2$, is preserved as annotations in the syntax, written $[e]_s$ and
