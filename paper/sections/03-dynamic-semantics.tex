@@ -88,37 +88,6 @@ Similarly, $\llbracket \sigma \Vdash e : \tau \rrbracket$ is
 interpreted as the point in the metric space $\llbracket \tau \rrbracket$
 obtained by running e at $\sigma$.
 
-Useful adequacy-flavored theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
-\Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
-\llbracket \sigma' \Vdash e' : \tau \rrbracket$.
-
-Another adequacy-flavored theorem (in reverse). If $\llbracket \sigma \Vdash e :
-\tau \rrbracket = \llbracket \sigma_{empty} \Vdash v : \tau \rrbracket$, then $\sigma
-\Vdash e : \tau \rightsquigarrow^{*} \sigma_{empty} \Vdash v : \tau$
-
-A syntatic type-soundness flavored theorem. If $\Gamma \vdash e : \tau$, then
-$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-\sigma' \ v \ \tau', \sigma \Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v :
-\tau'$ and $\llbracket \tau \rrbracket = \llbracket \tau' \rrbracket$.
-
-Another flavored soundness theorem. For $\llbracket \Gamma \vdash e : \tau
-\rrbracket$ and $\sigma, \sigma' \in \Gamma$ and
-$$\sigma \Vdash e : \tau \rightsquigarrow^* \sigma_{empty} \Vdash v : \tau'$$ 
-and 
-$$\sigma' \Vdash e : \tau \rightsquigarrow^* \sigma_{empty'} \Vdash v' : \tau''$$
-%the distance between $\llbracket \sigma \rrbracket$ and $\llbracket \sigma'
-%\rrbracket$ in metric space $\llbracket \Gamma \rrbracket$ is greater than or
-%equal to the distance between $\llbracket \sigma \Vdash e : \tau \rrbracket$ and
-%$\llbracket \sigma' \Vdash e : \tau \rrbracket$. In other words,
-then
-$$
-d_{\llbracket \tau \rrbracket}(v, v') \leq d_{\llbracket \Gamma \rrbracket}(\sigma, \sigma')
-$$
-where $\sigma_{empty}, \sigma_{empty'}$ means
-$$
-\forall (x \mapsto v :_s \tau) \in \sigma_{empty}, \sigma_{empty'}, s = 0
-$$
-
 Note that $\sigma$ is ordered in the case that variables are shadowed. $\sigma[x
 \mapsto v :_s \tau]$ denotes lookup (when on the left-hand side of a rewrite
 relation) or insertion from the right (when on the right-hand side of a rewrite
