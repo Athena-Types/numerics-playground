@@ -99,6 +99,17 @@ equivalent:
 $$
 \sigma_{idc} \Vdash v = \ \Vdash v = v
 $$
+$\sigma + \sigma'$ represents pairwise concatenation over multi-enviroments,
+defined as follows:
+
+\begin{definition}[Enviroment sum]
+  $\gamma_1 + \gamma_2$ = $\gamma_1 :: \gamma_2 $
+\end{definition}
+
+\begin{definition}[Enviroment list sum]
+  $. + .$ = $ . $ and $\gamma_1;\sigma_1 + \gamma_2;\sigma_2$ = $(\gamma_1 +
+  \gamma_2);(\sigma_1 + \sigma_2)$ and $\_ + \_$ = $\bot$ otherwise.
+\end{definition}
 
 \begin{figure}
 \begin{center}
@@ -134,22 +145,21 @@ $$
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % let-bind rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : M_r \tau' \rightsquigarrow^* 
-    v_0; v_1; ...; v_n : M_r \tau'$}
-    \UIC{ $\sigma, \sigma' \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
-    \ f  : M_{q} \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_s \tau'];
-    \sigma'[x \mapsto v_1 :_s \tau']; ...; \sigma'[x \mapsto v_n :_s \tau']
+    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : M_r \tau' \rightsquigarrow^*
+    v_0;...; v_n : M_r \tau'$}
+    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
+    \ f  : M_{q} \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_s \tau']; ...;
+    \sigma'[x \mapsto v_n :_s \tau']
     \Vdash f : M_q \tau$}
     \DisplayProof
 
     % let-cobind rule
     \vskip 0.3em
     \AXC{$\frac{1}{t} \cdot \sigma \Vdash e : \ !_s \tau' \rightsquigarrow^*
-    v_0; v_1; ...; v_n : \ !_s \tau'$}
-    \UIC{ $\sigma, \sigma' \Vdash \textbf{let-cobind}_{(s, \tau')} \ x = e \
-    \tin \ f : \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_{t * s} \tau'];
-    \sigma'[x \mapsto v_1 :_{t * s} \tau']; ...; \sigma'[x \mapsto v_n :_{t * s}
-    \tau'] \Vdash f : \tau$}
+    v_0 : \ !_s \tau'$}
+    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-cobind}_{(s, \tau')} \ x = e \
+    \tin \ f : \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_{t * s} \tau']
+    \Vdash f : \tau$}
     \DisplayProof
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % sharing rule 

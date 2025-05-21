@@ -45,10 +45,10 @@
          \mid \letcobind x = e \ \tin \ f
          \\
          % Max: find a better name
-         &\text{Enviroment lists } \sigma, \sigma' &::=~ &.
-         \mid \sigma, \ x \mapsto v :_s \tau \\
-         & & &
-         \mid \sigma; \sigma'
+         &\text{Enviroments } \gamma &::=~ &.
+         \mid \gamma, \ x \mapsto v :_s \tau \\
+         &\text{Enviroment lists } \sigma &::=~ & \gamma
+         \mid \gamma; \sigma
   \end{alignat*}
   \caption{
     Types, values, and terms. 
