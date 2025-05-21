@@ -132,6 +132,7 @@ $$
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % even more spicy rules
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % let-bind rule
     \vskip 0.3em
     \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : M_r \tau' \rightsquigarrow^* 
     v_0; v_1; ...; v_n : M_r \tau'$}
@@ -142,12 +143,14 @@ $$
     \DisplayProof
 
     % let-cobind rule
-    % \sigma \Vdash \textbf{let-cobind}_{(s, t, \tau')} \ x = v \ : \tau \ \tin \ f &\rightsquigarrow (\sigma[x
-    % \mapsto v :_s \tau']) * t
-    % \Vdash f : \tau \\
-    % [e] rule
-    % \sigma \Vdash [e]_s \ : \ \tau &\rightsquigarrow \sigma * s \Vdash e \ : \ \tau \\
-
+    \vskip 0.3em
+    \AXC{$\frac{1}{t} \cdot \sigma \Vdash e : \ !_s \tau' \rightsquigarrow^*
+    v_0; v_1; ...; v_n : \ !_s \tau'$}
+    \UIC{ $\sigma, \sigma' \Vdash \textbf{let-cobind}_{(s, \tau')} \ x = e \
+    \tin \ f : \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_{t * s} \tau'];
+    \sigma'[x \mapsto v_1 :_{t * s} \tau']; ...; \sigma'[x \mapsto v_n :_{t * s}
+    \tau'] \Vdash f : \tau$}
+    \DisplayProof
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % sharing rule 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,9 +168,9 @@ $$
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     \vskip 0.3em
-    \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau_2$}
-    \UIC{$\sigma \Vdash \textbf{let}^* \ x = e \ : \tau' \ \tin \ \tau_2
-    \rightsquigarrow \sigma' \Vdash \textbf{let}^* \ x = e' \ : \tau' \
+    \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
+    \UIC{$\sigma \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e : \tau' \ \tin \ \tau_2
+    \rightsquigarrow \sigma' \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e' : \tau' \
     \tin \ \tau_2$}
     \DisplayProof
 
