@@ -17,11 +17,11 @@
          \mid (v, w)
          \mid \tin_i \ v
          \mid \lambda x.~e \\
-         & & & \mid [v]
-         \mid\rnd v
-         \mid {\ret v} 
-         \mid \factor v
-         \mid \letbind x = v \ \tin \ f 
+         % & & & \mid [v]
+         % \mid\rnd v
+         % \mid {\ret v} 
+         % \mid \factor v
+         % \mid \letbind x = v \ \tin \ f 
          \\
          &\text{Terms } e, f, g &::=~ &x
          \mid v
@@ -43,6 +43,12 @@
          & & & 
          \mid {\letbind x = e \ \tin \ f}
          \mid \letcobind x = e \ \tin \ f
+         \\
+         % Max: find a better name
+         &\text{Enviroment lists } \sigma, \sigma' &::=~ &.
+         \mid \sigma, \ x \mapsto v :_s \tau \\
+         & & &
+         \mid \sigma; \sigma'
   \end{alignat*}
   \caption{
     Types, values, and terms. 
