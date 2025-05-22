@@ -1,32 +1,32 @@
 \section{Type Soundness}
-Useful adequacy-flavored theorem to prove. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
+% todo: Use whatever theorem name people like best here.
+Semantics is preserved under operational stepping. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
 \Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
 \llbracket \sigma' \Vdash e' : \tau \rrbracket$.
 
-Another adequacy-flavored theorem (in reverse). If $\llbracket \sigma \Vdash e :
-\tau \rrbracket = \llbracket \sigma_{empty} \Vdash v : \tau \rrbracket$, then $\sigma
-\Vdash e : \tau \rightsquigarrow^{*} \sigma_{empty} \Vdash v : \tau$
+% todo: Use whatever theorem name people like best here.
+If the semantics of a program is equivalent to the semantics of a value, it must
+reduce to that value. If $\llbracket \sigma \Vdash e : \tau \rrbracket =
+\llbracket v : \tau \rrbracket$, then $\sigma \Vdash e : \tau
+\rightsquigarrow^{*} v : \tau$
 
-A syntatic type-soundness flavored theorem. If $\Gamma \vdash e : \tau$, then
+Syntactically ok implies operationally ok. If $\Gamma \vdash e : \tau$, then
 $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-\sigma' \ v \ \tau', \sigma \Vdash e : \tau \rightsquigarrow^{*} \sigma' \Vdash v :
-\tau'$ and $\llbracket \tau \rrbracket = \llbracket \tau' \rrbracket$.
+v, \sigma \Vdash e : \tau \rightsquigarrow^{*} v : \tau$.
 
-Another flavored soundness theorem. For $\llbracket \Gamma \vdash e : \tau
-\rrbracket$ and $\sigma, \sigma' \in \Gamma$ and
-$$\sigma \Vdash e : \tau \rightsquigarrow^* \sigma_{empty} \Vdash v : \tau'$$ 
+Syntactically ok implies semantically ok. If $\Gamma \vdash e : \tau$, then
+$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
+v, \llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket v : \tau
+\rrbracket$.
+
+Syntactically well-typed programs are non-expansive. For $\Gamma \vdash e : \tau
+$ and $\llbracket \sigma \rrbracket, \llbracket \sigma' \rrbracket \in
+\llbracket \Gamma \rrbracket $ and
+$$\sigma \Vdash e : \tau \rightsquigarrow^* v : \tau$$ 
 and 
-$$\sigma' \Vdash e : \tau \rightsquigarrow^* \sigma_{empty'} \Vdash v' : \tau''$$
-%the distance between $\llbracket \sigma \rrbracket$ and $\llbracket \sigma'
-%\rrbracket$ in metric space $\llbracket \Gamma \rrbracket$ is greater than or
-%equal to the distance between $\llbracket \sigma \Vdash e : \tau \rrbracket$ and
-%$\llbracket \sigma' \Vdash e : \tau \rrbracket$. In other words,
+$$\sigma' \Vdash e : \tau \rightsquigarrow^* v' : \tau$$
 then
 $$
 d_{\llbracket \tau \rrbracket}(v, v') \leq d_{\llbracket \Gamma \rrbracket}(\sigma, \sigma')
-$$
-where $\sigma_{empty}, \sigma_{empty'}$ means
-$$
-\forall (x \mapsto v :_s \tau) \in \sigma_{empty}, \sigma_{empty'}, s = 0
 $$
 
