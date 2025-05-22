@@ -229,12 +229,16 @@ defined as follows:
     \DisplayProof
 
 \end{center}
-    \caption{Enviroment-style evaluation rules for \Lang, ordered by precedence. Note that during type
-    checking but prior to running the operational semanitcs, the sensitivity
-    information (tracked with metavar $s$) and type of bound variables $\tau',
-    \tau_2$, is preserved as annotations in the syntax, written $[e]_s$ and
-    $\textbf{let-bind}_{(s, \tau')}$, $\textbf{let-cobind}_{(s, t, \tau')}$,
-    and $\lambda x : \tau' . e $. Note that $\textbf{let}^*$ is syntactic sugar
-    for matching all let expressions and their corresponding annotations.}
+    \caption{Enviroment-style evaluation rules for \Lang, ordered by precedence.
+    Note that during type checking but prior to running the operational
+    semanitcs, the sensitivity information (tracked with metavar $s$) and type
+    of bound variables $\tau', \tau_2$, is preserved as annotations in the
+    syntax, written $[e]_s$ and $\textbf{let-bind}_{(s, \tau')}$,
+    $\textbf{let-cobind}_{(s, t, \tau')}$, and $\lambda x : \tau' . e $.
+    Computing the correct split $\sigma + \sigma'$ of an enviroment can be
+    performed via type inference.
+    % Note that $\textbf{let}^*$ is syntactic sugar
+    % for matching all let expressions and their corresponding annotations.
+    }
     \label{fig:sub_eval_rules}
 \end{figure}
