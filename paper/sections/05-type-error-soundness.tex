@@ -10,15 +10,6 @@ reduce to that value. If $\llbracket \sigma \Vdash e : \tau \rrbracket =
 \llbracket v : \tau \rrbracket$, then $\sigma \Vdash e : \tau
 \rightsquigarrow^{*} v : \tau$
 
-Syntactically ok implies operationally ok. If $\Gamma \vdash e : \tau$, then
-$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-v, \sigma \Vdash e : \tau \rightsquigarrow^{*} v : \tau$.
-
-Syntactically ok implies semantically ok. If $\Gamma \vdash e : \tau$, then
-$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-v, \llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket v : \tau
-\rrbracket$.
-
 Syntactically well-typed programs are non-expansive. For $\Gamma \vdash e : \tau
 $ and $\llbracket \sigma \rrbracket, \llbracket \sigma' \rrbracket \in
 \llbracket \Gamma \rrbracket $ and
@@ -27,6 +18,15 @@ and
 $$\sigma' \Vdash e : \tau \rightsquigarrow^* v' : \tau$$
 then
 $$
-d_{\llbracket \tau \rrbracket}(v, v') \leq d_{\llbracket \Gamma \rrbracket}(\sigma, \sigma')
+d_{\tau}(v, v') \leq d_{\Gamma}(\sigma, \sigma')
 $$
+
+Syntactically ok implies semantically ok. If $\Gamma \vdash e : \tau$, then
+$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
+v, \llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket v : \tau
+\rrbracket$.
+
+Syntactically ok implies operationally ok. If $\Gamma \vdash e : \tau$, then
+$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
+v, \sigma \Vdash e : \tau \rightsquigarrow^{*} v : \tau$.
 

@@ -161,28 +161,17 @@ defined as follows:
     \tin \ f : \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_{t * s} \tau']
     \Vdash f : \tau$}
     \DisplayProof
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % sharing rule 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1 : \tau_1$}
-    \AXC{$\sigma \Vdash e_2 : \tau_2 \rightsquigarrow^* v_2 : \tau_2$}
-    \BIC{$\sigma \Vdash \langle e_1, e_2 \rangle \ : \tau_1 \times \tau_2
-    \rightsquigarrow \langle v_1, v_2 \rangle : \tau_1 \times
-    \tau_2$}
-    % todo: define \sigma
-    \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % misc stepping rules
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
-    \UIC{$\sigma \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e : \tau' \ \tin \ \tau_2
-    \rightsquigarrow \sigma' \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e' : \tau' \
-    \tin \ \tau_2$}
-    \DisplayProof
+    % \vskip 0.3em
+    % \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
+    % \UIC{$\sigma \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e : \tau' \ \tin \ \tau_2
+    % \rightsquigarrow \sigma' \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e' : \tau' \
+    % \tin \ \tau_2$}
+    % \DisplayProof
 
     % let rule
     \vskip 0.3em
@@ -195,25 +184,37 @@ defined as follows:
     \DisplayProof
 
     % let-pair rule
-    \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
-    ((v_0;...;v_n), (v'_0;...;v'_n)) : \tau' \times \tau''$}
-    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \ (x, y) = e \ \tin
-    \ f  : \tau \rightsquigarrow \linebreak
-    \sigma'[x \mapsto v_0 :_s \tau', y \mapsto v'_0 :_s \tau'']; ...;
-    \sigma'[x \mapsto v_n :_s \tau', y \mapsto v'_n :_s \tau'']
-    \Vdash f : \tau$}
-    \DisplayProof
-    % todo: add pair stepping rule
     % \vskip 0.3em
     % \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
-    % (v_0, v'_0);...; (v_n, v'_n) : \tau'$}
+    % ((v_0;...;v_n), (v'_0;...;v'_n)) : \tau' \tensor \tau''$}
     % \UIC{ $\sigma + \sigma' \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \ (x, y) = e \ \tin
     % \ f  : \tau \rightsquigarrow \linebreak
     % \sigma'[x \mapsto v_0 :_s \tau', y \mapsto v'_0 :_s \tau'']; ...;
     % \sigma'[x \mapsto v_n :_s \tau', y \mapsto v'_n :_s \tau'']
     % \Vdash f : \tau$}
     % \DisplayProof
+    % todo: add pair stepping rule
+    \vskip 0.3em
+    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
+    (v_0, v'_0);...; (v_n, v'_n) : \tau' \tensor \tau''$}
+    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \ (x, y) = e \ \tin
+    \ f  : \tau \rightsquigarrow \linebreak
+    \sigma'[x \mapsto v_0 :_s \tau', y \mapsto v'_0 :_s \tau'']; ...;
+    \sigma'[x \mapsto v_n :_s \tau', y \mapsto v'_n :_s \tau'']
+    \Vdash f : \tau$}
+    \DisplayProof
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % sharing rule 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \vskip 0.3em
+    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1 : \tau_1$}
+    \AXC{$\sigma \Vdash e_2 : \tau_2 \rightsquigarrow^* v_2 : \tau_2$}
+    \BIC{$\sigma \Vdash \langle e_1, e_2 \rangle \ : \tau_1 \times \tau_2
+    \rightsquigarrow \langle v_1, v_2 \rangle : \tau_1 \times
+    \tau_2$}
+    % todo: define \sigma
+    \DisplayProof
 
     \vskip 0.3em
     \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
