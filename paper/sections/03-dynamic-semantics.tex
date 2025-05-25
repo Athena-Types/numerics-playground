@@ -122,8 +122,8 @@ defined as follows:
 \end{definition}
 
 \begin{figure}
-\begin{Small}
 \begin{center}
+\tiny
 \begin{equation*}
   \begin{aligned}[c]
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,12 +218,12 @@ defined as follows:
     % todo: add pair stepping rule
     \vskip 0.3em
     \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
-    (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau' \tensor \tau''$}
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \
+    (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau_0 \tensor \tau_1$}
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0, \tau_1)} \
     (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \linebreak \sigma_1[x \mapsto
-    v_0^0 :_s \tau', y \mapsto v_1^0 :_s \tau'']; \sigma_1^{-1}[x \mapsto v_0^1
-    :_s \tau', y \mapsto v_1^1 :_s \tau'']; ...; \sigma_1^{-1}[x \mapsto v_0^n
-    :_s \tau', y \mapsto v_1^n :_s \tau''] \Vdash f : \tau$}
+    v_0^0 :_s \tau_0, y \mapsto v_1^0 :_s \tau_1]; \sigma_1^{-1}[x \mapsto v_0^1
+    :_s \tau_0, y \mapsto v_1^1 :_s \tau_1]; ...; \sigma_1^{-1}[x \mapsto v_0^n
+    :_s \tau_0, y \mapsto v_1^n :_s \tau_1] \Vdash f : \tau$}
     \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -262,5 +262,4 @@ defined as follows:
     % for matching all let expressions and their corresponding annotations.
     }
     \label{fig:sub_eval_rules}
-\end{Small}
 \end{figure}
