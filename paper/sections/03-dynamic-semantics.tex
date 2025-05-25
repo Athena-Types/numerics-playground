@@ -99,6 +99,16 @@ equivalent:
 $$
 \sigma_{idc} \Vdash v = \ \Vdash v = v
 $$
+
+To represent computations that may produce multiple values under a
+multi-enviroment (e.g. the rounding effect), the following notation is
+equivalent:
+$$
+\sigma \Vdash v_0;v_1;...;v_n = \sigma \Vdash v_0;\sigma^{-1} \Vdash v_1;...; \sigma^{-1} \Vdash v_0
+$$
+where
+$\gamma^{-1} = \gamma$ and $(\gamma;\sigma)^{-1} = \sigma^{-1}$.
+
 $\sigma + \sigma'$ represents pairwise concatenation over multi-enviroments,
 defined as follows:
 
@@ -126,7 +136,7 @@ defined as follows:
     \\
     % Rounding!
     \sigma \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow \sigma
-    \Vdash v; \sigma \Vdash \rho(v) : M_q \ \mathbf{num} \\
+    \Vdash v; \rho(v) : M_q \ \mathbf{num} \\
     % lam app
     \sigma \Vdash (\lambda x : \tau' .e) \ v : \tau &\rightsquigarrow \sigma[x
     \mapsto v :_1 \tau'] \Vdash e : \tau \\
@@ -155,11 +165,11 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % let-bind rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : M_r \tau' \rightsquigarrow^*
+    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : M_r \tau' \rightsquigarrow^*
     v^0;...; v^n : M_r \tau'$}
-    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
-    \ f  : M_{q} \tau \rightsquigarrow \sigma'[x \mapsto v_0 :_s \tau']; ...;
-    \sigma'[x \mapsto v_n :_s \tau']
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
+    \ f  : M_{q} \tau \rightsquigarrow \sigma_1[x \mapsto v_0 :_s \tau']; ...;
+    \sigma_1^{=1}[x \mapsto v_n :_s \tau']
     \Vdash f : M_q \tau$}
     \DisplayProof
 
