@@ -122,6 +122,7 @@ defined as follows:
 \end{definition}
 
 \begin{figure}
+\begin{Small}
 \begin{center}
 \begin{equation*}
   \begin{aligned}[c]
@@ -166,20 +167,21 @@ defined as follows:
     % let-bind rule
     \vskip 0.3em
     \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : M_r \tau' \rightsquigarrow^*
-    v^0;...; v^n : M_r \tau'$}
+    v^0;v^1;...; v^n : M_r \tau'$}
     \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
-    \ f  : M_{q} \tau \rightsquigarrow \sigma_1[x \mapsto v_0 :_s \tau']; ...;
+    \ f  : M_{q} \tau \rightsquigarrow \sigma_1[x \mapsto v_0 :_s \tau']; \sigma_1^{-1}[x \mapsto v_1 :_s \tau']; ...;
     \sigma_1^{=1}[x \mapsto v_n :_s \tau']
     \Vdash f : M_q \tau$}
     \DisplayProof
 
     % let-cobind rule
     \vskip 0.3em
-    \AXC{$\frac{1}{t} \cdot \sigma \Vdash e : \ !_s \tau' \rightsquigarrow^*
-    v^0;...;v^n: \ !_s \tau'$}
-    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-cobind}_{(s, t, \tau')} \ x = e \
-    \tin \ f : \tau \rightsquigarrow \sigma'[x \mapsto v^0 :_{t * s} \tau'] ...
-    \sigma'[x \mapsto v^n :_{t * s} \tau'] \Vdash f : \tau$}
+    \AXC{$\frac{1}{t} \cdot \sigma_0 \Vdash e : \ !_s \tau' \rightsquigarrow^*
+    v^0;v^1;...;v^n: \ !_s \tau'$}
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-cobind}_{(s, t, \tau')} \ x =
+    e \ \tin \ f : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_{t * s}
+    \tau']; \sigma_1^{-1}[x \mapsto v^1 :_{t * s} \tau']; ..; \sigma_1^{-1}[x
+    \mapsto v^n :_{t * s} \tau'] \Vdash f : \tau$}
     \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -195,12 +197,12 @@ defined as follows:
 
     % let rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
-    v^0;...; v^n : \tau'$}
-    \UIC{ $\sigma + \sigma' \Vdash \textbf{let}_{(s, \tau')} \ x = e \ \tin
-    \ f  : M_{q} \tau \rightsquigarrow \sigma'[x \mapsto v^0 :_s \tau']; ...;
-    \sigma'[x \mapsto v^n :_s \tau']
-    \Vdash f : M_q \tau$}
+    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
+    v^0;v^1;...; v^n : \tau'$}
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e \ \tin \
+    f  : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_s \tau'];
+    \sigma_1^{-1}[x \mapsto v^0 :_s \tau'];...; \sigma'[x \mapsto v^n :_s \tau']
+    \Vdash f : \tau$}
     \DisplayProof
 
     % let-pair rule
@@ -215,13 +217,13 @@ defined as follows:
     % \DisplayProof
     % todo: add pair stepping rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
-    (v_0^0, v_1^n);...; (v_0^n, v_1^n) : \tau' \tensor \tau''$}
-    \UIC{ $\sigma + \sigma' \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \ (x, y) = e \ \tin
-    \ f  : \tau \rightsquigarrow \linebreak
-    \sigma'[x \mapsto v_0^0 :_s \tau', y \mapsto v_1^0 :_s \tau'']; ...;
-    \sigma'[x \mapsto v_0^n :_s \tau', y \mapsto v_1^n :_s \tau'']
-    \Vdash f : \tau$}
+    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
+    (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau' \tensor \tau''$}
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \
+    (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \linebreak \sigma_1[x \mapsto
+    v_0^0 :_s \tau', y \mapsto v_1^0 :_s \tau'']; \sigma_1^{-1}[x \mapsto v_0^1
+    :_s \tau', y \mapsto v_1^1 :_s \tau'']; ...; \sigma_1^{-1}[x \mapsto v_0^n
+    :_s \tau', y \mapsto v_1^n :_s \tau''] \Vdash f : \tau$}
     \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -260,4 +262,5 @@ defined as follows:
     % for matching all let expressions and their corresponding annotations.
     }
     \label{fig:sub_eval_rules}
+\end{Small}
 \end{figure}
