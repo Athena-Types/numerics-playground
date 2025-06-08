@@ -212,6 +212,7 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % sharing rule 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % TODO: update rule to thread \sigmas
     \vskip 0.3em
     \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* v_0^0;...;v_0^n : \tau_0$}
     \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1^0;...;v_1^n : \tau_1$}
@@ -219,6 +220,7 @@ defined as follows:
     \rightsquigarrow \Sigma_{i=0}^n \Sigma_{j=0}^n \langle v_0^i, v_1^j \rangle: \tau_0 \times \tau_1$}
     \DisplayProof
 
+    % TODO: update rule to thread \sigmas
     \vskip 0.3em
     \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* v_0^0;...;v_0^n : \tau_0$}
     \AXC{$\sigma' \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1^0;...;v_1^n : \tau_1$}
@@ -226,6 +228,7 @@ defined as follows:
     \rightsquigarrow \Sigma_{i=0}^n \Sigma_{j=0}^n (v_0^i, v_1^j) : \tau_0 \tensor \tau_1$}
     \DisplayProof
 
+    % TODO: define evaluation contexts and get rid of this def
     \vskip 0.3em
     \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
     \UIC{$\sigma \Vdash \factor e \ : \tau \rightsquigarrow \sigma' \Vdash
