@@ -104,10 +104,11 @@ To represent computations that may produce multiple values under a
 multi-enviroment (e.g. the rounding effect), the following notation is
 equivalent:
 $$
-\sigma \Vdash v_0;v_1;...;v_n = \sigma \Vdash v_0;\sigma^{-1} \Vdash v_1;...; \sigma^{-1} \Vdash v_0
+\sigma \Vdash v_0;v_1;...;v_n = \gamma_0 \Vdash v_0;...; \gamma_k \Vdash v_n
 $$
-where
-$\gamma^{-1} = \gamma$ and $(\gamma;\sigma)^{-1} = \sigma^{-1}$.
+where $\sigma =  \gamma_0;...;\gamma_k$. Note that for each program
+configuration, either the notation on the left or on the right will be used;
+they are not be mixed.
 
 $\sigma + \sigma'$ represents pairwise concatenation over multi-enviroments,
 defined as follows:
@@ -166,65 +167,47 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % let-bind rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : M_r \tau' \rightsquigarrow^*
-    v^0;v^1;...; v^n : M_r \tau'$}
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin
-    \ f  : M_{q} \tau \rightsquigarrow \sigma_1[x \mapsto v_0 :_s \tau']; \sigma_1^{-1}[x \mapsto v_1 :_s \tau']; ...;
-    \sigma_1^{=1}[x \mapsto v_n :_s \tau']
-    \Vdash f : M_q \tau$}
+    \AXC{$\frac{1}{s} \cdot \sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
+    \gamma_0 \Vdash v_0;...; \gamma_n \Vdash v_n : M_r \tau'$} \UIC{ $\sigma_0 +
+    \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin \ f  : M_{q}
+    \tau \rightsquigarrow \gamma_n, \sigma_0 [x \mapsto v_n :_s \tau'];
+    \gamma_0, \sigma_0 [x \mapsto v_0 :_s \tau'] \Vdash f : M_q \tau$}
     \DisplayProof
 
     % let-cobind rule
-    \vskip 0.3em
-    \AXC{$\frac{1}{t} \cdot \sigma_0 \Vdash e : \ !_s \tau' \rightsquigarrow^*
-    v^0;v^1;...;v^n: \ !_s \tau'$}
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-cobind}_{(s, t, \tau')} \ x =
-    e \ \tin \ f : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_{t * s}
-    \tau']; \sigma_1^{-1}[x \mapsto v^1 :_{t * s} \tau']; ..; \sigma_1^{-1}[x
-    \mapsto v^n :_{t * s} \tau'] \Vdash f : \tau$}
-    \DisplayProof
+    % \vskip 0.3em
+    % \AXC{$\frac{1}{t} \cdot \sigma_0 \Vdash e : \ !_s \tau' \rightsquigarrow^*
+    % v^0;v^1;...;v^n: \ !_s \tau'$}
+    % \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-cobind}_{(s, t, \tau')} \ x =
+    % e \ \tin \ f : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_{t * s}
+    % \tau']; \sigma_1^{-1}[x \mapsto v^1 :_{t * s} \tau']; ..; \sigma_1^{-1}[x
+    % \mapsto v^n :_{t * s} \tau'] \Vdash f : \tau$}
+    % \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % misc stepping rules
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % \vskip 0.3em
-    % \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
-    % \UIC{$\sigma \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e : \tau' \ \tin \ \tau_2
-    % \rightsquigarrow \sigma' \Vdash \textbf{let}\textbf{\{-, -pair\}} \ x = e' : \tau' \
-    % \tin \ \tau_2$}
-    % \DisplayProof
-
     % let rule
-    \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
-    v^0;v^1;...; v^n : \tau'$}
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e \ \tin \
-    f  : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_s \tau'];
-    \sigma_1^{-1}[x \mapsto v^0 :_s \tau'];...; \sigma'[x \mapsto v^n :_s \tau']
-    \Vdash f : \tau$}
-    \DisplayProof
+    % \vskip 0.3em
+    % \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
+    % v^0;v^1;...; v^n : \tau'$}
+    % \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e \ \tin \
+    % f  : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_s \tau'];
+    % \sigma_1^{-1}[x \mapsto v^0 :_s \tau'];...; \sigma'[x \mapsto v^n :_s \tau']
+    % \Vdash f : \tau$}
+    % \DisplayProof
 
     % let-pair rule
     % \vskip 0.3em
-    % \AXC{$\frac{1}{s} \cdot \sigma \Vdash e : \tau' \rightsquigarrow^*
-    % ((v_0;...;v_n), (v'_0;...;v'_n)) : \tau' \tensor \tau''$}
-    % \UIC{ $\sigma + \sigma' \Vdash \textbf{let-pair}_{(s, \tau', \tau'')} \ (x, y) = e \ \tin
-    % \ f  : \tau \rightsquigarrow \linebreak
-    % \sigma'[x \mapsto v_0 :_s \tau', y \mapsto v'_0 :_s \tau'']; ...;
-    % \sigma'[x \mapsto v_n :_s \tau', y \mapsto v'_n :_s \tau'']
-    % \Vdash f : \tau$}
+    % \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
+    % (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau_0 \tensor \tau_1$}
+    % \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0, \tau_1)} \
+    % (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \linebreak \sigma_1[x \mapsto
+    % v_0^0 :_s \tau_0, y \mapsto v_1^0 :_s \tau_1]; \sigma_1^{-1}[x \mapsto v_0^1
+    % :_s \tau_0, y \mapsto v_1^1 :_s \tau_1]; ...; \sigma_1^{-1}[x \mapsto v_0^n
+    % :_s \tau_0, y \mapsto v_1^n :_s \tau_1] \Vdash f : \tau$}
     % \DisplayProof
-    % todo: add pair stepping rule
-    \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
-    (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau_0 \tensor \tau_1$}
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0, \tau_1)} \
-    (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \linebreak \sigma_1[x \mapsto
-    v_0^0 :_s \tau_0, y \mapsto v_1^0 :_s \tau_1]; \sigma_1^{-1}[x \mapsto v_0^1
-    :_s \tau_0, y \mapsto v_1^1 :_s \tau_1]; ...; \sigma_1^{-1}[x \mapsto v_0^n
-    :_s \tau_0, y \mapsto v_1^n :_s \tau_1] \Vdash f : \tau$}
-    \DisplayProof
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % sharing rule 
