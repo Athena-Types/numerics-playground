@@ -197,9 +197,9 @@ defined as follows:
     \AXC{$\frac{1}{s} \cdot \sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
     \sigma_1' \Vdash (v_0, v_1) : M_r \tau'$} 
     \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \
-    \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \mu (\sigma_1' + \sigma_0 [x
-    \mapsto v_1 :_s \tau']; \sigma_1' + \sigma_0 [x \mapsto v_0 :_s \tau']
-    \Vdash f : M_{s * r} (M_q \tau))$}
+    \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \mu (((\sigma_1' + \sigma_0
+    [x \mapsto v_1 :_s \tau'] \Vdash f), (\sigma_1' + \sigma_0 [x \mapsto v_0
+    :_s \tau'] \Vdash f)) : M_{s * r} (M_q \tau)) : M_{s * r + q} \tau$ }
     \DisplayProof
     % Note that to prove that the right hand side of the rewrite is
     % well-defined, we need to show that \sigma_1, \sigma_1', and \sigma_0 all
@@ -267,9 +267,10 @@ defined as follows:
 
     % TODO: define evaluation contexts and get rid of this def
     \vskip 0.3em
-    \AXC{$\sigma \Vdash e : \tau' \rightsquigarrow \sigma' \Vdash e' : \tau'$}
-    \UIC{$\sigma \Vdash \factor e \ : \tau \rightsquigarrow \sigma' \Vdash
-    \factor e' : \tau $}
+    \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow \sigma' \Vdash e' : M_q
+    \tau_1 \times M_r \tau_2$}
+    \UIC{$\sigma \Vdash \factor e \ : M_s (\tau_1 \times \tau_2)
+    \rightsquigarrow \factor e' : M_s (\tau_1 \times \tau_2)$}
     \DisplayProof
 
 \end{center}
