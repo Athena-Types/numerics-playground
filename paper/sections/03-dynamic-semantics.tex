@@ -104,9 +104,15 @@ To represent computations that may produce multiple values under a
 multi-enviroment (e.g. the rounding effect), the following notation is
 equivalent:
 $$
-\sigma \Vdash v_0;v_1;...;v_n = \gamma_0 \Vdash v_0;...; \gamma_k \Vdash v_n
+\sigma; \sigma' \Vdash v = (\sigma \Vdash v); (\sigma' \Vdash v)
 $$
-where $\sigma =  \gamma_0;...;\gamma_k$.
+
+% and
+% $$
+% \sigma \Vdash v_0;...;v_n = \sigma \Vdash v_0; ...; \sigma \Vdash v_n
+% $$
+
+% where $\sigma =  \gamma_0;...;\gamma_k$.
 
 $\sigma + \sigma'$ represents pairwise concatenation over multi-enviroments,
 defined as follows:
@@ -115,9 +121,9 @@ defined as follows:
   $\gamma_1 + \gamma_2$ = $\gamma_1 :: \gamma_2 $
 \end{definition}
 
-\begin{definition}[Enviroment list sum]
-  $. + .$ = $ . $ and $\gamma_1;\sigma_1 + \gamma_2;\sigma_2$ = $(\gamma_1 +
-  \gamma_2);(\sigma_1 + \sigma_2)$ and $\_ + \_$ = $\bot$ otherwise.
+\begin{definition}[Enviroment tree sum]
+  $. + .$ = $ . $ and $\gamma_0;\gamma_1 + \gamma_2;\gamma_3$ = $(\gamma_0 +
+  \gamma_2);(\sigma_1 + \sigma_3)$ and $\_ + \_$ = $\bot$ otherwise.
 \end{definition}
 
 \begin{figure}
@@ -158,9 +164,9 @@ defined as follows:
     % \gamma_0; ...; \gamma_n \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow
     % \Vdash \gamma_0 \Vdash v; \gamma_n \Vdash \rho(v) : M_q \ \mathbf{num} \\
     \sigma \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow \sigma \Vdash
-    v; v : M_0 \ \tau \\
+    (v, v) : M_0 \ \tau \\
     \sigma \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow \sigma
-    \Vdash v; \rho(v) : M_q \ \mathbf{num} \\
+    \Vdash (v, \rho(v)) : M_q \ \mathbf{num} \\
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % lam app
     \sigma \Vdash (\lambda x : \tau' .e) \ v : \tau &\rightsquigarrow \sigma[x
@@ -179,11 +185,9 @@ defined as follows:
     % Structural rule
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \vskip 0.3em
-    \AXC{$\sigma_0 \Vdash e_0'' \rightsquigarrow \sigma_0' \Vdash e_0'$}
-    \AXC{$...$}
-    \AXC{$\sigma_n \Vdash e_n'' \rightsquigarrow \sigma_n' \Vdash e_n'$}
-    \TIC{$\sigma_0 \Vdash e_0;...;\sigma_n \Vdash e_n \rightsquigarrow \sigma_0'
-    \Vdash e_0';...;\sigma_n' \Vdash e_n'$}
+    \AXC{$\sigma_0 \Vdash e_0 \rightsquigarrow \sigma_0' \Vdash e_0'$}
+    \AXC{$\sigma_1 \Vdash e_1 \rightsquigarrow \sigma_1' \Vdash e_1'$}
+    \BIC{$\sigma_0 \Vdash e_0;\sigma_1 \Vdash e_1 \rightsquigarrow \sigma_0' \Vdash e_0';\sigma_1' \Vdash e_1'$}
     \DisplayProof
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % even more spicy rules
@@ -191,12 +195,15 @@ defined as follows:
     % let-bind rule
     \vskip 0.3em
     \AXC{$\frac{1}{s} \cdot \sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
-    \gamma_0 \Vdash v_0;...;\gamma_n \Vdash v_n : M_r \tau'$} \UIC{ $\sigma_0 +
-    \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \ \tin \ f  : M_{s*r
-    + q} \ \tau \rightsquigarrow \mu (\gamma_n, \sigma_0 [x \mapsto v_n :_s
-    \tau'];...; \gamma_0, \sigma_0 [x \mapsto v_0 :_s \tau'] \Vdash f : M_{s *
-    r} (M_q \tau))$}
+    \sigma_1' \Vdash (v_0, v_1) : M_r \tau'$} 
+    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \
+    \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \mu (\sigma_1' + \sigma_0 [x
+    \mapsto v_1 :_s \tau']; \sigma_1' + \sigma_0 [x \mapsto v_0 :_s \tau']
+    \Vdash f : M_{s * r} (M_q \tau))$}
     \DisplayProof
+    % Note that to prove that the right hand side of the rewrite is
+    % well-defined, we need to show that \sigma_1, \sigma_1', and \sigma_0 all
+    % have the same shape / height
 
     % let-cobind rule
     % \vskip 0.3em
@@ -235,21 +242,27 @@ defined as follows:
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % sharing rule 
+    % We need to compute the union because of programs like:
+    % \langle let-bind x = rnd v in (fun y => x), 0 \rangle
+    % We also need to be using de Bruijn indicies to refer to terms on the
+    % enviorment stack. (Otherwise envs might pollute each other.)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % TODO: update rule to thread \sigmas
     \vskip 0.3em
-    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* v_0^0;...;v_0^n : \tau_0$}
-    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1^0;...;v_1^n : \tau_1$}
+    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow \sigma_0 \Vdash e_0':
+    \tau_0$}
+    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow \sigma_1 \Vdash e_1' :
+    \tau_1$}
     \BIC{$\sigma \Vdash \langle e_0, e_1 \rangle \ : \tau_0 \times \tau_1
-    \rightsquigarrow \Sigma_{i=0}^n \Sigma_{j=0}^n \langle v_0^i, v_1^j \rangle: \tau_0 \times \tau_1$}
+    \rightsquigarrow \sigma_0 + \sigma_1 \Vdash \langle e_0', e_1' \rangle:
+    \tau_0 \times \tau_1$}
     \DisplayProof
 
-    % TODO: update rule to thread \sigmas
     \vskip 0.3em
-    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* v_0^0;...;v_0^n : \tau_0$}
-    \AXC{$\sigma' \Vdash e_1 : \tau_1 \rightsquigarrow^* v_1^0;...;v_1^n : \tau_1$}
+    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow \sigma_0 \Vdash e_0': \tau_0$}
+    \AXC{$\sigma' \Vdash e_1 : \tau_1 \rightsquigarrow \sigma_1 \Vdash e_1' : \tau_1$}
     \BIC{$\sigma + \sigma' \Vdash ( e_0, e_1 ) \ : \tau_0 \tensor \tau_1
-    \rightsquigarrow \Sigma_{i=0}^n \Sigma_{j=0}^n (v_0^i, v_1^j) : \tau_0 \tensor \tau_1$}
+    \rightsquigarrow \sigma_0 + \sigma_1 \Vdash (e_0', e_1') : \tau_0 \tensor
+    \tau_1$}
     \DisplayProof
 
     % TODO: define evaluation contexts and get rid of this def
