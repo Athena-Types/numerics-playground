@@ -134,12 +134,12 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % more spicy rules
     % Lookup (sensitivity budget 1)
-    \sigma[x \mapsto v :_1 \tau] \Vdash \ x \ : \tau &\rightsquigarrow 
-    \sigma \Vdash v : \tau \\
+    % \sigma[x \mapsto v :_1 \tau] \Vdash \ x \ : \tau &\rightsquigarrow 
+    % \sigma \Vdash v : \tau \\
     % Lookup (sensitivity budget greater than 1)
-    \sigma[x \mapsto v :_{s} \tau] \Vdash \ x \ : \tau &\rightsquigarrow
-    \sigma[x \mapsto v :_{s-1} \tau] \Vdash v : \tau \quad{(\text{with } 1 < s)}
-    \\
+    % \sigma[x \mapsto v :_{s} \tau] \Vdash \ x \ : \tau &\rightsquigarrow
+    % \sigma[x \mapsto v :_{s-1} \tau] \Vdash v : \tau \quad{(\text{with } 1 < s)}
+    % \\
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Max: there are two ways to write these rounding rules. Curently, the
     % explicit style is favored where rnd and ret can be evaluated at no more
@@ -163,10 +163,11 @@ defined as follows:
     % 2. Equivalent setup with implicit handling of multiple enviroments:
     % \gamma_0; ...; \gamma_n \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow
     % \Vdash \gamma_0 \Vdash v; \gamma_n \Vdash \rho(v) : M_q \ \mathbf{num} \\
-    \sigma \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow \sigma \Vdash
-    \langle v, v \rangle : M_0 \ \tau \\
-    \sigma \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow \sigma
-    \Vdash \langle v, \rho(v) \rangle : M_q \ \mathbf{num} \\
+    \sigma \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow (\sigma;
+    \sigma) [\alpha \mapsto v :_1 \tau] \Vdash \alpha : M_0 \ \tau \\
+    \sigma \Vdash \mathbf{rnd} \ v : M_q \ \tau &\rightsquigarrow \sigma [\alpha
+    \mapsto v :_1 \tau]; \sigma [\alpha \mapsto \rho(v) :_1 \tau] \Vdash \alpha : M_q
+    \ \tau \\
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % lam app
     \sigma \Vdash (\lambda x : \tau' .e) \ v : \tau &\rightsquigarrow \sigma[x
@@ -179,6 +180,16 @@ defined as follows:
     % proj rule
     \sigma \Vdash \pi_i\langle v_1,v_2 \rangle : \tau &\rightsquigarrow \sigma
     \Vdash v_i : \tau \\ 
+    % ini rules
+    \sigma \Vdash \tin_i v &\rightsquigarrow \sigma[\alpha \mapsto v]
+    \Vdash \ \tin_i \ \alpha \quad \text{(where $v$ is not a var)} \\
+    % case .. of .. rule
+    \sigma \Vdash \mathbf{case} \ \tin_1 v \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \
+    \tin_2 \ x.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto v :_s \tau]
+    \Vdash f_i : \tau \\
+    \sigma [x \mapsto \tin_i \ y :_s \tau'] \Vdash \mathbf{case} \ x \ \mathbf{of} \ (\tin_1 \
+    z.f_1 \ | \ \tin_2 \ z.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto \ \tin_i \ y
+    :_{s-1} \tau][z \mapsto y :_1 \tau'] \Vdash f_i : \tau \\ 
   \end{aligned}
 \end{equation*}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -194,12 +205,15 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % let-bind rule
     \vskip 0.3em
-    \AXC{$\frac{1}{s} \cdot \sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
-    \sigma_1' \Vdash \langle v_0, v_1 \rangle : M_r \tau'$} 
-    \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x = e \
-    \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \mu (((\sigma_1' + \sigma_0
-    [x \mapsto v_1 :_s \tau']); (\sigma_1' + \sigma_0 [x \mapsto v_0
-    :_s \tau'])) \Vdash f : M_{s * r} (M_q \tau)) : M_{s * r + q} \tau$ }
+    \AXC{$\sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
+    \sigma_1';\sigma_1'' \Vdash v_1 : M_r \tau'$}
+    \AXC{$\sigma_1' + \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
+    \sigma_2;\sigma_3 \Vdash v_2 : M_r \tau'$} 
+    \AXC{$\sigma_1'' + \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
+    \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau'$} 
+    \TIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x
+    = e \ \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \sigma_2; \sigma_5
+    \Vdash v_2$}
     \DisplayProof
     % Note that to prove that the right hand side of the rewrite is
     % well-defined, we need to show that \sigma_1, \sigma_1', and \sigma_0 all
@@ -275,7 +289,9 @@ defined as follows:
 
 \end{center}
     \caption{Enviroment-style evaluation rules for \Lang, ordered by precedence.
-    Note that during type checking but prior to running the operational
+    Note that $\alpha$ is a metavar. It denotes a fresh variable when appearing
+    on the right hand side of the rewrite relation.
+    Note also that during type checking but prior to running the operational
     semanitcs, the sensitivity information (tracked with metavar $s$) and type
     of bound variables $\tau', \tau_2$, is preserved as annotations in the
     syntax, written $[e]_s$ and $\textbf{let-bind}_{(s, \tau')}$,

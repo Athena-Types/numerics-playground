@@ -102,11 +102,11 @@
 
 % sum elim
 \AXC{$\Gamma \vdash e : \sigma+\tau$}
-\AXC{$\Theta, x:_s \sigma \vdash f : \rho$ \qquad
-$\Theta, x:_s \tau \vdash g: \rho$}
+\AXC{$\Theta, x:_s \sigma \vdash f_1 : \rho$ \qquad
+$\Theta, x:_s \tau \vdash f_2: \rho$}
 \RightLabel{($+$ E)}
 \AXC{$s > 0$}
-\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f \ | \ \mathbf{in}_2 x.g) : \rho$}
+\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \rho$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em

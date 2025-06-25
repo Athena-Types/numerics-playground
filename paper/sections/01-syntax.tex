@@ -12,19 +12,20 @@
          \mid {M_u \tau}
          \\
          &\text{Values } v, w \ &::=~ &\langle \rangle
+         \mid x
          \mid k \in R
          \mid \langle v,w \rangle 
          \mid (v, w)
-         \mid \tin_i \ v
-         \mid \lambda x.~e \\
+         \mid \tin_i \ x
+         \mid \lambda x.~e
+         \mid \mathbf{op}(v) \\
          % & & & \mid [v]
          % \mid\rnd v
          % \mid {\ret v} 
          % \mid \factor v
          % \mid \letbind x = v \ \tin \ f 
          \\
-         &\text{Terms } e, f, g &::=~ &x
-         \mid v
+         &\text{Terms } e, f, g &::=~ &v
          \mid \mathbf{op}(e)
          \mid e~f
          \mid {\pi}_i\ e
@@ -34,7 +35,7 @@
          \mid \letassign x  = e \ \tin \ f \\
          & & & \mid \tin_i \ e
          \mid 
-          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f \ | \ \tin_2 \ x.g) \\
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2) \\
          & & &
          \mid [e]
          \mid \rnd e

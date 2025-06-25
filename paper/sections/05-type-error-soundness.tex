@@ -8,7 +8,7 @@ Semantics is preserved under operational stepping. If $\sigma \Vdash e : \tau \r
 If the semantics of a program is equivalent to the semantics of a value, it must
 reduce to that value. If $\llbracket \sigma \Vdash e : \tau \rrbracket =
 \llbracket v : \tau \rrbracket$, then $\sigma \Vdash e : \tau
-\rightsquigarrow^{*} v : \tau$
+\rightsquigarrow^{*} \sigma' \Vdash v : \tau$
 
 Syntactically well-typed programs are non-expansive. For $\Gamma \vdash e : \tau
 $ and $\llbracket \sigma \rrbracket, \llbracket \sigma' \rrbracket \in
