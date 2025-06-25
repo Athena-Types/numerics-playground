@@ -213,11 +213,20 @@ defined as follows:
     \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau'$} 
     \TIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x
     = e \ \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \sigma_2; \sigma_5
-    \Vdash v_2$}
+    \Vdash v_2 : M_{s*r + q} \ \tau$}
     \DisplayProof
     % Note that to prove that the right hand side of the rewrite is
     % well-defined, we need to show that \sigma_1, \sigma_1', and \sigma_0 all
-    % have the same shape / height
+    % have the same shape / height 
+    % We also need to have v_2 be syntatically the same in both branches.
+    \vskip 0.3em
+    \AXC{$\sigma_1 \Vdash e : !_s \tau' \rightsquigarrow^*
+    \sigma_1' \Vdash v_1 : !_s \tau'$}
+    \AXC{$\sigma_1' + \sigma_0 [x \mapsto v_1 :_{s * t} \tau'] \Vdash f \rightsquigarrow^*
+    \sigma_2 \Vdash v_2 : M_r \tau'$} 
+    \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-cobind}_{(s, \tau')} \
+    x = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau $}
+    \DisplayProof
 
     % let-cobind rule
     % \vskip 0.3em
