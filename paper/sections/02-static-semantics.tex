@@ -6,20 +6,20 @@
 %% var
 \AXC{$s \ge 1$}
 \RightLabel{(Var)}
-\UIC{$\Gamma, x:_s \sigma, \Delta \vdash x : \sigma$}
+\UIC{$\Gamma, x:_s \tau, \Delta \vdash x : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% fun
-\AXC{$\Gamma, x:_1 \sigma \vdash e : \tau$}
+\AXC{$\Gamma, x:_1 \tau_0 \vdash e : \tau$}
 \RightLabel{($\multimap$ I)}
-\UnaryInfC{$\Gamma \vdash \lambda x. e : \sigma \multimap \tau $}
+\UnaryInfC{$\Gamma \vdash \lambda x. e : \tau_0 \multimap \tau $}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% app
-\AXC{$\Gamma \vdash e : \sigma \multimap \tau$}
-\AXC{$\Theta \vdash f : \sigma $}
+\AXC{$\Gamma \vdash e : \tau_0 \multimap \tau$}
+\AXC{$\Theta \vdash f : \tau_0 $}
 \RightLabel{($\multimap$ E)}
 \BinaryInfC{$\Gamma + \Theta \vdash ef : \tau $}
 \bottomAlignProof
@@ -36,10 +36,10 @@
 \DisplayProof
 \hskip 0.5em
 %% dep prod intro
-\AXC{$\Gamma \vdash e : \sigma$}
-\AXC{$\Gamma \vdash f : \tau$}
+\AXC{$\Gamma \vdash e : \tau_0$}
+\AXC{$\Gamma \vdash f : \tau_1$}
 \RightLabel{($\times$ I)}
-\BinaryInfC{$\Gamma \vdash \langle e, f \rangle: \sigma \times \tau $}
+\BinaryInfC{$\Gamma \vdash \langle e, f \rangle: \tau_0 \times \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -53,18 +53,18 @@
 %%
 
 %% ind prod intro
-\AXC{$\Gamma \vdash e : \sigma $}
-\AXC{$\Theta \vdash f : \tau$}
+\AXC{$\Gamma \vdash e : \tau_0 $}
+\AXC{$\Theta \vdash f : \tau_1$}
 \RightLabel{($\tensor$ I)}
-\BIC{$\Gamma + \Theta \vdash (e, f) : \sigma \tensor \tau$}
+\BIC{$\Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% ind prod elim
-\AXC{$\Gamma \vdash e : \sigma \tensor \tau$ }
-\AXC{$\Theta,x:_s \sigma,y:_s\tau \vdash f: \rho $}
+\AXC{$\Gamma \vdash e : \tau_0 \tensor \tau_1$ }
+\AXC{$\Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
 \RightLabel{($\tensor$ E)}
-\BIC{$s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \rho $}
+\BIC{$s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -74,22 +74,22 @@
 %% ROW 4
 
 %% ind sum intro
-\AXC{$\Gamma \vdash e : \sigma$ }
+\AXC{$\Gamma \vdash e : \tau_0$ }
 \RightLabel{($+$ $\text{I}_1$)}
-\UIC{$\Gamma \vdash \mathbf{in}_1 \ e : \sigma + \tau$}
+\UIC{$\Gamma \vdash \mathbf{in}_1 \ e : \tau_0 + \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% ind sum intro
-\AXC{$\Gamma \vdash e : \tau$ }
+\AXC{$\Gamma \vdash e : \tau_1$ }
 \RightLabel{($+$ $\text{I}_2$)}
-\UIC{$\Gamma \vdash \mathbf{in}_2 \ e : \sigma + \tau$}
+\UIC{$\Gamma \vdash \mathbf{in}_2 \ e : \tau_0 + \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % box elim
-\AXC{$\Gamma \vdash e : {!_s \sigma}$}
-\AXC{$\Theta, x:_{t*s} \sigma \vdash f : \tau$}
+\AXC{$\Gamma \vdash e : {!_s \tau_0}$}
+\AXC{$\Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
 \RightLabel{($!$ E)}
 \BIC{$t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
 \bottomAlignProof
@@ -101,19 +101,19 @@
 %% ROW 5
 
 % sum elim
-\AXC{$\Gamma \vdash e : \sigma+\tau$}
-\AXC{$\Theta, x:_s \sigma \vdash f_1 : \rho$ \qquad
-$\Theta, x:_s \tau \vdash f_2: \rho$}
+\AXC{$\Gamma \vdash e : \tau_0+\tau_1$}
+\AXC{$\Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
+$\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \RightLabel{($+$ E)}
 \AXC{$s > 0$}
-\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \rho$}
+\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % box intro
-\AXC{$\Gamma \vdash e : \sigma$ }
+\AXC{$\Gamma \vdash e : \tau$ }
 \RightLabel{($!$ I)}
-\UIC{$s * \Gamma \vdash [e] : {!_s \sigma}$}
+\UIC{$s * \Gamma \vdash [e] : {!_s \tau}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -121,10 +121,10 @@ $\Theta, x:_s \tau \vdash f_2: \rho$}
 %%% ROW 6
 
 % let 
-\AXC{$\Gamma \vdash e :  \tau$}
-\AXC{$\Theta, x:_{s} \tau \vdash f : \sigma$}
+\AXC{$\Gamma \vdash e :  \tau_0$}
+\AXC{$\Theta, x:_{s} \tau \vdash f : \tau$}
 \RightLabel{(Let)}
-\BIC{$s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \sigma$}
+\BIC{$s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -167,16 +167,16 @@ $\Theta, x:_s \tau \vdash f_2: \rho$}
 
 
 % let-bind
-\AXC{$\Gamma \vdash e : M_r \sigma$}
-\AXC{$\Theta, x:_{s} \sigma \vdash f : M_{q} \tau$}
+\AXC{$\Gamma \vdash e : M_r \tau_0$}
+\AXC{$\Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
 \RightLabel{($M_u$ E)}
 \BIC{$s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % funs
-\AXC{$\Gamma \vdash e : \sigma$}
-\AXC{$\{ \mathbf{op} :\sigma \lin \num \} \in {\Sigma}$}
+\AXC{$\Gamma \vdash e : \tau$}
+\AXC{$\{ \mathbf{op} :\tau \lin \num \} \in {\Sigma}$}
 \RightLabel{(Op)}
 \BIC{$\Gamma \vdash \mathbf{op}(e) : \num$}
 \bottomAlignProof
@@ -189,11 +189,11 @@ $\Theta, x:_s \tau \vdash f_2: \rho$}
 
 
 % factor
-\AXC{$\Gamma \vdash e : (M_q \tau) \times (M_r \sigma)$}
+\AXC{$\Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
 %\AXC{$r + q \leq s$}
 %\AXC{$s = max(r,q)$}
 \RightLabel{(Factor)}
-\UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} (\tau \times \sigma)$}
+\UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
 \bottomAlignProof
 \DisplayProof
 
