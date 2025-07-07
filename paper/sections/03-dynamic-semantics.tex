@@ -105,11 +105,11 @@ $x_1 \to v_1 :_s \tau'$.
       % We need the :s to so that we can check that the env sensitivity
       % annocation matches up. So the below case is (I think) bad:
       % remove :s case
-      % \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
-      % \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times ((d_x, X)) \\
+      \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s (d_x, X) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times ((d_x, X)) \\
       % comonad case
-      \sigma \textit{ \underline{com} } \Gamma, x:_t !_s \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
-      \sigma \textit{ \underline{com} } \Gamma, x :_{s * t} \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
+      \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
       % monad case
       \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{ \underline{at} } (\alpha, (p, q)) \textit{ \underline{in} } (d, Y) \times T_r ((d_x, X)) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \\
@@ -117,7 +117,7 @@ $x_1 \to v_1 :_s \tau'$.
       & \text{ and } d_x (p, q) \leq r \\
       & \text{ and } p, q \in X \\
       % unit case
-      \sigma[x \mapsto * :_s \tau] \textit{ \underline{com} } \Gamma, x:_s \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
+      \sigma[x \mapsto * : \tau] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
     \end{aligned}
   \end{equation}
