@@ -36,13 +36,15 @@
   \in \textit{config}, \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \not= \bot \} \\
   % todo: fill in more cases
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %%%             Tree case             %%%
+  %%%            Tree cases             %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % todo: check this, maybe encode internal choice somehow?
-  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau} &\triangleq (\llbracket \sigma
-  \Vdash e; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau}) \\
+  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau_0 \times \tau_1} &\triangleq (\llbracket \sigma
+  \Vdash e \rrbracket_{\tau_0}; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau_1}) \\
+  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{M_q \tau} &\triangleq (\llbracket \sigma
+  \Vdash e \rrbracket_{\tau}; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau}) \\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %%%             Expr case             %%%
+  %%%            Expr case              %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \llbracket \sigma \Vdash e \rrbracket_{\tau} &\triangleq \llbracket \sigma'
   \Vdash v\rrbracket_{\tau} \quad{\text{ if } \sigma \Vdash e
