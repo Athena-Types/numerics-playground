@@ -1,1 +1,49 @@
 \section{Denotational Semantics}
+\begin{definition}[Type interpretation]
+  A type $\tau$ is interpreted with $\llbracket - \rrbracket : \textit{type} \to
+  \textbf{Met}$ in the same way as in the original NumFuzz system.
+  % TODO: put actual definition here.
+\end{definition}
+
+\begin{definition}[Context interpretation]
+  A typing context $\Gamma$ is interpreted with $\llbracket - \rrbracket :
+  \textit{context} \to \textbf{Met}$ in the following way:
+  \begin{enumerate}
+    \item $\llbracket . \rrbracket$ = .
+    \item $\llbracket \Gamma, x : \tau \rrbracket$ = $\llbracket \Gamma \rrbracket
+      \times \llbracket \tau \rrbracket$
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}[Enviroment compatibility]
+  % Note: We can rewrite this defintion in a different style (without Coq-style
+  % props) if that's easier to understand.
+  Enviroment $\sigma$ is compatible with a typing context $\Gamma$ if and only
+  if there exists a point $p \in \llbracket \Gamma \rrbracket$ such that:
+  $$\sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p \textit{ \underline{in} } \llbracket \Gamma
+  \rrbracket : \textit{env} \times \textit{ctx} \times \textit{point} \times
+  \textbf{Met} \to \text{Prop}$$ 
+  holds (read as $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
+  space $\llbracket \Gamma \rrbracket$), where:
+  \begin{equation}
+    \begin{aligned}[c] 
+      % We need the :s to so that we can check that the env sensitivity
+      % annocation matches up. So the below case is (I think) bad:
+      % remove :s case
+      \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s (d_x, X) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times ((d_x, X)) \\
+      % comonad case
+      \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
+      % monad case
+      \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{ \underline{at} } (\alpha, (p, q)) \textit{ \underline{in} } (d, Y) \times T_r ((d_x, X)) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \\
+      & \text{ and } \sigma' \textit{ \underline{com} } \Gamma, x : \tau \text{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Y) \\
+      & \text{ and } d_x (p, q) \leq r \\
+      & \text{ and } p, q \in X \\
+      % unit case
+      \sigma[x \mapsto * : \tau] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
+    \end{aligned}
+  \end{equation}
+\end{definition}
