@@ -55,18 +55,75 @@ necessarily to values).
     \label{fig:sub_eval_rules}
 \end{figure}
 
-\subsection{(Typed) Enviroment-style Operational Semantics}
+\subsection{Enviroment-style Operational Semantics}
 The following is defined over typed terms. In particular, we define the
 operational semantics rewrite relation $\rightsquigarrow$ to map from a typed
-term in program multi-enviroments to a typed term in program multi-enviroments. Note
-that in this setup, $\letbind x = v \ \tin \ f$, $[x]$, and $x$ are \textit{not}
-values.
+term in program enviroment trees to a typed term in program enviroment trees. 
+
+$$
+\textit{config} \subseteq \textit{env} \times \textit{expr}
+$$
+
+$$
+\rightsquigarrow \subseteq \textit{config} \times \textit{config}
+$$
 
 To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
 running in a enviroment (or multi-enviroment) $\sigma$ mapping variables like
 $x_1$ to value $v_1$ with type $\tau'$ and sensitivity budget $s_1$ to a $e'$
 with type $\tau'$ and enviroment $\sigma'$. So, $\sigma$ send variables like
 $x_1 \to v_1 :_s \tau'$.
+
+\begin{definition}[Type interpretation]
+  A type $\tau$ is interpreted with $\llbracket - \rrbracket : \textit{type} \to
+  \textbf{Met}$ in the same way as in the original NumFuzz system.
+  % TODO: put actual definition here.
+\end{definition}
+
+\begin{definition}[Context interpretation]
+  A typing context $\Gamma$ is interpreted with $\llbracket - \rrbracket :
+  \textit{context} \to \textbf{Met}$ in the following way:
+  \begin{enumerate}
+    \item $\llbracket . \rrbracket$ = .
+    \item $\llbracket \Gamma, x : \tau \rrbracket$ = $\llbracket \Gamma \rrbracket
+      \times \llbracket \tau \rrbracket$
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}[Enviroment compatibility]
+  % Note: We can rewrite this defintion in a different style (without Coq-style
+  % props) if that's easier to understand.
+  Enviroment $\sigma$ is compatible with a typing context $\Gamma$ if and only
+  if there exists a point $p \in \llbracket \Gamma \rrbracket$ such that:
+  $$\sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p \textit{ \underline{in} } \llbracket \Gamma
+  \rrbracket : \textit{env} \times \textit{ctx} \times \textit{point} \times
+  \textbf{Met} \to \text{Prop}$$ 
+  holds (read as $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
+  space $\llbracket \Gamma \rrbracket$), where:
+  \begin{equation}
+    \begin{aligned}[c] 
+      % We need the :s to so that we can check that the env sensitivity
+      % annocation matches up. So the below case is (I think) bad:
+      % remove :s case
+      % \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
+      % \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times ((d_x, X)) \\
+      % comonad case
+      \sigma \textit{ \underline{com} } \Gamma, x:_t !_s \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x :_{s * t} \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
+      % monad case
+      \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{ \underline{at} } (\alpha, (p, q)) \textit{ \underline{in} } (d, Y) \times T_r ((d_x, X)) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Y) \\
+      & \text{ and } \sigma' \textit{ \underline{com} } \Gamma, x : \tau \text{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Y) \\
+      & \text{ and } d_x (p, q) \leq r \\
+      & \text{ and } p, q \in X \\
+      % unit case
+      \sigma[x \mapsto * :_s \tau] \textit{ \underline{com} } \Gamma, x:_s \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
+    \end{aligned}
+  \end{equation}
+\end{definition}
+
+%% TODO: finish def; ignore stuff below
 
 A (multi-)enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
 $\llbracket \sigma \rrbracket$ is a point within metric space $\llbracket \Gamma
@@ -211,9 +268,9 @@ defined as follows:
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
     \sigma_1';\sigma_1'' \Vdash v_1 : M_r \tau'$}
-    \AXC{$\sigma_1' + \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
+    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
     \sigma_2;\sigma_3 \Vdash v_2 : M_r \tau'$} 
-    \AXC{$\sigma_1'' + \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
+    \AXC{$\sigma_1'' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
     \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau'$} 
     \TIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x
     = e \ \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \sigma_2; \sigma_5
@@ -226,7 +283,7 @@ defined as follows:
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : !_s \tau' \rightsquigarrow^*
     \sigma_1' \Vdash v_1 : !_s \tau'$}
-    \AXC{$\sigma_1' + \sigma_0 [x \mapsto v_1 :_{s * t} \tau'] \Vdash f \rightsquigarrow^*
+    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_{s * t} \tau'] \Vdash f \rightsquigarrow^*
     \sigma_2 \Vdash v_2 : M_r \tau'$} 
     \BIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-cobind}_{(s, \tau')} \
     x = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau $}
@@ -235,7 +292,7 @@ defined as follows:
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : \tau_0 \rightsquigarrow^* \sigma_1' \Vdash (v_0,
     v_1) : \tau_0$}
-    \AXC{$\sigma_1' + \sigma_0 [x \mapsto v_0 : \tau_0][y \mapsto v_1 : \tau_1]
+    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_0 : \tau_0][y \mapsto v_1 : \tau_1]
     \Vdash f \rightsquigarrow^* \sigma_2 \Vdash v_2 : M_r \tau'$} 
     \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0,
     \tau_1)} \ (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash
@@ -295,7 +352,7 @@ defined as follows:
     (\sigma_0;\sigma_1);(\sigma_2; \sigma_3) \Vdash v : M_q \tau_1 \times M_r
     \tau_2$}
     \UIC{$\sigma \Vdash \factor e \ : M_{max(q, r)} (\tau_1 \times \tau_2)
-    \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) : M_{max(q, r)}
+    \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v : M_{max(q, r)}
     (\tau_1 \times \tau_2)$}
     \DisplayProof
     % TODO: define evaluation contexts and get rid of this def
