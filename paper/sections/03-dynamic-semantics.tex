@@ -125,53 +125,7 @@ $x_1 \to v_1 :_s \tau'$.
 
 %% TODO: finish def; ignore stuff below
 
-A (multi-)enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
-$\llbracket \sigma \rrbracket$ is a point within metric space $\llbracket \Gamma
-\rrbracket$ (after erasing $\sigma$'s $0$-sensitive variables). Abusing notation
-a little, I write this like so: $\llbracket \sigma \rrbracket \in \llbracket
-\Gamma \rrbracket$.
-% spell out definiion more
-
-% \begin{equation*}
-%   \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket 
-%   \triangleq \forall
-%   \\ 
-%   (x \mapsto v :_s \tau) \in \sigma, 0 < s \implies (x :_s \tau) \in 
-%   \Gamma
-% \end{equation*}
-
-% spell out definiion more
-Similarly, $\llbracket \sigma \Vdash e : \tau \rrbracket$ is
-interpreted as the point in the metric space $\llbracket \tau \rrbracket$
-obtained by running e at $\sigma$.
-
-Note that $\sigma$ is ordered in the case that variables are shadowed. $\sigma[x
-\mapsto v :_s \tau]$ denotes lookup from the right (when on the left-hand side
-of a rewrite relation) or insertion from the right (when on the right-hand side
-of a rewrite relation).
-
-Since we are affine, once we reduce to a value we do not care what happens to
-leftover variables in the enviroment. Therefore, the following notation are
-equivalent:
-$$
-\sigma_{idc} \Vdash v = \ \Vdash v = v
-$$
-
-To represent computations that may produce multiple values under a
-multi-enviroment (e.g. the rounding effect), the following notation is
-equivalent:
-$$
-\sigma; \sigma' \Vdash v = (\sigma \Vdash v); (\sigma' \Vdash v)
-$$
-
-% and
-% $$
-% \sigma \Vdash v_0;...;v_n = \sigma \Vdash v_0; ...; \sigma \Vdash v_n
-% $$
-
-% where $\sigma =  \gamma_0;...;\gamma_k$.
-
-$\sigma + \sigma'$ represents pairwise concatenation over multi-enviroments,
+$\sigma + \sigma'$ represent pointwise concatenation over multi-enviroments,
 defined as follows:
 
 \begin{definition}[Enviroment sum]
@@ -182,6 +136,11 @@ defined as follows:
   $. + .$ = $ . $ and $\gamma_0;\gamma_1 + \gamma_2;\gamma_3$ = $(\gamma_0 +
   \gamma_2);(\sigma_1 + \sigma_3)$ and $\_ + \_$ = $\bot$ otherwise.
 \end{definition}
+
+$\sigma @ \sigma'$ represent adding $\sigma'$ at each of the leafs of $\sigma$,
+defined as follows:
+
+%% TODO: type up definition
 
 \begin{figure}
 \begin{center}
