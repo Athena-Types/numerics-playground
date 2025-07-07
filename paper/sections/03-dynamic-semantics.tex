@@ -128,17 +128,30 @@ $x_1 \to v_1 :_s \tau'$.
 $\sigma + \sigma'$ represent pointwise concatenation over multi-enviroments,
 defined as follows:
 
-\begin{definition}[Enviroment sum]
+\begin{definition}[Enviroment sum, pairwise]
   $\gamma_1 + \gamma_2$ = $\gamma_1 :: \gamma_2 $
 \end{definition}
 
-\begin{definition}[Enviroment tree sum]
-  $. + .$ = $ . $ and $\gamma_0;\gamma_1 + \gamma_2;\gamma_3$ = $(\gamma_0 +
-  \gamma_2);(\sigma_1 + \sigma_3)$ and $\_ + \_$ = $\bot$ otherwise.
+\begin{definition}[Enviroment tree sum, pairwise]
+  \begin{equation}
+    \begin{aligned}[c]
+      . + . &=  . \\ 
+      \gamma_0;\gamma_1 + \gamma_2;\gamma_3 &= (\gamma_0 + \gamma_2);(\sigma_1 + \sigma_3) \\ 
+      \_ + \_ &= \bot \quad{\text{(otherwise)}}
+    \end{aligned}
+  \end{equation}
 \end{definition}
 
 $\sigma @ \sigma'$ represent adding $\sigma'$ at each of the leafs of $\sigma$,
 defined as follows:
+\begin{definition}[Enviroment sum, at leaf]
+  \begin{equation}
+    \begin{aligned}[c]
+      \sigma_1; \sigma_2 @ \sigma &= (\sigma_1 @ \sigma);(\sigma_2 @ \sigma) \\
+      \gamma @ (\sigma_1; \sigma_2) &= (\gamma @ \sigma_1);(\gamma @ \sigma_2)
+    \end{aligned}
+  \end{equation}
+\end{definition}
 
 %% TODO: type up definition
 
