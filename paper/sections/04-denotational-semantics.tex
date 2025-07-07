@@ -8,14 +8,52 @@
 \begin{definition}[Context interpretation]
   A typing context $\Gamma$ is interpreted with $\llbracket - \rrbracket :
   \textit{context} \to \textbf{Met}$ in the following way:
-  \begin{enumerate}
-    \item $\llbracket . \rrbracket$ = .
-    \item $\llbracket \Gamma, x : \tau \rrbracket$ = $\llbracket \Gamma \rrbracket
-      \times \llbracket \tau \rrbracket$
-  \end{enumerate}
+  \begin{equation}
+  \begin{aligned}[c]
+    \llbracket . \rrbracket &\triangleq . \\
+    \llbracket \Gamma, x : \tau \rrbracket &\triangleq \llbracket \Gamma \rrbracket
+      \times \llbracket \tau \rrbracket
+  \end{aligned}
+  \end{equation}
 \end{definition}
 
-\begin{definition}[Enviroment compatibility]
+\begin{definition}[Machine configuration interpretation]
+  A machine configuration $\sigma \Vdash e$ is interpreted with $\llbracket -
+  \rrbracket_{ - } : \textit{config} \times \textit{type} \to \textit{point}$
+  in the following way:
+  \begin{equation}
+  \begin{aligned}[c]
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%    Base cases (value and leaf)    %%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \llbracket \gamma \Vdash \langle \rangle \rrbracket_{\textbf{unit}}
+  &\triangleq * \\
+  \llbracket \gamma [x \mapsto v] \Vdash x \rrbracket_{\tau}
+  &\triangleq \llbracket \gamma \Vdash v \rrbracket_{\tau} \\
+  \llbracket \gamma \Vdash \lambda x . e \rrbracket_{\tau_0 \multimap \tau_1}
+  &\triangleq \{ (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket \gamma +
+  \sigma \Vdash (\lambda x . e) v \rrbracket_{\tau_1}) \> | \> \forall \sigma \Vdash v
+  \in \textit{config}, \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \not= \bot \} \\
+  % todo: fill in more cases
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%             Tree case             %%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % todo: check this, maybe encode internal choice somehow?
+  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau} &\triangleq (\llbracket \sigma
+  \Vdash e; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau}) \\
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%             Expr case             %%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \llbracket \sigma \Vdash e \rrbracket_{\tau} &\triangleq \llbracket \sigma'
+  \Vdash v\rrbracket_{\tau} \quad{\text{ if } \sigma \Vdash e
+  \rightsquigarrow^* \sigma' \Vdash v}
+  \end{aligned}
+  \end{equation}
+  This is a well-founded relation with $\tau$ decreasing or $\tau$ constant and
+  $\gamma$ decreasing in size.
+\end{definition}
+
+\begin{definition}[Environment compatibility]
   % Note: We can rewrite this defintion in a different style (without Coq-style
   % props) if that's easier to understand.
   Enviroment $\sigma$ is compatible with a typing context $\Gamma$ if and only
@@ -27,8 +65,6 @@
   space $\llbracket \Gamma \rrbracket$), where:
   \begin{equation}
     \begin{aligned}[c] 
-      % We need the :s to so that we can check that the env sensitivity
-      % annocation matches up. So the below case is (I think) bad:
       % remove :s case
       \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s (d_x, X) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times ((d_x, X)) \\
