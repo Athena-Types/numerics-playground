@@ -40,9 +40,9 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % todo: check this, maybe encode internal choice somehow?
   \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau_0 \times \tau_1} &\triangleq (\llbracket \sigma
-  \Vdash e \rrbracket_{\tau_0}; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau_1}) \\
+  \Vdash e \rrbracket_{\tau_0}, \llbracket \sigma' \Vdash e \rrbracket_{\tau_1}) \\
   \llbracket \sigma; \sigma' \Vdash e \rrbracket_{M_q \tau} &\triangleq (\llbracket \sigma
-  \Vdash e \rrbracket_{\tau}; \llbracket_{\tau} \sigma' \Vdash e \rrbracket_{\tau}) \\
+  \Vdash e \rrbracket_{\tau}, \llbracket \sigma' \Vdash e \rrbracket_{\tau}) \\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%            Expr case              %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,8 +51,9 @@
   \rightsquigarrow^* \sigma' \Vdash v}
   \end{aligned}
   \end{equation}
-  This is a well-founded relation with $\tau$ decreasing or $\tau$ constant and
-  $\gamma$ decreasing in size.
+  This is a well-founded relation defined first on values, with $\tau$
+  decreasing or $\tau$ constant and $\gamma$ decreasing in size. It is then
+  defined on expressions that are not values, if it can be rewritten to a value.
 \end{definition}
 
 \begin{definition}[Environment compatibility]
