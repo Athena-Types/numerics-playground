@@ -27,15 +27,14 @@
   %%%    Base cases (value and leaf)    %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \llbracket \gamma \Vdash \langle \rangle \rrbracket_{\textbf{unit}}
-  &\triangleq * \\
-  \llbracket \gamma \Vdash k \rrbracket_{\textbf{num}}
-  &\triangleq k \\
+    &\triangleq * \\
+  \llbracket \gamma \Vdash k \rrbracket_{\textbf{num}} &\triangleq k \\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%                                   %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
-  \llbracket \gamma [x \mapsto v] \Vdash x \rrbracket_{\tau}
-  &\triangleq \llbracket \gamma \Vdash v \rrbracket_{\tau} \\
+  \llbracket \gamma [x \mapsto v] \Vdash x \rrbracket_{\tau} &\triangleq
+    \llbracket \gamma \Vdash v \rrbracket_{\tau} \\
   \llbracket \gamma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
     (\llbracket \gamma \Vdash v \rrbracket_{\tau_0}, \llbracket \gamma \Vdash v
     \rrbracket_{\tau_1}) \\
@@ -65,8 +64,8 @@
   %%%            Expr case              %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \llbracket \sigma \Vdash e \rrbracket_{\tau} &\triangleq \llbracket \sigma'
-  \Vdash v\rrbracket_{\tau} \quad{\text{ if } \sigma \Vdash e
-  \rightsquigarrow^* \sigma' \Vdash v}
+    \Vdash v\rrbracket_{\tau} \quad{\text{ if } \sigma \Vdash e
+    \rightsquigarrow^* \sigma' \Vdash v}
   \end{aligned}
   \end{equation}
   This is a well-founded relation defined first on values, with $\tau$
