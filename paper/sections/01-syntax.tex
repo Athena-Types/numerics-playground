@@ -45,11 +45,12 @@
          \mid {\letbind x = e \ \tin \ f}
          \mid \letcobind x = e \ \tin \ f
          \\
-         % Max: find a better name
          &\text{Enviroments } \gamma_0, \gamma_1 &::=~ &.
          \mid \gamma, \ x \mapsto v :_s \tau \\
          &\text{Enviroment trees } \sigma, \sigma_0, \sigma_1 &::=~ & \gamma
          \mid \sigma_0; \sigma_1
+         % &\text{Evaluation contexts} C &::=~ & [.]
+         % \mid E e \mid v E
   \end{alignat*}
   \caption{
     Types, values, and terms. 

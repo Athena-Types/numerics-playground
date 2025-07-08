@@ -112,12 +112,12 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % more spicy rules
     % Lookup (sensitivity budget 1)
-    \sigma[x \mapsto v :_1 \tau] \Vdash \ x \ : \tau &\rightsquigarrow \sigma
-    \Vdash v : \tau \\
+    \sigma[x \mapsto v :_1 \tau_0 \multimap \tau_1] \Vdash \ x \ w \ : \tau_1 &\rightsquigarrow
+    \sigma \Vdash v \ w : \tau_1 \\
     % Lookup (sensitivity budget greater than 1)
-    \sigma[x \mapsto v :_{s} \tau] \Vdash \ x \ : \tau &\rightsquigarrow
-    \sigma[x \mapsto v :_{s-1} \tau] \Vdash v : \tau \quad{(\text{with } 1 < s)}
-    \\
+    \sigma[x \mapsto v :_{s} \tau_0 \multimap \tau_1] \Vdash \ x \ w \ : \tau_1
+    &\rightsquigarrow \sigma[x \mapsto v :_{s-1} \tau_0 \multimap \tau_1] \Vdash
+    v \ w : \tau_1 \quad{(\text{with } 1 < s)} \\
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Max: there are two ways to write these rounding rules. Curently, the
     % explicit style is favored where rnd and ret can be evaluated at no more
