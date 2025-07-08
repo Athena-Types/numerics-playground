@@ -11,8 +11,8 @@
   \begin{equation}
   \begin{aligned}[c]
     \llbracket . \rrbracket &\triangleq . \\
-    \llbracket \Gamma, x : \tau \rrbracket &\triangleq \llbracket \Gamma \rrbracket
-      \times \llbracket \tau \rrbracket
+    \llbracket \Gamma, x :_s \tau \rrbracket &\triangleq \llbracket \Gamma \rrbracket
+      \times D_s \llbracket \tau \rrbracket
   \end{aligned}
   \end{equation}
 \end{definition}
@@ -28,21 +28,39 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \llbracket \gamma \Vdash \langle \rangle \rrbracket_{\textbf{unit}}
   &\triangleq * \\
+  \llbracket \gamma \Vdash k \rrbracket_{\textbf{num}}
+  &\triangleq k \\
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%                                   %%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   \llbracket \gamma [x \mapsto v] \Vdash x \rrbracket_{\tau}
   &\triangleq \llbracket \gamma \Vdash v \rrbracket_{\tau} \\
+  \llbracket \gamma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
+    (\llbracket \gamma \Vdash v \rrbracket_{\tau_0}, \llbracket \gamma \Vdash v
+    \rrbracket_{\tau_1}) \\
   \llbracket \gamma \Vdash \lambda x . e \rrbracket_{\tau_0 \multimap \tau_1}
-  &\triangleq \{ (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket \gamma +
-  \sigma \Vdash (\lambda x . e) v \rrbracket_{\tau_1}) \> | \> \forall \sigma \Vdash v
-  \in \textit{config}, \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \not= \bot \} \\
+    &\triangleq \{ (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket
+    \gamma + \sigma \Vdash (\lambda x . e) v \rrbracket_{\tau_1}) \> | \>
+    \forall \sigma \Vdash v \in \textit{config}, \llbracket \sigma \Vdash v
+    \rrbracket_{\tau_0} \not= \bot \} \\
+  \llbracket \gamma \Vdash v \rrbracket_{!_s \tau} &\triangleq \llbracket \gamma
+    \Vdash v \rrbracket_\tau \\
   % todo: fill in more cases
+  \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%            Tree cases             %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % todo: check this, maybe encode internal choice somehow?
-  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau_0 \times \tau_1} &\triangleq (\llbracket \sigma
-  \Vdash e \rrbracket_{\tau_0}, \llbracket \sigma' \Vdash e \rrbracket_{\tau_1}) \\
-  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{M_q \tau} &\triangleq (\llbracket \sigma
-  \Vdash e \rrbracket_{\tau}, \llbracket \sigma' \Vdash e \rrbracket_{\tau}) \\
+  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{\tau_0 \times \tau_1}
+    &\triangleq (\llbracket \sigma \Vdash e \rrbracket_{\tau_0}, \llbracket
+    \sigma' \Vdash e \rrbracket_{\tau_1}) \\
+  \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
+    &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
+  \llbracket \sigma; \sigma' \Vdash e \rrbracket_{M_q \tau} &\triangleq
+    (\llbracket \sigma \Vdash e \rrbracket_{\tau}, \llbracket \sigma' \Vdash e
+    \rrbracket_{\tau}) \\
+  \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%            Expr case              %%%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
