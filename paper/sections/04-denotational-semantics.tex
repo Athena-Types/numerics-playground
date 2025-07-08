@@ -68,9 +68,10 @@
     \rightsquigarrow^* \sigma' \Vdash v}
   \end{aligned}
   \end{equation}
-  This is a well-founded relation defined first on values, with $\tau$
-  decreasing or $\tau$ constant and $\gamma$ decreasing in size. It is then
-  defined on expressions that are not values, if it can be rewritten to a value.
+  This is a well-founded relation defined first on values and enviroment leafs,
+  with $\tau$ decreasing or $\tau$ constant and $\gamma$ decreasing in size. It
+  is then defined on enviroment trees and then on expressions that are not
+  values, if it can be rewritten to a value.
 \end{definition}
 
 \begin{definition}[Environment compatibility]
@@ -78,11 +79,14 @@
   % props) if that's easier to understand.
   Enviroment $\sigma$ is compatible with a typing context $\Gamma$ if and only
   if there exists a point $p \in \llbracket \Gamma \rrbracket$ such that:
-  $$\sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p \textit{ \underline{in} } \llbracket \Gamma
-  \rrbracket : \textit{env} \times \textit{ctx} \times \textit{point} \times
-  \textbf{Met} \to \text{Prop}$$ 
+  $$\sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p
+  \textit{ \underline{in} } \llbracket \Gamma \rrbracket $$
   holds (read as $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
-  space $\llbracket \Gamma \rrbracket$), where:
+  space $\llbracket \Gamma \rrbracket$), which has type:
+  $$- \textit{ \underline{com} } - \textit{ \underline{at} } -
+  \textit{ \underline{in} } - : \textit{env} \times
+  \textit{ctx} \times \textit{point} \times \textbf{Met} \to \text{Prop}$$ 
+  The definition is as follows:
   \begin{equation}
     \begin{aligned}[c] 
       % remove :s case
