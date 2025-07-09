@@ -104,6 +104,15 @@
       % unit case
       \sigma[x \mapsto * : \tau] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
+      % function case
+      \sigma[x \mapsto \lambda y . e] \textit{ \underline{com} } \Gamma, x :
+      \tau_0 \multimap \tau_1 \textit{ \underline{at} } (\alpha, f) \textit{
+        \underline{in} } (d, Y) \times (d_x, X) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) \\
+      & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
+      \multimap \tau_1} \subseteq f \\
+      & \text{ and } f \in X \text{ and 1-sensitive}
     \end{aligned}
   \end{equation}
 \end{definition}
