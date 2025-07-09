@@ -113,6 +113,25 @@
       & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
       \multimap \tau_1} \subseteq f \\
       & \text{ and } f \in X \text{ and 1-sensitive}
+      % var case
+      \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x :
+      \tau \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) \\
+      & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
+      \multimap \tau_1} \subseteq f \\
+      & \text{ and } f \in X \text{ and 1-sensitive}
     \end{aligned}
   \end{equation}
 \end{definition}
+
+
+\begin{definition}[Semantic well-typedness]
+  An expression $e$ is semantically well-typed in a context $\Gamma$ at type
+  $\tau$, written:
+  $$\Gamma \vDash e : \tau$$
+  if and only if for all $\sigma$ compatible with $\Gamma$, $\llbracket \sigma
+  \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
+\end{definition}
+
