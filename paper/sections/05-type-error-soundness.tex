@@ -4,11 +4,11 @@ If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$ an
 \end{theorem}
 \begin{proof}
 If $e$ is a value, we're done. 
-If $e$ is not a value, we proceed by case analysis over the rewrite relation
-$e \rightsquigarrow e'$.
-Observe that have $\Gamma \vDash e : \tau$, that is, $\forall \sigma \text{
-  compatible with } \Gamma, \llbracket \sigma \Vdash e \rrbracket_{\tau} \in
-  \llbracket \tau \rrbracket$.
+If $e$ is not a value, we proceed by induction over the cases of the rewrite relation
+$\rightsquigarrow$.
+% Our inductive hypothesis is that $e \rightsquigarrow e'$ and $\Gamma \vDash e : \tau$, that is, 
+% $\forall \sigma \text{ compatible with } \Gamma, \llbracket \sigma \Vdash e
+% \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
 \begin{description}
   \item[\textsc{Ret.}]
   \item[\textsc{Rnd.}]
@@ -20,6 +20,11 @@ Observe that have $\Gamma \vDash e : \tau$, that is, $\forall \sigma \text{
 $\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
 \end{theorem}
 \begin{proof}
+We induct over the typing derivation.
+\begin{description}
+  \item[\textsc{Ret.}]
+  \item[\textsc{Rnd.}]
+\end{description}
 \end{proof}
 
 
