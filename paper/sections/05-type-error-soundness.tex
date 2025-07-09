@@ -1,4 +1,31 @@
 \section{Type Soundness}
+\begin{theorem}[Semantic type preservation]
+If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$ and $e \rightsquigarrow e'$, then there exists a $\Gamma'$ such that $\Gamma' \vDash e' : \tau$.
+\end{theorem}
+\begin{proof}
+If $e$ is a value, we're done. 
+If $e$ is not a value, we proceed by case analysis over the rewrite relation
+$e \rightsquigarrow e'$.
+Observe that have $\Gamma \vDash e : \tau$, that is, $\forall \sigma \text{
+  compatible with } \Gamma, \llbracket \sigma \Vdash e \rrbracket_{\tau} \in
+  \llbracket \tau \rrbracket$.
+\begin{description}
+  \item[\textsc{Ret.}]
+  \item[\textsc{Rnd.}]
+  \item[\textsc{Variable lookup.}]
+\end{description}
+\end{proof}
+
+\begin{theorem}[Semantic type soundness]
+$\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
+\end{theorem}
+\begin{proof}
+\end{proof}
+
+
+
+%%%% IGNORE BELOW %%%%
+
 % todo: Use whatever theorem name people like best here.
 Semantics is preserved under operational stepping. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
 \Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
