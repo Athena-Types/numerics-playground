@@ -1,6 +1,27 @@
 \section{Type Soundness}
+\begin{lemma}[Termination]
+  If $\Gamma \vDash e : \tau$, then $\forall \sigma$ compatible with $\Gamma$, 
+  $$\sigma \Vdash e \rightsquigarrow^* \sigma' \Vdash v$$
+\end{lemma}
+\begin{proof}
+  If $\sigma \Vdash e$ is a value, then we are done. Otherwise, if $\sigma
+  \Vdash e$ is an expression, we begin by unfolding and applying the definition
+  of $\vDash$. By definition, know that $\llbracket \sigma \Vdash e \rrbracket_{\tau} \in
+  \llbracket \tau \rrbracket$. We also know that $\bot \not\in \llbracket \tau
+  \rrbracket$, a metric space, so $\llbracket \sigma \Vdash e \rrbracket_{\tau}
+  \not= \bot$ and is well-defined.
+
+  By the inspection of the definition of cases of $\llbracket -
+  \rrbracket_{\tau}$, we know that only last case (which deals with all
+  expressions) must apply. Therefore, $\sigma \Vdash e \rightsquigarrow^*
+  \sigma' \Vdash v$.
+\end{proof}
+
 \begin{theorem}[Semantic type preservation]
-If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$ and $e \rightsquigarrow e'$, then there exists a $\Gamma'$ such that $\Gamma' \vDash e' : \tau$.
+If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$
+  then for all $\sigma \Vdash e \rightsquigarrow \sigma' \Vdash e'$, $\sigma$
+  compatible with $\Gamma$, then there exists a $\Gamma'$ such that $\Gamma'
+  \vDash e' : \tau$.
 \end{theorem}
 \begin{proof}
 If $e$ is a value, we're done. 
