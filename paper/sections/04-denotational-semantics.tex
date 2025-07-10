@@ -128,7 +128,10 @@
   An expression $e$ is semantically well-typed in a context $\Gamma$ at type
   $\tau$, written:
   $$\Gamma \vDash e : \tau$$
-  if and only if for all $\sigma$ compatible with $\Gamma$, $\llbracket \sigma
-  \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
+  if and only if for all $\sigma, \sigma'$ compatible with $\Gamma$, $\llbracket
+  \sigma \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$ and
+  $\llbracket - \Vdash e \rrbracket_{\tau}$ is a 1-sensitive map from
+  $\llbracket \Gamma \rrbracket$ to $\llbracket \tau \rrbracket$ for all input
+  enviroments compatible with $\Gamma$.
 \end{definition}
 
