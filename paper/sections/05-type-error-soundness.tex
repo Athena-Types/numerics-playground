@@ -11,31 +11,96 @@
   \rrbracket$, a metric space, so $\llbracket \sigma \Vdash e \rrbracket_{\tau}
   \not= \bot$ and is well-defined.
 
-  By the inspection of the definition of cases of $\llbracket -
-  \rrbracket_{\tau}$, we know that only last case (which deals with all
-  expressions) must apply. Therefore, $\sigma \Vdash e \rightsquigarrow^*
-  \sigma' \Vdash v$.
+  By inspection of the definition of cases of $\llbracket - \rrbracket_{\tau}$,
+  we know that only last case (which deals with all expressions) must apply.
+  Therefore, $\sigma \Vdash e \rightsquigarrow^* \sigma' \Vdash v$.
 \end{proof}
 
-\begin{theorem}[Semantic type preservation]
-If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$
-  then for all $\sigma \Vdash e \rightsquigarrow \sigma' \Vdash e'$, $\sigma$
-  compatible with $\Gamma$, then there exists a $\Gamma'$ such that $\Gamma'
-  \vDash e' : \tau$.
-\end{theorem}
-\begin{proof}
-If $e$ is a value, we're done. 
-If $e$ is not a value, we proceed by induction over the cases of the rewrite relation
-$\rightsquigarrow$.
-% Our inductive hypothesis is that $e \rightsquigarrow e'$ and $\Gamma \vDash e : \tau$, that is, 
-% $\forall \sigma \text{ compatible with } \Gamma, \llbracket \sigma \Vdash e
-% \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
-\begin{description}
-  \item[\textsc{Ret.}]
-  \item[\textsc{Rnd.}]
-  \item[\textsc{Variable lookup.}]
-\end{description}
-\end{proof}
+% \begin{theorem}[Semantic type preservation]
+% If a term $e$ is semantically well-typed in context $\Gamma$ with type $\tau$
+%   then for all $\sigma \Vdash e \rightsquigarrow \sigma' \Vdash e'$, $\sigma$
+%   compatible with $\Gamma$, then there exists a $\Gamma'$ such that $\Gamma'
+%   \vDash e' : \tau$.
+% \end{theorem}
+% \begin{proof}
+% If $e$ is a value, we're done. 
+% If $e$ is not a value, we proceed by induction over the cases of the rewrite relation
+% $\rightsquigarrow$.
+% % Our inductive hypothesis is that $e \rightsquigarrow e'$ and $\Gamma \vDash e : \tau$, that is, 
+% % $\forall \sigma \text{ compatible with } \Gamma, \llbracket \sigma \Vdash e
+% % \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
+% \begin{description}
+%   \item[\textsc{Variable lookup.}] If $$
+%   \item[\textsc{Ret.}]
+%   \item[\textsc{Rnd.}]
+% \end{description}
+% \end{proof}
+
+% \begin{definition}[Monadic type]\label{def:monadic}
+%   A type $\tau$ is monadic if and only if $\exists \tau', q \text{ such that }
+%   \tau = M_q \tau'$. It is non-monadic otherwise.
+% \end{definition}
+% %%% wrong theorem:
+% \begin{lemma}[Non-monadic lookup]\label{thm:non-monadic-lookup}
+%   For all $\tau$ non-monadic and all $\Gamma, x : \tau'$ compatible with
+%   $\sigma$, $\exists \sigma', \sigma = \sigma'[x \mapsto v : \tau']$ is
+%   well-defined. Stated equivalently, non-monadic $x$ uniformly maps to $v$ at
+%   all enviroments in $\sigma$.
+% \end{lemma}
+% \begin{proof}
+%   TODO
+% \end{proof}
+
+\begin{lemma}[Enviroment tree shape]
+  The tree height for a 
+\end{lemma}
+
+\begin{definition}[Well-founded orderings]
+  We define the following well-founded partial order over configurations and
+  types, which mirrors the definition of machine configuration interpretation
+  and will be used for induction in the proceeding proofs.
+
+  First, we define an ordering over types by size of the AST.
+  \begin{equation}
+    \begin{aligned}[c]
+      s(\textbf{unit}) &= 1 \\
+      s(\textbf{num}) &= 1 \\
+      s(!_s \tau) &= s(\tau) + 1 \\
+      s(M_q \tau) &= s(\tau) + 1 \\
+      s(\tau_0 \times \tau_1) &= s(\tau_0) + s(\tau_1) + 1 \\
+      s(\tau_0 \otimes \tau_1) &= s(\tau_0) + s(\tau_1) + 1 \\
+      s(\tau_0 \multimap \tau_1) &= s(\tau_0) + s(\tau_1) + 1 \\
+    \end{aligned}
+  \end{equation}
+  and
+  \begin{equation}
+    \tau_0 < \tau_0 \iff s(\tau_0) < s(\tau_1)
+  \end{equation}
+
+  Secondly, we define an ordering over environment leafs $\gamma$ using the number of bound
+  variables:
+  \begin{equation}
+    \begin{aligned}[c]
+      s(.) &= 0 \\
+      s(\gamma, x \mapsto v :_s \tau) &= s(\gamma) + 1 \\
+    \end{aligned}
+  \end{equation}
+
+  and
+
+  \begin{equation}
+    \gamma_0 < \gamma_0 \iff s(\gamma_0) < s(\gamma_1)
+  \end{equation}
+
+  We are now ready to define an ordering over $\textit{config} \times
+  \textit{type}$:
+
+  \begin{equation}
+    \sigma \Vdash e : \tau < \sigma' \Vdash e' : \tau' \iff
+    \tau < \tau' \lor (\tau \not< \tau' \land \forall \gamma_0 \in \sigma,
+    \gamma_1 \in \sigma',  \gamma_0 < \gamma_1 )
+  \end{equation}
+\end{definition}
 
 \begin{theorem}[Semantic type soundness]
 $\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
