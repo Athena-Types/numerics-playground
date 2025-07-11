@@ -68,7 +68,7 @@
     \rightsquigarrow^* \sigma' \Vdash v}
   \end{aligned}
   \end{equation}
-  This is a well-founded relation defined first on values and enviroment leafs,
+  This definition is well-founded. It is defined first on values and enviroment leafs,
   with $\tau$ decreasing or $\tau$ constant and $\gamma$ decreasing in size. It
   is then defined on enviroment trees and then on expressions that are not
   values, if it can be rewritten to a value.
@@ -87,6 +87,7 @@
   \textit{ \underline{in} } - : \textit{env} \times
   \textit{ctx} \times \textit{point} \times \textbf{Met} \to \text{Prop}$$ 
   The definition is as follows:
+  \begin{tiny}
   \begin{equation}
     \begin{aligned}[c] 
       % remove :s case
@@ -113,6 +114,29 @@
       & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
       \multimap \tau_1} \subseteq f \\
       & \text{ and } f \in X \text{ and 1-sensitive} \\
+      % linear with case
+      \sigma[x \mapsto v_0];\sigma[x \mapsto v_1] \textit{ \underline{com} }
+      \Gamma, x : \tau_0 \times \tau_1 \textit{ \underline{at} } (\alpha, (p,
+      q)) \textit{ \underline{in} } (d, Z) \times (max((d_x, d_y)), X
+      \times Y) &\triangleq
+      \sigma \textit{ \underline{com} } \Gamma \textit{
+        \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Z) \times
+      (d_x, X) \\
+      & \text{ and } \sigma' \textit{ \underline{com} } \Gamma \textit{
+        \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y)
+      \\
+      % other case
+      \sigma[x \mapsto (v_0, v_1)] \textit{ \underline{com} }
+      \Gamma, x : \tau_0 \otimes \tau_1 \textit{ \underline{at} } (\alpha, (p,
+      q))
+      \textit{ \underline{in} } (d, Z) \times (plus((d_x, d_y)), X
+      \times Y) &\triangleq
+      \sigma[x \mapsto v_0] \textit{ \underline{com} } \Gamma \textit{
+        \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Z) \times
+      (d_x, X) \\
+      & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma \textit{
+        \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y)
+      \\
       % var case
       \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x :
       \tau \textit{ \underline{at} } \alpha \textit{
@@ -121,6 +145,7 @@
         \underline{in} } (d, Y) \\
     \end{aligned}
   \end{equation}
+  \end{tiny}
 \end{definition}
 
 
@@ -128,7 +153,7 @@
   An expression $e$ is semantically well-typed in a context $\Gamma$ at type
   $\tau$, written:
   $$\Gamma \vDash e : \tau$$
-  if and only if for all $\sigma, \sigma'$ compatible with $\Gamma$, $\llbracket
+  if and only if for all $\sigma$ compatible with $\Gamma$, $\llbracket
   \sigma \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$ and
   $\llbracket - \Vdash e \rrbracket_{\tau}$ is a 1-sensitive map from
   $\llbracket \Gamma \rrbracket$ to $\llbracket \tau \rrbracket$ for all input

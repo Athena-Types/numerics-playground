@@ -166,7 +166,7 @@ defined as follows:
     \sigma \Vdash \tin_i v &\rightsquigarrow \sigma[\alpha \mapsto v]
     \Vdash \ \tin_i \ \alpha \quad \text{(where $v$ is not a var)} \\
     % case .. of .. rule
-    \sigma \Vdash \mathbf{case} \ \tin_1 v \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \
+    \sigma \Vdash \mathbf{case} \ \tin_i v \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \
     \tin_2 \ x.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto v :_s \tau]
     \Vdash f_i : \tau \\
     \sigma [x \mapsto \tin_i \ y :_s \tau'] \Vdash \mathbf{case} \ x \ \mathbf{of} \ (\tin_1 \
