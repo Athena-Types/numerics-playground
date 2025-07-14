@@ -55,7 +55,7 @@
   The tree height for a 
 \end{lemma}
 
-\begin{definition}[Well-founded orderings]
+\begin{definition}[Orderings]
   We define the following well-founded partial order over configurations and
   types, which mirrors the definition of machine configuration interpretation
   and will be used for induction in the proceeding proofs.
@@ -92,25 +92,74 @@
     \gamma_0 < \gamma_0 \iff s(\gamma_0) < s(\gamma_1)
   \end{equation}
 
+  We can now define an ordering over enviorment trees using the maximum size of
+  each enviorment leaf in the tree:
+  \begin{equation}
+    \begin{aligned}[c]
+      s(\gamma; \gamma') &= max(s(\gamma), s(\gamma')) \\
+      s(\sigma; \sigma') &= max(s(\sigma), s(\sigma'))
+    \end{aligned}
+  \end{equation}
+
   We are now ready to define an ordering over $\textit{config} \times
   \textit{type}$:
+  \footnote{Note that the type of the configuration (if the interpretation of
+  the configuration belongs to the interpretation of the type) restricts the
+  height and shape of environment tree. So we do not need to reason about the
+  height of our enviroment trees in our ordering.}
 
   \begin{equation}
     \sigma \Vdash e : \tau < \sigma' \Vdash e' : \tau' \iff
-    \tau < \tau' \lor (\tau \not< \tau' \land \forall \gamma_0 \in \sigma,
-    \gamma_1 \in \sigma',  \gamma_0 < \gamma_1 )
+    s(\tau) < s(\tau') \lor (s(\tau) = s(\tau') \land s(\sigma) < s(\sigma'))
   \end{equation}
+
 \end{definition}
+
+\begin{lemma}[Well-founded partial ordering]
+  $\leq$ is a well-founded partial order over $\textit{config} \times
+  \textit{type}$.
+\end{lemma}
+\begin{proof}
+  TODO
+\end{proof}
 
 \begin{theorem}[Semantic type soundness]
 $\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
 \end{theorem}
 \begin{proof}
-We induct over the typing derivation.
+From our premise, we wish to show that:
+  \begin{enumerate}
+    \item $\forall \sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash e
+      \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
+    \item $\llbracket - \Vdash e
+      \rrbracket_{\tau}$ is a \text{1-sensitive} map for all inputs enviroments
+      compatible with $\Gamma$
+  \end{enumerate}
+We proceed by case analysis over whether $e$ is a value or an expression.
+  Suppose $e$ is a value. We induct over the enviroment tree $\sigma$. Consider
+  the enviroment leaf case, inducting over types and variables simulatenously in
+  the enviroments using the following relative ordering: (1) height of the AST
+  representing the type; and, (2) size of the enviroment (by number of bound
+  variables).
 \begin{description}
-  \item[\textsc{Ret.}]
+  \item[\textsc{Var.}] 
+    % of $\Gamma$ in our typing rule. The base case is
+    % vacuously true. There are two relevant cases to consider for the inductive
+    % step: $\tau$ is either monadic or non-monadic (defined in
+    % \ref{def:monadic}).
+    \begin{description}
+      \item[\textit{Non-monadic.}] By lemma~\ref{thm:non-monadic-lookup}, we
+        have that there exists $\sigma'[x \mapsto v : \tau] = \sigma$.
+      \item[\textit{Monadic.}]
+    \end{description}
+  \item[\textsc{Ret.}] 
+    From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
+    wish to prove that $\Gamma \vDash \mathbf{ret} \ e : \tau$. It suffices to
+    show that $(\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha$.
   \item[\textsc{Rnd.}]
 \end{description}
+
+  Next, the tree case:
 \end{proof}
 
 %%%% IGNORE BELOW %%%%
