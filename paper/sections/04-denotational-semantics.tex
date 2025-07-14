@@ -90,6 +90,27 @@
   \begin{tiny}
   \begin{equation}
     \begin{aligned}[c] 
+      % unit case
+      \sigma[x \mapsto * : \textbf{unit}] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
+      % num case
+      \sigma[x \mapsto k : \textbf{num}] \textit{ \underline{com} } \Gamma, x: \textbf{num} \textit{ \underline{at} } (\alpha, k) \textit{ \underline{in} } (d, X) \times (d_x, \mathbb{R}) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X) \\
+      % var case
+      \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x :
+      \tau \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) \\
+      % function case
+      \sigma[x \mapsto \lambda y . e] \textit{ \underline{com} } \Gamma, x :
+      \tau_0 \multimap \tau_1 \textit{ \underline{at} } (\alpha, f) \textit{
+        \underline{in} } (d, Y) \times (d_x, X) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
+        \underline{in} } (d, Y) \\
+      & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
+      \multimap \tau_1} \subseteq f \\
+      & \text{ and } f \in X \text{ and 1-sensitive} \\
       % remove :s case
       \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
@@ -102,18 +123,6 @@
       & \text{ and } \sigma' \textit{ \underline{com} } \Gamma, x : \tau \text{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Y) \times (d_x, X) \\
       & \text{ and } d_x (p, q) \leq r \\
       & \text{ and } p, q \in X \\
-      % unit case
-      \sigma[x \mapsto * : \tau] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
-      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, X)\\
-      % function case
-      \sigma[x \mapsto \lambda y . e] \textit{ \underline{com} } \Gamma, x :
-      \tau_0 \multimap \tau_1 \textit{ \underline{at} } (\alpha, f) \textit{
-        \underline{in} } (d, Y) \times (d_x, X) &\triangleq \sigma \textit{
-        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
-        \underline{in} } (d, Y) \\
-      & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
-      \multimap \tau_1} \subseteq f \\
-      & \text{ and } f \in X \text{ and 1-sensitive} \\
       % linear with case
       \sigma[x \mapsto v_0];\sigma[x \mapsto v_1] \textit{ \underline{com} }
       \Gamma, x : \tau_0 \times \tau_1 \textit{ \underline{at} } (\alpha, (p,
@@ -137,12 +146,6 @@
       & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma \textit{
         \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y)
       \\
-      % var case
-      \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x :
-      \tau \textit{ \underline{at} } \alpha \textit{
-        \underline{in} } (d, Y) &\triangleq \sigma \textit{
-        \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
-        \underline{in} } (d, Y) \\
     \end{aligned}
   \end{equation}
   \end{tiny}
