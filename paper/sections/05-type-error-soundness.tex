@@ -157,21 +157,21 @@ We proceed by case analysis over whether $e$ is a value or an expression.
       \item[\textit{(env. size) 0.}] We observe that an enviorment size of zero
         implies that $\Gamma$ is empty. So we are trying to show that the
         following:
-        $$\Gamma, x : \tau \vDash e : \tau$$
+        $$\Gamma, x : \tau \vDash x : \tau$$
         implies:
-        $$\llbracket \sigma \Vdash e \rrbracket_\tau \in \llbracket \tau
+        $$\llbracket \sigma \Vdash x \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
         for $\sigma$ compatible with $\Gamma, x : \tau$. We proceed to case over
         the type of our variable, $\tau$.
         \begin{description}
-          \item{(ty. case) \textbf{unit.}} The only configuration compatible with this is
+          \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
             $$\llbracket x \mapsto \langle \rangle \Vdash x
             \rrbracket_{\textbf{unit}} = \llbracket \Vdash \langle \rangle
             \rrbracket_{\textbf{unit}} = * \in \{ * \} = \llbracket \textbf{unit}
             \rrbracket$$
             So, properties (1) and (2) hold by the reasoning above.
-          \item{(ty. case) \textbf{num.}} The only configurations compatible
+          \item{\underline{(ty. case) \textbf{num.}}} The only configurations compatible
             with this is $x \mapsto k \Vdash x$ for $k \in \mathbb{R}$ and
             clearly $$\llbracket x \mapsto k \Vdash x \rrbracket_{\textbf{num}}
             = \llbracket \Vdash k \rrbracket_{\textbf{num}} = k \in \mathbb{R} =
