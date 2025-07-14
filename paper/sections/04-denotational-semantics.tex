@@ -98,23 +98,16 @@
   defined over types. At any point, either the type is getting smaller or the
   type is the same size and the enviroment size is getting smaller. To be
   precise, the termination measure for the interpetation over values is defined
-  in type soundness (ordering). Finally, the intepretation is defined over
+  in Definition~\ref{def:orderings}. Finally, the intepretation is defined over
   expressions that are not values, if it can be rewritten to a value.
 \end{definition}
 
 \begin{definition}[Environment compatibility]
-  % Note: We can rewrite this defintion in a different style (without Coq-style
-  % props) if that's easier to understand.
-  Enviroment $\sigma$ is compatible with a typing context $\Gamma$ if and only
-  if there exists a point $p \in \llbracket \Gamma \rrbracket$ such that:
-  $$\sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p
-  \textit{ \underline{in} } \llbracket \Gamma \rrbracket $$
-  holds (read as $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
-  space $\llbracket \Gamma \rrbracket$), which has type:
+  We have the following relation with type:
   $$- \textit{ \underline{com} } - \textit{ \underline{at} } -
   \textit{ \underline{in} } - : \textit{env} \times
   \textit{ctx} \times \textit{point} \times \textbf{Met} \to \text{Prop}$$ 
-  The definition is as follows:
+  defined as follows:
   \begin{tiny}
   \begin{equation}
     \begin{aligned}[c] 
@@ -187,6 +180,17 @@
     \end{aligned}
   \end{equation}
   \end{tiny}
+  % Note: We can rewrite this defintion in a different style (without Coq-style
+  % props) if that's easier to understand.
+  Then, an enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
+  and only if there exists a point $p \in \llbracket \Gamma \rrbracket$ such
+  that: 
+  \begin{equation}
+    \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p
+    \textit{ \underline{in} } \llbracket \Gamma \rrbracket
+  \end{equation}
+  holds (read as: $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
+  space $\llbracket \Gamma \rrbracket$).
 \end{definition}
 
 
