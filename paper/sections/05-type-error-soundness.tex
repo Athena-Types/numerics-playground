@@ -161,8 +161,8 @@ We proceed by case analysis over whether $e$ is a value or an expression.
         implies:
         $$\llbracket \sigma \Vdash e \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
-        for compatible $\sigma, \Gamma, x : \tau$. We proceed to case over the type of our
-        variable, $\tau$.
+        for $\sigma$ compatible with $\Gamma, x : \tau$. We proceed to case over
+        the type of our variable, $\tau$.
         \begin{description}
           \item{(ty. case) \textbf{unit.}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -171,7 +171,14 @@ We proceed by case analysis over whether $e$ is a value or an expression.
             \rrbracket_{\textbf{unit}} = * \in \{ * \} = \llbracket \textbf{unit}
             \rrbracket$$
             So, properties (1) and (2) hold by the reasoning above.
-          \item{(ty. case) \textbf{num.}}
+          \item{(ty. case) \textbf{num.}} The only configurations compatible
+            with this is $x \mapsto k \Vdash x$ for $k \in \mathbb{R}$ and
+            clearly $$\llbracket x \mapsto k \Vdash x \rrbracket_{\textbf{num}}
+            = \llbracket \Vdash k \rrbracket_{\textbf{num}} = k \in \mathbb{R} =
+            \llbracket \textbf{num} \rrbracket$$ implies that $\llbracket -
+            \Vdash x \rrbracket_{\mathbf{num}}$ for this case is the
+            $\text{1-sensitive}$ identity function over the reals. Therefore,
+            (1) and (2) both hold.
         \end{description}
       \item[\textit{(env. size) n + 1.}] 
     \end{description}
