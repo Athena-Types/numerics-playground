@@ -70,8 +70,8 @@
     \Vdash v \rrbracket_\tau \\
   \llbracket \sigma \Vdash v \rrbracket_{\tau_0 + \tau_1} &\triangleq
     \begin{cases}
-      (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, 0) \quad &\text{if well-defined} \\
-      (0, \llbracket \sigma \Vdash v \rrbracket_{\tau_1}) \quad &\text{if well-defined}
+      (0, \llbracket \sigma \Vdash v \rrbracket_{\tau_0}) \quad &\text{if well-defined} \\
+      (1, \llbracket \sigma \Vdash v \rrbracket_{\tau_1}) \quad &\text{if well-defined}
     \end{cases} \\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%            Tree cases             %%%
@@ -179,11 +179,11 @@
       \textit{ \underline{at} } (\alpha, (p, q)) \textit{ \underline{in} } (d, Z)
       \times (d_{X + Y}, X \uplus Y) &\triangleq
       \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 \textit{
-        \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Z) \times
-      (d_x, X) \text{ and } q = 0 \\
+        \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times
+      (d_x, X) \text{ and } p = 0 \\
       & \text{ or } \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x :
       \tau_1 \textit{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d,
-      Z) \times (d_y, Y) \text{ and } p = 0 \\
+      Z) \times (d_y, Y) \text{ and } p = 1 \\
     \end{aligned}
   \end{equation}
   \end{tiny}
