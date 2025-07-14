@@ -35,6 +35,10 @@
   \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   \llbracket \gamma [x \mapsto v] \Vdash x \rrbracket_{\tau} &\triangleq
     \llbracket \gamma \Vdash v \rrbracket_{\tau} \\
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%                                   %%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   \llbracket \gamma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
     (\llbracket \gamma \Vdash v \rrbracket_{\tau_0}, \llbracket \gamma \Vdash v
     \rrbracket_{\tau_1}) \\
@@ -45,6 +49,11 @@
     \rrbracket_{\tau_0} \not= \bot \} \\
   \llbracket \gamma \Vdash v \rrbracket_{!_s \tau} &\triangleq \llbracket \gamma
     \Vdash v \rrbracket_\tau \\
+  \llbracket \gamma \Vdash v \rrbracket_{\tau_0 + \tau_1} &\triangleq
+    \begin{cases}
+      (\llbracket \gamma \Vdash v \rrbracket_{\tau_0}, 0) \quad &\text{if well-defined} \\
+      (0, \llbracket \gamma \Vdash v \rrbracket_{\tau_1}) \quad &\text{if well-defined}
+    \end{cases} \\
   % todo: fill in more cases
   \rule{5em}{0.4pt}&\rule{30em}{0.4pt}\\
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -134,7 +143,7 @@
       & \text{ and } \sigma' \textit{ \underline{com} } \Gamma \textit{
         \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y)
       \\
-      % other case
+      % tensor case
       \sigma[x \mapsto (v_0, v_1)] \textit{ \underline{com} }
       \Gamma, x : \tau_0 \otimes \tau_1 \textit{ \underline{at} } (\alpha, (p,
       q))
@@ -146,6 +155,16 @@
       & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma \textit{
         \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y)
       \\
+      % sum case
+      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 + \tau_1
+      \textit{ \underline{at} } (\alpha, (p, q)) \textit{ \underline{in} } (d, Z)
+      \times (d_{X + Y}, X \uplus Y) &\triangleq
+      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 \textit{
+        \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Z) \times
+      (d_x, X) \text{ and } q = 0 \\
+      & \text{ or } \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x :
+      \tau_1 \textit{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d,
+      Z) \times (d_y, Y) \text{ and } p = 0 \\
     \end{aligned}
   \end{equation}
   \end{tiny}
