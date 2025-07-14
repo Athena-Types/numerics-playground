@@ -55,7 +55,7 @@
   The tree height for a 
 \end{lemma}
 
-\begin{definition}[Orderings]
+\begin{definition}[Orderings]\label{def:orderings}
   We define the following well-founded partial order over configurations and
   types, which mirrors the definition of machine configuration interpretation
   and will be used for induction in the proceeding proofs.
@@ -103,6 +103,8 @@
 
   We are now ready to define an ordering over $\textit{config} \times
   \textit{type}$:
+  \footnote{This is our termination measure for our machine configuration
+  interpretation function.}
   \footnote{Note that the type of the configuration (if the interpretation of
   the configuration belongs to the interpretation of the type) restricts the
   height and shape of environment tree. So we do not need to reason about the
@@ -136,27 +138,48 @@ From our premise, we wish to show that:
       compatible with $\Gamma$
   \end{enumerate}
 We proceed by case analysis over whether $e$ is a value or an expression.
-  Suppose $e$ is a value. We induct over the enviroment tree $\sigma$. Consider
-  the enviroment leaf case, inducting over types and variables simulatenously in
-  the enviroments using the following relative ordering: (1) height of the AST
-  representing the type; and, (2) size of the enviroment (by number of bound
-  variables).
+  Suppose $e$ is a value. Let us induct over our typing derivation. 
+  % In some of the cases, we will need to induct over the size of our enviroment. 
 \begin{description}
-  \item[\textsc{Var.}] 
-    % of $\Gamma$ in our typing rule. The base case is
-    % vacuously true. There are two relevant cases to consider for the inductive
-    % step: $\tau$ is either monadic or non-monadic (defined in
-    % \ref{def:monadic}).
+  \item[\textsc{(ty. rule) Var.}] There is no premise containing a typing
+    judgement to this rule. So we have no inductive hypothesis to rely on.
+    % We proceed to induct over the type of our variable, $\tau$.
+    % \begin{description}
+    %   \item{\textbf{unit} and \textbf{num}.}
+    %   \item{$\tau_0 \otimes \tau_1$, $\tau_0 + \tau_1$, and $\tau_0 \multimap
+    %     \tau_1$.}
+    %   \item{$!_s \tau$.}
+    %   \item{$M_q \tau$}
+    %   \item{$\tau_0 \times \tau_1$.}
+    % \end{description}
+    Instead, we induct over the the size of our enviorment.
     \begin{description}
-      \item[\textit{Non-monadic.}] By lemma~\ref{thm:non-monadic-lookup}, we
-        have that there exists $\sigma'[x \mapsto v : \tau] = \sigma$.
-      \item[\textit{Monadic.}]
+      \item[\textit{(env. size) 0.}] We observe that an enviorment size of zero
+        implies that $\Gamma$ is empty. So we are trying to show that the
+        following:
+        $$\Gamma, x : \tau \vDash e : \tau$$
+        implies:
+        $$\llbracket \sigma \Vdash e \rrbracket_\tau \in \llbracket \tau
+        \rrbracket$$
+        for compatible $\sigma, \Gamma, x : \tau$. We proceed to case over the type of our
+        variable, $\tau$.
+        \begin{description}
+          \item{(ty. case) \textbf{unit.}} The only configuration compatible with this is
+            $x \mapsto \langle \rangle \Vdash x$ and clearly 
+            $$\llbracket x \mapsto \langle \rangle \Vdash x
+            \rrbracket_{\textbf{unit}} = \llbracket \Vdash \langle \rangle
+            \rrbracket_{\textbf{unit}} = * \in \{ * \} = \llbracket \textbf{unit}
+            \rrbracket$$
+            So, properties (1) and (2) hold by the reasoning above.
+          \item{(ty. case) \textbf{num.}}
+        \end{description}
+      \item[\textit{(env. size) n + 1.}] 
     \end{description}
-  \item[\textsc{Ret.}] 
+  \item[\textsc{(ty. rule) Ret.}] 
     From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
     wish to prove that $\Gamma \vDash \mathbf{ret} \ e : \tau$. It suffices to
     show that $(\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha$.
-  \item[\textsc{Rnd.}]
+  \item[\textsc{(ty. rule) Rnd.}]
 \end{description}
 
   Next, the tree case:

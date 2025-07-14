@@ -60,6 +60,8 @@
   \llbracket \sigma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
     (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket \sigma \Vdash w
     \rrbracket_{\tau_1}) \\
+  \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
+    &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
   \llbracket \sigma_0 \Vdash v \rrbracket_{\tau_0 \multimap \tau_1}
     &\triangleq \{ (\llbracket \sigma_1 \Vdash v \rrbracket_{\tau_0}, \llbracket
     \sigma_0 + \sigma_1 \Vdash v \> w \rrbracket_{\tau_1}) \> | \>
@@ -80,8 +82,6 @@
   \llbracket \sigma; \sigma' \Vdash v \rrbracket_{\tau_0 \times \tau_1}
     &\triangleq (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket
     \sigma' \Vdash v \rrbracket_{\tau_1}) \\
-  \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
-    &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
   \llbracket \sigma; \sigma' \Vdash v \rrbracket_{M_q \tau} &\triangleq
     (\llbracket \sigma \Vdash v \rrbracket_{\tau}, \llbracket \sigma' \Vdash v
     \rrbracket_{\tau}) \\
@@ -108,8 +108,8 @@
   \textit{ \underline{in} } - : \textit{env} \times
   \textit{ctx} \times \textit{point} \times \textbf{Met} \to \text{Prop}$$ 
   defined as follows:
-  \begin{tiny}
   \begin{equation}
+    \begin{tiny}
     \begin{aligned}[c] 
       % unit case
       \sigma[x \mapsto * : \textbf{unit}] \textit{ \underline{com} } \Gamma, x: \textbf{unit} \textit{ \underline{at} } (\alpha, *) \textit{ \underline{in} } (d, X) \times (d_x, \{ * \}) &\triangleq 
@@ -178,8 +178,8 @@
       \tau_1 \textit{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d,
       Z) \times (d_y, Y) \text{ and } p = 1 \\
     \end{aligned}
+    \end{tiny}
   \end{equation}
-  \end{tiny}
   % Note: We can rewrite this defintion in a different style (without Coq-style
   % props) if that's easier to understand.
   Then, an enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
