@@ -94,11 +94,12 @@
     \rightsquigarrow^* \sigma' \Vdash v}
   \end{aligned}
   \end{equation}
-  This definition is well-founded. It is defined first over types. It is then
-  defined on values and enviroment leafs, with $\tau$ decreasing or $\tau$
-  constant and $\gamma$ decreasing in size. Finally, it is defined on arbitrary
-  enviroment trees and then on expressions that are not values, if it can be
-  rewritten to a value.
+  This definition is well-founded. It is defined first over values. It is then
+  defined over types. At any point, either the type is getting smaller or the
+  type is the same size and the enviroment size is getting smaller. To be
+  precise, the termination measure for the interpetation over values is defined
+  in type soundness (ordering). Finally, the intepretation is defined over
+  expressions that are not values, if it can be rewritten to a value.
 \end{definition}
 
 \begin{definition}[Environment compatibility]
