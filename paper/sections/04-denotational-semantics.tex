@@ -135,10 +135,12 @@
       \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{
         \underline{at} } \alpha &\triangleq \sigma \textit{ \underline{com} }
       \Gamma, x : \tau \textit{ \underline{at} } \alpha \\
+      & \text{ and } p \in \llbracket !_s \tau \rrbracket \\
       % comonad case
       \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau \textit{
         \underline{at} } (\alpha, p) &\triangleq \sigma \textit{ \underline{com}
-      } \Gamma, x : \tau \textit{ \underline{at} } \alpha \\
+      } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \\
+      & \text{ and } p \in \llbracket !_s \tau \rrbracket \\
       % monad case
       \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{ \underline{at} } (\alpha, (p, q)) &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \\
