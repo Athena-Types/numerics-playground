@@ -143,6 +143,7 @@ We proceed by case analysis over whether $e$ is a value or an expression.
 \begin{description}
   \item[\textsc{(ty. rule) Var.}] There is no premise containing a typing
     judgement to this rule. So we have no inductive hypothesis to rely on.
+    (This is a base case.)
     % We proceed to induct over the type of our variable, $\tau$.
     % \begin{description}
     %   \item{\textbf{unit} and \textbf{num}.}
@@ -162,7 +163,7 @@ We proceed by case analysis over whether $e$ is a value or an expression.
         $$\llbracket x \mapsto v : \tau \Vdash x \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
         for $\sigma$ compatible with $(\Gamma, x : \tau)$. We proceed to induct over
-        the type of our variable $v$.
+        the type of our variable $v$:
         \begin{description}
           \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -201,6 +202,10 @@ We proceed by case analysis over whether $e$ is a value or an expression.
             $\llbracket \sigma \Vdash x \rrbracket_{\tau_0 \times \tau_1} = (1,
             \llbracket \sigma \Vdash x \rrbracket_{\tau_1})$. In both cases
             property 1 holds. Property 2 holds by a similar case analysis.
+          \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} This case
+            holds trivially by the conditions on our compatibility relation.
+          \item{\underline{(ty. case) $!_s \tau$.}} 
+          \item{\underline{(ty. case) $M_q \tau$.}}
         \end{description}
       \item[\textit{(env. size) n + 1.}] 
     \end{description}

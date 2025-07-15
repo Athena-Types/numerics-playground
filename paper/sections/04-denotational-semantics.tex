@@ -63,9 +63,9 @@
   \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
     &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
   \llbracket \sigma_0 \Vdash v \rrbracket_{\tau_0 \multimap \tau_1}
-    &\triangleq \{ (\llbracket \sigma_1 \Vdash v \rrbracket_{\tau_0}, \llbracket
+    &\triangleq \{ (\llbracket \sigma_1 \Vdash w \rrbracket_{\tau_0}, \llbracket
     \sigma_0 + \sigma_1 \Vdash v \> w \rrbracket_{\tau_1}) \> | \>
-    \forall \sigma_1 \Vdash v \in \textit{config}, \llbracket \sigma_1 \Vdash w
+    \forall \sigma_1 \Vdash w \in \textit{config}, \llbracket \sigma_1 \Vdash w
     \rrbracket_{\tau_0} \not= \bot \} \\
   \llbracket \sigma \Vdash v \rrbracket_{!_s \tau} &\triangleq \llbracket s
     \cdot \sigma
@@ -130,7 +130,7 @@
         \underline{com} } \Gamma \textit{ \underline{at} } \alpha \textit{
         \underline{in} } (d, Y) \\
       & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
-      \multimap \tau_1} \subseteq f \\
+      \multimap \tau_1} =_{extenstional} f \\
       & \text{ and } f \in X \text{ and 1-sensitive} \\
       % remove :s case
       \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{ \underline{at} } \alpha \textit{ \underline{in} } (d, Y) \times D_s ((d_x, X)) &\triangleq 
@@ -165,8 +165,9 @@
       \sigma[x \mapsto v_0] \textit{ \underline{com} } \Gamma \textit{
         \underline{at} } (\alpha, p) \textit{ \underline{in} } (d, Z) \times
       (d_x, X) \\
-      & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma \textit{
-        \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z) \times (d_y, Y) \\
+      & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma
+      \textit{ \underline{at} } (\alpha, q) \textit{ \underline{in} } (d, Z)
+      \times (d_y, Y) \\
       & \text{ and } v_0 \in X \text{ and } v_1 \in Y \\
       % sum case
       \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 + \tau_1
