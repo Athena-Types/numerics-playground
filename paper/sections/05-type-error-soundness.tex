@@ -205,7 +205,14 @@ We proceed by case analysis over whether $e$ is a value or an expression.
           \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} 
             This case holds by the conditions on our compatibility relation.
           \item{\underline{(ty. case) $!_s \tau$.}} 
-            TODO
+            Property 1 holds by the conditions on our compatibility relation.
+            Property 2 can be shown by unfolding the definition of our
+            compatibility relation and then inspecting our machine interpetation
+            definition:
+            $$ 
+            \llbracket x \mapsto v :_s \tau \Vdash x \rrbracket_{!_s \tau} = 
+            \llbracket x \mapsto v : \tau \Vdash x \rrbracket_{\tau}
+            $$
           \item{\underline{(ty. case) $M_q \tau$.}}
             TODO
         \end{description}

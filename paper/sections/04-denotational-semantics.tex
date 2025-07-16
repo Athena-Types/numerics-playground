@@ -131,14 +131,14 @@
       f \in \llbracket \tau_0 \multimap \tau_1 \rrbracket \footnote{This
       enforces that f is \text{1-sensitive}.} \\
       % remove :s case
-      \sigma \textit{ \underline{com} } \Gamma, x:_s \tau \textit{
+      \sigma[x \mapsto v :_s \tau] \textit{ \underline{com} } \Gamma, x:_s \tau \textit{
         \underline{at} } \alpha &\triangleq \sigma \textit{ \underline{com} }
       \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \\
       & \text{ and } p \in \llbracket !_s \tau \rrbracket \\
       % comonad case
       \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau \textit{
         \underline{at} } (\alpha, p) &\triangleq \sigma \textit{ \underline{com}
-      } \Gamma, x : \tau \textit{ \underline{at} } (\alpha, p) \\
+      } \Gamma, x :_s \tau \textit{ \underline{at} } (\alpha, p) \\
       & \text{ and } p \in \llbracket !_s \tau \rrbracket \\
       % monad case
       \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{ \underline{at} } (\alpha, (p, q)) &\triangleq 
