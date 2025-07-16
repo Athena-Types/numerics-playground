@@ -163,7 +163,7 @@ We proceed by case analysis over whether $e$ is a value or an expression.
         $$\llbracket x \mapsto v : \tau \Vdash x \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
         for $\sigma$ compatible with $(\Gamma, x : \tau)$. We proceed to induct over
-        the type of our variable $v$:
+        the size of type $\tau$, namely $s(\tau)$:
         \begin{description}
           \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -206,13 +206,15 @@ We proceed by case analysis over whether $e$ is a value or an expression.
             This case holds by the conditions on our compatibility relation.
           \item{\underline{(ty. case) $!_s \tau$.}} 
             Property 1 holds by the conditions on our compatibility relation.
-            Property 2 can be shown by unfolding the definition of our
-            compatibility relation and then inspecting our machine interpetation
-            definition:
+            For property 2, we first 
+            unfold the definition of our
+            compatibility relation and apply our machine configuration
+            interpretation definition:
             $$ 
             \llbracket x \mapsto v :_s \tau \Vdash x \rrbracket_{!_s \tau} = 
             \llbracket x \mapsto v : \tau \Vdash x \rrbracket_{\tau}
             $$
+            and then we can apply our inductive hypothesis on $\tau$.
           \item{\underline{(ty. case) $M_q \tau$.}}
             TODO
         \end{description}
