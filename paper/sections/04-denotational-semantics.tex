@@ -67,9 +67,8 @@
     \sigma_0 + \sigma_1 \Vdash v \> w \rrbracket_{\tau_1}) \> | \>
     \forall \sigma_1 \Vdash w \in \textit{config}, \llbracket \sigma_1 \Vdash w
     \rrbracket_{\tau_0} \not= \bot \} \\
-  \llbracket \sigma \Vdash v \rrbracket_{!_s \tau} &\triangleq \llbracket s
-    \cdot \sigma
-    \Vdash v \rrbracket_\tau \\
+    \llbracket s \cdot \sigma \Vdash v \rrbracket_{!_s \tau} &\triangleq \llbracket
+    \sigma \Vdash v \rrbracket_\tau \\
   \llbracket \sigma \Vdash v \rrbracket_{\tau_0 + \tau_1} &\triangleq
     \begin{cases}
       (0, \llbracket \sigma \Vdash v \rrbracket_{\tau_0}) \quad &\text{if well-defined} \\
