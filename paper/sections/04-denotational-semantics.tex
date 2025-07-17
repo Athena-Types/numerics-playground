@@ -107,7 +107,7 @@
   \text{Prop}$$ 
   defined as follows:
   \begin{equation}
-    \begin{small}
+    \begin{normalsize}
     \begin{aligned}[c] 
       % unit case
       \sigma[x \mapsto * : \textbf{unit}] \textit{ \underline{com} } \Gamma, x:
@@ -174,18 +174,13 @@
         \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_1} \in
           \llbracket \tau_1 \rrbracket) \\
     \end{aligned}
-    \end{small}
+    \end{normalsize}
   \end{equation}
   % Note: We can rewrite this defintion in a different style (without Coq-style
   % props) if that's easier to understand.
   Then, an enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
-  and only if there exists a point $p \in \llbracket \Gamma \rrbracket$ such
-  that: 
-  \begin{equation}
-    \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p 
-  \end{equation}
-  holds (read as: $\sigma$ is compatible with $\Gamma$ at point $p$ in metric
-  space $\llbracket \Gamma \rrbracket$).
+  the above relation holds. Intuitively, this means that there exists a point $p
+  \in \llbracket \Gamma \rrbracket$ that $\sigma$ represents.
 \end{definition}
 
 
