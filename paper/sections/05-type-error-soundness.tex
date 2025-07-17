@@ -125,20 +125,19 @@
   TODO
 \end{proof}
 
-\begin{theorem}[Semantic type soundness]
-$\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
+\begin{theorem}[Semantic type soundness for values]
+$\Gamma \vdash v : \tau \implies \Gamma \vDash v : \tau$
 \end{theorem}
 \begin{proof}
 From our premise, we wish to show that:
   \begin{enumerate}
-    \item $\forall \sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash e
+    \item $\forall \sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash v
       \rrbracket_{\tau} \in \llbracket \tau \rrbracket$.
-    \item $\llbracket - \Vdash e
+    \item $\llbracket - \Vdash v
       \rrbracket_{\tau}$ is a \text{1-sensitive} map for all inputs enviroments
       compatible with $\Gamma$
   \end{enumerate}
-We proceed by case analysis over whether $e$ is a value or an expression.
-  Suppose $e$ is a value. Let us induct over our typing derivation. 
+We begin by induction over our typing derivation. 
   % In some of the cases, we will need to induct over the size of our enviroment. 
 \begin{description}
   \item[\textsc{(ty. rule) Var.}] There is no premise containing a typing
@@ -160,10 +159,11 @@ We proceed by case analysis over whether $e$ is a value or an expression.
         following:
         $$x : \tau \vDash x : \tau$$
         implies:
-        $$\llbracket x \mapsto v : \tau \Vdash x \rrbracket_\tau \in \llbracket \tau
+        $$\llbracket \sigma \Vdash x \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
-        for $\sigma$ compatible with $(\Gamma, x : \tau)$. We proceed to induct over
-        the size of type $\tau$, namely $s(\tau)$:
+        for $\sigma$ compatible with typing context $x : \tau$ and is
+        \text{1-sensitive}. We proceed to induct over the size of type $\tau$,
+        namely $s(\tau)$:
         \begin{description}
           \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -203,7 +203,8 @@ We proceed by case analysis over whether $e$ is a value or an expression.
             \llbracket \sigma \Vdash x \rrbracket_{\tau_1})$. In both cases
             property 1 holds. Property 2 holds by a similar case analysis.
           \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} 
-            This case holds by the conditions on our compatibility relation.
+            This case holds by the conditions on our compatibility relation and
+            unfolding the interpretation of a machine configuration.
           \item{\underline{(ty. case) $!_s \tau$.}} 
             Property 1 holds by the conditions on our compatibility relation.
             For property 2, we first 
@@ -216,7 +217,17 @@ We proceed by case analysis over whether $e$ is a value or an expression.
             $$
             and then we can apply our inductive hypothesis on $\tau$.
           \item{\underline{(ty. case) $M_q \tau$.}}
-            TODO
+            By our compatibility relation, we know that: $\sigma = (x \mapsto
+            v_0);(x \mapsto v_1)$ for $d_{\tau}(v_0, v_1) \leq q$. Unfolding our
+            machine configuration interpretation definition, we get:
+            $$
+            \llbracket x \mapsto v_0; x \mapsto v_1 \Vdash x \rrbracket_{M_q
+            \tau} = 
+            (\llbracket x \mapsto v_0 \Vdash x \rrbracket_{\tau}; \llbracket x
+            \mapsto v_1 \Vdash x \rrbracket_{\tau}) = 
+            (\llbracket \Vdash v_0 \rrbracket_{\tau}, \llbracket \Vdash v_1
+            \rrbracket_{\tau})
+            $$
         \end{description}
       \item[\textit{(env. size) n + 1.}] 
     \end{description}
@@ -226,40 +237,49 @@ We proceed by case analysis over whether $e$ is a value or an expression.
     show that $(\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha$.
   \item[\textsc{(ty. rule) Rnd.}]
 \end{description}
+\end{proof}
 
-  Next, the tree case:
+\begin{theorem}[Semantic type soundness]
+$\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
+\end{theorem}
+\begin{proof}
+  If $e$ is a value, we can apply our semantic type soundness theorem for values
+  and we are done. If $e$ is a well-typed expression, we wish to show that (1)
+  it will also step to a semantically well-typed term; and (2) it will
+  eventually step to a value.
+  TODO
 \end{proof}
 
 %%%% IGNORE BELOW %%%%
 
-% todo: Use whatever theorem name people like best here.
-Semantics is preserved under operational stepping. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
-\Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
-\llbracket \sigma' \Vdash e' : \tau \rrbracket$.
-
-% todo: Use whatever theorem name people like best here.
-If the semantics of a program is equivalent to the semantics of a value, it must
-reduce to that value. If $\llbracket \sigma \Vdash e : \tau \rrbracket =
-\llbracket v : \tau \rrbracket$, then $\sigma \Vdash e : \tau
-\rightsquigarrow^{*} \sigma' \Vdash v : \tau$
-
-Syntactically well-typed programs are non-expansive. For $\Gamma \vdash e : \tau
-$ and $\llbracket \sigma \rrbracket, \llbracket \sigma' \rrbracket \in
-\llbracket \Gamma \rrbracket $ and
-$$\sigma \Vdash e : \tau \rightsquigarrow^* v : \tau$$ 
-and 
-$$\sigma' \Vdash e : \tau \rightsquigarrow^* v' : \tau$$
-then
-$$
-d_{\tau}(v, v') \leq d_{\Gamma}(\sigma, \sigma')
-$$
-
-Syntactically ok implies semantically ok. If $\Gamma \vdash e : \tau$, then
-$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-v, \llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket v : \tau
-\rrbracket$.
-
-Syntactically ok implies operationally ok. If $\Gamma \vdash e : \tau$, then
-$\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
-v, \sigma \Vdash e : \tau \rightsquigarrow^{*} v : \tau$.
+% % todo: Use whatever theorem name people like best here.
+% Semantics is preserved under operational stepping. If $\sigma \Vdash e : \tau \rightsquigarrow \sigma'
+% \Vdash e' : \tau$, then $\llbracket \sigma \Vdash e : \tau \rrbracket =
+% \llbracket \sigma' \Vdash e' : \tau \rrbracket$.
+%
+% % todo: Use whatever theorem name people like best here.
+% If the semantics of a program is equivalent to the semantics of a value, it must
+% reduce to that value. If $\llbracket \sigma \Vdash e : \tau \rrbracket =
+% \llbracket v : \tau \rrbracket$, then $\sigma \Vdash e : \tau
+% \rightsquigarrow^{*} \sigma' \Vdash v : \tau$
+%
+% Syntactically well-typed programs are non-expansive. For $\Gamma \vdash e : \tau
+% $ and $\llbracket \sigma \rrbracket, \llbracket \sigma' \rrbracket \in
+% \llbracket \Gamma \rrbracket $ and
+% $$\sigma \Vdash e : \tau \rightsquigarrow^* v : \tau$$ 
+% and 
+% $$\sigma' \Vdash e : \tau \rightsquigarrow^* v' : \tau$$
+% then
+% $$
+% d_{\tau}(v, v') \leq d_{\Gamma}(\sigma, \sigma')
+% $$
+%
+% Syntactically ok implies semantically ok. If $\Gamma \vdash e : \tau$, then
+% $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
+% v, \llbracket \sigma \Vdash e : \tau \rrbracket = \llbracket v : \tau
+% \rrbracket$.
+%
+% Syntactically ok implies operationally ok. If $\Gamma \vdash e : \tau$, then
+% $\forall \llbracket \sigma \rrbracket \in \llbracket \Gamma \rrbracket, \exists
+% v, \sigma \Vdash e : \tau \rightsquigarrow^{*} v : \tau$.
 
