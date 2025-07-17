@@ -71,10 +71,10 @@ $$
 $$
 
 To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
-running in a enviroment (or multi-enviroment) $\sigma$ mapping variables like
-$x_1$ to value $v_1$ with type $\tau'$ and sensitivity budget $s_1$ to a $e'$
-with type $\tau'$ and enviroment $\sigma'$. So, $\sigma$ send variables like
-$x_1 \to v_1 :_s \tau'$.
+running in a collection of enviroment(s) (leaf or tree) $\sigma$ mapping
+variables like $x_1$ to value $v_1$ with type $\tau'$ and sensitivity budget
+$s_1$ to a $e'$ with type $\tau'$ and enviroment $\sigma'$. So, $\sigma$ send
+variables like $x_1 \to v_1 :_s \tau'$.
 
 $\sigma + \sigma'$ represent pointwise concatenation over multi-enviroments,
 defined as follows:

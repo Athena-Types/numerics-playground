@@ -162,7 +162,12 @@ We begin by induction over our typing derivation.
         \rrbracket$$
         for $\sigma$ compatible with typing context $x : \tau$ and is
         \text{1-sensitive}. We proceed to induct over the size of type $\tau$,
-        namely $s(\tau)$:
+        namely $s(\tau)$. 
+        \footnote{Note that when we perform inversion over our compatibility
+        relation for several of the cases below, the case that $\sigma = x
+        \mapsto y$, for $y$ a var, is impossible when the enviroment size is
+        zero because $\Vdash y = \bot$. This is why we are inducting over the
+        enviroment size.}
         \begin{description}
           \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -241,6 +246,7 @@ We begin by induction over our typing derivation.
             holds.
         \end{description}
       \item[\textit{(env. size) n + 1.}] 
+        We again induct over our 
     \end{description}
   \item[\textsc{(ty. rule) Ret.}] 
     From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
