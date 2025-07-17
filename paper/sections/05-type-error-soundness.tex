@@ -223,16 +223,22 @@ We begin by induction over our typing derivation.
             properties (1) and (2).
           \item{\underline{(ty. case) $M_q \tau$.}}
             By our compatibility relation, we know that: $\sigma = (x \mapsto
-            v_0);(x \mapsto v_1)$ for $d_{\tau}(v_0, v_1) \leq q$. Unfolding our
-            machine configuration interpretation definition, we get:
-            $$
-            \llbracket x \mapsto v_0; x \mapsto v_1 \Vdash x \rrbracket_{M_q
-            \tau} = 
-            (\llbracket x \mapsto v_0 \Vdash x \rrbracket_{\tau}; \llbracket x
-            \mapsto v_1 \Vdash x \rrbracket_{\tau}) = 
-            (\llbracket \Vdash v_0 \rrbracket_{\tau}, \llbracket \Vdash v_1
-            \rrbracket_{\tau})
-            $$
+            v_0);(x \mapsto v_1)$ for $d_{\tau}(\llbracket \Vdash v_0
+            \rrbracket_{\tau}, \llbracket \Vdash v_1 \rrbracket_{\tau}) \leq q$.
+            Unfolding our machine configuration interpretation definition, we
+            obtain:
+            \begin{equation*}
+              \begin{aligned}
+                \llbracket x \mapsto v_0; x \mapsto v_1 \Vdash x \rrbracket_{M_q
+                \tau} &= (\llbracket x \mapsto v_0 \Vdash x \rrbracket_{\tau};
+                \llbracket x \mapsto v_1 \Vdash x \rrbracket_{\tau}) \\
+                &= (\llbracket \Vdash v_0 \rrbracket_{\tau}, \llbracket \Vdash
+                v_1 \rrbracket_{\tau}) \in \llbracket M_q \tau \rrbracket
+              \end{aligned}
+            \end{equation*}
+            which proves property 1. Since distance on the neighborhood monad is
+            measured in terms of the first (ideal) component, property 2 also
+            holds.
         \end{description}
       \item[\textit{(env. size) n + 1.}] 
     \end{description}
