@@ -151,7 +151,7 @@ We begin by induction over our typing derivation.
     %   \item{$M_q \tau$}
     %   \item{$\tau_0 \times \tau_1$.}
     % \end{description}
-    Instead, we induct over the the size of our enviorment.
+    Instead, we induct over the size of our enviorment.
     \begin{description}
       \item[\textit{(env. size) 0.}] We observe that an enviorment size of zero
         implies that $\Gamma$ is empty. So we are trying to show that the
@@ -166,8 +166,8 @@ We begin by induction over our typing derivation.
         \footnote{Note that when we perform inversion over our compatibility
         relation for several of the cases below, the case that $\sigma = x
         \mapsto y$, for $y$ a var, is impossible when the enviroment size is
-        zero because $\Vdash y = \bot$. This is why we are inducting over the
-        enviroment size.}
+        zero because $\llbracket \Vdash y \rrbracket = \bot$. This is why we are
+        inducting over the enviroment size.}
         \begin{description}
           \item{\underline{(ty. case) \textbf{unit.}}} The only configuration compatible with this is
             $x \mapsto \langle \rangle \Vdash x$ and clearly 
@@ -185,7 +185,7 @@ We begin by induction over our typing derivation.
             \Vdash x \rrbracket_{\mathbf{num}}$ for this case is the
             $\text{1-sensitive}$ identity function over the reals. Therefore,
             properties (1) and (2) both hold.
-          \item{\underline{(ty. cases) $\times$ and $\otimes$.}} By inversion on
+          \item{\underline{(ty. case) $\times$.}} By inversion on
             our compatibility relation, we know that we must have some $\sigma =
             (x \mapsto v_0; x \mapsto v_1)$ for $\llbracket \Vdash v_0
             \rrbracket_{\tau_0} \in \llbracket \tau_0 \rrbracket$ and
@@ -193,6 +193,18 @@ We begin by induction over our typing derivation.
             \rrbracket$. By definition, $\llbracket x \mapsto v_0; x \mapsto v_1
             \Vdash x \rrbracket_{\tau_0 \times \tau_1} = (\llbracket x \mapsto
             v_0 \Vdash x \rrbracket_{\tau_0}, \llbracket x \mapsto v_1 \Vdash x
+            \rrbracket_{\tau_1}) = (\llbracket \Vdash v_0 \rrbracket_{\tau_0},
+            \llbracket \Vdash v_1 \rrbracket_{\tau_1})$ which is clearly
+            \text{1-sensitive} in the interpretation of our type. So properties
+            (1) and (2) hold.
+          \item{\underline{(ty. case) $\otimes$.}} By inversion on our
+            compatibility relation, we know that we must have some $\sigma = (x
+            \mapsto (v_0, v_1))$ for $\llbracket \Vdash v_0 \rrbracket_{\tau_0}
+            \in \llbracket \tau_0 \rrbracket$ and $\llbracket \Vdash v_1
+            \rrbracket_{\tau_1} \in \llbracket \tau_1 \rrbracket$. By
+            definition, $\llbracket x \mapsto (v_0, v_1) \Vdash x
+            \rrbracket_{\tau_0 \times \tau_1} = (\llbracket x \mapsto v_0 \Vdash
+            x \rrbracket_{\tau_0}, \llbracket x \mapsto v_1 \Vdash x
             \rrbracket_{\tau_1}) = (\llbracket \Vdash v_0 \rrbracket_{\tau_0},
             \llbracket \Vdash v_1 \rrbracket_{\tau_1})$ which is clearly
             \text{1-sensitive} in the interpretation of our type. So properties
@@ -245,8 +257,22 @@ We begin by induction over our typing derivation.
             measured in terms of the first (ideal) component, property 2 also
             holds.
         \end{description}
-      \item[\textit{(env. size) n + 1.}] 
-        We again induct over our 
+      \item[\textit{(env. size) n + 1.}] We again induct over our type. 
+        Note that in contrast to the base case, when we perform inversion on the
+        compatibility relation for the cases below, $\sigma = \sigma'[x \mapsto
+        y]$, for $y$ a var, is a possible case. 
+        For each case, we have that either:
+        \begin{description}
+          \item{\underline{\textit{$\sigma = \sigma'[x \mapsto y]$ for $y$ a
+            variable.}}} By unfolding the definition of our machine config
+            interpretation and inversion over our compatibility relation, we
+            know that $\llbracket \sigma \Vdash x \rrbracket_{\tau} = \llbracket
+            \sigma' \Vdash y \rrbracket_{\tau} \in \llbracket \tau \rrbracket$
+            and is \text{1-sensitive} by our inductive hypothesis (over env.
+            size).
+          \item{\underline{\textit{Otherwise.}}} Proof for this case mirrors the
+            proof for each of the base cases.
+        \end{description}
     \end{description}
   \item[\textsc{(ty. rule) Ret.}] 
     From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
