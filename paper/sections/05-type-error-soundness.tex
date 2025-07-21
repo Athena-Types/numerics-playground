@@ -125,7 +125,7 @@
   TODO
 \end{proof}
 
-\begin{theorem}[Semantic type soundness for values]
+\begin{theorem}[Semantic type soundness]
 $\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
 \end{theorem}
 \begin{proof}
@@ -312,17 +312,6 @@ We begin by induction over our typing derivation.
     distances between monadic values are measured as distances between their
     first (ideal) components.
 \end{description}
-\end{proof}
-
-\begin{theorem}[Semantic type soundness]
-$\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
-\end{theorem}
-\begin{proof}
-  If $e$ is a value, we can apply our semantic type soundness theorem for values
-  and we are done. If $e$ is a well-typed expression, we wish to show that (1)
-  it will also step to a semantically well-typed term; and (2) it will
-  eventually step to a value.
-  TODO
 \end{proof}
 
 %%%% IGNORE BELOW %%%%
