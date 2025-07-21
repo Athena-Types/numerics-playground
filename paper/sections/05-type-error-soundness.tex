@@ -126,14 +126,14 @@
 \end{proof}
 
 \begin{theorem}[Semantic type soundness for values]
-$\Gamma \vdash v : \tau \implies \Gamma \vDash v : \tau$
+$\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
 \end{theorem}
 \begin{proof}
 From our premise, we wish to show that:
   \begin{enumerate}
-    \item $\forall \sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash v
+    \item $\forall \sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash e
       \rrbracket_{\tau} \in \llbracket \tau \rrbracket$ and well-defined.
-    \item $\llbracket - \Vdash v \rrbracket_{\tau}$ is a \text{1-sensitive} map
+    \item $\llbracket - \Vdash e \rrbracket_{\tau}$ is a \text{1-sensitive} map
       for all inputs enviroments compatible with $\Gamma$.
   \end{enumerate}
 We begin by induction over our typing derivation. 
@@ -276,9 +276,41 @@ We begin by induction over our typing derivation.
     \end{description}
   \item[\textsc{(ty. rule) Ret.}] 
     From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
-    wish to prove that $\Gamma \vDash \mathbf{ret} \ e : \tau$. It suffices to
-    show that $(\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha$.
+    wish to prove that $\Gamma \vDash \mathbf{ret} \ e : M_0 \tau$. Stepping our
+    rewrite relation, we have that 
+    \begin{equation}
+      \begin{aligned}
+        \llbracket (\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha
+        \rrbracket_{M_0 \tau} 
+        &= \\
+        (\llbracket \sigma[\alpha \mapsto v:_1 \tau] \Vdash \alpha
+        \rrbracket_{\tau}, \llbracket \sigma[\alpha
+        \mapsto v:_1 \tau] \Vdash \rrbracket_{\tau})
+        &\in 
+        \llbracket M_0 \tau \rrbracket
+      \end{aligned}
+    \end{equation}
+    by our inductive hypothesis and is clearly \text{1-sensitive} in the metric
+    space denoted by its type.
   \item[\textsc{(ty. rule) Rnd.}]
+    From our inductive hypothesis, we have that $\Gamma \vDash e : \mathbf{num}$ and
+    wish to prove that $\Gamma \vDash \mathbf{rnd} \ e : M_q \mathbf{num}$. Stepping our
+    rewrite relation, we can show that:
+    \begin{equation}
+      \begin{aligned}
+        \llbracket (\sigma[\alpha \mapsto v:_1 \mathbf{num}]; \sigma[\alpha \mapsto
+        \rho(v) :_1 \mathbf{num}]) \Vdash \alpha \rrbracket_{M_q \mathbf{num}} 
+        &= \\
+        (\llbracket \sigma[\alpha \mapsto v:_1 \mathbf{num}] \Vdash \alpha
+        \rrbracket_{\mathbf{num}}, \llbracket \sigma[\alpha \mapsto \rho(v) :_1
+        \mathbf{num}]) \Vdash \alpha \rrbracket_{\mathbf{num}})
+        &\in \llbracket M_q \mathbf{num} \rrbracket
+      \end{aligned}
+    \end{equation}
+    by relying on the fact that $d_{\mathbf{num}}(v, \rho(v)) \leq q$. It is
+    also clearly \text{1-sensitive} in the metric space denoted by its type as
+    distances between monadic values are measured as distances between their
+    first (ideal) components.
 \end{description}
 \end{proof}
 
