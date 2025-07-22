@@ -357,26 +357,29 @@ In this section, we allay such concerns by annotating the operational semantics
 like so:
 \begin{enumerate}
   \item For portions of the configuration that correspond to our \textit{ideal}
-    computation, we \underline{underline} the computation. For example, our
-    rounding stepping rule would look like:
+    computation, without round-off error, we \underline{underline} the
+    computation. For example, our rounding stepping rule would look like:
     \begin{equation*}
       \sigma \Vdash \underline{\mathbf{rnd} \ v} : M_q \ \mathbf{num} \ \textcolor{red}{\rightsquigarrow} \
       \underline{\sigma [\alpha \mapsto v :_1 \mathbf{num}]}; \sigma [\alpha \mapsto \rho(v) :_1
       \mathbf{num}] \Vdash \underline{\alpha} : M_q \ \mathbf{num}
     \end{equation*}
   \item For portions of the configuration that correspond to our
-    \textit{approximate} computation, we $\overline{\text{overline}}$ the
-    computation. For example, our rounding stepping rule would look like:
+    \textit{approximate} computation, with round-off error, we
+    $\overline{\text{overline}}$ the computation. For example, our rounding
+    stepping rule would look like:
     \begin{equation*}
       \sigma \Vdash \overline{\mathbf{rnd} \ v} : M_q \ \mathbf{num} \ \textcolor{red}{\rightsquigarrow} \ \sigma
       [\alpha \mapsto v :_1 \mathbf{num}]; \overline{\sigma [\alpha \mapsto \rho(v) :_1
       \mathbf{num}]} \Vdash \overline{\alpha} : M_q \ \mathbf{num}
     \end{equation*}
 \end{enumerate}
-A user may choose to selectively consider the ideal semantics by only caring
-about the underlined portions of the operational semantics rewrite rules, or, a
-user may selectively implement the approximate floating-point semantics by
-computing the overlined portions of the operational semantics rewrite rules.
+A user may choose to selectively consider the ideal semantics by \textit{only}
+caring about the underlined portions of the operational semantics rewrite rules,
+or, a user may selectively implement the approximate floating-point semantics by
+\textit{only} computing the overlined portions of the operational semantics
+rewrite rules. Our unified operational semantics allows for both perspectives to
+co-exist.
 Using annotations, we prove our error soundness theorem
 (Theorem~\ref{thm:error-soundness}), which states that all semantically
 well-typed $e : M_q \ \mathbf{num}$ reduce to a pair of values, with the first
