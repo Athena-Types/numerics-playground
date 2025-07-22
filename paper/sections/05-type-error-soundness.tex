@@ -311,8 +311,122 @@ We begin by induction over our typing derivation.
     also clearly \text{1-sensitive} in the metric space denoted by its type as
     distances between monadic values are measured as distances between their
     first (ideal) components.
+  \item[\textsc{(ty. rule) $\multimap I$.}] We are given in our inductive
+    hypothesis that $\Gamma, x :_1 \vDash e : \tau$ for all types $\tau$. That
+    means for all enviroments $\sigma'$ compatible with $\Gamma, x :_1 \tau_0$,
+    we have that: $$\llbracket \sigma' \Vdash e \rrbracket_{\tau} \in \tau$$ and
+    wish to show that: $\Gamma \Vdash \lambda x . e : \tau_0 \multimap \tau$.
+    Unfolding what we wish to show, it suffices to prove that for all $\sigma$
+    compatible with $\Gamma$, $\llbracket \sigma \Vdash \lambda x . e
+    \rrbracket_{\tau_0 \multimap \tau_1} \in \llbracket \tau_0 \multimap \tau_1
+    \rrbracket$ and \text{1-sensitive}.
+    Let $\sigma$ be an arbitrary enviroment compatible with $\Gamma$. We proceed
+    by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
+    \begin{description}
+      \item{\underline{(ty. case) $\textbf{unit}$.}} TODO.
+      \item{\underline{(ty. case) $\textbf{num}$.}} TODO.
+      \item{\underline{(ty. case) $\tau_0 \times \tau_1$.}} TODO. 
+      \item{\underline{(ty. case) $\tau_0 \otimes \tau_1$.}} TODO.
+      \item{\underline{(ty. case) $\tau_0 + \tau_1$.}} TODO.
+      \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} TODO. 
+      \item{\underline{(ty. case) $!_s \tau$.}} TODO.
+      \item{\underline{(ty. case) $M_u \tau$.}} TODO.
+    \end{description}
+    TODO
+  \item[\textsc{(ty. rule) Unit.}] Holds trivially.
+  \item[\textsc{(ty. rule) Const.}] Holds trivially.
+  \item[\textsc{(ty. rule) Subsumption.}] Holds trivially.
 \end{description}
 \end{proof}
+
+\subsection{Modeling fidelity of real-world numerical programs}
+Our semantics models both our ideal and approximate numerical computations
+simultaneously. This enables an explicit encoding of the computational content
+of $\textbf{factor}$ (which can be viewed as rearranging various mixed
+ideal/approximate intermediate computations) and multiplication in our monad
+(which can be viewed as "forgetting" mixed intermediate computations through the
+application of triangle inequality).
+
+However, a semantics that unifies both ideal and approximate computations makes
+it somewhat less obvious that our type soundness theorem is actually useful in
+bounding round-off error: the difference between what the user wanted (a program
+over the reals with no round-off error) and what the user got (a program over
+the floats).
+
+In this section, we allay such concerns by annotating the operational semantics
+like so:
+\begin{enumerate}
+  \item For portions of the configuration that correspond to our \textit{ideal}
+    computation, we \underline{underline} the computation. For example, our
+    rounding stepping rule would look like:
+    \begin{equation*}
+      \sigma \Vdash \underline{\mathbf{rnd} \ v} : M_q \ \mathbf{num} \ \textcolor{red}{\rightsquigarrow} \
+      \underline{\sigma [\alpha \mapsto v :_1 \mathbf{num}]}; \sigma [\alpha \mapsto \rho(v) :_1
+      \mathbf{num}] \Vdash \underline{\alpha} : M_q \ \mathbf{num}
+    \end{equation*}
+  \item For portions of the configuration that correspond to our
+    \textit{approximate} computation, we $\overline{\text{overline}}$ the
+    computation. For example, our rounding stepping rule would look like:
+    \begin{equation*}
+      \sigma \Vdash \overline{\mathbf{rnd} \ v} : M_q \ \mathbf{num} \ \textcolor{red}{\rightsquigarrow} \ \sigma
+      [\alpha \mapsto v :_1 \mathbf{num}]; \overline{\sigma [\alpha \mapsto \rho(v) :_1
+      \mathbf{num}]} \Vdash \overline{\alpha} : M_q \ \mathbf{num}
+    \end{equation*}
+\end{enumerate}
+A user may choose to selectively consider the ideal semantics by only caring
+about the underlined portions of the operational semantics rewrite rules, or, a
+user may selectively implement the approximate floating-point semantics by
+computing the overlined portions of the operational semantics rewrite rules.
+Using annotations, we prove our error soundness theorem
+(Theorem~\ref{thm:error-soundness}), which states that all semantically
+well-typed $e : M_q \ \mathbf{num}$ reduce to a pair of values, with the first
+component side fully ideal (what the user wanted) and the second component fully
+approximate (what the user got and can compute in-hardware), with the distance
+between computations --- our round-off error --- bounded above by $q$.
+
+\subsubsection{Annotated operational semantics}
+
+Note that different nodes in the enviroment tree may have mixed annotations,
+corresponding to when the ideal and approximate computations are mixed. For
+example, the fully annotated rounding stepping rule looks like:
+\begin{equation*}
+  \sigma \Vdash \underline{\overline{\mathbf{rnd} \ v}} : M_q \ \mathbf{num} \ \textcolor{red}{\rightsquigarrow} \
+  \underline{\sigma [\alpha \mapsto v :_1 \mathbf{num}]}; \overline{\sigma [\alpha \mapsto \rho(v) :_1
+  \mathbf{num}]} \Vdash \underline{\overline{\alpha}} : M_q \ \mathbf{num}
+\end{equation*}
+where $\sigma$ itself contain under and overlined annotations that are
+propagated through. In some cases, expressions will be simultaneously
+$\underline{\overline{\text{under-over-lined}}}$. 
+
+\subsubsection{Well-annotated relation}
+We will then define a unary well-annotated configuration relation and prove that
+it is preserved under stepping. 
+
+\subsubsection{Error soundness}
+
+The following lemma proves that when the expression on the right-hand side of a
+$\Vdash$ relation is simulatenously under-over-lined, the property is preserved
+under stepping (Lemma~\ref{thm:expressions-preserve-annotations}).
+\begin{lemma}\label{thm:expressions-preserve-annotations}
+For all $\sigma, \sigma', e, e'$, if
+$\sigma \Vdash e \rightsquigarrow \sigma' \Vdash e'$, 
+  then 
+  $\sigma \Vdash \underline{\overline{e}} \ \textcolor{red}{\rightsquigarrow} \ \sigma' \Vdash \underline{\overline{e'}}$. 
+\end{lemma}
+\begin{proof}
+  By inspection of the annotated rewrite ($\rightsquigarrow$) relation.
+\end{proof}
+\begin{theorem}[Error soundness]\label{thm:error-soundness}
+\begin{equation}
+  \begin{aligned}
+    \llbracket . \Vdash \underline{\overline{e}} \rrbracket_{M_q \ \mathbf{num}} 
+      &=
+    \llbracket \underline{\gamma}; \overline{\gamma'} \Vdash \underline{\overline{v}} \rrbracket_{M_q \ \mathbf{num}} \\
+     &=
+    (\llbracket \underline{\gamma} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}, \llbracket \overline{\gamma'} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}) \\
+  \end{aligned}
+\end{equation}
+\end{theorem}
 
 %%%% IGNORE BELOW %%%%
 
