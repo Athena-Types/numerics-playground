@@ -122,7 +122,19 @@
   \textit{type}$.
 \end{lemma}
 \begin{proof}
-  TODO
+  Trivial.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{lemma}[Semantic totality]
+  For all types $\tau$ and $x \in \llbracket \tau \rrbracket$, there exists
+  $\sigma, e$ such that $\llbracket \sigma \Vdash e \rrbracket_{\tau} = x$.
+\end{lemma}
+\begin{proof}
+  By induction over $\tau$. All cases except the $\tau_0 \multimap \tau_1$ cases
+  hold trivially or by application of the inductive hypothesis. For the
+  implication case, we observe the following: TODO.
 \end{proof}
 
 \begin{theorem}[Semantic type soundness]
@@ -320,8 +332,14 @@ We begin by induction over our typing derivation.
     compatible with $\Gamma$, $\llbracket \sigma \Vdash \lambda x . e
     \rrbracket_{\tau_0 \multimap \tau_1} \in \llbracket \tau_0 \multimap \tau_1
     \rrbracket$ and \text{1-sensitive}.
-    Let $\sigma$ be an arbitrary enviroment compatible with $\Gamma$. We proceed
-    by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
+
+    To show this, we need to demonstrate that for any $y \in \llbracket \tau_0
+    \rrbracket$, we need show that for all $\llbracket \sigma \Vdash \lambda x . e
+    \rrbracket_{\tau_0 \multimap \tau_1} y \in \llbracket \tau \rrbracket$.
+
+    Let $\sigma$ be an arbitrary enviroment compatible with $\Gamma$. 
+
+    We proceed by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
     \begin{description}
       \item{\underline{(ty. case) $\textbf{unit}$.}} TODO.
       \item{\underline{(ty. case) $\textbf{num}$.}} TODO.
@@ -332,7 +350,20 @@ We begin by induction over our typing derivation.
       \item{\underline{(ty. case) $!_s \tau$.}} TODO.
       \item{\underline{(ty. case) $M_u \tau$.}} TODO.
     \end{description}
-    TODO
+    TODO.
+  \item[\textsc{(ty. rule) $\multimap E$.}] TODO.
+  \item[\textsc{(ty. rule) $! I$.}] TODO.
+  \item[\textsc{(ty. rule) $! E$.}] TODO.
+  \item[\textsc{(ty. rule) Let.}] TODO.
+  \item[\textsc{(ty. rule) $M_u \ E$.}] TODO.
+  \item[\textsc{(ty. rule) Factor.}] TODO.
+  \item[\textsc{(ty. rule) $\times I$.}] TODO.
+  \item[\textsc{(ty. rule) $\times E$.}] TODO.
+  \item[\textsc{(ty. rule) $\otimes I$.}] TODO.
+  \item[\textsc{(ty. rule) $\otimes E$.}] TODO.
+  \item[\textsc{(ty. rule) $+ I_i$.}] TODO.
+  \item[\textsc{(ty. rule) $+ E$.}] TODO.
+  \item[\textsc{(ty. rule) $\textit{op}(v)$.}] TODO.
   \item[\textsc{(ty. rule) Unit.}] Holds trivially.
   \item[\textsc{(ty. rule) Const.}] Holds trivially.
   \item[\textsc{(ty. rule) Subsumption.}] Holds trivially.
@@ -505,6 +536,7 @@ With annotations, we can now state the following theorem:
       (\llbracket \underline{\gamma} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}, \llbracket \overline{\gamma'} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}) \\
     \end{aligned}
   \end{equation}
+  TODO.
 \end{proof}
 
 %%%% IGNORE BELOW %%%%
