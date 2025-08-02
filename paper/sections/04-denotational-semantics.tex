@@ -1,9 +1,13 @@
 \section{Denotational Semantics}
+
+\newpage
+
 \begin{definition}[Type interpretation]
   A type $\tau$ is interpreted with $\llbracket - \rrbracket : \textit{type} \to
   \textbf{Met}$ in the same way as in the original NumFuzz system.
   % TODO: put actual definition here.
 \end{definition}
+
 
 \begin{definition}[Typing context interpretation]
   A typing context $\Gamma$ is interpreted with $\llbracket - \rrbracket :
@@ -16,6 +20,9 @@
   \end{aligned}
   \end{equation}
 \end{definition}
+
+\newpage
+
 
 \begin{definition}[Machine configuration interpretation]
   A machine configuration $\sigma \Vdash e$ is interpreted with $\llbracket -
@@ -60,6 +67,9 @@
   \llbracket \sigma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
     (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket \sigma \Vdash w
     \rrbracket_{\tau_1}) \\
+  \llbracket \sigma \Vdash \mathbf{op} \ v \rrbracket_{\tau_1}
+    &\triangleq \textit{op} (\llbracket \sigma \Vdash v \rrbracket_{\tau_0})
+    \quad \text{for \textbf{op} : $\tau_0 \multimap \tau_1 \in \Sigma$} \\
   \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
     &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
   \llbracket \sigma_0 \Vdash v \rrbracket_{\tau_0 \multimap \tau_1}

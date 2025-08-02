@@ -127,6 +127,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+The following property is used to prove that our denotation of configurations
+(for function types) define \textit{total} functions. This is necessary because
+our denotation for configurations is defined extensionally (by stepping
+configs).
+
 \begin{lemma}[Semantic totality]
   For all types $\tau$ and $x \in \llbracket \tau \rrbracket$, there exists
   $\sigma, e$ such that $\llbracket \sigma \Vdash e \rrbracket_{\tau} = x$.
@@ -134,7 +139,8 @@
 \begin{proof}
   By induction over $\tau$. All cases except the $\tau_0 \multimap \tau_1$ cases
   hold trivially or by application of the inductive hypothesis. For the
-  implication case, we observe the following: TODO.
+  implication case, we observe that we can always pick an $\textbf{op}$
+  witnessing the totality. Qed.
 \end{proof}
 
 \begin{theorem}[Semantic type soundness]
@@ -326,19 +332,21 @@ We begin by induction over our typing derivation.
   \item[\textsc{(ty. rule) $\multimap I$.}] We are given in our inductive
     hypothesis that $\Gamma, x :_1 \vDash e : \tau$ for all types $\tau$. That
     means for all enviroments $\sigma'$ compatible with $\Gamma, x :_1 \tau_0$,
-    we have that: $$\llbracket \sigma' \Vdash e \rrbracket_{\tau} \in \tau$$ and
-    wish to show that: $\Gamma \Vdash \lambda x . e : \tau_0 \multimap \tau$.
-    Unfolding what we wish to show, it suffices to prove that for all $\sigma$
-    compatible with $\Gamma$, $\llbracket \sigma \Vdash \lambda x . e
-    \rrbracket_{\tau_0 \multimap \tau_1} \in \llbracket \tau_0 \multimap \tau_1
-    \rrbracket$ and \text{1-sensitive}.
-
-    To show this, we need to demonstrate that for any $y \in \llbracket \tau_0
-    \rrbracket$, we need show that for all $\llbracket \sigma \Vdash \lambda x . e
-    \rrbracket_{\tau_0 \multimap \tau_1} y \in \llbracket \tau \rrbracket$.
-
-    Let $\sigma$ be an arbitrary enviroment compatible with $\Gamma$. 
-
+    we have that: 
+    $$\llbracket \sigma' \Vdash e \rrbracket_{\tau} \in \tau$$ and
+    $$\llbracket _ \Vdash e \rrbracket_{\tau} \in \tau$$
+    \text{1-sensitive}.
+    From our inductive hypothesis, we wish to show that: $\Gamma \Vdash \lambda
+    x . e : \tau_0 \multimap \tau$ and \text{1-sensitive}. 
+    In the following proof, let $\sigma$ be an arbitrary enviroment compatible
+    with $\Gamma$. Unfolding what we wish to show, it suffices to show that for
+    all $\sigma$ compatible with $\Gamma$, $\llbracket \sigma \Vdash \lambda x .
+    e \rrbracket_{\tau_0 \multimap \tau_1} \in \llbracket \tau_0 \multimap
+    \tau_1 \rrbracket$. By semantic totality, it suffices to demonstrate that
+    for any $\llbracket \sigma' \Vdash v \rrbracket_{\tau_0} \in \llbracket
+    \tau_0 \rrbracket$, $\llbracket \sigma \Vdash \lambda x . e
+    \rrbracket_{\tau_0 \multimap \tau_1} \llbracket \sigma' \Vdash v
+    \rrbracket_{\tau_0} \in \llbracket \tau \rrbracket$ and \text{1-sensitive}.
     We proceed by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
     \begin{description}
       \item{\underline{(ty. case) $\textbf{unit}$.}} TODO.
