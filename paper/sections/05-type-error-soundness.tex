@@ -349,12 +349,16 @@ We begin by induction over our typing derivation.
     \rrbracket_{\tau_0} \in \llbracket \tau \rrbracket$ and \text{1-sensitive}.
     We proceed by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
     \begin{description}
-      \item{\underline{(ty. case) $\textbf{unit}$.}} TODO.
-      \item{\underline{(ty. case) $\textbf{num}$.}} TODO.
-      \item{\underline{(ty. case) $\tau_0 \times \tau_1$.}} TODO. 
-      \item{\underline{(ty. case) $\tau_0 \otimes \tau_1$.}} TODO.
-      \item{\underline{(ty. case) $\tau_0 + \tau_1$.}} TODO.
-      \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} TODO. 
+      \item{\underline{(ty. case) $\textbf{unit}$.}} Holds trivially.
+      \item{\underline{(ty. case) $\textbf{num}$.}} Holds trivially.
+      \item{\underline{(ty. case) $\tau_0 \times \tau_1$.}} Holds by application
+        of the inductive hypothesis. 
+      \item{\underline{(ty. case) $\tau_0 \otimes \tau_1$.}} Holds by
+        application of the inductive hypothesis.
+      \item{\underline{(ty. case) $\tau_0 + \tau_1$.}} Holds by application of
+        the inductive hypothesis.
+      \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} Holds by
+        application of the inductive hypothesis. 
       \item{\underline{(ty. case) $!_s \tau$.}} TODO.
       \item{\underline{(ty. case) $M_u \tau$.}} TODO.
     \end{description}
