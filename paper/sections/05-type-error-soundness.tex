@@ -333,8 +333,9 @@ We begin by induction over our typing derivation.
     hypothesis that $\Gamma, x :_1 \vDash e : \tau$ for all types $\tau$. That
     means for all enviroments $\sigma'$ compatible with $\Gamma, x :_1 \tau_0$,
     we have that: 
-    $$\llbracket \sigma' \Vdash e \rrbracket_{\tau} \in \tau$$ and
-    $$\llbracket _ \Vdash e \rrbracket_{\tau} \in \tau$$
+    $$\llbracket \sigma' \Vdash e \rrbracket_{\tau} \in \llbracket \tau
+    \rrbracket$$ and $$\llbracket - \Vdash e \rrbracket_{\tau} \in \llbracket
+    \tau \rrbracket$$
     \text{1-sensitive}.
     From our inductive hypothesis, we wish to show that: $\Gamma \Vdash \lambda
     x . e : \tau_0 \multimap \tau$ and \text{1-sensitive}. 
@@ -345,19 +346,39 @@ We begin by induction over our typing derivation.
     \tau_1 \rrbracket$. By semantic totality, it suffices to demonstrate that
     for any $\llbracket \sigma' \Vdash v \rrbracket_{\tau_0} \in \llbracket
     \tau_0 \rrbracket$, $\llbracket \sigma \Vdash \lambda x . e
-    \rrbracket_{\tau_0 \multimap \tau_1} \llbracket \sigma' \Vdash v
+    \rrbracket_{\tau_0 \multimap \tau_1} \llbracket \sigma'' \Vdash v
     \rrbracket_{\tau_0} \in \llbracket \tau \rrbracket$ and \text{1-sensitive}.
     We proceed by inducting over the size of type $\tau_0$, namely $s(\tau_0)$.
     \begin{description}
       \item{\underline{(ty. case) $\textbf{unit}$.}} Holds trivially.
       \item{\underline{(ty. case) $\textbf{num}$.}} Holds trivially.
-      \item{\underline{(ty. case) $\tau_0 \times \tau_1$.}} Holds by application
-        of the inductive hypothesis. 
-      \item{\underline{(ty. case) $\tau_0 \otimes \tau_1$.}} Holds by
+      \item{\underline{(ty. case) $\tau_a \times \tau_b$.}} 
+        Holds by application of the inductive hypothesis. 
+        In particular, we show that:
+        \begin{equation*}
+          \begin{aligned}
+            \llbracket \sigma \Vdash \lambda x . e \rrbracket_{(\tau_a \times
+            \tau_b) \multimap \tau_1} \llbracket \sigma'' \Vdash v
+            \rrbracket_{\tau_a \times \tau_b} &=
+            \llbracket \sigma @ \sigma'' \Vdash (\lambda x . e) v
+            \rrbracket_{\tau_1} \\
+            &=
+            \llbracket \sigma_a; \sigma_b \Vdash (\lambda x . e) v
+            \rrbracket_{\tau_1} \\
+            & =
+            \llbracket \sigma_a[x \mapsto v]; \sigma_b[x \mapsto v] \Vdash e
+            \rrbracket_{\tau_1} \in \llbracket \tau_1 \rrbracket \\
+          \end{aligned}
+        \end{equation*}
+        where $\sigma_a, \sigma_b$ exists by inspection on the $\tau_a \times
+        \tau_b$ case for enviroment compatibility such that $\sigma_a[x \mapsto
+        v]; \sigma_b[x \mapsto v]$ is compatible with $\Gamma, x :_1 \tau_0$.
+        Then, the last step holds by application of the inductive hypothesis.
+      \item{\underline{(ty. case) $\tau_a \otimes \tau_b$.}} Holds by
         application of the inductive hypothesis.
-      \item{\underline{(ty. case) $\tau_0 + \tau_1$.}} Holds by application of
+      \item{\underline{(ty. case) $\tau_a + \tau_b$.}} Holds by application of
         the inductive hypothesis.
-      \item{\underline{(ty. case) $\tau_0 \multimap \tau_1$.}} Holds by
+      \item{\underline{(ty. case) $\tau_a \multimap \tau_b$.}} Holds by
         application of the inductive hypothesis. 
       \item{\underline{(ty. case) $!_s \tau$.}} TODO.
       \item{\underline{(ty. case) $M_u \tau$.}} TODO.
