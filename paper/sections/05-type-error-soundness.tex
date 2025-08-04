@@ -374,17 +374,40 @@ We begin by induction over our typing derivation.
         \tau_b$ case for enviroment compatibility such that $\sigma_a[x \mapsto
         v]; \sigma_b[x \mapsto v]$ is compatible with $\Gamma, x :_1 \tau_0$.
         Then, the last step holds by application of the inductive hypothesis.
+      \item{\underline{(ty. case) $M_u \tau$.}} 
+        Holds by application of the inductive hypothesis. 
+        In particular, we show that:
+        \begin{equation*}
+          \begin{aligned}
+            \llbracket \sigma \Vdash \lambda x . e \rrbracket_{M_u \tau \multimap \tau_1} \llbracket \sigma'' \Vdash v
+            \rrbracket_{M_u \tau} &=
+            \llbracket \sigma @ \sigma'' \Vdash (\lambda x . e) v
+            \rrbracket_{\tau_1} \\
+            &=
+            \llbracket \sigma_a; \sigma_b \Vdash (\lambda x . e) v
+            \rrbracket_{\tau_1} \\
+            & =
+            \llbracket \sigma_a[x \mapsto v]; \sigma_b[x \mapsto v] \Vdash e
+            \rrbracket_{\tau_1} \in \llbracket \tau_1 \rrbracket \\
+          \end{aligned}
+        \end{equation*}
+        where $\sigma_a, \sigma_b$ exists by inspection on the $M_u \tau$ case
+        for enviroment compatibility such that $\sigma_a[x \mapsto v];
+        \sigma_b[x \mapsto v]$ is compatible with $\Gamma, x :_1 M_u \tau$.
+        Then, the last step holds by application of the inductive hypothesis.
       \item{\underline{(ty. case) $\tau_a \otimes \tau_b$.}} Holds by
-        application of the inductive hypothesis.
+        application of the inductive hypothesis and some unfolding.
       \item{\underline{(ty. case) $\tau_a + \tau_b$.}} Holds by application of
-        the inductive hypothesis.
+        the inductive hypothesis and some unfolding.
       \item{\underline{(ty. case) $\tau_a \multimap \tau_b$.}} Holds by
-        application of the inductive hypothesis. 
-      \item{\underline{(ty. case) $!_s \tau$.}} TODO.
-      \item{\underline{(ty. case) $M_u \tau$.}} TODO.
+        application of the inductive hypothesis. Note the work that semantic
+        totality is doing.
+      \item{\underline{(ty. case) $!_s \tau$.}} Holds by application of the
+        inductive hypothesis and some unfolding.
     \end{description}
-    TODO.
-  \item[\textsc{(ty. rule) $\multimap E$.}] TODO.
+  \item[\textsc{(ty. rule) $\multimap E$.}] Holds by definition of $\llbracket -
+    \rrbracket_{\tau_0 \multimap \tau_1}$ on configurations and enviroment
+    compatibilty and application of our inductive hypothesis.
   \item[\textsc{(ty. rule) $! I$.}] TODO.
   \item[\textsc{(ty. rule) $! E$.}] TODO.
   \item[\textsc{(ty. rule) Let.}] TODO.
@@ -396,7 +419,8 @@ We begin by induction over our typing derivation.
   \item[\textsc{(ty. rule) $\otimes E$.}] TODO.
   \item[\textsc{(ty. rule) $+ I_i$.}] TODO.
   \item[\textsc{(ty. rule) $+ E$.}] TODO.
-  \item[\textsc{(ty. rule) $\textit{op}(v)$.}] TODO.
+  \item[\textsc{(ty. rule) $\textit{op}(v)$.}] Holds by construction of
+    lifted $\textit{op}$.
   \item[\textsc{(ty. rule) Unit.}] Holds trivially.
   \item[\textsc{(ty. rule) Const.}] Holds trivially.
   \item[\textsc{(ty. rule) Subsumption.}] Holds trivially.
