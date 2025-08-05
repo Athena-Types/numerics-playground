@@ -433,7 +433,11 @@ We begin by induction over our typing derivation.
     hypothesis.
   \item[\textsc{(ty. rule) $+ I_i$.}] Holds by application of the inductive
     hypothesis and some unfolding.
-  \item[\textsc{(ty. rule) $+ E$.}] TODO.
+  \item[\textsc{(ty. rule) $+ E$.}] There are two cases. Either the semantically
+    well-typed (by our inductive hypothesis) configuration $\sigma \Vdash e$
+    (for $\sigma$ compatible with $\Gamma$) steps to a variable, or, it steps to
+    a value that is not a variable. In both cases, we can complete the proof by
+    applying our inductive hypothesis.
   \item[\textsc{(ty. rule) $\textit{op}(v)$.}] Holds by construction of
     lifted $\textit{op}$ and our rewrite relation.
   \item[\textsc{(ty. rule) Unit.}] Holds trivially.
