@@ -189,14 +189,23 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % even more spicy rules
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % let rule
+    \vskip 0.3em
+    \AXC{$\sigma_1 \Vdash e : \tau' \rightsquigarrow^* \sigma_1' \Vdash v_1 :
+    \tau'$}
+    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 : \tau'] \Vdash f
+    \rightsquigarrow^* \sigma_2 \Vdash v_2 : \tau$} 
+    \BIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let}_{\tau'} \ x = e \
+    \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau$}
+    \DisplayProof
     % let-bind rule
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
     \sigma_1';\sigma_1'' \Vdash v_1 : M_r \tau'$}
     \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_2;\sigma_3 \Vdash v_2 : M_r \tau'$} 
+    \sigma_2;\sigma_3 \Vdash v_2 : M_r \tau$} 
     \AXC{$\sigma_1'' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau'$} 
+    \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau$} 
     \TIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x
     = e \ \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \sigma_2; \sigma_5
     \Vdash v_2 : M_{s*r + q} \ \tau$}
@@ -214,16 +223,16 @@ defined as follows:
     \AXC{$\sigma_1 \Vdash e : !_s \tau' \rightsquigarrow^*
     \sigma_1' \Vdash v_1 : !_s \tau'$}
     \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_{s * t} \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_2 \Vdash v_2 : M_r \tau'$} 
+    \sigma_2 \Vdash v_2 : \tau$} 
     \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-cobind}_{(s, \tau')} \
     x = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau $}
     \DisplayProof
     % let-pair rule
     \vskip 0.3em
-    \AXC{$\sigma_1 \Vdash e : \tau_0 \rightsquigarrow^* \sigma_1' \Vdash (v_0,
-    v_1) : \tau_0$}
+    \AXC{$\sigma_1 \Vdash e : \tau_0 \otimes \tau_1 \rightsquigarrow^* \sigma_1' \Vdash (v_0,
+    v_1) : \tau_0 \otimes \tau_1$}
     \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_0 : \tau_0][y \mapsto v_1 : \tau_1]
-    \Vdash f \rightsquigarrow^* \sigma_2 \Vdash v_2 : M_r \tau'$} 
+    \Vdash f \rightsquigarrow^* \sigma_2 \Vdash v_2 : \tau$} 
     \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0,
     \tau_1)} \ (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash
     v_2 : \tau $}

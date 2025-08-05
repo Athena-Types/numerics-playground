@@ -410,7 +410,9 @@ We begin by induction over our typing derivation.
     compatibilty and application of our inductive hypothesis.
   \item[\textsc{(ty. rule) $! I$.}] Holds by application of the inductive
     hypothesis.
-  \item[\textsc{(ty. rule) $! E$.}] TODO.
+  \item[\textsc{(ty. rule) $! E$.}] Holds by application of the inductive
+    hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
+    relation.
   \item[\textsc{(ty. rule) Let.}] TODO.
   \item[\textsc{(ty. rule) $M_u \ E$.}] TODO.
   \item[\textsc{(ty. rule) Factor.}] TODO.
@@ -421,7 +423,7 @@ We begin by induction over our typing derivation.
   \item[\textsc{(ty. rule) $+ I_i$.}] TODO.
   \item[\textsc{(ty. rule) $+ E$.}] TODO.
   \item[\textsc{(ty. rule) $\textit{op}(v)$.}] Holds by construction of
-    lifted $\textit{op}$.
+    lifted $\textit{op}$ and our rewrite relation.
   \item[\textsc{(ty. rule) Unit.}] Holds trivially.
   \item[\textsc{(ty. rule) Const.}] Holds trivially.
   \item[\textsc{(ty. rule) Subsumption.}] Holds trivially.
