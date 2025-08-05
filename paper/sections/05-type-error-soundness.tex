@@ -413,14 +413,26 @@ We begin by induction over our typing derivation.
   \item[\textsc{(ty. rule) $! E$.}] Holds by application of the inductive
     hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
     relation.
-  \item[\textsc{(ty. rule) Let.}] TODO.
-  \item[\textsc{(ty. rule) $M_u \ E$.}] TODO.
-  \item[\textsc{(ty. rule) Factor.}] TODO.
-  \item[\textsc{(ty. rule) $\times I$.}] TODO.
-  \item[\textsc{(ty. rule) $\times E$.}] TODO.
-  \item[\textsc{(ty. rule) $\otimes I$.}] TODO.
-  \item[\textsc{(ty. rule) $\otimes E$.}] TODO.
-  \item[\textsc{(ty. rule) $+ I_i$.}] TODO.
+  \item[\textsc{(ty. rule) Let.}] Holds by application of the inductive
+    hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
+    relation.
+  \item[\textsc{(ty. rule) $M_u \ E$.}] Holds by triangle inequality and
+    application of the inductive hypothesis under two compatible enviroments
+    spaced $r$ apart.
+  \item[\textsc{(ty. rule) Factor.}] Holds by application of the inductive
+    hypothesis and unfolding of the way the distances are measured in each
+    underlying metric space.
+  \item[\textsc{(ty. rule) $\times I$.}] Holds by application of the inductive
+    hypothesis and stepping and inspecting the denotational semantics of
+    $\langle \rangle$.
+  \item[\textsc{(ty. rule) $\times E$.}] Holds by application of the inductive
+    hypothesis and stepping.
+  \item[\textsc{(ty. rule) $\otimes I$.}] Holds by application of the inductive
+    hypothesis and inspection of the denotation semantics of $\otimes$.
+  \item[\textsc{(ty. rule) $\otimes E$.}] Holds by application of the inductive
+    hypothesis.
+  \item[\textsc{(ty. rule) $+ I_i$.}] Holds by application of the inductive
+    hypothesis and some unfolding.
   \item[\textsc{(ty. rule) $+ E$.}] TODO.
   \item[\textsc{(ty. rule) $\textit{op}(v)$.}] Holds by construction of
     lifted $\textit{op}$ and our rewrite relation.

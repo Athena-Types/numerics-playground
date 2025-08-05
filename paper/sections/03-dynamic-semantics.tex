@@ -193,10 +193,10 @@ defined as follows:
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : \tau' \rightsquigarrow^* \sigma_1' \Vdash v_1 :
     \tau'$}
-    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 : \tau'] \Vdash f
+    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f
     \rightsquigarrow^* \sigma_2 \Vdash v_2 : \tau$} 
-    \BIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let}_{\tau'} \ x = e \
-    \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau$}
+    \BIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e
+    \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau$}
     \DisplayProof
     % let-bind rule
     \vskip 0.3em
@@ -287,7 +287,7 @@ defined as follows:
     \DisplayProof
 
     \vskip 0.3em
-    \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow
+    \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow^*
     (\sigma_0;\sigma_1);(\sigma_2; \sigma_3) \Vdash v : M_q \tau_1 \times M_r
     \tau_2$}
     \UIC{$\sigma \Vdash \factor e \ : M_{max(q, r)} (\tau_1 \times \tau_2)
