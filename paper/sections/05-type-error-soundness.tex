@@ -599,9 +599,10 @@ With annotations, we can now state the following theorem:
   well-annotated configurations, we have that 
   $. \Vdash \underline{\overline{e}} \rightsquigarrow^{*} \sigma \Vdash
   \underline{\overline{v}}$ for some $\sigma$.
-  It remains to be shown that $\sigma = \gamma; \gamma'$ where $\llbracket \underline{\gamma \Vdash v}
+  By preservation of well-annotated configurations and semantic type soundness, we have
+  that $\sigma = \gamma; \gamma'$ where $\llbracket \underline{\gamma \Vdash v}
   \rrbracket_{\mathbf{num}} = k_0$ and $\llbracket \overline{\gamma' \Vdash v}
-  \rrbracket_{\mathbf{num}} = k_1$ and $d_{\mathbf{num}}(k_0, k_1) \leq q$
+  \rrbracket_{\mathbf{num}} = k_1$ and $d_{\mathbf{num}}(k_0, k_1) \leq q$:
 
   \begin{equation}
     \begin{aligned}
@@ -610,9 +611,10 @@ With annotations, we can now state the following theorem:
       \llbracket \underline{\gamma}; \overline{\gamma'} \Vdash \underline{\overline{v}} \rrbracket_{M_q \ \mathbf{num}} \\
       &=
       (\llbracket \underline{\gamma} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}, \llbracket \overline{\gamma'} \Vdash \underline{\overline{v}} \rrbracket_{\mathbf{num}}) \\
+      &= 
+      (k_0, k_1)
     \end{aligned}
   \end{equation}
-  TODO.
 \end{proof}
 
 %%%% IGNORE BELOW %%%%
