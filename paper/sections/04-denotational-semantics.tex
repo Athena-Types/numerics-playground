@@ -130,7 +130,12 @@
       & \triangleq \sigma \textit{ \underline{com} } \Gamma \\
       & \text{ and } \llbracket \sigma \Vdash y \rrbracket_{\tau} \in \llbracket
       \tau \rrbracket \\
-      % & \text{ and } y : \tau \text{ is in typing context } \Gamma \\
+      % op case
+      \sigma[x \mapsto op(v)] \textit{ \underline{com} } \Gamma, x: \tau_1 &
+      \triangleq \sigma \textit{ \underline{com} } \Gamma \\ 
+      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \in \llbracket
+      \tau_0 \rrbracket \\
+      & \text{ where } op : \tau_0 \multimap \tau_1 \in \Sigma \\
       % function case
       \sigma[x \mapsto \lambda y . e] \textit{ \underline{com} } \Gamma, x :
       \tau_0 \multimap \tau_1 &\triangleq 
