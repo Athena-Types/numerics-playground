@@ -139,8 +139,7 @@ configs).
 \begin{proof}
   By induction over $\tau$. All cases except the $\tau_0 \multimap \tau_1$ cases
   hold trivially or by application of the inductive hypothesis. For the
-  implication case, we observe that we can always pick an $\textbf{op}$
-  witnessing the totality. Qed.
+  implication case, we observe that our category is cartesian closed. Qed.
 \end{proof}
 
 \begin{theorem}[Semantic type soundness]
@@ -169,12 +168,13 @@ We begin by induction over our typing derivation.
     %   \item{$M_q \tau$}
     %   \item{$\tau_0 \times \tau_1$.}
     % \end{description}
-    Instead, we induct over the size of our enviorment.
+    Instead, we induct over the size of our typing context $\Gamma$ from our
+    typing rule.
     \begin{description}
       \item[\textit{(env. size) 0.}] We observe that an enviorment size of zero
         implies that $\Gamma$ is empty. So we are trying to show that the
         following:
-        $$x : \tau \vDash x : \tau$$
+        $$x : \tau \vdash x : \tau$$
         implies:
         $$\llbracket \sigma \Vdash x \rrbracket_\tau \in \llbracket \tau
         \rrbracket$$
@@ -196,13 +196,19 @@ We begin by induction over our typing derivation.
             So, properties (1) and (2) hold by the reasoning above.
           \item{\underline{(ty. case) $\mathbf{num}$.}} 
             The only configurations compatible
-            with this is $x \mapsto k \Vdash x$ for $k \in \mathbb{R}$ and
-            clearly $$\llbracket x \mapsto k \Vdash x \rrbracket_{\textbf{num}}
-            = \llbracket \Vdash k \rrbracket_{\textbf{num}} = k \in \mathbb{R} =
-            \llbracket \textbf{num} \rrbracket$$ implies that $\llbracket -
-            \Vdash x \rrbracket_{\mathbf{num}}$ for this case is the
-            $\text{1-sensitive}$ identity function over the reals. Therefore,
-            properties (1) and (2) both hold.
+            with this is $x \mapsto k \Vdash x$ for $k \in \mathbb{R}$ or $x
+            \mapsto op(v) \Vdash x$.
+            For the former, clearly $$\llbracket x \mapsto k \Vdash x
+            \rrbracket_{\textbf{num}} = \llbracket \Vdash k
+            \rrbracket_{\textbf{num}} = k \in \mathbb{R} = \llbracket
+            \textbf{num} \rrbracket$$ implies that $\llbracket - \Vdash x
+            \rrbracket_{\mathbf{num}}$ for this case is the $\text{1-sensitive}$
+            identity function over the reals. Therefore, properties (1) and (2)
+            both hold.
+
+            For the latter, we can show that both properties hold by inversion
+            on our compatibility relation and unfolding the op case for our
+            machine configuration interpretation.
           \item{\underline{(ty. case) $\times$.}} By inversion on
             our compatibility relation, we know that we must have some $\sigma =
             (x \mapsto v_0; x \mapsto v_1)$ for $\llbracket \Vdash v_0
@@ -410,13 +416,15 @@ We begin by induction over our typing derivation.
     compatibilty and application of our inductive hypothesis.
   \item[\textsc{(ty. rule) $! I$.}] Holds by application of the inductive
     hypothesis.
-  \item[\textsc{(ty. rule) $! E$.}] Holds by application of the inductive
+  \item[\textsc{(ty. rule) $! E$.}] Split the enviroment according to the way
+    the typing context is split. Holds by application of the inductive
     hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
     relation.
-  \item[\textsc{(ty. rule) Let.}] Holds by application of the inductive
-    hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
-    relation.
-  \item[\textsc{(ty. rule) $M_u \ E$.}] Holds by triangle inequality and
+  \item[\textsc{(ty. rule) Let.}] Split the enviroment according to the way the
+    typing context is split. Holds by application of the inductive hypothesis to
+    the premises of the \textbf{let} case of the rewrite relation.
+  \item[\textsc{(ty. rule) $M_u \ E$.}] Split the enviroment according to the
+    way the typing context is split. Holds by triangle inequality and
     application of the inductive hypothesis under two compatible enviroments,
     $s$\text{-sensitive} in $x$, spaced $r$ apart.
   \item[\textsc{(ty. rule) Factor.}] Holds by application of the inductive
@@ -429,11 +437,13 @@ We begin by induction over our typing derivation.
     hypothesis and stepping.
   \item[\textsc{(ty. rule) $\otimes I$.}] Holds by application of the inductive
     hypothesis and inspection of the denotation semantics of $\otimes$.
-  \item[\textsc{(ty. rule) $\otimes E$.}] Holds by application of the inductive
+  \item[\textsc{(ty. rule) $\otimes E$.}] Split the context according to the way
+    the typing context is split. Holds by application of the inductive
     hypothesis.
   \item[\textsc{(ty. rule) $+ I_i$.}] Holds by application of the inductive
     hypothesis and some unfolding.
-  \item[\textsc{(ty. rule) $+ E$.}] There are two cases. Either the semantically
+  \item[\textsc{(ty. rule) $+ E$.}] Split the enviroment according to the way
+    the typing context is split. There are two cases. Either the semantically
     well-typed (by our inductive hypothesis) configuration $\sigma \Vdash e$
     (for $\sigma$ compatible with $\Gamma$) steps to a variable, or, it steps to
     a value that is not a variable. In both cases, we can complete the proof by

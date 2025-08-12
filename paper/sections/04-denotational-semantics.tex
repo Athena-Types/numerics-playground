@@ -67,9 +67,9 @@
   \llbracket \sigma \Vdash (v, w) \rrbracket_{\tau_0 \otimes \tau_1} &\triangleq
     (\llbracket \sigma \Vdash v \rrbracket_{\tau_0}, \llbracket \sigma \Vdash w
     \rrbracket_{\tau_1}) \\
-  \llbracket \sigma \Vdash \mathbf{op} \ v \rrbracket_{\tau_1}
+  \llbracket \sigma \Vdash \mathbf{op} \ v \rrbracket_{\textbf{num}}
     &\triangleq \textit{op} (\llbracket \sigma \Vdash v \rrbracket_{\tau_0})
-    \quad \text{for \textbf{op} : $\tau_0 \multimap \tau_1 \in \Sigma$} \\
+    \quad \text{for \textbf{op} : $\tau_0 \multimap \textbf{num} \in \Sigma$} \\
   \llbracket \sigma_0; \sigma_1 \Vdash \mathbf{in_i} \ x \rrbracket_{\tau}
     &\triangleq \llbracket \sigma_i \Vdash x \rrbracket_{\tau} \\
   \llbracket \sigma_0 \Vdash v \rrbracket_{\tau_0 \multimap \tau_1}
@@ -131,16 +131,16 @@
       & \text{ and } \llbracket \sigma \Vdash y \rrbracket_{\tau} \in \llbracket
       \tau \rrbracket \\
       % op case
-      \sigma[x \mapsto op(v)] \textit{ \underline{com} } \Gamma, x: \tau_1 &
-      \triangleq \sigma \textit{ \underline{com} } \Gamma \\ 
+      \sigma[x \mapsto \mathbf{op}(v)] \textit{ \underline{com} } \Gamma, x:
+      \tau_1 & \triangleq \sigma \textit{ \underline{com} } \Gamma \\ 
       & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \in \llbracket
       \tau_0 \rrbracket \\
       & \text{ where } op : \tau_0 \multimap \tau_1 \in \Sigma \\
       % function case
-      \sigma[x \mapsto \lambda y . e] \textit{ \underline{com} } \Gamma, x :
+      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x :
       \tau_0 \multimap \tau_1 &\triangleq 
       \sigma \textit{ \underline{com} } \Gamma \\ 
-      & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
+      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0
         \multimap \tau_1} \in \llbracket \tau_0 \multimap \tau_1 \rrbracket
       % & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
       %   \multimap \tau_1} =_{extenstional} f \\ 

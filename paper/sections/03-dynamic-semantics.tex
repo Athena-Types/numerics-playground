@@ -76,12 +76,29 @@ variables like $x_1$ to value $v_1$ with type $\tau'$ and sensitivity budget
 $s_1$ to a $e'$ with type $\tau'$ and enviroment $\sigma'$. So, $\sigma$ send
 variables like $x_1 \to v_1 :_s \tau'$.
 
+To simplify the presentation, we assume that there is no variable shadowing.
 $\sigma + \sigma'$ represent pointwise concatenation over multi-enviroments,
 defined as follows:
 
 \begin{definition}[Enviroment sum, pairwise]
   \begin{equation}
-    \gamma_1 + \gamma_2 = \gamma_1 :: \gamma_2 
+    \begin{aligned}[c]
+      \gamma_1[x \mapsto v :_{s_0} \tau] 
+        + 
+      \gamma_2[x \mapsto v:_{s_1} \tau] 
+        &= 
+      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0 + s_1} \tau] \\
+      \gamma_1[x \mapsto v :_{s_0} \tau] 
+        + 
+      \gamma_2[x \mapsto \bot] 
+        &= 
+      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0} \tau] \\
+      \gamma_1[x \mapsto \bot] 
+        + 
+      \gamma_2[x \mapsto v :_{s_0} \tau] 
+        &= 
+      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0} \tau]
+    \end{aligned}
   \end{equation}
 \end{definition}
 
@@ -89,7 +106,7 @@ defined as follows:
   \begin{equation}
     \begin{aligned}[c]
       . + . &=  . \\ 
-      \gamma_0;\gamma_1 + \gamma_2;\gamma_3 &= (\gamma_0 + \gamma_2);(\sigma_1 + \sigma_3) \\ 
+      \sigma_0;\sigma_1 + \sigma_2;\sigma_3 &= (\sigma_0 + \sigma_2);(\sigma_1 + \sigma_3) \\ 
       \_ + \_ &= \bot \quad{\text{(otherwise)}}
     \end{aligned}
   \end{equation}
