@@ -113,81 +113,94 @@
 
 \begin{definition}[Environment compatibility]
   We have the following relation with type:
-  $$- \textit{ \underline{com} } - : \textit{env} \times \textit{ctx} \to
-  \text{Prop}$$ 
+  $$- \textit{ \underline{com} } - \textit{ \underline{at} } - : \textit{env}
+  \times \textit{ctx} \times \textit{point} \to \text{Prop}$$ 
   defined as follows:
   \begin{equation}
     \begin{normalsize}
     \begin{aligned}[c] 
       % unit case
       \sigma[x \mapsto * : \textbf{unit}] \textit{ \underline{com} } \Gamma, x:
-      \textbf{unit} &\triangleq \sigma \textit{ \underline{com} } \Gamma \\
+      \textbf{unit} \textit{ \underline{at} } (\star, p) &\triangleq \sigma
+      \textit{ \underline{com} } \Gamma \textit{ \underline{at} } p \\
       % num case
       \sigma[x \mapsto k : \textbf{num}] \textit{ \underline{com} } \Gamma, x:
-      \textbf{num} &\triangleq \sigma \textit{ \underline{com} } \Gamma \\
+      \textbf{num} \textit{ \underline{at} } (k, p) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } p \\
+      &\text{where } k \in \mathbb{R} \\
       % var case
-      \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x : \tau
-      & \triangleq \sigma \textit{ \underline{com} } \Gamma \\
-      & \text{ and } \llbracket \sigma \Vdash y \rrbracket_{\tau} \in \llbracket
-      \tau \rrbracket \\
+      \sigma[x \mapsto y] \textit{ \underline{com} } \Gamma, x : \tau \textit{
+        \underline{at} } (p, q) & \triangleq \sigma \textit{ \underline{com} }
+      \Gamma \textit{ \underline{at} } q \\
+      & \text{ and } \llbracket \sigma \Vdash y \rrbracket_{\tau} = p\in
+      \llbracket \tau \rrbracket \\
       % op case
       \sigma[x \mapsto \mathbf{op}(v)] \textit{ \underline{com} } \Gamma, x:
-      \tau_1 & \triangleq \sigma \textit{ \underline{com} } \Gamma \\ 
-      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \in \llbracket
-      \tau_0 \rrbracket \\
+      \tau_1 \textit{ \underline{at} } (p, q) &\triangleq \sigma \textit{
+        \underline{com} } \Gamma \textit{ \underline{at} } q \\ 
+      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} = p \in
+      \llbracket \tau_0 \rrbracket \\
       & \text{ where } op : \tau_0 \multimap \tau_1 \in \Sigma \\
       % function case
-      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x :
-      \tau_0 \multimap \tau_1 &\triangleq 
-      \sigma \textit{ \underline{com} } \Gamma \\ 
-      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0
-        \multimap \tau_1} \in \llbracket \tau_0 \multimap \tau_1 \rrbracket
+      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0
+      \multimap \tau_1 \textit{ \underline{at} } (p, q) &\triangleq \sigma
+      \textit{ \underline{com} } \Gamma \textit{ \underline{at} } q \\ 
+      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0 \multimap
+      \tau_1} = p \in \llbracket \tau_0 \multimap \tau_1 \rrbracket
       % & \text{ and } \llbracket \sigma \Vdash \lambda y . e \rrbracket_{\tau_0
       %   \multimap \tau_1} =_{extenstional} f \\ 
       % & \text{ and } f \in \llbracket \tau_0 \multimap \tau_1 \rrbracket
         \footnote{This enforces that f is \text{1-sensitive}.} \\
       % remove :s case
-      \sigma[x \mapsto v :_s \tau] \textit{ \underline{com} } \Gamma, x:_s \tau &\triangleq
-      \sigma \textit{ \underline{com} } \Gamma, x : \tau \\
-      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau} \in \llbracket
-        \tau \rrbracket \\
+      \sigma[x \mapsto v :_s \tau] \textit{ \underline{com} } \Gamma, x:_s \tau
+      \textit{ \underline{at} } (p, q) &\triangleq
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at}
+      } (p, q) \\
+      & \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau} = p \in
+      \llbracket \tau \rrbracket \\
       % comonad case
-      \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau &\triangleq
-      \sigma \textit{ \underline{com} } \Gamma, x :_s \tau \\
+      \sigma \textit{ \underline{com} } \Gamma, x: !_s \tau \textit{ \underline{at} } (p, q) &\triangleq
+      \sigma \textit{ \underline{com} } \Gamma, x :_s \tau \textit{ \underline{at} } (p, q) \\
       % monad case
-      \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau &\triangleq 
-      \sigma \textit{ \underline{com} } \Gamma, x : \tau \\
-      & \text{ and } \sigma' \textit{ \underline{com} } \Gamma, x : \tau \\
+      \sigma; \sigma' \textit{ \underline{com} } \Gamma, x: M_r \tau \textit{
+        \underline{at} } ((a, b), p) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma, x : \tau \textit{ \underline{at}
+      } (a, p) \\
+      & \text{ and } \sigma' \textit{ \underline{com} } \Gamma, x : \tau
+      \textit{ \underline{at} } (b, p) \\
       & \text{ and } (\llbracket \sigma \Vdash x \rrbracket_{\tau}, \llbracket
-      \sigma' \Vdash x \rrbracket_{\tau}) \in \llbracket M_r \tau \rrbracket \\
+      \sigma' \Vdash x \rrbracket_{\tau}) = (a, b) \in \llbracket M_r \tau \rrbracket \\
       % linear with case
       \sigma[x \mapsto v_0];\sigma[x \mapsto v_1] \textit{ \underline{com} }
-      \Gamma, x : \tau_0 \times \tau_1 &\triangleq 
-      \sigma \textit{ \underline{com} } \Gamma \\ 
-      & \text{ and } \sigma \textit{ \underline{com} } \Gamma \\
-      & \text{ and } \llbracket \sigma \Vdash v_0 \rrbracket_{\tau_0} \in
+      \Gamma, x : \tau_0 \times \tau_1 \textit{ \underline{at} } ((a, b), p) &\triangleq 
+      \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } (a, p) \\ 
+      & \text{ and } \sigma \textit{ \underline{com} } \Gamma \textit{ \underline{at} } (b, p) \\
+      & \text{ and } \llbracket \sigma \Vdash v_0 \rrbracket_{\tau_0} = a \in
           \llbracket \tau_0 \rrbracket
-        \text{ and } \llbracket \sigma \Vdash v_1 \rrbracket_{\tau_1} \in
+        \text{ and } \llbracket \sigma \Vdash v_1 \rrbracket_{\tau_1} = b \in
           \llbracket \tau_1 \rrbracket \\
       % tensor case
       \sigma[x \mapsto (v_0, v_1)] \textit{ \underline{com} } \Gamma, x : \tau_0
-      \otimes \tau_1 &\triangleq
-      \sigma[x \mapsto v_0] \textit{ \underline{com} } \Gamma \\
-      & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma \\
-      & \text{ and } \llbracket \sigma \Vdash v_0 \rrbracket_{\tau_0} \in
+      \otimes \tau_1 \textit{ \underline{at} } ((a, b), p) &\triangleq
+      \sigma[x \mapsto v_0] \textit{ \underline{com} } \Gamma  \textit{
+        \underline{at} } (a, p) \\
+      & \text{ and } \sigma[x \mapsto v_1] \textit{ \underline{com} } \Gamma
+        \textit{ \underline{at} } (b, p) \\
+      & \text{ and } \llbracket \sigma \Vdash v_0 \rrbracket_{\tau_0} = a \in
           \llbracket \tau_0 \rrbracket
-        \text{ and } \llbracket \sigma \Vdash v_1 \rrbracket_{\tau_1} \in
+        \text{ and } \llbracket \sigma \Vdash v_1 \rrbracket_{\tau_1} = b \in
           \llbracket \tau_1 \rrbracket \\
       % sum case
-      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 + \tau_1
-      &\triangleq
-      (\sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 
-        \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} \in
-          \llbracket \tau_0 \rrbracket) \\
+      \sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0 + \tau_1 \textit{ \underline{at} } (p, q)
+      &\triangleq 
+      (\sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x : \tau_0
+      \textit{ \underline{at} } (p, q) \\
+      &\> \> \> \> \> \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_0} = p
+      \in \llbracket \tau_0 \rrbracket) \\
       & \text{ or } (\sigma[x \mapsto v] \textit{ \underline{com} } \Gamma, x :
-      \tau_1 
-        \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_1} \in
-          \llbracket \tau_1 \rrbracket) \\
+      \tau_1 \textit{ \underline{at} } (p, q) \\
+      &\> \> \> \> \> \text{ and } \llbracket \sigma \Vdash v \rrbracket_{\tau_1} = p
+      \in \llbracket \tau_1 \rrbracket) \\
     \end{aligned}
     \end{normalsize}
   \end{equation}
