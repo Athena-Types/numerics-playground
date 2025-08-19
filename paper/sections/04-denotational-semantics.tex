@@ -211,16 +211,24 @@
   \in \llbracket \Gamma \rrbracket$ that $\sigma$ represents.
 \end{definition}
 
+\begin{theorem}[Unique point intepretation]
+  For any enviroment $\sigma$ and context $\Gamma$, there is at most one point
+  $p$ such that $\sigma \textit{ \underline{com} } \Gamma \textit {
+    \underline{at} } p$.
+\end{theorem}
+\begin{proof}
+  TODO.
+\end{proof}
 
 \begin{definition}[Semantic well-typedness]
   An expression $e$ is semantically well-typed in a context $\Gamma$ at type
   $\tau$, written:
   $$\Gamma \vDash e : \tau$$
-  if and only if for all $\sigma$ compatible with $\Gamma$, $\llbracket
-  \sigma \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$ and
-  $\llbracket - \Vdash e \rrbracket_{\tau}$ is a 1-sensitive map from
-  $\llbracket \Gamma \rrbracket$ to $\llbracket \tau \rrbracket$ for all input
-  enviroments compatible with $\Gamma$.
+  if and only if for all $\sigma$ compatible with $\Gamma$, $\llbracket \sigma
+  \Vdash e \rrbracket_{\tau} \in \llbracket \tau \rrbracket$ and $\llbracket -
+  \Vdash e \rrbracket_{\tau}$ is a 1-sensitive map from the points $p$ at which
+  $\sigma$ and $\Gamma$ are compatible with; sending $p \in \llbracket \Gamma
+  \rrbracket$ to $\llbracket \tau \rrbracket$.
 \end{definition}
 
 Finally, we define $\Sigma_{\tau_0 \multimap \tau_1}$ to be the lifted set of
