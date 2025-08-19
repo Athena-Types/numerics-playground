@@ -206,15 +206,15 @@
   \end{equation}
   % Note: We can rewrite this defintion in a different style (without Coq-style
   % props) if that's easier to understand.
-  Then, an enviroment $\sigma$ is compatible with a typing context $\Gamma$ if
-  the above relation holds. Intuitively, this means that there exists a point $p
-  \in \llbracket \Gamma \rrbracket$ that $\sigma$ represents.
+  Then, an enviroment $\sigma$ is compatible with a typing context $\Gamma$ at
+  point $p$ if the above relation holds. Intuitively, this means that there
+  exists a point $p \in \llbracket \Gamma \rrbracket$ that $\sigma$ represents.
 \end{definition}
 
 \begin{theorem}[Unique point intepretation]
   For any enviroment $\sigma$ and context $\Gamma$, there is at most one point
-  $p$ such that $\sigma \textit{ \underline{com} } \Gamma \textit {
-    \underline{at} } p$.
+  $p \in \llbracket \Gamma \rrbracket$ such that $\sigma \textit{
+    \underline{com} } \Gamma \textit { \underline{at} } p$.
 \end{theorem}
 \begin{proof}
   TODO.
