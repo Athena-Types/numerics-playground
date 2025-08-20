@@ -164,7 +164,8 @@ configs).
     \item[\textit{e will step.}] By unfolding our definition of $\llbracket -
       \rrbracket_\tau$, which evaluates configurations by stepping them to
       values, it suffices to show that there is only one way to step $\sigma
-      \Vdash C~[e]$. By inspection of the rewrite rules, this is clearly the case.
+      \Vdash C~[e]$. By inspection of the rewrite rules, this is clearly the
+      case; only the context stepping rule will apply.
   \end{description}
   Qed.
 \end{proof}
@@ -451,9 +452,18 @@ We begin by induction over our typing derivation.
     Then, if $f$ is not a value, we step using evaluation contexts and apply our
     semantic context preservation lemma to assume that $e$ has been reduced to a
     value $v'$.
-    Holds by definition of $\llbracket -
-    \rrbracket_{\tau_0 \multimap \tau_1}$ on configurations and enviroment
-    compatibilty and application of our inductive hypothesis.
+    Now there are two cases:
+    \begin{description}
+      \item{\underline{v is not a variable.}} Then our lambda application rewrite
+        rule applies since v is really some lambda value.
+      \item{\underline{v is a variable.}} Then we step our rewrite rule. The rewrite rule
+        must step by our compatibility relation which enforces that $v$, having
+        type $\tau_0 \to \tau_1$, is given the same function for every leaf
+        in the enviroment tree.
+    \end{description}
+    So this case holds by definition of $\llbracket - \rrbracket_{\tau_0
+    \multimap \tau_1}$ on configurations and enviroment compatibilty and
+    application of our inductive hypothesis.
   \item[\textsc{(ty. rule) $! I$.}] 
     If $e$ is not a value, we step using evaluation contexts and apply our
     semantic context preservation lemma to assume that $e$ has been reduced to a
