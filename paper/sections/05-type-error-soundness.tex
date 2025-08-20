@@ -327,8 +327,11 @@ We begin by induction over our typing derivation.
     \end{description}
   \item[\textsc{(ty. rule) Ret.}] 
     From our inductive hypothesis, we have that $\Gamma \vDash e : \tau$ and
-    wish to prove that $\Gamma \vDash \mathbf{ret} \ e : M_0 \tau$. Stepping our
-    rewrite relation, we have that 
+    wish to prove that $\Gamma \vDash \mathbf{ret} \ e : M_0 \tau$. 
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Stepping our rewrite relation, we have that 
     \begin{equation}
       \begin{aligned}
         \llbracket (\sigma; \sigma)[\alpha \mapsto v:_1 \tau] \Vdash \alpha
@@ -345,8 +348,11 @@ We begin by induction over our typing derivation.
     space denoted by its type.
   \item[\textsc{(ty. rule) Rnd.}]
     From our inductive hypothesis, we have that $\Gamma \vDash e : \mathbf{num}$ and
-    wish to prove that $\Gamma \vDash \mathbf{rnd} \ e : M_q \mathbf{num}$. Stepping our
-    rewrite relation, we can show that:
+    wish to prove that $\Gamma \vDash \mathbf{rnd} \ e : M_q \mathbf{num}$.
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Stepping our rewrite relation, we can show that:
     \begin{equation}
       \begin{aligned}
         \llbracket (\sigma[\alpha \mapsto v:_1 \mathbf{num}]; \sigma[\alpha \mapsto
@@ -438,11 +444,21 @@ We begin by induction over our typing derivation.
       \item{\underline{(ty. case) $!_s \tau$.}} Holds by application of the
         inductive hypothesis and some unfolding.
     \end{description}
-  \item[\textsc{(ty. rule) $\multimap E$.}] Holds by definition of $\llbracket -
+  \item[\textsc{(ty. rule) $\multimap E$.}] 
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Then, if $f$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v'$.
+    Holds by definition of $\llbracket -
     \rrbracket_{\tau_0 \multimap \tau_1}$ on configurations and enviroment
     compatibilty and application of our inductive hypothesis.
-  \item[\textsc{(ty. rule) $! I$.}] Holds by application of the inductive
-    hypothesis.
+  \item[\textsc{(ty. rule) $! I$.}] 
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Holds by application of the inductive hypothesis.
   \item[\textsc{(ty. rule) $! E$.}] Split the enviroment according to the way
     the typing context is split. Holds by application of the inductive
     hypothesis to the premises of the \textbf{let-cobind} case of the rewrite
@@ -454,9 +470,12 @@ We begin by induction over our typing derivation.
     way the typing context is split. Holds by triangle inequality and
     application of the inductive hypothesis under two compatible enviroments,
     $s$\text{-sensitive} in $x$, spaced $r$ apart.
-  \item[\textsc{(ty. rule) Factor.}] Holds by application of the inductive
-    hypothesis and unfolding of the way the distances are measured in each
-    underlying metric space.
+  \item[\textsc{(ty. rule) Factor.}]
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    This holds by application of the inductive hypothesis and unfolding of the way
+    the distances are measured in each underlying metric space.
   \item[\textsc{(ty. rule) $\times I$.}] Holds by application of the inductive
     hypothesis and stepping and inspecting the denotational semantics of
     $\langle \rangle$.
@@ -467,16 +486,22 @@ We begin by induction over our typing derivation.
   \item[\textsc{(ty. rule) $\otimes E$.}] Split the context according to the way
     the typing context is split. Holds by application of the inductive
     hypothesis.
-  \item[\textsc{(ty. rule) $+ I_i$.}] Holds by application of the inductive
-    hypothesis and some unfolding.
+  \item[\textsc{(ty. rule) $+ I_i$.}]
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Holds by application of the inductive hypothesis and some unfolding.
   \item[\textsc{(ty. rule) $+ E$.}] Split the enviroment according to the way
     the typing context is split. There are two cases. Either the semantically
     well-typed (by our inductive hypothesis) configuration $\sigma \Vdash e$
     (for $\sigma$ compatible with $\Gamma$) steps to a variable, or, it steps to
     a value that is not a variable. In both cases, we can complete the proof by
     applying our inductive hypothesis.
-  \item[\textsc{(ty. rule) $\textit{op}(v)$.}] Holds by construction of
-    lifted $\textit{op}$ and our rewrite relation.
+  \item[\textsc{(ty. rule) $\textit{op}(v)$.}] 
+    If $e$ is not a value, we step using evaluation contexts and apply our
+    semantic context preservation lemma to assume that $e$ has been reduced to a
+    value $v$.
+    Holds by construction of lifted $\textit{op}$ and our rewrite relation.
   \item[\textsc{(ty. rule) Unit.}] Holds trivially.
   \item[\textsc{(ty. rule) Const.}] Holds trivially.
   \item[\textsc{(ty. rule) Subsumption.}] Holds trivially.
