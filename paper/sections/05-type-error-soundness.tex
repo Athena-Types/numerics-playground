@@ -142,6 +142,33 @@ configs).
   implication case, we observe that our category is cartesian closed. Qed.
 \end{proof}
 
+
+\begin{lemma}[Semantic context preservation]
+  For $\sigma \Vdash C~[e]$ well-typed with respect to context $\Gamma$ and at
+  type $\tau$, if $\sigma \Vdash e \rightsquigarrow \sigma' \Vdash
+  e'$ then 
+  $\llbracket \sigma \Vdash C~[e] \rrbracket_\tau 
+  = 
+  \llbracket \sigma' \Vdash C~[e'] \rrbracket_\tau$.
+\end{lemma}
+\begin{proof}
+  We begin by induction over evaluation contexts and observe if and how the
+  context stepping rule behaves. The hole case (base case) is trivial. For each
+  of the inductive cases we wish to show that
+  $\llbracket \sigma \Vdash C~[e] \rrbracket_\tau 
+  = 
+  \llbracket \sigma' \Vdash C~[e'] \rrbracket_\tau$.
+  For each of the inductive cases, there are two cases:
+  \begin{description}
+    \item[\textit{e is a value.}] Absurd. One of our premises is false.
+    \item[\textit{e will step.}] By unfolding our definition of $\llbracket -
+      \rrbracket_\tau$, which evaluates configurations by stepping them to
+      values, it suffices to show that there is only one way to step $\sigma
+      \Vdash C~[e]$. By inspection of the rewrite rules, this is clearly the case.
+  \end{description}
+  Qed.
+\end{proof}
+
 \begin{theorem}[Semantic type soundness]
 $\Gamma \vdash e : \tau \implies \Gamma \vDash e : \tau$
 \end{theorem}

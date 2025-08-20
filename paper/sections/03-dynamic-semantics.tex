@@ -193,6 +193,10 @@ defined as follows:
     \sigma [x \mapsto \tin_i \ y :_s \tau'] \Vdash \mathbf{case} \ x \ \mathbf{of} \ (\tin_1 \
     z.f_1 \ | \ \tin_2 \ z.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto \ \tin_i \ y
     :_{s-1} \tau][z \mapsto y :_1 \tau'] \Vdash f_i : \tau \\ 
+    % factor
+    (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash \factor v \ :
+    (M_q~\tau_1 \times M_r~\tau_2) &\rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1;
+    \sigma_3) \Vdash v : M_{max(q, r)} (\tau_1 \times \tau_2) \\
   \end{aligned}
 \end{equation*}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -303,14 +307,14 @@ defined as follows:
     \tau_1$}
     \DisplayProof
 
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow^*
-    (\sigma_0;\sigma_1);(\sigma_2; \sigma_3) \Vdash v : M_q \tau_1 \times M_r
-    \tau_2$}
-    \UIC{$\sigma \Vdash \factor e \ : M_{max(q, r)} (\tau_1 \times \tau_2)
-    \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v : M_{max(q, r)}
-    (\tau_1 \times \tau_2)$}
-    \DisplayProof
+    % \vskip 0.3em
+    % \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow^*
+    % (\sigma_0;\sigma_1);(\sigma_2; \sigma_3) \Vdash v : M_q \tau_1 \times M_r
+    % \tau_2$}
+    % \UIC{$\sigma \Vdash \factor e \ : M_{max(q, r)} (\tau_1 \times \tau_2)
+    % \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v : M_{max(q, r)}
+    % (\tau_1 \times \tau_2)$}
+    % \DisplayProof
     % TODO: define evaluation contexts and get rid of this def
     % \vskip 0.3em
     % \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow \sigma' \Vdash e' : M_q
