@@ -49,11 +49,13 @@
          \mid \gamma, \ x \mapsto v :_s \tau \\
          &\text{Enviroment trees } \sigma, \sigma_0, \sigma_1 &::=~ & \gamma
          \mid \sigma_0; \sigma_1 \\
-         &\text{Evaluation contexts } C &::=~ &[.]
-         \mid E~e \mid v~E \mid \mathbf{op}(C) \mid \pi_i~C \mid \mathbf{in}_i~C
-         \mid [ C ] \\
-         & & & \mathbf{rnd}~C \mid \mathbf{ret}~C \mid \mathbf{factor}~C \\
-         % TODO
+         &\text{Evaluation contexts } C &::=~ &[.] \mid C~e \mid v~C \mid
+         \mathbf{op}(C) \mid \pi_i~C \mid \mathbf{in}_i~C \mid [ C ] \mid
+         \mathbf{rnd}~C \mid \mathbf{ret}~C \mid \mathbf{factor}~C \\ 
+         %%%%%% these are not evaluation contexts because they get scaled %%%%%%
+         % & & & \mid \letassign x = C \ \tin \ f \mid \letbind x = C \ \tin \ f
+         % \mid \letcobind x = C \ \tin \ f \\ 
+         % & & & \mid \letpair (x,y) = C \ \tin \ f \\
   \end{alignat*}
   \caption{
     Types, values, and terms. 
