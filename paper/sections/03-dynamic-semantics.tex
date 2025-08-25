@@ -194,9 +194,9 @@ defined as follows:
     z.f_1 \ | \ \tin_2 \ z.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto \ \tin_i \ y
     :_{s-1} \tau][z \mapsto y :_1 \tau'] \Vdash f_i : \tau \\ 
     % factor
-    (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash \factor v \ :
-    (M_q~\tau_1 \times M_r~\tau_2) &\rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1;
-    \sigma_3) \Vdash v : M_{max(q, r)} (\tau_1 \times \tau_2) \\
+    % (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash \factor v \ :
+    % (M_q~\tau_1 \times M_r~\tau_2) &\rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1;
+    % \sigma_3) \Vdash v : M_{max(q, r)} (\tau_1 \times \tau_2) \\
   \end{aligned}
 \end{equation*}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -210,6 +210,15 @@ defined as follows:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % even more spicy rules
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % factor rule
+    \vskip 0.3em
+    \AXC{$ \sigma \Vdash v \ : (M_q~\tau_1 \times M_r~\tau_2) \rightsquigarrow
+    (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash v : (M_q~\tau_1 \times
+    M_r~\tau_2)$}
+    \UIC{$\sigma \Vdash \textbf{factor}~e : M_{max(q, r)} (\tau_1 \times
+    \tau_2) \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v
+    : M_{max(q, r)} (\tau_1 \times \tau_2)$}
+    \DisplayProof
     % let rule
     \vskip 0.3em
     \AXC{$\sigma_1 \Vdash e : \tau' \rightsquigarrow^* \sigma_1' \Vdash v_1 :
