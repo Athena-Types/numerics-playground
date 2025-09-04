@@ -12,7 +12,6 @@
          \mid {M_u \tau}
          \\
          &\text{Values } v, w \ &::=~ &\langle \rangle
-         \mid x
          \mid k \in R
          \mid \langle x,y \rangle 
          \mid (x, y)
@@ -26,6 +25,7 @@
          % \mid \letbind x = v \ \tin \ f 
          \\
          &\text{Terms } e, f, g &::=~ &v
+         \mid x
          \mid \mathbf{op}(e)
          \mid e~f
          \mid {\pi}_i\ e
@@ -45,22 +45,26 @@
          \mid {\letbind x = e \ \tin \ f}
          \mid \letcobind x = e \ \tin \ f
          \\
-         &\text{Enviroments } \gamma_0, \gamma_1 &::=~ &.
-         \mid \gamma, \ x \mapsto v :_s \tau \\
-         &\text{Enviroment trees } \sigma, \sigma_0, \sigma_1 &::=~ & \gamma
-         \mid \sigma_0; \sigma_1 \\
-         &\text{Evaluation contexts } C &::=~ &[.] \mid C~e \mid v~C \mid
-         \mathbf{op}(C) \mid \pi_i~C \mid \mathbf{in}_i~C \mid [ C ] \mid
-         \mathbf{rnd}~C \mid \mathbf{ret}~C \mid \mathbf{factor}~C \\ 
-         %%%%%% these are not evaluation contexts because they get scaled %%%%%%
-         % & & & \mid \letassign x = C \ \tin \ f \mid \letbind x = C \ \tin \ f
-         % \mid \letcobind x = C \ \tin \ f \\ 
-         % & & & \mid \letpair (x,y) = C \ \tin \ f \\
+         &\text{Evaluation contexts } C &::=~ &[.] 
+         \mid C~e 
+         \mid v~C 
+         \mid \mathbf{op}(C) 
+         \mid \pi_i~C 
+         \mid \mathbf{in}_i~C \\
+         & & &
+         \mid [ C ]
+         \mid \mathbf{rnd}~C 
+         \mid \mathbf{ret}~C 
+         \mid \mathbf{factor}~C \\ 
+         & & &
+         \mid \letassign x = C \ \tin \ f
+         \mid \letpair x = C \ \tin \ f \\
+         & & &
+         \mid \letbind x = C \ \tin \ f
+         \mid \letcobind x = C \ \tin \ f \\
   \end{alignat*}
   \caption{
-    Types, values, and terms. 
-    $\mathbf{op} \in \mathcal{O}$.
-    $i \in \{1, 2\}$. 
+    Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$. 
   }
   \label{fig:syntax}
 \end{figure}
