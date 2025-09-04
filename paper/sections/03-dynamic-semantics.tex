@@ -14,340 +14,47 @@ necessarily to values).
 	\mathbf{op}(v) &\mapsto op(v)\\
 	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
 	(\lambda x.e) \ v &\mapsto e[v/x] \\
+  \rnd k &\mapsto (k, \rho(k))
 	%\factor v \ &\mapsto v
 \end{aligned}
 \quad
 \begin{aligned}[c]
 	\letassign x = v \ \tin \ e &\mapsto e[v/x] \\
   \letpair (x, y) = (v, w) \ \tin \ e &\mapsto e[v/x][w/y] \\
-	\letcobind x = v \ \tin \ e &\mapsto e[v/x]
+	\letcobind x = v \ \tin \ e &\mapsto e[v/x] \\
+  \ret v &\mapsto (v, v)
 	%\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] \\
 \end{aligned}
 \end{equation*}
+% \vskip -1em
+% \begin{align*}
+%   \letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g) 
+% \end{align*}
 \vskip -1em
 \begin{align*}
-  \letbind y = (\letbind x = v \ \tin \ f) \ \tin \ g &\mapsto \letbind x = v \ \tin \ \letbind y = f \ \tin \ g \quad x\notin FV(g) 
-\end{align*}
-\vskip -1.75em
-\begin{align*}
 	\mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  &\mapsto e_i[v/x]
-  \qquad\qquad(i \in \{1, 2 \})
+   \\
+  \letbind x = (v_1, v_2) \ \tin \ f &\mapsto (f[v_1/x], f[v_2/x]) \\
+  \factor ((v_1, v_2), (v_3, v_4)) &\mapsto ((v_1, v_3), (v_2, v_4))
 \end{align*}
 \vskip -0.25em
 
-	\AXC{$e \mapsto e'$}
-	\UIC{$\letassign x = e \ \tin \ f \mapsto \letassign x = e' \ \tin f$}
+  \AXC{$e \mapsto e'$}
+  \UIC{$C[e] \mapsto C[e']$}
 	\DisplayProof
 
-  \vskip 0.4em
-	\AXC{$e_1 \mapsto e_1'$}
-	\AXC{$e_2 \mapsto e_2'$}
-  \BIC{$(e_1, e_2) \mapsto (e_1', e_2')$}
-	\DisplayProof
-
-  \vskip 0.4em
-	\AXC{$e_1 \mapsto e_1'$}
-	\AXC{$e_2 \mapsto e_2'$}
-  \BIC{$\langle e_1, e_2 \rangle \mapsto \langle e_1', e_2' \rangle$}
-	\DisplayProof
+	%  \vskip 0.4em
+	% \AXC{$e_1 \mapsto e_1'$}
+	% \AXC{$e_2 \mapsto e_2'$}
+	%  \BIC{$(e_1, e_2) \mapsto (e_1', e_2')$}
+	% \DisplayProof
+	%
+	%  \vskip 0.4em
+	% \AXC{$e_1 \mapsto e_1'$}
+	% \AXC{$e_2 \mapsto e_2'$}
+	%  \BIC{$\langle e_1, e_2 \rangle \mapsto \langle e_1', e_2' \rangle$}
+	% \DisplayProof
 \end{center}
-    \caption{Substitution-style evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions.}
+    \caption{Substitution-style evaluation rules for \Lang. Note the side condition for $\letbind$always holds for closed expressions. Parameterized for $i \in \{1, 2 \}$.}
     \label{fig:sub_eval_rules}
 \end{figure}
-
-\iffalse
-\subsection{Enviroment-style Operational Semantics}
-The following is defined over typed terms. In particular, we define the
-operational semantics rewrite relation $\rightsquigarrow$ to map from a typed
-term in program enviroment trees to a typed term in program enviroment trees. 
-
-$$
-\textit{config} \subseteq \textit{env} \times \textit{expr}
-$$
-
-$$
-\rightsquigarrow \subseteq \textit{config} \times \textit{config}
-$$
-
-To be precise, $\rightsquigarrow$ maps an expression $e$ with type $\tau$
-running in a collection of enviroment(s) (leaf or tree) $\sigma$ mapping
-variables like $x_1$ to value $v_1$ with type $\tau'$ and sensitivity budget
-$s_1$ to a $e'$ with type $\tau'$ and enviroment $\sigma'$. So, $\sigma$ send
-variables like $x_1 \to v_1 :_s \tau'$.
-
-To simplify the presentation, we assume that there is no variable shadowing.
-$\sigma + \sigma'$ represent pointwise concatenation over multi-enviroments,
-defined as follows:
-
-\begin{definition}[Enviroment sum, pairwise]
-  \begin{equation}
-    \begin{aligned}[c]
-      \gamma_1[x \mapsto v :_{s_0} \tau] 
-        + 
-      \gamma_2[x \mapsto v:_{s_1} \tau] 
-        &= 
-      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0 + s_1} \tau] \\
-      \gamma_1[x \mapsto v :_{s_0} \tau] 
-        + 
-      \gamma_2[x \mapsto \bot] 
-        &= 
-      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0} \tau] \\
-      \gamma_1[x \mapsto \bot] 
-        + 
-      \gamma_2[x \mapsto v :_{s_0} \tau] 
-        &= 
-      (\gamma_1 + \gamma_2) [x \mapsto v :_{s_0} \tau]
-    \end{aligned}
-  \end{equation}
-\end{definition}
-
-\begin{definition}[Enviroment tree sum, pairwise]
-  \begin{equation}
-    \begin{aligned}[c]
-      . + . &=  . \\ 
-      \sigma_0;\sigma_1 + \sigma_2;\sigma_3 &= (\sigma_0 + \sigma_2);(\sigma_1 + \sigma_3) \\ 
-      \_ + \_ &= \bot \quad{\text{(otherwise)}}
-    \end{aligned}
-  \end{equation}
-\end{definition}
-
-$\sigma @ \sigma'$ represent adding $\sigma'$ at each of the leafs of $\sigma$,
-defined as follows:
-\begin{definition}[Enviroment sum, at leaf]
-  \begin{equation}
-    \begin{aligned}[c]
-      \sigma_1; \sigma_2 @ \sigma &= (\sigma_1 @ \sigma);(\sigma_2 @ \sigma) \\
-      \gamma @ (\sigma_1; \sigma_2) &= (\gamma @ \sigma_1);(\gamma @ \sigma_2)
-    \end{aligned}
-  \end{equation}
-\end{definition}
-
-%% TODO: type up definition
-
-\begin{figure}
-\begin{center}
-\tiny
-\begin{equation*}
-  \begin{aligned}[c]
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % more spicy rules
-    % Lookup (sensitivity budget 1)
-    \sigma[x \mapsto v :_1 \tau_0 \multimap \tau_1] \Vdash \ x \ w \ : \tau_1 &\rightsquigarrow
-    \sigma \Vdash v \ w : \tau_1 \\
-    % Lookup (sensitivity budget greater than 1)
-    \sigma[x \mapsto v :_{s} \tau_0 \multimap \tau_1] \Vdash \ x \ w \ : \tau_1
-    &\rightsquigarrow \sigma[x \mapsto v :_{s-1} \tau_0 \multimap \tau_1] \Vdash
-    v \ w : \tau_1 \quad{(\text{with } 1 < s)} \\
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Max: there are two ways to write these rounding rules. Curently, the
-    % explicit style is favored where rnd and ret can be evaluated at no more
-    % than two enviroments simultaneously.
-    %%% Ret case:
-    % 1. Explicit handling of multiple enviroments:
-    % \gamma_0 \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow
-    % \gamma_0 \Vdash v; \gamma_0 \Vdash v : M_0 \ \tau \\
-    % \gamma_0; \gamma_1 \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow
-    % \gamma_0 \Vdash v; \gamma_1 \Vdash v : M_0 \ \tau \\
-    % 2. Equivalent setup with implicit handling of multiple enviroments:
-    % \gamma_0; ...; \gamma_n \Vdash \mathbf{ret} \ v : M_0 \ \tau
-    % &\rightsquigarrow \gamma_0 \Vdash v; \gamma_n \Vdash v : M_0 \ \tau \\
-    %%% Rounding case:
-    % 1. Explicit handling of multiple enviroments:
-    % \gamma_0 \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow
-    % \gamma_0 \Vdash v; \gamma_0 \Vdash \rho(v) : M_q \ \mathbf{num} \\
-    % \gamma_0; \gamma_1 \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num}
-    % &\rightsquigarrow \gamma_0 \Vdash v; \gamma_1 \Vdash \rho(v) : M_q \
-    % \mathbf{num} \\
-    % 2. Equivalent setup with implicit handling of multiple enviroments:
-    % \gamma_0; ...; \gamma_n \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow
-    % \Vdash \gamma_0 \Vdash v; \gamma_n \Vdash \rho(v) : M_q \ \mathbf{num} \\
-    \sigma \Vdash \mathbf{ret} \ v : M_0 \ \tau &\rightsquigarrow (\sigma;
-    \sigma) [\alpha \mapsto v :_1 \tau] \Vdash \alpha : M_0 \ \tau \\
-    \sigma \Vdash \mathbf{rnd} \ v : M_q \ \mathbf{num} &\rightsquigarrow \sigma
-    [\alpha \mapsto v :_1 \mathbf{num}]; \sigma [\alpha \mapsto \rho(v) :_1
-    \mathbf{num}] \Vdash \alpha : M_q \ \mathbf{num} \\
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % lam app
-    \sigma \Vdash (\lambda x : \tau' .e) \ v : \tau &\rightsquigarrow \sigma[x
-    \mapsto v :_1 \tau'] \Vdash e : \tau \\
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % more boring rules
-    % op(v) rule
-    % \sigma \Vdash \mathbf{op}(v) : \textbf{num} &\rightsquigarrow \sigma \Vdash op(v) :
-    % \textbf{num} \\
-    % linear with rule
-    \sigma \Vdash \langle v_0,v_1 \rangle : \tau_0 \times \tau_1
-    &\rightsquigarrow \sigma[\alpha \mapsto v_0 :_1 t_0]; \sigma[\alpha \mapsto
-    v_1 :_1 t_1] \Vdash \alpha : \tau_0 \times \tau_1\\
-    % proj rule
-    \sigma_0; \sigma_1 \Vdash \pi_i \ x : \tau &\rightsquigarrow \sigma_i \Vdash x
-    : \tau \\ 
-    % ini rules
-    \sigma \Vdash \tin_i v &\rightsquigarrow \sigma[\alpha \mapsto v]
-    \Vdash \ \tin_i \ \alpha \quad \text{(where $v$ is not a var)} \\
-    % case .. of .. rule
-    \sigma \Vdash \mathbf{case} \ \tin_i v \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \
-    \tin_2 \ x.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto v :_s \tau]
-    \Vdash f_i : \tau \\
-    \sigma [x \mapsto \tin_i \ y :_s \tau'] \Vdash \mathbf{case} \ x \ \mathbf{of} \ (\tin_1 \
-    z.f_1 \ | \ \tin_2 \ z.f_2 ) : \tau &\rightsquigarrow \sigma[x \mapsto \ \tin_i \ y
-    :_{s-1} \tau][z \mapsto y :_1 \tau'] \Vdash f_i : \tau \\ 
-    % factor
-    % (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash \factor v \ :
-    % (M_q~\tau_1 \times M_r~\tau_2) &\rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1;
-    % \sigma_3) \Vdash v : M_{max(q, r)} (\tau_1 \times \tau_2) \\
-  \end{aligned}
-\end{equation*}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Structural rule
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % \vskip 0.3em
-    % \AXC{$\sigma_0 \Vdash e_0 \rightsquigarrow \sigma_0' \Vdash e_0'$}
-    % \AXC{$\sigma_1 \Vdash e_1 \rightsquigarrow \sigma_1' \Vdash e_1'$}
-    % \BIC{$\sigma_0 \Vdash e_0;\sigma_1 \Vdash e_1 \rightsquigarrow \sigma_0' \Vdash e_0';\sigma_1' \Vdash e_1'$}
-    % \DisplayProof
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % even more spicy rules
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % factor rule
-    \vskip 0.3em
-    \AXC{$ \sigma \Vdash v \ : (M_q~\tau_1 \times M_r~\tau_2) \rightsquigarrow
-    (\sigma_0; \sigma_1);(\sigma_2; \sigma_3) \Vdash v : (M_q~\tau_1 \times
-    M_r~\tau_2)$}
-    \UIC{$\sigma \Vdash \textbf{factor}~e : M_{max(q, r)} (\tau_1 \times
-    \tau_2) \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v
-    : M_{max(q, r)} (\tau_1 \times \tau_2)$}
-    \DisplayProof
-    % let rule
-    \vskip 0.3em
-    \AXC{$\sigma_1 \Vdash e : \tau' \rightsquigarrow^* \sigma_1' \Vdash v_1 :
-    \tau'$}
-    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f
-    \rightsquigarrow^* \sigma_2 \Vdash v_2 : \tau$} 
-    \BIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e
-    \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau$}
-    \DisplayProof
-    % let-bind rule
-    \vskip 0.3em
-    \AXC{$\sigma_1 \Vdash e : M_r \tau' \rightsquigarrow^*
-    \sigma_1';\sigma_1'' \Vdash v_1 : M_r \tau'$}
-    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_2;\sigma_3 \Vdash v_2 : M_r \tau$} 
-    \AXC{$\sigma_1'' @ \sigma_0 [x \mapsto v_1 :_s \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_4;\sigma_5 \Vdash v_2 : M_r \tau$} 
-    \TIC{ $\sigma_0 + s \cdot \sigma_1 \Vdash \textbf{let-bind}_{(s, \tau')} \ x
-    = e \ \tin \ f  : M_{s*r + q} \ \tau \rightsquigarrow \sigma_2; \sigma_5
-    \Vdash v_2 : M_{s*r + q} \ \tau$}
-    \DisplayProof
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e : \tau \rightsquigarrow^*
-    \sigma' \Vdash v : \tau$}
-    \UIC{$s \cdot \sigma \Vdash [ e ] : !_s \tau \rightsquigarrow s \cdot \sigma' \Vdash v : !_s \tau$}
-    \DisplayProof
-    % Note that to prove that the right hand side of the rewrite is
-    % well-defined, we need to show that \sigma_1, \sigma_1', and \sigma_0 all
-    % have the same shape / height 
-    % We also need to have v_2 be syntatically the same in both branches.
-    \vskip 0.3em
-    \AXC{$\sigma_1 \Vdash e : !_s \tau' \rightsquigarrow^*
-    \sigma_1' \Vdash v_1 : !_s \tau'$}
-    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_1 :_{s * t} \tau'] \Vdash f \rightsquigarrow^*
-    \sigma_2 \Vdash v_2 : \tau$} 
-    \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-cobind}_{(s, \tau')} \
-    x = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash v_2 : \tau $}
-    \DisplayProof
-    % let-pair rule
-    \vskip 0.3em
-    \AXC{$\sigma_1 \Vdash e : \tau_0 \otimes \tau_1 \rightsquigarrow^* \sigma_1' \Vdash (v_0,
-    v_1) : \tau_0 \otimes \tau_1$}
-    \AXC{$\sigma_1' @ \sigma_0 [x \mapsto v_0 : \tau_0][y \mapsto v_1 : \tau_1]
-    \Vdash f \rightsquigarrow^* \sigma_2 \Vdash v_2 : \tau$} 
-    \BIC{ $\sigma_0 + t \cdot \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0,
-    \tau_1)} \ (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \sigma_2 \Vdash
-    v_2 : \tau $}
-    \DisplayProof
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % misc stepping rules
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % let rule
-    % \vskip 0.3em
-    % \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
-    % v^0;v^1;...; v^n : \tau'$}
-    % \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let}_{(s, \tau')} \ x = e \ \tin \
-    % f  : \tau \rightsquigarrow \sigma_1[x \mapsto v^0 :_s \tau'];
-    % \sigma_1^{-1}[x \mapsto v^0 :_s \tau'];...; \sigma'[x \mapsto v^n :_s \tau']
-    % \Vdash f : \tau$}
-    % \DisplayProof
-
-    % let-pair rule
-    % \vskip 0.3em
-    % \AXC{$\frac{1}{s} \cdot \sigma_0 \Vdash e : \tau' \rightsquigarrow^*
-    % (v_0^0, v_1^0);(v_0^1, v_1^1);...; (v_0^n, v_1^n) : \tau_0 \tensor \tau_1$}
-    % \UIC{ $\sigma_0 + \sigma_1 \Vdash \textbf{let-pair}_{(s, \tau_0, \tau_1)} \
-    % (x, y) = e \ \tin \ f  : \tau \rightsquigarrow \linebreak \sigma_1[x \mapsto
-    % v_0^0 :_s \tau_0, y \mapsto v_1^0 :_s \tau_1]; \sigma_1^{-1}[x \mapsto v_0^1
-    % :_s \tau_0, y \mapsto v_1^1 :_s \tau_1]; ...; \sigma_1^{-1}[x \mapsto v_0^n
-    % :_s \tau_0, y \mapsto v_1^n :_s \tau_1] \Vdash f : \tau$}
-    % \DisplayProof
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % sharing rule 
-    % We need to compute the union because of programs like:
-    % \langle let-bind x = rnd v in (fun y => x), 0 \rangle
-    % We also need to be using de Bruijn indicies to refer to terms on the
-    % enviorment stack. (Otherwise envs might pollute each other.)
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* \sigma_0 \Vdash v_0:
-    \tau_0$}
-    \AXC{$\sigma \Vdash e_1 : \tau_1 \rightsquigarrow^* \sigma_1 \Vdash v_1 :
-    \tau_1$}
-    \BIC{$\sigma \Vdash \langle e_0, e_1 \rangle \ : \tau_0 \times \tau_1
-    \rightsquigarrow \sigma_0 + \sigma_1 \Vdash \langle v_0, v_1 \rangle:
-    \tau_0 \times \tau_1$}
-    \DisplayProof
-
-    \vskip 0.3em
-    \AXC{$\sigma \Vdash e_0 : \tau_0 \rightsquigarrow^* \sigma_0 \Vdash v_0: \tau_0$}
-    \AXC{$\sigma' \Vdash e_1 : \tau_1 \rightsquigarrow^* \sigma_1 \Vdash v_1 : \tau_1$}
-    \BIC{$\sigma + \sigma' \Vdash ( e_0, e_1 ) \ : \tau_0 \tensor \tau_1
-    \rightsquigarrow \sigma_0 + \sigma_1 \Vdash (v_0, v_1) : \tau_0 \tensor
-    \tau_1$}
-    \DisplayProof
-
-    % \vskip 0.3em
-    % \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow^*
-    % (\sigma_0;\sigma_1);(\sigma_2; \sigma_3) \Vdash v : M_q \tau_1 \times M_r
-    % \tau_2$}
-    % \UIC{$\sigma \Vdash \factor e \ : M_{max(q, r)} (\tau_1 \times \tau_2)
-    % \rightsquigarrow (\sigma_0; \sigma_2);(\sigma_1; \sigma_3) \Vdash v : M_{max(q, r)}
-    % (\tau_1 \times \tau_2)$}
-    % \DisplayProof
-    % TODO: define evaluation contexts and get rid of this def
-    % \vskip 0.3em
-    % \AXC{$\sigma \Vdash e : M_q \tau_1 \times M_r \tau_2 \rightsquigarrow \sigma' \Vdash e' : M_q
-    % \tau_1 \times M_r \tau_2$}
-    % \UIC{$\sigma \Vdash \factor e \ : M_s (\tau_1 \times \tau_2)
-    % \rightsquigarrow \factor e' : M_s (\tau_1 \times \tau_2)$}
-    % \DisplayProof
-
-\end{center}
-    \caption{Enviroment-style evaluation rules for \Lang, ordered by precedence.
-    Note that $\alpha$ is a metavar. It denotes a fresh variable when appearing
-    on the right hand side of the rewrite relation.
-    Note also that during type checking but prior to running the operational
-    semanitcs, the sensitivity information (tracked with metavar $s$) and type
-    of bound variables $\tau', \tau_2$, is preserved as annotations in the
-    syntax, written $[e]_s$ and $\textbf{let-bind}_{(s, \tau')}$,
-    $\textbf{let-cobind}_{(s, t, \tau')}$, and $\lambda x : \tau' . e $.
-    Computing the correct split $\sigma + \sigma'$ of an enviroment can be
-    performed via type inference.
-    Also note that the grade $q$ in $M_q$ for the monadic stepping rule upper
-    bounds the difference $d_{\mathbf{num}}(k, \rho(k)) \leq q$ for all $k \in
-    \llbracket \mathbf{num} \rrbracket$.
-    % Note that $\textbf{let}^*$ is syntactic sugar
-    % for matching all let expressions and their corresponding annotations.
-    }
-    \label{fig:sub_eval_rules}
-\end{figure}
-\fi
