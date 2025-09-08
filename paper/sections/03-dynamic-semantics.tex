@@ -34,16 +34,19 @@ necessarily to values).
 \begin{align*}
 	\mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  &\mapsto e_i[v/x]
    \\
-  \letbind x = (v_1, v_2) \ \tin \ f &\mapsto (f[v_1/x], f[v_2/x]) \\
   \factor ((v_1, v_2), (v_3, v_4)) &\mapsto ((v_1, v_3), (v_2, v_4))
 \end{align*}
-\vskip -0.25em
-
+  \vskip -0.25em
   \AXC{$e \mapsto e'$}
   \UIC{$C[e] \mapsto C[e']$}
 	\DisplayProof
+	
+  \vskip 0.4em
+  \AXC{$f[v_1/x] \mapsto^* (v_3, v_4)$}
+  \AXC{$f[v_2/x] \mapsto^* (v_5, v_6)$}
+  \BIC{$\letbind x = (v_1, v_2) \ \tin \ f \mapsto (v_3, v_6)$}
+  \DisplayProof
 
-	%  \vskip 0.4em
 	% \AXC{$e_1 \mapsto e_1'$}
 	% \AXC{$e_2 \mapsto e_2'$}
 	%  \BIC{$(e_1, e_2) \mapsto (e_1', e_2')$}

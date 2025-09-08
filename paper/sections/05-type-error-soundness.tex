@@ -1,4 +1,6 @@
 \section{Type Soundness}
+Following Fuzz, we prove the following syntanctic properties relating our type
+systema and operational semantics.
 
 \begin{lemma}[Weakening]\label{thm:weakening}
   If $\Gamma \vdash e : \tau$, then $\Gamma + \Sigma \vdash e : \tau$.
@@ -10,7 +12,25 @@
   In particular, for the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E},
   \textbf{$M_u$~E}, and \textbf{$\otimes$ I} rules, the enviroment must be split
   into a $\Gamma$ (which can in some cases be scaled) and $\Delta$ (which does
-  not get scaled); for each of these cases we choose to push unused variables
-  into $\Delta$. 
+  not ever get scaled); for each of these cases we choose to push unused
+  variables into $\Delta$. 
 \end{proof}
 
+Following Fuzz, we prove a $r$-sensitive substitution lemma.
+\begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
+  Let $\Gamma \vdash e : \tau$ and $\Theta, x :_r \tau \vdash e' : \tau'$, then 
+  $r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
+\end{lemma}
+\begin{proof}
+  Follows by induction over the height of our typing derivation and applying the
+  inductive hypothesis to each applicable premise.
+\end{proof}
+
+% \begin{lemma}[Syntactic type preservation]
+% \end{lemma}
+
+% \begin{lemma}[Metric preservation]
+% \end{lemma}
+%
+% \begin{lemma}[Type error soundness]
+% \end{lemma}
