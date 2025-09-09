@@ -46,8 +46,9 @@ capture the core information needed to prove our error soundness theorem.
       \cup
       \{ \mathbf{inr}~v \ | \ v \in \mathcal{R}_{\tau_1} \} \\
     \mathcal{VR_{\mathbf{\tau_0 \multimap \tau_1}}} &\triangleq 
-      \{ v \ | \ \forall w \in \mathcal{VR}_{\tau_0}, \ v~w \in
-      \mathcal{R}_{\tau_1} \} \\
+      \{ v \ | \ \forall w_0, w_1 \in \mathcal{VR}_{\tau_0}, \ v~w_0, v~w_1 \in
+      \mathcal{R}_{\tau_1} \text{ and } \mathcal{SD}_{\tau_1}(v~w_0, v~w_1) \leq
+      \mathcal{SD}_{\tau_0}(w_0, w_1) \} \\
     \mathcal{VR_{\mathbf{!_s \tau}}} &\triangleq 
       \{ [~v~] \ | \ v \in \mathcal{R}_{\tau} \} \\
     % spicy hot new stuff
@@ -60,7 +61,7 @@ capture the core information needed to prove our error soundness theorem.
 
 Our definition for distance (in our dentoational semantics), $d_\tau$ and the
 distance between syntactic values $\mathcal{SD}_\tau$ (for $\mathcal{S}$yntactic
-$\mathcal{D}$istance) and $\mathcal{SD}_\tau$ (for $\mathcal{S}$yntactic
+$\mathcal{D}$istance) and $\mathcal{SDV}_\tau$ (for $\mathcal{S}$yntactic
 $\mathcal{D}$istance for $\mathcal{V}$alues) are closely related. Some care is
 needed to ensure that it is well-founded. We define our distance over syntactic
 values as follows:
@@ -70,6 +71,7 @@ values as follows:
   \begin{aligned}[c]
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \mathcal{SDV}_{\tau}(v_0, v_1)
     &\text{ if } e_0 \mapsto^{*} v_0 \text{ and } e_1 \mapsto^{*} v_1 \\
+    \mathcal{SD_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
     \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w = \langle \rangle \\
     \mathcal{SDV_{\mathbf{num}}}(k_0, k_1) &\triangleq 
       d_\mathbb{R} &\text{ for } k_0, k_1 \in \mathbb{R} \\
