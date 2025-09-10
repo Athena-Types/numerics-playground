@@ -26,8 +26,31 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
   inductive hypothesis to each applicable premise.
 \end{proof}
 
-% \begin{lemma}[Syntactic type preservation]
-% \end{lemma}
+The following notation mirrors the look of the Fuzz metric perservation theorem
+statement but contains differences in the construction. In particular, logical our
+relation is neither coinductive nor step-indexed. It is also unary, using mutual
+(well-founded) recursion between the definition of a syntactic term falling
+within the logical relation and the definition of the syntactic distance between
+terms.
+
+For any two expressions $e_0, e_1$ falling in same type relation $e_0, e_1 \in
+R_\tau$, we can write $e_0 \sim_r e_1$ where $r = \mathcal{SD}(e_0, e_1)$.
+Similarly, we can write lists of expressions (e.g. for subsitutions) $\sigma_0,
+\sigma_1$ for a given typing context $\Gamma$ such that: $\sigma_0 \sim_{\gamma}
+\sigma_1 : \Gamma$ for a \textit{distance vector} $\gamma$
+where
+$\sigma_0 = e^0_0,~e^0_1,~\ldots e^0_n$ 
+and $\sigma_1 = e^1_0,~e^1_1,~\ldots e^1_n$ 
+and $\gamma = r_0, r_1, \ldots r_n$ such that:
+$$e^0_0 \sim_{r_0} e^1_0 :
+\tau_0,~e^0_0 \sim_{r_0} e^1_0 : \tau_0,~\ldots e^0_n \sim_{r_1} e^1_n :
+\tau_n$$
+
+\begin{theorem}[Metric preservation]
+  For any $\Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
+  $\sigma \sim_{\gamma} \sigma' : \Gamma$, $e~\sigma \sim_{\gamma \cdot \Gamma}
+  e~\sigma'$.
+\end{theorem}
 
 % \begin{lemma}[Metric preservation]
 % \end{lemma}
