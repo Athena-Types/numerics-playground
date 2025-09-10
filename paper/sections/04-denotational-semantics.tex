@@ -99,6 +99,34 @@ values as follows:
   \end{equation}
 \end{definition}
 
+\begin{lemma}[$\mathcal{SD}$ is a metric]
+  $\mathcal{SD}$ forms a metric over our syntactic terms; in particular it
+  satisfies:
+  \begin{enumerate}
+    \item Distance from any point to itself is zero: $\forall x,~\mathcal{SD}(x,
+      x) = 0$.
+    \item Positivity: $\forall x, y,~\mathcal{SD}(x, y) > 0$.
+    \item Symmetry: $\forall x, y,~\mathcal{SD}(x, y) = \mathcal{SD}(y, x)$.
+    \item Triangle inequality: $\forall x, y, z,~\mathcal{SD}(x, z) \leq
+      \mathcal{SD}(x, y) + \mathcal{SD}(y, z)$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  The properties holds for the base cases of $\mathcal{SDV}$ and follows for the
+  remaining cases by our inductive hypothesis. Since our operational semntics is
+  deterministic, the properties follows for $\mathcal{SD}$.
+\end{proof}
+
+\begin{lemma}[$\mathcal{SD}$ is preserved under stepping]
+  If $e_0 \mapsto e'_0$, then for any $e_1$, $\mathcal{SD}(e_0, e_1) =
+  \mathcal{SD}(e'_0, e_1)$.
+\end{lemma}
+\begin{proof}
+  Holds by inspection of the definition of $\mathcal{SD}$.
+\end{proof}
+Note that by metric symmetry, $\mathcal{SD}$ is preserved under stepping on both
+sides.
+
 % probs needs some theorem relating SD to d, what do property do we want to
 % enforce here? (probs need to factor out a lemma or something when doing the
 % logical relations proof)
