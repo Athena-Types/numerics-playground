@@ -33,11 +33,12 @@ relation is neither coinductive nor step-indexed. It is also unary, using mutual
 within the logical relation and the definition of the syntactic distance between
 terms.
 
-For any two expressions $e_0, e_1$ falling in same type relation $e_0, e_1 \in
-R_\tau$, we can write $e_0 \sim_r e_1$ where $r = \mathcal{SD}(e_0, e_1)$.
-Similarly, we can write lists of expressions (e.g. for subsitutions) $\sigma_0,
-\sigma_1$ for a given typing context $\Gamma$ such that: $\sigma_0 \sim_{\gamma}
-\sigma_1 : \Gamma$ for a \textit{distance vector} $\gamma$
+For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
+e_1 \in R_\tau$, we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0,
+e_1) \leq r$. Similarly, we can write lists of expressions (e.g. for
+subsitutions) $\sigma_0, \sigma_1$ for a given typing context $\Gamma$ such
+that: $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ for a \textit{distance vector}
+$\gamma$
 where
 $\sigma_0 = e^0_0,~e^0_1,~\ldots e^0_n$ 
 and $\sigma_1 = e^1_0,~e^1_1,~\ldots e^1_n$ 
@@ -46,11 +47,73 @@ $$e^0_0 \sim_{r_0} e^1_0 :
 \tau_0,~e^0_0 \sim_{r_0} e^1_0 : \tau_0,~\ldots e^0_n \sim_{r_1} e^1_n :
 \tau_n$$
 
+Our definition for the dot product of a distance vector is the same as Fuzz.
+% todo: put it in here
+
 \begin{theorem}[Metric preservation]
   For any $\Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
-  $\sigma \sim_{\gamma} \sigma' : \Gamma$, $e~\sigma \sim_{\gamma \cdot \Gamma}
-  e~\sigma'$.
+  $\sigma \sim_{\gamma} \sigma' : \Gamma$, then 
+  $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma'$.
 \end{theorem}
+\begin{proof}
+  We induct over our typing derivation. The base cases (Var, Unit, Const) follow
+  trivially. The subsumption case also follows trivially. We detail the
+  remaining cases here:
+  \begin{description}
+    \item[Case $\multimap$ I.] 
+      We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
+      subsitutions $\sigma \sim_{\gamma} \sigma' : \Gamma$ that $\lambda x .
+      e~\sigma \sim_{\gamma \cdot \Gamma} \lambda x . e~\sigma'$. Unfolding, it
+      suffices to show that both:
+      \begin{enumerate}
+        \item $\lambda x . e~\sigma, \lambda x . e~\sigma'$ are in
+          $\mathcal{R}_{\tau_0 \multimap \tau}$
+        \item $\mathcal{SD}_{\tau_0 \multimap \tau}(\lambda x . e~\sigma,
+          \lambda x . e~\sigma') \leq \gamma \cdot \Gamma$
+      \end{enumerate}
+    
+      Observe that we have by our inductive hypothesis that for any $\Delta, x:
+      \tau' \vdash e : \tau$ and subsitutions $\delta[v_0/x] \sim_{\gamma'}
+      \delta'[v_1/x] : \Gamma,~x : \tau'$ and that $e~\delta[v_0/x]
+      \sim_{\gamma' \cdot \Gamma} e~\delta'[v_1/x]$. Let us now carry on with
+      the proof:
+
+      \begin{description}
+        \item[\underline{Property 1.}] We need to show that $\sigma$ and
+          $\sigma'$ are both in the relation $\mathcal{R}_{\tau_0 \multimap
+          \tau}$. The cases are symmetric so we only show one case. Unfolding
+          the definition of $\mathcal{R}_{\tau_0 \multimap \tau}$, let $w_0, w_1
+          \in \mathcal{VR}_{\tau_0}$. 
+          $(\lambda x . e) w_0 \mapsto e[w_0/x]$
+          and
+          $(\lambda x . e) w_1 \mapsto e[w_1/x]$
+          and so it suffices to show that
+          $e~\sigma[w_0/x], e~\sigma[w_1/x]$ 
+          are closed expressions falling in $R_{\tau_0}$.
+          This is true by our inductive hypothesis, instantiating with $\sigma =
+          \delta = \delta'$, $v_0 = w_0$, and $v_1 = w_1$.
+        \item[\underline{Property 2.}] Unfolding the definition of
+          $\mathcal{SD}_{\tau_0 \multimap \tau}$, it suffices to show that:
+          $$
+          \mathcal{SD}_{\tau}
+          ((\lambda x . e~w)~\sigma, (\lambda x . e~w)~\sigma') 
+          \leq \gamma \cdot \Gamma
+          $$
+          Stepping, it suffices to show that
+          $$
+          \mathcal{SD}_{\tau}
+          (e~\sigma[w/x], e~\sigma'[w/x]) 
+          \leq \gamma \cdot \Gamma
+          $$
+          which holds by application of our inductive hypothesis when $\delta =
+          \sigma$, $\delta' = \sigma'$, $v_0 = v_1 = w$, and $\gamma' = \gamma
+          :: 0$.
+      \end{description}
+      So, by our inductive hypothesis and unfolding the definitions of
+      $\mathcal{R}$ and $\mathcal{SD}$, we have properties (1) and (2)
+      respectively. 
+  \end{description}
+\end{proof}
 
 % \begin{lemma}[Metric preservation]
 % \end{lemma}

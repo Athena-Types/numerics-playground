@@ -66,7 +66,7 @@ $\mathcal{D}$istance for $\mathcal{V}$alues) are closely related. Some care is
 needed to ensure that it is well-founded. We define our distance over syntactic
 values as follows:
 
-\begin{definition}[Distance between syntactic terms]
+\begin{definition}[Distance between closed syntactic terms]
   \begin{equation}
   \begin{aligned}[c]
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \mathcal{SDV}_{\tau}(v_0, v_1)
@@ -87,9 +87,9 @@ values as follows:
     \mathcal{SDV}_{\tau_0 \multimap \tau_1}(v_0, v_1) 
       &\triangleq \text{sup}_{w \in \mathcal{VR}_{\tau_0}} \mathcal{SD}_{\tau_1}(v_0~w,~v_1~w)
     \\
-    % max: is the below correct (am I supposed to scale here?)
+    % max: double check
     \mathcal{SDV}_{!_s \tau}(v, w) 
-      &\triangleq \mathcal{SDV}_{\tau}(v, w)
+      &\triangleq s \cdot \mathcal{SDV}_{\tau}(v, w)
     \\
     \mathcal{SDV}_{M_q~\tau}((v_0, v_1), (w_0, w_1)) 
       &\triangleq \mathcal{SDV}_{\tau}(v_0, w_0)
@@ -105,7 +105,7 @@ values as follows:
   \begin{enumerate}
     \item Distance from any point to itself is zero: $\forall x,~\mathcal{SD}(x,
       x) = 0$.
-    \item Positivity: $\forall x, y,~\mathcal{SD}(x, y) > 0$.
+    \item Positivity: $\forall x, y,~\mathcal{SD}(x, y) \geq 0$.
     \item Symmetry: $\forall x, y,~\mathcal{SD}(x, y) = \mathcal{SD}(y, x)$.
     \item Triangle inequality: $\forall x, y, z,~\mathcal{SD}(x, z) \leq
       \mathcal{SD}(x, y) + \mathcal{SD}(y, z)$.
