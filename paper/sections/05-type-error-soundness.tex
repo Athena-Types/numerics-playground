@@ -50,6 +50,41 @@ $$e^0_0 \sim_{r_0} e^1_0 :
 Our definition for the dot product of a distance vector is the same as Fuzz.
 % todo: put it in here
 
+\begin{lemma}[Subsitution is invariant under stepping]
+  \label{thm:sub-stepping}
+  For any substitution $\sigma$ and program $e$ such that $e~\sigma \mapsto
+  e_1$, if $e \mapsto e_2$ then $e_2~\sigma \mapsto^{*} v \iff e_1 \mapsto^{*} v$.
+\end{lemma}
+\begin{proof}
+  TODO
+\end{proof}
+
+Note that while we use variable names in this paper, this is only for notational
+convenience. We assume that the underlying proof uses de Bruijin indicies or
+similar. Then, the below lemma is useful towards proving metric preservation:
+\begin{lemma}[Metric preservation under context evaluation stepping]
+  \label{thm:ctx-stepping}
+  For a well-typed $\Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
+  \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Gamma$ and
+  $e \mapsto^{*} v$.
+  If $C[v] \sigma \sim_{\gamma \cdot \Gamma} C[v] \sigma' : \tau$ then
+  $C[e] \sigma \sim_{\gamma \cdot \Gamma} C [e] \sigma' : \tau$.
+\end{lemma}
+\begin{proof}
+  By inspection of our stepping relation, we can tell that stepping is
+  deterministic. By the definition of $\mathcal{R}$, $\mathcal{SD}$, 
+  context stepping, and Lemma \ref{thm:sub-stepping}, we know that both 
+  $$C[e] \sigma, C[e] \sigma' \in \mathcal{R}_{\tau}$$ 
+  and that 
+  $$\mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = \mathcal{SD}_{\tau}(C[e']\sigma, C[e']\sigma') = \gamma \cdot \Gamma$$
+  respectively and therefore $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e]
+  \sigma'$ holds.
+\end{proof}
+
+% TODO: Say something about how one can assume that things are nice values.
+% \begin{corollary}
+% \end{corollary}
+
 \begin{theorem}[Metric preservation]
   For any $\Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Gamma$, then 
@@ -73,10 +108,10 @@ Our definition for the dot product of a distance vector is the same as Fuzz.
       \end{enumerate}
     
       Observe that we have by our inductive hypothesis that for any $\Delta, x:
-      \tau' \vdash e : \tau$ and subsitutions $\delta[v_0/x] \sim_{\gamma'}
-      \delta'[v_1/x] : \Gamma,~x : \tau'$ and that $e~\delta[v_0/x]
-      \sim_{\gamma' \cdot \Gamma} e~\delta'[v_1/x]$. Let us now carry on with
-      the proof:
+      \tau' \vdash e : \tau$ and subsitutions 
+      $\delta[v_0/x] \sim_{\gamma'} \delta'[v_1/x] : \Gamma,~x : \tau'$ that 
+      $e~\delta[v_0/x] \sim_{\gamma' \cdot \Gamma} e~\delta'[v_1/x]$ holds. 
+      Let us now carry on with the proof:
 
       \begin{description}
         \item[\underline{Property 1.}] We need to show that $\sigma$ and
@@ -112,6 +147,80 @@ Our definition for the dot product of a distance vector is the same as Fuzz.
       So, by our inductive hypothesis and unfolding the definitions of
       $\mathcal{R}$ and $\mathcal{SD}$, we have properties (1) and (2)
       respectively. 
+    \item[Case $\multimap$ E.] 
+      By Lemma \ref{thm:ctx-stepping} and our inductive hypothesis, it suffices
+      to prove this case for $v~w$.
+      By inversion, we know that $v = \lambda x . e$.
+      We wish to show that for any $\Gamma + \Theta \vdash (\lambda x . e) w : \tau$ and
+      subsitutions 
+      $\sigma \sim_{\alpha} \sigma': \Gamma + \Theta$ 
+      that 
+      $$(\lambda x . e)~w~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (\lambda x . e)~w~\sigma'$$
+      We construct potentially overlapping substitutions 
+      $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ 
+      and $\sigma_0' \sim_{\theta} \sigma_1' : \Theta$
+      where $FV(\lambda x . e) \subseteq DOM(\sigma_0) = DOM(\sigma_1)$ and  
+      $FV(w) \subseteq DOM(\sigma_0') = DOM(\sigma_1')$ and 
+      $\sigma_0, \sigma_0' \subseteq \sigma$ and 
+      $\sigma_1, \sigma_1' \subseteq \sigma'$ and $\gamma, \theta$ minimal.
+      In other words, $\sigma_0, \sigma_1$ correspond to the parts of $\sigma$ and $\sigma'$ 
+      respectively that are represented by $\Gamma$.
+      Similarly, $\sigma_0', \sigma_1'$ correspond to the parts of $\sigma$ and $\sigma'$ 
+      respectively that are represented by $\Theta$.
+      Note that our substitutions \textit{must} overlap in the case where $FV(\lambda x . e)
+      \cap FV(w)$ is non-empty.
+      Since subsituting a variable that is not free does not change the
+      underlying term, we know that the following equations must hold:
+      \begin{equation}
+        \begin{aligned}[c]
+          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= 
+            ((\lambda x . e)~w)[\sigma] = 
+            e[\sigma][w/x] \\
+          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= 
+            ((\lambda x . e)~w)[\sigma'] = 
+            e[\sigma'][w/x] \\
+        \end{aligned}
+      \end{equation}
+
+      and by stepping
+
+      \begin{equation}
+        \begin{aligned}[c]
+          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= e[\sigma_0][w[\sigma_1]/x] \\
+          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= e[\sigma_0'][w[\sigma_1']/x] \\
+        \end{aligned}
+      \end{equation}
+
+      so by transitivity
+      \begin{equation}
+        \begin{aligned}[c]
+          e[\sigma_0][w[\sigma_1]/x] &=
+            e[\sigma][w/x] \\
+          e[\sigma_0'][w[\sigma_1']/x] &=
+            e[\sigma'][w/x] \\
+        \end{aligned}
+      \end{equation}
+
+      By applying our inductive hypothesis and unfolding our definition of
+      $R_{\tau_0 \multimap \tau}$, we know that $e$ is 
+      1-sensitive with respect to $w$ according to $\mathcal{SD}$. 
+      Then, we know that by application of triangle inequality of the syntactic
+      distance between terms:
+      $$v~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} v~w~\sigma'$$
+
+      To complete the proof case, it suffices to prove 
+      $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
+
+      which holds by inspection of the definition of context summing and dot
+      product of a distance vector.
+    % \item[Case $M_u~e$ (let-bind).] 
+    %   By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
+    %   bound value $v$. 
+    %   % By our inductive hypothesis we know that the premises of our rewrite rule
+    %   % are satisifed
+    % \item[Case factor.] 
+    %   By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
+    %   bound value $v$. By our inductive hypothesis, we 
   \end{description}
 \end{proof}
 
