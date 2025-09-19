@@ -245,6 +245,10 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           \end{equation}
           So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$.
         \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\gamma}
+          \sigma' : s \cdot \Gamma + \Theta$:
+          $$\textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\gamma \cdot (s
+          \cdot \Gamma + \Theta)} \textbf{let-bind}~x = e \ \tin \ f \sigma'$$
 
       \end{description}
       % By our inductive hypothesis we know that the premises of our rewrite rule
