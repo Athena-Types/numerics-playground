@@ -174,14 +174,18 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       respectively that are represented by $\Theta$.
       Note that our substitutions \textit{must} overlap in the case where $FV(\lambda x . e)
       \cap FV(w)$ is non-empty.
-      Since subsituting a variable that is not free does not change the
-      underlying term, we know that the following equations must hold:
+      Since subsituting variables that are not free does not change the
+      underlying term, we know that the following equations must hold where
+      $\sigma^*, \sigma'^*$ are $\sigma$ and $\sigma'$ respectively with $x$
+      removed:
       \begin{equation}
         \begin{aligned}[c]
           (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= 
+            ((\lambda x . e[\sigma^*])~w)[\sigma] = 
             ((\lambda x . e)~w)[\sigma] = 
             e[\sigma][w/x] \\
           (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= 
+            ((\lambda x . e[\sigma'^*])~w)[\sigma'] = 
             ((\lambda x . e)~w)[\sigma'] = 
             e[\sigma'][w/x] \\
         \end{aligned}
@@ -218,11 +222,33 @@ similar. Then, the below lemma is useful towards proving metric preservation:
 
       which holds by inspection of the definition of context summing and dot
       product of a distance vector.
-    % \item[Case $M_u~e$ (let-bind).] 
-    %   By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
-    %   bound value $v$. 
-    %   % By our inductive hypothesis we know that the premises of our rewrite rule
-    %   % are satisifed
+    \item[Case $M_u~e$ (let-bind).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
+          bound value $(v_0, v_1)$. 
+          We have by our inductive hypothesis that $(v_0, v_1) \in \mathcal{R}_{M_r
+          \tau_0}$. So $\mathcal{SD}(v_0, v_1) \leq r$. By application of our
+          inductive hypothesis, we know that (abusing notation) 
+          $f[v_1/x] \mapsto^{*} (v_3, v_4), f[v_2/x] \mapsto^{*} (v_5, v_6) \in \mathcal{R}_{M_q}$.
+          We also know that for all $\sigma$ where
+          $$\sigma[v_1/x] \sim_{\vec{0}, r} \sigma[v_2/x] : \Gamma, x : \tau_0$$
+          that
+          $$f~\sigma[v_1/x] \sim_{(\vec{0},r) \cdot (\Gamma, s)} f~\sigma[v_2/x] : M_q \tau$$
+          So therefore
+          \begin{equation}
+            \begin{aligned}[c]
+              (v_3, v_4)~\sigma[v_1/x] &\sim_{(\vec{0},r) \cdot (\Gamma, s)} (v_5, v_6)~\sigma[v_2/x] : M_q \tau \\
+              (v_3, v_4)~\sigma[v_1/x] &\sim_{r \cdot s} (v_5, v_6)~\sigma[v_2/x] : M_q \tau
+            \end{aligned}
+          \end{equation}
+          So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$.
+        \item[\underline{Property 2.}]
+
+      \end{description}
+      % By our inductive hypothesis we know that the premises of our rewrite rule
+      % are satisifed
     % \item[Case factor.] 
     %   By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
     %   bound value $v$. By our inductive hypothesis, we 
