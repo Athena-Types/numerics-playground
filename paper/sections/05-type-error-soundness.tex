@@ -50,14 +50,16 @@ $$e^0_0 \sim_{r_0} e^1_0 :
 Our definition for the dot product of a distance vector is the same as Fuzz.
 % todo: put it in here
 
-\begin{lemma}[Subsitution is invariant under stepping]
-  \label{thm:sub-stepping}
-  For any substitution $\sigma$ and program $e$ such that $e~\sigma \mapsto
-  e_1$, if $e \mapsto e_2$ then $e_2~\sigma \mapsto^{*} v \iff e_1 \mapsto^{*} v$.
-\end{lemma}
-\begin{proof}
-  TODO
-\end{proof}
+% Max: Theorem statement is not interesting when stepping is only over closed
+% terms.
+% \begin{lemma}[Subsitution is invariant under stepping]
+%   \label{thm:sub-stepping}
+%   For any substitution $\sigma$ and program $e$ such that $e~\sigma \mapsto
+%   e_1$, if $e \mapsto e_2$ then $e_2~\sigma \mapsto^{*} v \iff e_1 \mapsto^{*} v$.
+% \end{lemma}
+% \begin{proof}
+%   TODO
+% \end{proof}
 
 Note that while we use variable names in this paper, this is only for notational
 convenience. We assume that the underlying proof uses de Bruijin indicies or
@@ -72,7 +74,10 @@ similar. Then, the below lemma is useful towards proving metric preservation:
 \end{lemma}
 \begin{proof}
   By inspection of our stepping relation, we can tell that stepping is
-  deterministic. By the definition of $\mathcal{R}$, $\mathcal{SD}$, 
+  deterministic. Further, since we only define our rewrite relation over closed
+  terms, we know that $e$ is closed and therefore constant under all
+  substitutions. 
+  So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, 
   context stepping, and Lemma \ref{thm:sub-stepping}, we know that both 
   $$C[e] \sigma, C[e] \sigma' \in \mathcal{R}_{\tau}$$ 
   and that 

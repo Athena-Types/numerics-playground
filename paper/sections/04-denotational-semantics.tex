@@ -46,7 +46,7 @@ capture the core information needed to prove our error soundness theorem.
       \cup
       \{ \mathbf{inr}~v \ | \ v \in \mathcal{R}_{\tau_1} \} \\
     \mathcal{VR_{\mathbf{\tau_0 \multimap \tau_1}}} &\triangleq 
-      \{ \lambda x . e \ | \ \forall w_0, w_1 \in \mathcal{VR}_{\tau_0}, \ (\lambda x.e)~w_0, (\lambda x . e)~w_1 \in
+      \{ \lambda x . e \ | \ \forall w_0, w_1 \in \mathcal{VR}_{\tau_0}, \\ & \quad \quad \ (\lambda x.e)~w_0, (\lambda x . e)~w_1 \in
       \mathcal{R}_{\tau_1} \text{ and } \mathcal{SD}_{\tau_1}((\lambda x . e)~w_0, (\lambda x . e)~w_1) \leq
       \mathcal{SD}_{\tau_0}(w_0, w_1) \} \\
     \mathcal{VR_{\mathbf{!_s \tau}}} &\triangleq 
