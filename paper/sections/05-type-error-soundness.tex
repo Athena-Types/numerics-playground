@@ -48,6 +48,9 @@ $$e^0_0 \sim_{r_0} e^1_0 :
 \tau_n$$
 
 Our definition for the dot product of a distance vector is the same as Fuzz.
+We also write, for a distance vector $\gamma$ and variable $x$, $v(x)$ for the
+lookup of the distance of variable $x$ in $v$. If the variable $x$ is not in the
+domain, $v(x) = 0$ by default.
 % todo: put it in here
 
 % Max: Theorem statement is not interesting when stepping is only over closed
@@ -78,12 +81,26 @@ similar. Then, the below lemma is useful towards proving metric preservation:
   terms, we know that $e$ is closed and therefore constant under all
   substitutions. 
   So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, 
-  context stepping, and Lemma \ref{thm:sub-stepping}, we know that both 
+  context stepping, we know that both 
   $$C[e] \sigma, C[e] \sigma' \in \mathcal{R}_{\tau}$$ 
   and that 
   $$\mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = \mathcal{SD}_{\tau}(C[e']\sigma, C[e']\sigma') = \gamma \cdot \Gamma$$
   respectively and therefore $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e]
   \sigma'$ holds.
+\end{proof}
+
+\begin{lemma}[Substitution decomposition]
+  \label{thm:sub-decomp}
+  For substitutions $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$, there
+  exists decompositions $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} :
+  \Gamma$ and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ where
+  $\gamma$ and $\theta$ are minimal, or equivalently, $\alpha(i \in DOM(\Gamma
+  + \Theta)) = \gamma(i) + \theta(i)$.
+\end{lemma}
+\begin{proof}
+  We induct over the distance vector $\alpha$ which also happens to fix a
+  variable ordering of $\Gamma + \Sigma$. Base case is trivial and the inductive
+  case follows by unfolding.
 \end{proof}
 
 % TODO: Say something about how one can assume that things are nice values.
@@ -161,7 +178,8 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       $\sigma \sim_{\alpha} \sigma': \Gamma + \Theta$ 
       that 
       $$(\lambda x . e)~w~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (\lambda x . e)~w~\sigma'$$
-      We construct potentially overlapping substitutions 
+      Using Lemma \ref{thm:sub-decomp} (substitution decomposition), we
+      construct potentially overlapping substitutions 
       $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ 
       and $\sigma_0' \sim_{\theta} \sigma_1' : \Theta$
       where $FV(\lambda x . e) \subseteq DOM(\sigma_0) = DOM(\sigma_1)$ and  
@@ -220,8 +238,7 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       To complete the proof case, it suffices to prove 
       $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
 
-      which holds by inspection of the definition of context summing and dot
-      product of a distance vector.
+      which holds by construction (via our substitution decomposition lemma).
     \item[Case $M_u~e$ (let-bind).] 
       We prove each property separately.
       \begin{description}
@@ -245,10 +262,35 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           \end{equation}
           So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$.
         \item[\underline{Property 2.}]
-          We need to show that for all substitutions $\sigma \sim_{\gamma}
+          We need to show that for all substitutions $\sigma \sim_{\alpha}
           \sigma' : s \cdot \Gamma + \Theta$:
-          $$\textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\gamma \cdot (s
-          \cdot \Gamma + \Theta)} \textbf{let-bind}~x = e \ \tin \ f \sigma'$$
+          $$\textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (s
+          \cdot \Gamma + \Theta)} \textbf{let-bind}~x = e \ \tin \ f \sigma' :
+          M_{s \cdot r + q}$$
+          By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
+          substitutions 
+          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : s \cdot \Gamma$
+          and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ for
+          $\gamma$ and $\theta$ minimal. 
+          We also know that 
+          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : \Gamma$ by
+          inspection of the definition of type context scaling.
+          By application of the inductive hypothesis, we know that:
+          $$e~\sigma_{\gamma} \sim_{\gamma \cdot \Gamma} e~\sigma'_{\gamma} :
+          M_r \tau_0 $$
+          To apply our inductive hypothesis once more, we extend the $\theta$
+          substutitons and obtain:
+          \footnote{Note that we obtain the fact that $M_{s \cdot r + q}$ from our proof
+          of \textbf{\underline{Property 1}}.}
+          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot s \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{s \cdot r + q} \tau$$
+          Finally, we prove that:
+          $$
+          \alpha \cdot (s \cdot \Gamma + \Theta) \geq
+          (\gamma \cdot s \cdot \Gamma) + \theta \cdot \Theta
+          $$
+          by construction (via our substitution decomposition lemma).
+          % We also have substitutions $\sigma_{\Gamma} \sim_{s \cdot \gamma}
+          % \sigma'_{\Gamma} : \Gamma$ trivially.
 
       \end{description}
       % By our inductive hypothesis we know that the premises of our rewrite rule
