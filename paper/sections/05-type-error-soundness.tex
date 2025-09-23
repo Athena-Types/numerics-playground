@@ -103,6 +103,15 @@ similar. Then, the below lemma is useful towards proving metric preservation:
   case follows by unfolding.
 \end{proof}
 
+\begin{lemma}[Substitution scaling]
+  \label{thm:sub-scaling}
+  $$\sigma \sim_{s \cdot \gamma} \sigma' : s \cdot \Gamma \iff \sigma
+  \sim_{\gamma} \sigma' : \Gamma$$
+\end{lemma}
+\begin{proof}
+  Holds trivially.
+\end{proof}
+
 % TODO: Say something about how one can assume that things are nice values.
 % \begin{corollary}
 % \end{corollary}
@@ -275,7 +284,7 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           $\gamma$ and $\theta$ minimal. 
           We also know that 
           $\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
-          inspection of the definition of type context scaling.
+          Lemma~\ref{thm:sub-scaling}.
           By application of the inductive hypothesis, we know that:
           $$
           e~\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma \cdot \Gamma}
@@ -321,7 +330,7 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           $\gamma$ and $\theta$ minimal. 
           We also know that 
           $\sigma_{\gamma} \sim_{\frac{1}{t} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
-          inspection of the definition of type context scaling.
+          Lemma~\ref{thm:sub-scaling}.
 
           By application of the inductive hypothesis, we know that:
           $$
@@ -398,6 +407,10 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       Both properties hold by our language interface
       (Definition~\ref{def:numfuzz-interface}, property b) and application of
       the inductive hypothesis.
+
+    \item[Case ! I.] Holds by application of Lemma~\ref{thm:sub-scaling}
+      (substitution scaling), unfolding of our logical relations, and our
+      inductive hypothesis.
   \end{description}
 \end{proof}
 
