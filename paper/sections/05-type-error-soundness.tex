@@ -374,7 +374,7 @@ similar. Then, the below lemma is useful towards proving metric preservation:
         \item[\underline{Property 1.}]
           Holds under the assumption the grade $q$ annotation of the rounding
           function is correct (Definition~\ref{def:numfuzz-interface}, property
-          a).
+          a) and application of our inductive hypothesis.
         \item[\underline{Property 2.}]
           Since distance is measured for the neighborhood monad on the first
           component, which in our case is the ideal (not rounded) component (see
@@ -386,13 +386,18 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          Holds trivially.
+          Holds trivially by applicatin of the inductive hypothesis.
         \item[\underline{Property 2.}]
           Since distance is measured for the neighborhood monad on the first
           component, which in our case is the ideal (not rounded) component (see
           stepping rule), this holds trivially by application of the inductive
           hypothesis.
       \end{description}
+
+    \item[Case op.] 
+      Both properties hold by our language interface
+      (Definition~\ref{def:numfuzz-interface}, property b) and application of
+      the inductive hypothesis.
   \end{description}
 \end{proof}
 
