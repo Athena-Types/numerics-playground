@@ -367,6 +367,32 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       ((v_1~\sigma, v_3~\sigma), (v_2~\sigma, v_4~\sigma)) \sim_{\gamma \cdot \Gamma} ((v_1~\sigma', v_3~\sigma'),
       (v_2~\sigma', v_4~\sigma')) : M_{max(r,q)}(\tau_0 \times \tau_1)
       $$
+
+    \item[Case rnd.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Holds under the assumption the grade $q$ annotation of the rounding
+          function is correct (Definition~\ref{def:numfuzz-interface}, property
+          a).
+        \item[\underline{Property 2.}]
+          Since distance is measured for the neighborhood monad on the first
+          component, which in our case is the ideal (not rounded) component (see
+          stepping rule), this holds trivially by application of the inductive
+          hypothesis.
+      \end{description}
+
+    \item[Case ret.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Holds trivially.
+        \item[\underline{Property 2.}]
+          Since distance is measured for the neighborhood monad on the first
+          component, which in our case is the ideal (not rounded) component (see
+          stepping rule), this holds trivially by application of the inductive
+          hypothesis.
+      \end{description}
   \end{description}
 \end{proof}
 

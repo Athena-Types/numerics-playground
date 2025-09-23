@@ -99,6 +99,33 @@ values as follows:
   \end{equation}
 \end{definition}
 
+
+Numerical Fuzz is a modular family of programming langauges paramterized by the
+appropriate $\rho$ and equipped with the appropriate set of numeric computations
+$\Sigma$.  
+We can now state a few assumptions about how the operational and static
+semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
+It is the proof obligation for any language designer instantiating the language
+to demonstrate that these properties hold in order for our paramterized
+soundness theorems to follow.
+\begin{definition}[Interface for instantiating Numerical Fuzz.]
+  \label{def:numfuzz-interface}
+\begin{description}
+  \item[a) Property of $\rho$ and $\mathbf{rnd}$.] We assume that the $\forall e
+    \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e) \leq q$ where
+    $q$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[b) Property of $\mathbf{op}$.] We also assume that for every operation
+    $\mathbf{op} : \tau_0 \multimap \tau_1 \ \in \ \Sigma$ the following two
+    properties hold:
+    \begin{description}
+      \item[\underline{1) Type denotation.}] For any $e \in
+        \mathcal{R}_{\tau_0}$ that $\mathbf{op}(e) \in \mathcal{R}_{\tau_1}$.
+      \item[\underline{2) Sensitivity.}] For any $e_1, e_2 \in \mathcal{R}_{\tau_0}$ that
+        $\mathcal{SD}_{\tau_1}(\mathbf{op}(e_1), \mathbf{op}(e_2))$.
+    \end{description}
+\end{description}
+\end{definition}
+
 \begin{lemma}[$\mathcal{SD}$ is a metric]
   $\mathcal{SD}$ forms a metric over our syntactic terms; in particular it
   satisfies:
