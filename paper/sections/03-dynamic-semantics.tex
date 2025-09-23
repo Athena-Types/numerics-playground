@@ -21,7 +21,7 @@ necessarily to values).
 \begin{aligned}[c]
 	\letassign x = v \ \tin \ e &\mapsto e[v/x] \\
   \letpair (x, y) = (v, w) \ \tin \ e &\mapsto e[v/x][w/y] \\
-	\letcobind x = v \ \tin \ e &\mapsto e[v/x] \\
+  \letcobind x = [v] \ \tin \ e &\mapsto e[v/x] \\
   \ret v &\mapsto (v, v)
 	%\letbind x = \ret v \ \tin \ e &\mapsto e[v/x] \\
 \end{aligned}

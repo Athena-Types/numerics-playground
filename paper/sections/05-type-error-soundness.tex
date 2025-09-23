@@ -243,8 +243,9 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
-          bound value $(v_0, v_1)$. 
+          Like the $\multimap I$ case, we only need to prove one side due to
+          symmetry. By Lemma \ref{thm:ctx-stepping}, it suffices to prove this
+          case for a bound value $(v_0, v_1)$. 
           We have by our inductive hypothesis that $(v_0, v_1) \in \mathcal{R}_{M_r
           \tau_0}$. So $\mathcal{SD}(v_0, v_1) \leq r$. By application of our
           inductive hypothesis, we know that (abusing notation) 
@@ -273,25 +274,80 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ for
           $\gamma$ and $\theta$ minimal. 
           We also know that 
-          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : \Gamma$ by
+          $\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
           inspection of the definition of type context scaling.
           By application of the inductive hypothesis, we know that:
-          $$e~\sigma_{\gamma} \sim_{\gamma \cdot \Gamma} e~\sigma'_{\gamma} :
-          M_r \tau_0 $$
+          $$
+          e~\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma \cdot \Gamma}
+          e~\sigma'_{\gamma} : M_r \tau_0
+          $$
           To apply our inductive hypothesis once more, we extend the $\theta$
-          substutitons and obtain:
-          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot s \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{s \cdot r + q} \tau$$
+          substutitons and obtain (where the $\frac{1}{s}$ is cancelled out by
+          $s$):
+          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{s \cdot r + q} \tau$$
           Note that the distance $\sim$ is obtained via the inductive hypothesis
           and the fact that it is in $R_{M_{s \cdot r + q}}$ is obtained from
           our proof of \textbf{\underline{Property 1}}.
           Finally, we prove that:
           $$
-          \alpha \cdot (s \cdot \Gamma + \Theta) \geq
-          (\gamma \cdot s \cdot \Gamma) + \theta \cdot \Theta
+          \alpha \cdot (s \cdot \Gamma + \Theta) = 
+          (\alpha \cdot s \cdot \Gamma) + (\alpha \cdot \Theta)
+          \geq
+          \gamma \cdot \Gamma + \theta \cdot \Theta
           $$
           by construction (via our substitution decomposition lemma).
-          % We also have substitutions $\sigma_{\Gamma} \sim_{s \cdot \gamma}
-          % \sigma'_{\Gamma} : \Gamma$ trivially.
+      \end{description}
+    \item[Case (let-cobind).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We again only need to prove one side due to symmetry.
+          By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
+          bound value $[v]$. 
+          We have by our inductive hypothesis that $[v] \in \mathcal{R}_{!_s \tau_0}$.
+          Unfolding, we have that $v \in \mathcal{R}_{\tau_0}$.
+          Stepping and applying our inductive hypothesis yields that $f[v/x] \in
+          \mathcal{R}_{\tau}$.
+        \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\alpha}
+          \sigma' : t \cdot \Gamma + \Theta$:
+          $$\textbf{let-cobind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (t
+          \cdot \Gamma + \Theta)} \textbf{let-cobind}~x = e \ \tin \ f \sigma' :
+          \tau$$
+          By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
+          substitutions 
+          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : t \cdot \Gamma$
+          and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ for
+          $\gamma$ and $\theta$ minimal. 
+          We also know that 
+          $\sigma_{\gamma} \sim_{\frac{1}{t} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
+          inspection of the definition of type context scaling.
+
+          By application of the inductive hypothesis, we know that:
+          $$
+          e~\sigma_{\gamma} \sim_{\frac{1}{t} \cdot \gamma \cdot \Gamma}
+          e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0
+          $$
+          and therefore by inspection of the relation:
+          $$
+          e~\sigma_{\gamma} \sim_{\frac{1}{t \cdot s} \cdot \gamma \cdot \Gamma}
+          e~\sigma'_{\gamma} \ : \> \tau_0
+          $$
+          To apply our inductive hypothesis once more, we extend the $\theta$
+          substutitons and obtain (where the $\frac{1}{t \cdot s}$ is is
+          cancelled out from multiplying byt $t \cdot s$ ):
+          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot s \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : \tau$$
+          Note that the distance $\sim$ is obtained via the inductive hypothesis
+          and the fact that it is in $R_{M_{s \cdot r + q}}$ is obtained from
+          our proof of \textbf{\underline{Property 1}}.
+          Finally, we prove that:
+          $$
+          \alpha \cdot (t \cdot \Gamma + \Theta) = 
+          (\alpha \cdot t \cdot \Gamma) + (\alpha \cdot \Theta)
+          \geq
+          \gamma \cdot \Gamma + \theta \cdot \Theta
+          $$
+          by construction (via our substitution decomposition lemma).
       \end{description}
 
     \item[Case factor.] 
