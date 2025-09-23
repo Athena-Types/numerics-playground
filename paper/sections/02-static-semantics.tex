@@ -157,7 +157,7 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %% RND
 \AXC{$\Gamma \vdash e : \num$}
 \RightLabel{(Rnd)}
-\UIC{$\Gamma \vdash \rnd \ e : M_q \ \num$}
+\UIC{$\Gamma \vdash \rnd \ e : M_u \ \num$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -201,7 +201,10 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 
 \end{center}
-    \caption{Typing rules for \Lang, with $s,t,q,r \in \NNR \cup \{\infty\}$. }
+    \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
+    where $u$ is a fixed constant parameter (see
+    Definition~\ref{def:numfuzz-interface} for details on picking an adequate
+    constant).}
     \label{fig:typing_rules}
 \end{figure}
 

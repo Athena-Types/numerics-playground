@@ -101,8 +101,8 @@ values as follows:
 
 
 Numerical Fuzz is a modular family of programming langauges paramterized by the
-appropriate $\rho$ and equipped with the appropriate set of numeric computations
-$\Sigma$.  
+appropriate $\rho$, constant parameter $u$, and the appropriate set of numeric
+computations $\Sigma$.  
 We can now state a few assumptions about how the operational and static
 semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
 It is the proof obligation for any language designer instantiating the language
@@ -110,10 +110,12 @@ to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.
 \begin{definition}[Interface for instantiating Numerical Fuzz.]
   \label{def:numfuzz-interface}
+  The interface for Numerical Fuzz consists of $\rho$, $u$, and $\Sigma$ such
+  that the following properties hold: 
 \begin{description}
-  \item[a) Property of $\rho$ and $\mathbf{rnd}$.] We assume that the $\forall e
-    \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e) \leq q$ where
-    $q$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[a) Property of $\rho$ and constant parameter $u$.] We assume that the
+    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e)
+    \leq q$ where $q$ is the grade in the $\mathbf{rnd}$ typing rule.
   \item[b) Property of $\mathbf{op}$.] We also assume that for every operation
     $\mathbf{op} : \tau_0 \multimap \tau_1 \ \in \ \Sigma$ the following two
     properties hold:
