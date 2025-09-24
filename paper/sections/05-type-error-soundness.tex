@@ -270,24 +270,37 @@ The below lemma is useful towards proving metric preservation:
       \begin{description}
         \item[\underline{Property 1.}]
           Like the $\multimap I$ case, we only need to prove one side due to
-          symmetry. By Lemma \ref{thm:ctx-stepping}, it suffices to prove this
-          case for a bound value $(v_0, v_1)$. 
+          symmetry. So we fix a substitution $\sigma$. By Lemma
+          \ref{thm:ctx-stepping}, it suffices to prove this case for a value
+          $(v_0, v_1)$. 
           We have by our inductive hypothesis that $(v_0, v_1) \in \mathcal{R}_{M_r
           \tau_0}$. So $\mathcal{SD}(v_0, v_1) \leq r$. By application of our
           inductive hypothesis, we know that (abusing notation) 
-          $f[v_1/x] \mapsto^{*} (v_3, v_4), f[v_2/x] \mapsto^{*} (v_5, v_6) \in \mathcal{R}_{M_q}$.
-          We also know that for all $\sigma$ where
-          $$\sigma[v_1/x] \sim_{\vec{0}, r} \sigma[v_2/x] : \Gamma, x : \tau_0$$
+          $f[v_1/x], f[v_2/x] \in \mathcal{R}_{M_q}$ so
+          $f[v_1/x] \mapsto^{*} (v_3, v_4), f[v_2/x] \mapsto^{*} (v_5, v_6)$ where 
+          $(v_3, v_4), (v_5, v_6) \in \mathcal{R}_{M_q}$.
+          We also know that 
+          $$\sigma[v_0/x] \sim_{\vec{0}, r} \sigma[v_1/x] : \Gamma, x : \tau_0$$
           that
-          $$f~\sigma[v_1/x] \sim_{(\vec{0},r) \cdot (\Gamma, s)} f~\sigma[v_2/x] : M_q \tau$$
+          $$f~\sigma[v_0/x] \sim_{(\vec{0},r) \cdot (\Gamma, x \mapsto s)} f~\sigma[v_1/x] : M_q \tau$$
           So therefore
           \begin{equation}
             \begin{aligned}[c]
-              (v_3, v_4)~\sigma[v_1/x] &\sim_{(\vec{0},r) \cdot (\Gamma, s)} (v_5, v_6)~\sigma[v_2/x] : M_q \tau \\
-              (v_3, v_4)~\sigma[v_1/x] &\sim_{r \cdot s} (v_5, v_6)~\sigma[v_2/x] : M_q \tau
+              (v_3, v_4)~\sigma[v_1/x] 
+                &\sim_{(\vec{0},r) \cdot (\Gamma, x \mapsto s)} 
+              (v_5, v_6)~\sigma[v_2/x] : M_q \tau \\
+              (v_3, v_4)~\sigma[v_1/x] 
+                &\sim_{r \cdot s} 
+              (v_5, v_6)~\sigma[v_2/x] : M_q \tau
             \end{aligned}
           \end{equation}
-          So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$.
+          So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$ by
+          application of triangle inequality: 
+          $$
+          r \cdot s + q \geq
+          \mathcal{SD}_{tau}(v_3, v_5) + \mathcal{SD}_{\tau}(v_5, v_6) \geq
+          \mathcal{SD}_{\tau}(v_3, v_6)
+          $$
         \item[\underline{Property 2.}]
           We need to show that for all substitutions $\sigma \sim_{\alpha}
           \sigma' : s \cdot \Gamma + \Theta$:
