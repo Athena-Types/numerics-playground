@@ -411,6 +411,44 @@ similar. Then, the below lemma is useful towards proving metric preservation:
     \item[Case ! I.] Holds by application of Lemma~\ref{thm:sub-scaling}
       (substitution scaling), unfolding of our logical relations, and our
       inductive hypothesis.
+
+    \item[Case $\times$ I.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Holds by application of the inductive hypothesis and unfolding of the
+          definition of $\mathcal{R}_{\tau_0 \otimes \tau_1}$.
+        \item[\underline{Property 2.}]
+          We have 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$ 
+          and wish to show that
+          $$(e, f)~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (e, f)~\sigma'$$
+
+          By Lemma~\ref{thm:sub-decomp}, we know that there exists substitutions
+          $\sigma_{\Gamma} \sim_{\gamma} \sigma'_{\Gamma} : \Gamma$
+          and
+          $\sigma_{\Theta} \sim_{\theta} \sigma'_{\Theta} : \Theta$.
+          So by definition unfolding we have that:
+          $$
+          (v~\sigma_{\Gamma}, w~\sigma_{\Theta}) 
+            \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
+          (v~\sigma'_{\Gamma}, w~\sigma'_{\Theta})
+          : \tau_0 \otimes \tau_1
+          $$
+          so therefore by an analysis of free variables and subsitution
+          $$
+          (v, w)~\sigma 
+            \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
+          (v, w)~\sigma'
+          : \tau_0 \otimes \tau_1
+          $$
+
+          To complete the proof case, it suffices to prove:
+          $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
+
+          which holds by construction (via our substitution decomposition lemma).
+      \end{description}
+
   \end{description}
 \end{proof}
 
