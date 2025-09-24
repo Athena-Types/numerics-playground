@@ -71,7 +71,7 @@ values as follows:
   \begin{aligned}[c]
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \mathcal{SDV}_{\tau}(v_0, v_1)
     &\text{ if } e_0 \mapsto^{*} v_0 \text{ and } e_1 \mapsto^{*} v_1 \\
-    \mathcal{SD_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
+    \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \infty &\text{ otherwise } \\
     \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w = \langle \rangle \\
     \mathcal{SDV_{\mathbf{num}}}(k_0, k_1) &\triangleq 
       d_\mathbb{R} &\text{ for } k_0, k_1 \in \mathbb{R} \\
@@ -81,8 +81,8 @@ values as follows:
     \mathcal{SDV}_{\tau_0 \otimes \tau_1}((v_0, v_1), (w_0, w_1)) 
       &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_0}(v_1, w_1))
     \\
-    \mathcal{SDV}_{\tau_0 + \tau_1}(\inl v, \inl w) 
-      &\triangleq \mathcal{SDV}_{\tau_0}(v, w)
+    \mathcal{SDV}_{\tau_0 + \tau_1}(\in_i v, \in_i w) 
+      &\triangleq \mathcal{SDV}_{\tau_i}(v, w)
     \\
     \mathcal{SDV}_{\tau_0 \multimap \tau_1}(v_0, v_1) 
       &\triangleq \text{sup}_{w \in \mathcal{VR}_{\tau_0}} \mathcal{SD}_{\tau_1}(v_0~w,~v_1~w)
@@ -117,13 +117,16 @@ soundness theorems to follow.
     $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e)
     \leq q$ where $q$ is the grade in the $\mathbf{rnd}$ typing rule.
   \item[b) Property of $\mathbf{op}$.] We also assume that for every operation
-    $\mathbf{op} : \tau_0 \multimap \tau_1 \ \in \ \Sigma$ the following two
-    properties hold:
+    $\mathbf{op} : \tau_0 \multimap \tau_1 \ \in \ \Sigma$ we have a
+    corresponding function $op$ mapping syntactic values in
+    $\mathcal{VR}_{\tau_0}$ to $\mathcal{VR}_{\tau_1}$ and where
+    the following two properties hold:
     \begin{description}
       \item[\underline{1) Type denotation.}] For any $e \in
         \mathcal{R}_{\tau_0}$ that $\mathbf{op}(e) \in \mathcal{R}_{\tau_1}$.
       \item[\underline{2) Sensitivity.}] For any $e_1, e_2 \in \mathcal{R}_{\tau_0}$ that
-        $\mathcal{SD}_{\tau_1}(\mathbf{op}(e_1), \mathbf{op}(e_2))$.
+        $\mathcal{SD}_{\tau_1}(\mathbf{op}(e_1), \mathbf{op}(e_2)) \leq
+        \mathcal{SD}_{\tau_0}(e_1, e_2)$.
     \end{description}
 \end{description}
 \end{definition}

@@ -22,16 +22,28 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
   $r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
 \end{lemma}
 \begin{proof}
-  Follows by induction over the height of our typing derivation and applying the
-  inductive hypothesis to each applicable premise.
+  We first induct over the height of the second typing derivation. 
+  \begin{description}
+    \item[Base case.] Follows by copying-and-pasting the first typing derivation
+      if / where a variable is used.
+    \item[Inductive case.] We case into each possible typing rule. 
+      For each premise in the typing rule, we have a way / a function to
+      subsitute $e$ for $x$ with sensitivity $s$ and obtain a valid typing tree. 
+      We apply this function to each premise (where $x$ is not captured by a
+      binder). 
+      Now we want to construct a valid typing tree for $r \cdot \Gamma + \Theta
+      \vdash e'[e/x] : \tau'$. We observe how $x$ gets scaled (in the $!_s \tau$
+      rule) or combined in the typing derivation (whereever $\Gamma + \Theta$
+      occurs) and observe that our invariant is maintained.
+  \end{description}
 \end{proof}
 
 The following notation mirrors the look of the Fuzz metric perservation theorem
-statement but contains differences in the construction. In particular, logical our
-relation is neither coinductive nor step-indexed. It is also unary, using mutual
-(well-founded) recursion between the definition of a syntactic term falling
-within the logical relation and the definition of the syntactic distance between
-terms.
+statement but contains differences in the construction. In particular, our
+logical relation is neither coinductive nor step-indexed. It is also unary,
+using mutual (well-founded) recursion between the definition of a syntactic term
+falling within the logical relation and the definition of the syntactic distance
+between terms.
 
 For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
 e_1 \in R_\tau$, we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0,
@@ -40,17 +52,18 @@ subsitutions) $\sigma_0, \sigma_1$ for a given typing context $\Gamma$ such
 that: $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ for a \textit{distance vector}
 $\gamma$
 where
-$\sigma_0 = e^0_0,~e^0_1,~\ldots e^0_n$ 
-and $\sigma_1 = e^1_0,~e^1_1,~\ldots e^1_n$ 
-and $\gamma = r_0, r_1, \ldots r_n$ such that:
-$$e^0_0 \sim_{r_0} e^1_0 :
-\tau_0,~e^0_0 \sim_{r_0} e^1_0 : \tau_0,~\ldots e^0_n \sim_{r_1} e^1_n :
-\tau_n$$
+$\sigma_0 = e_0,~e_1,~\ldots e_{n-1}$ 
+and $\sigma_1 = e'_0,~e'_1,~\ldots e'_{n-1}$ 
+and $\gamma = r_0, r_1, \ldots r_{n-1}$ such that:
+$$e_0 \sim_{r_0} e'_0 : \tau_0,~e_0 \sim_{r_0} e'_0 : \tau_0,~\ldots e_{n-1}
+\sim_{r_1} e'_{n-1} : \tau_n$$
 
-Our definition for the dot product of a distance vector is the same as Fuzz.
-We also write, for a distance vector $\gamma$ and variable $x$, $v(x)$ for the
-lookup of the distance of variable $x$ in $v$. If the variable $x$ is not in the
-domain, $v(x) = 0$ by default.
+Our definition for the dot product of a distance vector is the same as Fuzz. We
+also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
+treat and represent our distance vector $\gamma$ as a lookup function and assume
+that there is an implicit fixed ordering on the variables.
 % todo: put it in here
 
 % Max: Theorem statement is not interesting when stepping is only over closed
@@ -63,10 +76,20 @@ domain, $v(x) = 0$ by default.
 % \begin{proof}
 %   TODO
 % \end{proof}
+%
+\begin{lemma}[Subsitution decomposition]
+  \label{thm:sub-decomp}
+  For substitutions $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$,
+  exists
+  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Gamma$
+  and
+  $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$.
+\end{lemma}
+\begin{proof}
+  Fix an ordering of the variables in $\Gamma + \Theta$. Follows by induction.
+\end{proof}
 
-Note that while we use variable names in this paper, this is only for notational
-convenience. We assume that the underlying proof uses de Bruijin indicies or
-similar. Then, the below lemma is useful towards proving metric preservation:
+The below lemma is useful towards proving metric preservation:
 \begin{lemma}[Metric preservation under context evaluation stepping]
   \label{thm:ctx-stepping}
   For a well-typed $\Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
@@ -88,33 +111,6 @@ similar. Then, the below lemma is useful towards proving metric preservation:
   respectively and therefore $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e]
   \sigma'$ holds.
 \end{proof}
-
-\begin{lemma}[Substitution decomposition]
-  \label{thm:sub-decomp}
-  For substitutions $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$, there
-  exists decompositions $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} :
-  \Gamma$ and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ where
-  $\gamma$ and $\theta$ are minimal, or equivalently, $\alpha(i \in DOM(\Gamma
-  + \Theta)) = \gamma(i) + \theta(i)$.
-\end{lemma}
-\begin{proof}
-  We induct over the distance vector $\alpha$ which also happens to fix a
-  variable ordering of $\Gamma + \Sigma$. Base case is trivial and the inductive
-  case follows by unfolding.
-\end{proof}
-
-\begin{lemma}[Substitution scaling]
-  \label{thm:sub-scaling}
-  $$\sigma \sim_{s \cdot \gamma} \sigma' : s \cdot \Gamma \iff \sigma
-  \sim_{\gamma} \sigma' : \Gamma$$
-\end{lemma}
-\begin{proof}
-  Holds trivially.
-\end{proof}
-
-% TODO: Say something about how one can assume that things are nice values.
-% \begin{corollary}
-% \end{corollary}
 
 \begin{theorem}[Metric preservation]
   For any $\Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
@@ -139,14 +135,14 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       \end{enumerate}
     
       Observe that we have by our inductive hypothesis that for any $\Delta, x:
-      \tau' \vdash e : \tau$ and subsitutions 
+      \tau' \vdash e : \tau$ and substitutions 
       $\delta[v_0/x] \sim_{\gamma'} \delta'[v_1/x] : \Gamma,~x : \tau'$ that 
       $e~\delta[v_0/x] \sim_{\gamma' \cdot \Gamma} e~\delta'[v_1/x]$ holds. 
       Let us now carry on with the proof:
 
       \begin{description}
-        \item[\underline{Property 1.}] We need to show that $\sigma$ and
-          $\sigma'$ are both in the relation $\mathcal{R}_{\tau_0 \multimap
+        \item[\underline{Property 1.}] We need to show that $(\lambda x . e)~\sigma$ and
+          $(\lambda x . e)~\sigma'$ are both in the relation $\mathcal{R}_{\tau_0 \multimap
           \tau}$. The cases are symmetric so we only show one case. Unfolding
           the definition of $\mathcal{R}_{\tau_0 \multimap \tau}$, let $w_0, w_1
           \in \mathcal{VR}_{\tau_0}$. 
@@ -209,11 +205,11 @@ similar. Then, the below lemma is useful towards proving metric preservation:
         \begin{aligned}[c]
           (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= 
             ((\lambda x . e[\sigma^*])~w)[\sigma] = 
-            ((\lambda x . e)~w)[\sigma] = 
+            ((\lambda x . e)~w)[\sigma] \mapsto
             e[\sigma][w/x] \\
           (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= 
             ((\lambda x . e[\sigma'^*])~w)[\sigma'] = 
-            ((\lambda x . e)~w)[\sigma'] = 
+            ((\lambda x . e)~w)[\sigma'] \mapsto
             e[\sigma'][w/x] \\
         \end{aligned}
       \end{equation}
@@ -222,12 +218,12 @@ similar. Then, the below lemma is useful towards proving metric preservation:
 
       \begin{equation}
         \begin{aligned}[c]
-          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= e[\sigma_0][w[\sigma_1]/x] \\
-          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= e[\sigma_0'][w[\sigma_1']/x] \\
+          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &\mapsto e[\sigma_0][w[\sigma_1]/x] \\
+          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &\mapsto e[\sigma_0'][w[\sigma_1']/x] \\
         \end{aligned}
       \end{equation}
 
-      so by transitivity
+      so by deterministic stepping
       \begin{equation}
         \begin{aligned}[c]
           e[\sigma_0][w[\sigma_1]/x] &=
@@ -240,9 +236,30 @@ similar. Then, the below lemma is useful towards proving metric preservation:
       By applying our inductive hypothesis and unfolding our definition of
       $R_{\tau_0 \multimap \tau}$, we know that $e$ is 
       1-sensitive with respect to $w$ according to $\mathcal{SD}$. 
-      Then, we know that by application of triangle inequality of the syntactic
-      distance between terms:
-      $$v~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} v~w~\sigma'$$
+      This gives us:
+      $$
+      \mathcal{SD}_{\tau}(e~[w[\sigma]/x][\sigma], e~[w[\sigma']/x][\sigma]) 
+      \leq 
+      \mathcal{SD}_{\tau_0}(w[\sigma], w[\sigma']) 
+      \leq 
+      \theta \cdot \Theta
+      $$
+      and we also know that by our inductive hypothesis
+      $$
+      \mathcal{SD}_{\tau}(e~[w[\sigma']/x][\sigma], e~[w[\sigma']/x][\sigma']) 
+      \leq 
+      \gamma \cdot \Gamma
+      $$
+      So by our triangle inequality of the syntactic distance between terms:
+      $$
+      e~[w[\sigma]/x]~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta}
+      e~[w[\sigma']/x]~\sigma'
+      $$
+
+      and therefore
+      $$
+      (\lambda x . e)~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} (\lambda x . e)~w~\sigma'
+      $$
 
       To complete the proof case, it suffices to prove 
       $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
@@ -447,6 +464,44 @@ similar. Then, the below lemma is useful towards proving metric preservation:
           $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
 
           which holds by construction (via our substitution decomposition lemma).
+      \end{description}
+
+    <break>
+
+    \item[Case $\times$ E.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Holds by application of the inductive hypothesis and stepping once.
+        \item[\underline{Property 2.}]
+      \end{description}
+
+    \item[Case $\otimes$ I.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+        \item[\underline{Property 2.}]
+      \end{description}
+
+    \item[Case $\otimes$ E.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+        \item[\underline{Property 2.}]
+      \end{description}
+
+    \item[Case $+$ I.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+        \item[\underline{Property 2.}]
+      \end{description}
+
+    \item[Case $+$ E.] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+        \item[\underline{Property 2.}]
       \end{description}
 
   \end{description}
