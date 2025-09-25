@@ -403,14 +403,18 @@ The below lemma is useful towards proving metric preservation:
       $\mathbf{factor}~((v_1, v_2), (v_3, v_4))$. 
       Unfolding our inductive hypothesis, we have that for substitutions
       $\sigma \sim_{\gamma} \sigma' : \Gamma$, that 
-      $((v_1, v_2), (v_3, v_4))~\sigma \sim_{\gamma \cdot \Gamma} ((v_1, v_2),
-      (v_3, v_4))~\sigma' : (M_q~\tau_0) \times (M_r~\tau_1)$.
+      $$\textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma 
+      \sim_{\gamma \cdot \Gamma} 
+      \textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma' : (M_q~\tau_0) \times (M_r~\tau_1)$$
       Unfolding, we get:
       $$
-      ((v_1~\sigma, v_2~\sigma), (v_3~\sigma, v_4~\sigma)) \sim_{\gamma \cdot \Gamma} ((v_1~\sigma', v_2~\sigma'),
-      (v_3~\sigma', v_4~\sigma')) : (M_q~\tau_0) \times (M_r~\tau_1)
+      \textbf{factor} \ ((v_1~\sigma, v_2~\sigma), (v_3~\sigma, v_4~\sigma)) 
+      \sim_{\gamma \cdot \Gamma} 
+      \textbf{factor} \ ((v_1~\sigma', v_2~\sigma'), (v_3~\sigma', v_4~\sigma')) : (M_q~\tau_0) \times (M_r~\tau_1)
       $$
-      So by reassociating we obtain:
+      So by stepping (and reassociating) we can see that the following logical
+      relation holds as distances between neighborhood monads are measured in
+      terms of the first components:
       $$
       ((v_1~\sigma, v_3~\sigma), (v_2~\sigma, v_4~\sigma)) \sim_{\gamma \cdot \Gamma} ((v_1~\sigma', v_3~\sigma'),
       (v_2~\sigma', v_4~\sigma')) : M_{max(r,q)}(\tau_0 \times \tau_1)
