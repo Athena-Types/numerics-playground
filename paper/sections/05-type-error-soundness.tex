@@ -304,37 +304,37 @@ The below lemma is useful towards proving metric preservation:
         \item[\underline{Property 2.}]
           We need to show that for all substitutions $\sigma \sim_{\alpha}
           \sigma' : s \cdot \Gamma + \Theta$:
-          $$\textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (s
+          \begin{equation}
+            \label{eq:lb-prop2}
+          \textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (s
           \cdot \Gamma + \Theta)} \textbf{let-bind}~x = e \ \tin \ f \sigma' :
-          M_{s \cdot r + q}$$
+          M_{s \cdot r + q}
+          \end{equation}
           By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
           substitutions 
-          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : s \cdot \Gamma$
-          and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ for
-          $\gamma$ and $\theta$ minimal. 
-          We also know that 
-          $\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
-          Lemma~\ref{thm:sub-scaling}.
-          By application of the inductive hypothesis, we know that:
+          $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : s \cdot \Gamma$
+          and $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$ .
+
           $$
-          e~\sigma_{\gamma} \sim_{\frac{1}{s} \cdot \gamma \cdot \Gamma}
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
           e~\sigma'_{\gamma} : M_r \tau_0
           $$
-          To apply our inductive hypothesis once more, we extend the $\theta$
-          substutitons and obtain (where the $\frac{1}{s}$ is cancelled out by
-          $s$):
-          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{s \cdot r + q} \tau$$
-          Note that the distance $\sim$ is obtained via the inductive hypothesis
-          and the fact that it is in $R_{M_{s \cdot r + q}}$ is obtained from
-          our proof of \textbf{\underline{Property 1}}.
-          Finally, we prove that:
-          $$
-          \alpha \cdot (s \cdot \Gamma + \Theta) = 
-          (\alpha \cdot s \cdot \Gamma) + (\alpha \cdot \Theta)
-          \geq
-          \gamma \cdot \Gamma + \theta \cdot \Theta
-          $$
-          by construction (via our substitution decomposition lemma).
+          By our proof of \textbf{\underline{Property 1}}, we know that both
+          sides of Equation~\ref{eq:lb-prop2} are in the relation
+          $\mathcal{R}_{M_{r \cdot s + q} \tau}$ and we're not stuck. We want to
+          show both sides have syntatic distance less than $\alpha \cdot (s
+          \cdot \Gamma + \Theta)$. 
+          We apply our inductive hypothesis once more and extend the
+          $\theta$ substutitons to obtain:
+          \begin{equation}
+            \label{eq:lb-prop2.1}
+          f~\sigma_{\theta}[e~\sigma_{\gamma}/x] 
+          \sim_{\alpha \cdot \Theta + (\alpha \cdot s \cdot \Gamma)} 
+          f~\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{r} \tau
+          \end{equation}
+          Since both sides are neighborhood monads, it suffices to bound
+          distances in only the first components of each side which means that
+          Equation~\ref{eq:lb-prop2.1} implies Equation~\ref{eq:lb-prop2}.
       \end{description}
     \item[Case (let-cobind).] 
       We prove each property separately.
