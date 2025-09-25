@@ -326,11 +326,10 @@ The below lemma is useful towards proving metric preservation:
           \cdot \Gamma + \Theta)$. 
           We apply our inductive hypothesis once more and extend the
           $\theta$ substutitons to obtain:
-          \begin{equation}
-            \label{eq:lb-prop2.1}
-          f~\sigma_{\theta}[e~\sigma_{\gamma}/x] 
-          \sim_{\alpha \cdot \Theta + (\alpha \cdot s \cdot \Gamma)} 
-          f~\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{r} \tau
+          \begin{equation} \label{eq:lb-prop2.1}
+            f~\sigma_{\theta}[e~\sigma_{\gamma}/x] 
+            \sim_{\alpha \cdot \Theta + (\alpha \cdot s \cdot \Gamma)} 
+            f~\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{r} \tau
           \end{equation}
           Since both sides are neighborhood monads, it suffices to bound
           distances in only the first components of each side which means that
@@ -347,6 +346,7 @@ The below lemma is useful towards proving metric preservation:
           Unfolding, we have that $v \in \mathcal{R}_{\tau_0}$.
           Stepping and applying our inductive hypothesis yields that $f[v/x] \in
           \mathcal{R}_{\tau}$.
+
         \item[\underline{Property 2.}]
           We need to show that for all substitutions $\sigma \sim_{\alpha}
           \sigma' : t \cdot \Gamma + \Theta$:
@@ -355,38 +355,47 @@ The below lemma is useful towards proving metric preservation:
           \tau$$
           By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
           substitutions 
-          $\sigma_{\gamma} \sim_{\gamma} \sigma'_{\gamma} : t \cdot \Gamma$
-          and $\sigma_{\theta} \sim_{\theta} \sigma'_{\theta} : \Theta$ for
-          $\gamma$ and $\theta$ minimal. 
-          We also know that 
-          $\sigma_{\gamma} \sim_{\frac{1}{t} \cdot \gamma} \sigma'_{\gamma} : \Gamma$ by
-          Lemma~\ref{thm:sub-scaling}.
+          $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Gamma$
+          and $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$.
 
           By application of the inductive hypothesis, we know that:
           $$
-          e~\sigma_{\gamma} \sim_{\frac{1}{t} \cdot \gamma \cdot \Gamma}
+          e~\sigma_{\gamma} \sim_{\gamma \cdot \Gamma}
           e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0
           $$
-          and therefore by inspection of the relation:
+          where 
           $$
-          e~\sigma_{\gamma} \sim_{\frac{1}{t \cdot s} \cdot \gamma \cdot \Gamma}
-          e~\sigma'_{\gamma} \ : \> \tau_0
+          e~\sigma_{\gamma} = [v_0]
           $$
-          To apply our inductive hypothesis once more, we extend the $\theta$
-          substutitons and obtain (where the $\frac{1}{t \cdot s}$ is is
-          cancelled out from multiplying byt $t \cdot s$ ):
-          $$\sigma_{\theta}[e~\sigma_{\gamma}/x] \sim_{\theta \cdot \Theta + (\gamma \cdot s \cdot \Gamma)}\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : \tau$$
+          and
+          $$
+          e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0 = [v_1]
+          $$
+          for some $v_0, v_1$ so therefore by inspection of the relation:
+          $$
+          s \cdot \mathcal{SD}_{\tau_0}(v_0, v_1) =  
+          \mathcal{SD}_{!_s~\tau_0}([v_0], [v_1])
+          $$
+          Let $\mathcal{SD}_{\tau_0}(v_0, v_1) = c$. Importantly, note that 
+          \begin{equation} \label{eq:lcb-zero-sub}
+            s \cdot c = \alpha \cdot \Gamma
+          \end{equation}
+          Then, we apply our inductive hypothesis once more and we extend the
+          $\theta$ substutitons and to obtain:
+          $$
+          f~\sigma_{\theta}[\sigma_{\gamma}/x] 
+          \sim_{\alpha \cdot \Theta + t \cdot s \cdot c}
+          f~\sigma'_{\theta}[\sigma'_{\gamma}/x] : \tau
+          $$
           Note that the distance $\sim$ is obtained via the inductive hypothesis
           and the fact that it is in $R_{M_{s \cdot r + q}}$ is obtained from
           our proof of \textbf{\underline{Property 1}}.
-          Finally, we prove that:
+          Substituting by Equation~\ref{eq:lcb-zero-sub} we complete the case:
           $$
-          \alpha \cdot (t \cdot \Gamma + \Theta) = 
-          (\alpha \cdot t \cdot \Gamma) + (\alpha \cdot \Theta)
-          \geq
-          \gamma \cdot \Gamma + \theta \cdot \Theta
+          f~\sigma_{\theta}[\sigma_{\gamma}/x] 
+          \sim_{\alpha \cdot \Theta + t \cdot \alpha \cdot \Gamma}
+          f~\sigma'_{\theta}[\sigma'_{\gamma}/x] : \tau
           $$
-          by construction (via our substitution decomposition lemma).
       \end{description}
 
     \item[Case factor.] 
@@ -438,9 +447,8 @@ The below lemma is useful towards proving metric preservation:
       (Definition~\ref{def:numfuzz-interface}, property b) and application of
       the inductive hypothesis.
 
-    \item[Case ! I.] Holds by application of Lemma~\ref{thm:sub-scaling}
-      (substitution scaling), unfolding of our logical relations, and our
-      inductive hypothesis.
+    \item[Case ! I.] Holds unfolding of our logical relations, and our inductive
+      hypothesis.
 
     \item[Case $\times$ I.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
