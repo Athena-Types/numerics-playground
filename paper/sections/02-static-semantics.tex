@@ -75,18 +75,18 @@
 
 %% ind sum intro
 \AXC{$\Gamma \vdash e : \tau_0$ }
-\RightLabel{($+$ $\text{I}_1$)}
-\UIC{$\Gamma \vdash \mathbf{in}_1 \ e : \tau_0 + \tau_1$}
+\RightLabel{($+$ $\text{I}_i$)}
+\UIC{$\Gamma \vdash \mathbf{in}_i \ e : \tau_0 + \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-%% ind sum intro
-\AXC{$\Gamma \vdash e : \tau_1$ }
-\RightLabel{($+$ $\text{I}_2$)}
-\UIC{$\Gamma \vdash \mathbf{in}_2 \ e : \tau_0 + \tau_1$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.5em
+% %% ind sum intro
+% \AXC{$\Gamma \vdash e : \tau_1$ }
+% \RightLabel{($+$ $\text{I}_2$)}
+% \UIC{$\Gamma \vdash \mathbf{in}_2 \ e : \tau_0 + \tau_1$}
+% \bottomAlignProof
+% \DisplayProof
+% \hskip 0.5em
 % box elim
 \AXC{$\Gamma \vdash e : {!_s \tau_0}$}
 \AXC{$\Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
@@ -202,7 +202,7 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
-    where $u$ is a fixed constant parameter (see
+    and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
     Definition~\ref{def:numfuzz-interface} for details on picking an adequate
     constant).}
     \label{fig:typing_rules}

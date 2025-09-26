@@ -57,6 +57,10 @@ and $\sigma_1 = e'_0,~e'_1,~\ldots e'_{n-1}$
 and $\gamma = r_0, r_1, \ldots r_{n-1}$ such that:
 $$e_0 \sim_{r_0} e'_0 : \tau_0,~e_0 \sim_{r_0} e'_0 : \tau_0,~\ldots e_{n-1}
 \sim_{r_1} e'_{n-1} : \tau_n$$
+We also say that a substitution $[e_1/x_1, e_2/x_2 \ldots]$ is
+\textit{compatible} with a typing context $x_1 : \tau_1, x_2 : \tau_2, \ldots$
+if each term $e_1 \in \mathcal{R}_{\tau_1}, e_2 \in \mathcal{R}_{\tau_2},
+\ldots$
 
 Our definition for the dot product of a distance vector is the same as Fuzz. We
 also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
@@ -341,11 +345,11 @@ The below lemma is useful towards proving metric preservation:
         \item[\underline{Property 1.}]
           We again only need to prove one side due to symmetry.
           By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
-          bound value $[v]$. 
-          We have by our inductive hypothesis that $[v] \in \mathcal{R}_{!_s \tau_0}$.
-          Unfolding, we have that $v \in \mathcal{R}_{\tau_0}$.
-          Stepping and applying our inductive hypothesis yields that $f[v/x] \in
-          \mathcal{R}_{\tau}$.
+          value $[v]~\sigma$ for a $\sigma$ compatible withi $\Gamma$. 
+          We have by our inductive hypothesis that $[v]~\sigma \in \mathcal{R}_{!_s
+          \tau_0}$. Unfolding, we have that $v~\sigma \in \mathcal{R}_{\tau_0}$.
+          Stepping and applying our inductive hypothesis yields that
+          $f~\sigma~[v/x] \in \mathcal{R}_{\tau}$.
 
         \item[\underline{Property 2.}]
           We need to show that for all substitutions $\sigma \sim_{\alpha}
@@ -357,10 +361,9 @@ The below lemma is useful towards proving metric preservation:
           substitutions 
           $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Gamma$
           and $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$.
-
           By application of the inductive hypothesis, we know that:
           $$
-          e~\sigma_{\gamma} \sim_{\gamma \cdot \Gamma}
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
           e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0
           $$
           where 
@@ -396,6 +399,41 @@ The below lemma is useful towards proving metric preservation:
           \sim_{\alpha \cdot \Theta + t \cdot \alpha \cdot \Gamma}
           f~\sigma'_{\theta}[\sigma'_{\gamma}/x] : \tau
           $$
+      \end{description}
+
+    \item[Case (let).] 
+      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          By symmetry, it suffices to only prove one side. Follows by
+          application of our inductive hypothesis and some stepping.
+        \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\alpha} \sigma' :
+          s \cdot \Gamma + \Theta$:
+          $$
+          \textbf{let} \ x = e \ \tin \ f \sigma 
+            \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+          \textbf{let} \ x = e \ \tin \ f \sigma' :
+          \tau
+          $$
+          By Lemma~\ref{thm:sub-decomp} we have substitutions $\sigma_{\gamma}
+          \sim_\alpha \sigma'_{\gamma} : \Gamma$ and $\sigma_{\theta}
+          \sim_\alpha \sigma'_{\gamma} : \Theta$. By applying our inductive
+          hypothesis, we know that 
+          $$
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
+          e~\sigma'_{\gamma} \ : \tau_0
+          $$
+          So we can extend our pair of $\Theta$ subsitutions by these two terms
+          respsectively and apply our inductive hypothesis yielding:
+          $$
+          \textbf{let} \ x = e \ \tin \ f \sigma 
+            \sim_{(\alpha \cdot s \cdot \Gamma) + (\alpha \cdot \Theta)}
+          \textbf{let} \ x = e \ \tin \ f \sigma' :
+          \tau
+          $$
+          which is equivalent to what we wanted to show.
+
       \end{description}
 
     \item[Case factor.] 
@@ -459,7 +497,7 @@ The below lemma is useful towards proving metric preservation:
       \begin{description}
         \item[\underline{Property 1.}]
           Holds by application of the inductive hypothesis and unfolding of the
-          definition of $\mathcal{R}_{\tau_0 \otimes \tau_1}$.
+          definition of $\mathcal{R}_{\tau_0 \times \tau_1}$.
         \item[\underline{Property 2.}]
           We have 
           $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$ 
@@ -475,14 +513,14 @@ The below lemma is useful towards proving metric preservation:
           (v~\sigma_{\Gamma}, w~\sigma_{\Theta}) 
             \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
           (v~\sigma'_{\Gamma}, w~\sigma'_{\Theta})
-          : \tau_0 \otimes \tau_1
+          : \tau_0 \times \tau_1
           $$
           so therefore by an analysis of free variables and subsitution
           $$
           (v, w)~\sigma 
             \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
           (v, w)~\sigma'
-          : \tau_0 \otimes \tau_1
+          : \tau_0 \times \tau_1
           $$
 
           To complete the proof case, it suffices to prove:
@@ -491,42 +529,88 @@ The below lemma is useful towards proving metric preservation:
           which holds by construction (via our substitution decomposition lemma).
       \end{description}
 
-    <break>
-
     \item[Case $\times$ E.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
           Holds by application of the inductive hypothesis and stepping once.
         \item[\underline{Property 2.}]
+          It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
+          if $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma' : \tau_1 \times \tau_2$
+          then:
+          $$
+          \pi_i~e~\sigma \sim_{\gamma \cdot \Gamma} \pi_i~e~\sigma' : \tau_i
+          $$
+          which holds by stepping and some unfolding of the logical relation.
       \end{description}
 
     \item[Case $\otimes$ I.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          Holds by application of the inductive hypothesis.
         \item[\underline{Property 2.}]
+          It suffices to show that for all 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$:
+          $$
+          (e, f)~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (e, f)~\sigma' :
+          \tau_0 \otimes \tau_1
+          $$
+          By Lemma~\ref{thm:sub-decomp}, we know that 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma$ and
+          $\sigma \sim_{\alpha} \sigma' : \Theta$.
+          Appying our inductive hypothesis, we get that
+          $e~\sigma \sim_{\alpha \cdot \Gamma} e~\sigma' : \tau_0$ and
+          $e~\sigma \sim_{\alpha \cdot \Theta} e~\sigma' : \tau_1$
+          so by unfolding our logical relation we obtain
+          $$
+          (e, f)~\sigma \sim_{\alpha \cdot \Gamma + \alpha \cdot \Theta} (e, f)~\sigma' :
+          \tau_0 \otimes \tau_1
+          $$
+          which is equivalent to what we wanted to show.
       \end{description}
 
     \item[Case $\otimes$ E.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          We again only need to prove one side due to symmetry. Let our bound
+          expression be some value $w$. By our inductive hypothesis $w = (v_0,
+          v_1)$ for some $v_0$ and $v_1$. Stepping and applying our inductive
+          hypothesis yields that $f~\sigma~[v_0/x][v_1/x] \in
+          \mathcal{R}(\tau)$ for any $\sigma$ compatible with $\Theta$.
         \item[\underline{Property 2.}]
+          This case mirrors the proof for \textbf{\underline{Property 2}} of the
+          $\textbf{let}$ case.
       \end{description}
 
     \item[Case $+$ I.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          Holds by application of the inductive hypothesis.
         \item[\underline{Property 2.}]
+          It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
+          if $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma' : \tau_0 + \tau_1$
+          then:
+          $$
+          \tin_i~e~\sigma \sim_{\gamma \cdot \Gamma} \tin_i~e~\sigma' : \tau_0 +
+          \tau_1
+          $$
+          which holds by stepping and some unfolding of the logical relation.
       \end{description}
 
     \item[Case $+$ E.] 
       We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          We again only need to prove one side due to symmetry. Let our bound
+          expression be some value $\textbf{in}_i ~ v$. Stepping and applying
+          our inductive hypothesis finishes this case.
         \item[\underline{Property 2.}]
+          Let our bound expression be some value $\textbf{in}_i ~ v$. Case on
+          $i$. This remainder of this case mirrors the proof for
+          \textbf{\underline{Property 2}} of the $\textbf{let}$ case.
       \end{description}
 
   \end{description}
