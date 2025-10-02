@@ -98,22 +98,31 @@ The below lemma is useful towards proving metric preservation:
   \label{thm:ctx-stepping}
   For a well-typed $\Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
   \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Gamma$ and
-  $e \mapsto^{*} v$.
-  If $C[v] \sigma \sim_{\gamma \cdot \Gamma} C[v] \sigma' : \tau$ then
+  $e~\sigma \mapsto^{*} v$ and
+  $e~\sigma' \mapsto^{*} v'$.
+  If $C[v] \sigma \sim_{\gamma \cdot \Gamma} C[v'] \sigma' : \tau$ then
   $C[e] \sigma \sim_{\gamma \cdot \Gamma} C [e] \sigma' : \tau$.
 \end{lemma}
 \begin{proof}
   By inspection of our stepping relation, we can tell that stepping is
   deterministic. Further, since we only define our rewrite relation over closed
-  terms, we know that $e$ is closed and therefore constant under all
-  substitutions. 
+  terms, we know that $e~\sigma, e~\sigma'$ is closed and therefore constant
+  under all substitutions. 
   So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, 
   context stepping, we know that both 
-  $$C[e] \sigma, C[e] \sigma' \in \mathcal{R}_{\tau}$$ 
+  $$
+  C[e~\sigma]~\sigma, C[e~\sigma']~\sigma' \in \mathcal{R}_{\tau}
+  $$ 
   and that 
-  $$\mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = \mathcal{SD}_{\tau}(C[e']\sigma, C[e']\sigma') = \gamma \cdot \Gamma$$
-  respectively and therefore $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e]
-  \sigma'$ holds.
+  $$
+  \mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = 
+  \mathcal{SD}_{\tau}(C[e~\sigma]\sigma, C[e~\sigma']\sigma') = 
+  \mathcal{SD}_{\tau}(C[v]\sigma, C[v']\sigma') = 
+  \gamma \cdot \Gamma
+  $$
+  respectively and therefore 
+  $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e] \sigma'$
+  holds.
 \end{proof}
 
 \begin{theorem}[Metric preservation]
@@ -179,42 +188,45 @@ The below lemma is useful towards proving metric preservation:
       $\mathcal{R}$ and $\mathcal{SD}$, we have properties (1) and (2)
       respectively. 
     \item[Case $\multimap$ E.] 
-      By Lemma \ref{thm:ctx-stepping} and our inductive hypothesis, it suffices
-      to prove this case for $v~w$.
-      By inversion, we know that $v = \lambda x . e$.
-      We wish to show that for any $\Gamma + \Theta \vdash (\lambda x . e) w : \tau$ and
+      By our inductive hypothesis, it suffices
+      to prove this case for $e~f$.
+      % By inversion, we know that $v = \lambda x . e$.
+      We wish to show that for any $\Gamma + \Theta \vdash e~f : \tau$ and
       subsitutions 
       $\sigma \sim_{\alpha} \sigma': \Gamma + \Theta$ 
       that 
-      $$(\lambda x . e)~w~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (\lambda x . e)~w~\sigma'$$
+      $$e~f~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} e~f~\sigma'$$
       Using Lemma \ref{thm:sub-decomp} (substitution decomposition), we
-      construct potentially overlapping substitutions 
-      $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ 
-      and $\sigma_0' \sim_{\theta} \sigma_1' : \Theta$
-      where $FV(\lambda x . e) \subseteq DOM(\sigma_0) = DOM(\sigma_1)$ and  
-      $FV(w) \subseteq DOM(\sigma_0') = DOM(\sigma_1')$ and 
+      construct potentially overlapping substitutions
+      $\sigma_0 \sim_{\alpha} \sigma_1 : \Gamma$
+      and $\sigma_0' \sim_{\alpha} \sigma_1' : \Theta$
+      where $FV(e) \subseteq DOM(\sigma_0) = DOM(\sigma_1)$ and
+      $FV(f) \subseteq DOM(\sigma_0') = DOM(\sigma_1')$ and 
       $\sigma_0, \sigma_0' \subseteq \sigma$ and 
       $\sigma_1, \sigma_1' \subseteq \sigma'$ and $\gamma, \theta$ minimal.
       In other words, $\sigma_0, \sigma_1$ correspond to the parts of $\sigma$ and $\sigma'$ 
       respectively that are represented by $\Gamma$.
       Similarly, $\sigma_0', \sigma_1'$ correspond to the parts of $\sigma$ and $\sigma'$ 
       respectively that are represented by $\Theta$.
-      Note that our substitutions \textit{must} overlap in the case where $FV(\lambda x . e)
-      \cap FV(w)$ is non-empty.
+      Note that our substitutions \textit{must} overlap in the case where $FV(e)
+      \cap FV(f)$ is non-empty.
+      By our inductive hypothesis, we know that 
+      $e~\sigma \mapsto^* \lambda x . M$ and 
+      $e'~\sigma \mapsto^* \lambda x . M'$ for some $M, M'$.
       Since subsituting variables that are not free does not change the
       underlying term, we know that the following equations must hold where
       $\sigma^*, \sigma'^*$ are $\sigma$ and $\sigma'$ respectively with $x$
       removed:
       \begin{equation}
         \begin{aligned}[c]
-          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &= 
-            ((\lambda x . e[\sigma^*])~w)[\sigma] = 
-            ((\lambda x . e)~w)[\sigma] \mapsto
-            e[\sigma][w/x] \\
-          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &= 
-            ((\lambda x . e[\sigma'^*])~w)[\sigma'] = 
-            ((\lambda x . e)~w)[\sigma'] \mapsto
-            e[\sigma'][w/x] \\
+          (\lambda x . M)~[\sigma_0]~(w[\sigma_1]) &= 
+            ((\lambda x . M[\sigma^*])~w)[\sigma] = 
+            ((\lambda x . M)~w)[\sigma] \mapsto
+            M[\sigma][w/x] \\
+          (\lambda x . M')~[\sigma_0']~(w[\sigma_1']) &= 
+            ((\lambda x . M'[\sigma'^*])~w)[\sigma'] = 
+            ((\lambda x . M')~w)[\sigma'] \mapsto
+            M'[\sigma'][w/x] \\
         \end{aligned}
       \end{equation}
 
@@ -222,27 +234,27 @@ The below lemma is useful towards proving metric preservation:
 
       \begin{equation}
         \begin{aligned}[c]
-          (\lambda x . e)~[\sigma_0]~(w[\sigma_1]) &\mapsto e[\sigma_0][w[\sigma_1]/x] \\
-          (\lambda x . e)~[\sigma_0']~(w[\sigma_1']) &\mapsto e[\sigma_0'][w[\sigma_1']/x] \\
+          (\lambda x . M)~[\sigma_0]~(w[\sigma_1]) &\mapsto M[\sigma_0][w[\sigma_1]/x] \\
+          (\lambda x . M)~[\sigma_0']~(w[\sigma_1']) &\mapsto M'[\sigma_0'][w[\sigma_1']/x] \\
         \end{aligned}
       \end{equation}
 
       so by deterministic stepping
       \begin{equation}
         \begin{aligned}[c]
-          e[\sigma_0][w[\sigma_1]/x] &=
-            e[\sigma][w/x] \\
-          e[\sigma_0'][w[\sigma_1']/x] &=
-            e[\sigma'][w/x] \\
+          M[\sigma_0][w[\sigma_1]/x] &=
+            M[\sigma][w/x] \\
+          M'[\sigma_0'][w[\sigma_1']/x] &=
+            M'[\sigma'][w/x] \\
         \end{aligned}
       \end{equation}
 
       By applying our inductive hypothesis and unfolding our definition of
-      $R_{\tau_0 \multimap \tau}$, we know that $e$ is 
+      $R_{\tau_0 \multimap \tau}$, we know that $M, M'$ is 
       1-sensitive with respect to $w$ according to $\mathcal{SD}$. 
       This gives us:
       $$
-      \mathcal{SD}_{\tau}(e~[w[\sigma]/x][\sigma], e~[w[\sigma']/x][\sigma]) 
+      \mathcal{SD}_{\tau}(M~[w[\sigma]/x][\sigma], M~[w[\sigma']/x][\sigma]) 
       \leq 
       \mathcal{SD}_{\tau_0}(w[\sigma], w[\sigma']) 
       \leq 
@@ -250,23 +262,25 @@ The below lemma is useful towards proving metric preservation:
       $$
       and we also know that by our inductive hypothesis
       $$
-      \mathcal{SD}_{\tau}(e~[w[\sigma']/x][\sigma], e~[w[\sigma']/x][\sigma']) 
+      \mathcal{SD}_{\tau}(e~[\sigma]~f~[\sigma'], e~[\sigma']~f~[\sigma']) 
+      =
+      \mathcal{SD}_{\tau}(M~[w[\sigma']/x][\sigma], M'~[w[\sigma']/x][\sigma']) 
       \leq 
       \gamma \cdot \Gamma
       $$
       So by our triangle inequality of the syntactic distance between terms:
       $$
-      e~[w[\sigma]/x]~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta}
-      e~[w[\sigma']/x]~\sigma'
+      M~[w[\sigma]/x]~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta}
+      M'~[w[\sigma']/x]~\sigma'
       $$
 
       and therefore
       $$
-      (\lambda x . e)~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} (\lambda x . e)~w~\sigma'
+      (\lambda x . M)~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} (\lambda x . M')~w~\sigma'
       $$
 
       To complete the proof case, it suffices to prove 
-      $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
+      $$\alpha \cdot (\Gamma + \Theta) \geq \alpha \cdot \Gamma + \alpha \cdot \Theta$$
 
       which holds by construction (via our substitution decomposition lemma).
     \item[Case $M_q~e$ (let-bind).] 
@@ -402,11 +416,12 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case (let).] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          By symmetry, it suffices to only prove one side. Follows by
-          application of our inductive hypothesis and some stepping.
+          We apply Lemma~\ref{thm:ctx-stepping}. By symmetry, it suffices to
+          only prove one side. Follows by application of our inductive
+          hypothesis and some stepping.
         \item[\underline{Property 2.}]
           We need to show that for all substitutions $\sigma \sim_{\alpha} \sigma' :
           s \cdot \Gamma + \Theta$:
@@ -438,33 +453,41 @@ The below lemma is useful towards proving metric preservation:
 
     \item[Case factor.] 
       By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for 
-      $\mathbf{factor}~((v_1, v_2), (v_3, v_4))$. 
+      $\mathbf{factor}~((v_1, v_2), (v_3, v_4))$, 
+      $\mathbf{factor}~((v'_1, v'_2), (v'_3, v'_4))$. 
       Unfolding our inductive hypothesis, we have that for substitutions
       $\sigma \sim_{\gamma} \sigma' : \Gamma$, that 
-      $$\textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma 
+      $$
+      \textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma 
       \sim_{\gamma \cdot \Gamma} 
-      \textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma' : (M_q~\tau_0) \times (M_r~\tau_1)$$
+      \textbf{factor} \ ((v'_1, v'_2), (v'_3, v'_4))~\sigma' 
+      : (M_q~\tau_0) \times (M_r~\tau_1)
+      $$
       Unfolding, we get:
       $$
       \textbf{factor} \ ((v_1~\sigma, v_2~\sigma), (v_3~\sigma, v_4~\sigma)) 
       \sim_{\gamma \cdot \Gamma} 
-      \textbf{factor} \ ((v_1~\sigma', v_2~\sigma'), (v_3~\sigma', v_4~\sigma')) : (M_q~\tau_0) \times (M_r~\tau_1)
+      \textbf{factor} \ ((v'_1~\sigma', v'_2~\sigma'), (v'_3~\sigma', v'_4~\sigma')) 
+      : (M_q~\tau_0) \times (M_r~\tau_1)
       $$
       So by stepping (and reassociating) we can see that the following logical
       relation holds as distances between neighborhood monads are measured in
       terms of the first components:
       $$
-      ((v_1~\sigma, v_3~\sigma), (v_2~\sigma, v_4~\sigma)) \sim_{\gamma \cdot \Gamma} ((v_1~\sigma', v_3~\sigma'),
-      (v_2~\sigma', v_4~\sigma')) : M_{max(r,q)}(\tau_0 \times \tau_1)
+      ((v_1~\sigma, v_3~\sigma), (v_2~\sigma, v_4~\sigma)) 
+      \sim_{\gamma \cdot \Gamma} 
+      ((v'_1~\sigma', v'_3~\sigma'), (v'_2~\sigma', v'_4~\sigma')) 
+      : M_{max(r,q)}(\tau_0 \times \tau_1)
       $$
 
     \item[Case rnd.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          Holds under the assumption the constant langauge parameter $u$ has the
-          required properties (see Definition~\ref{def:numfuzz-interface},
-          property a) and application of our inductive hypothesis.
+          We apply Lemma~\ref{thm:ctx-stepping}. The case holds under the
+          assumption the constant langauge parameter $u$ has the required
+          properties (see Definition~\ref{def:numfuzz-interface}, property a)
+          and application of our inductive hypothesis.
         \item[\underline{Property 2.}]
           Since distance is measured for the neighborhood monad on the first
           component, which in our case is the ideal (not rounded) component (see
@@ -473,10 +496,11 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case ret.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          Holds trivially by application of the inductive hypothesis.
+          We apply Lemma~\ref{thm:ctx-stepping}. Holds trivially by application
+          of the inductive hypothesis.
         \item[\underline{Property 2.}]
           Since distance is measured for the neighborhood monad on the first
           component, which in our case is the ideal (not rounded) component (see
@@ -493,7 +517,7 @@ The below lemma is useful towards proving metric preservation:
       hypothesis.
 
     \item[Case $\times$ I.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
           Holds by application of the inductive hypothesis and unfolding of the
@@ -505,35 +529,36 @@ The below lemma is useful towards proving metric preservation:
           $$(e, f)~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (e, f)~\sigma'$$
 
           By Lemma~\ref{thm:sub-decomp}, we know that there exists substitutions
-          $\sigma_{\Gamma} \sim_{\gamma} \sigma'_{\Gamma} : \Gamma$
+          $\sigma_{\Gamma} \sim_{\alpha} \sigma'_{\Gamma} : \Gamma$
           and
-          $\sigma_{\Theta} \sim_{\theta} \sigma'_{\Theta} : \Theta$.
+          $\sigma_{\Theta} \sim_{\alpha} \sigma'_{\Theta} : \Theta$.
           So by definition unfolding we have that:
           $$
           (v~\sigma_{\Gamma}, w~\sigma_{\Theta}) 
-            \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
+            \sim_{(\alpha \cdot \Gamma + \alpha \cdot \Theta)} 
           (v~\sigma'_{\Gamma}, w~\sigma'_{\Theta})
           : \tau_0 \times \tau_1
           $$
           so therefore by an analysis of free variables and subsitution
           $$
           (v, w)~\sigma 
-            \sim_{(\gamma \cdot \Gamma + \theta \cdot \Theta)} 
+            \sim_{(\alpha \cdot \Gamma + \alpha \cdot \Theta)} 
           (v, w)~\sigma'
           : \tau_0 \times \tau_1
           $$
 
           To complete the proof case, it suffices to prove:
-          $$\alpha \cdot (\Gamma + \Theta) \geq \gamma \cdot \Gamma + \theta \cdot \Theta$$
+          $$\alpha \cdot (\Gamma + \Theta) \geq \alpha \cdot \Gamma + \alpha \cdot \Theta$$
 
           which holds by construction (via our substitution decomposition lemma).
       \end{description}
 
     \item[Case $\times$ E.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          Holds by application of the inductive hypothesis and stepping once.
+          We apply Lemma~\ref{thm:ctx-stepping}. The case holds by application
+          of the inductive hypothesis and stepping once.
         \item[\underline{Property 2.}]
           It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
           if $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma' : \tau_1 \times \tau_2$
@@ -545,10 +570,11 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case $\otimes$ I.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          Holds by application of the inductive hypothesis.
+          We apply Lemma~\ref{thm:ctx-stepping}.
+          The case holds by application of the inductive hypothesis.
         \item[\underline{Property 2.}]
           It suffices to show that for all 
           $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$:
@@ -571,9 +597,10 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case $\otimes$ E.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}.
           We again only need to prove one side due to symmetry. Let our bound
           expression be some value $w$. By our inductive hypothesis $w = (v_0,
           v_1)$ for some $v_0$ and $v_1$. Stepping and applying our inductive
@@ -585,9 +612,10 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case $+$ I.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}.
           Holds by application of the inductive hypothesis.
         \item[\underline{Property 2.}]
           It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
@@ -601,16 +629,59 @@ The below lemma is useful towards proving metric preservation:
       \end{description}
 
     \item[Case $+$ E.] 
-      We apply Lemma~\ref{thm:ctx-stepping} and prove each property separately.
+      We prove each property separately.
       \begin{description}
         \item[\underline{Property 1.}]
-          We again only need to prove one side due to symmetry. Let our bound
-          expression be some value $\textbf{in}_i ~ v$. Stepping and applying
-          our inductive hypothesis finishes this case.
+          We apply Lemma~\ref{thm:ctx-stepping}. We again only need to prove one
+          side due to symmetry. Let our bound expression be some value
+          $\textbf{in}_i ~ v$. Stepping and applying our inductive hypothesis
+          finishes this case.
         \item[\underline{Property 2.}]
-          Let our bound expression be some value $\textbf{in}_i ~ v$. Case on
-          $i$. This remainder of this case mirrors the proof for
-          \textbf{\underline{Property 2}} of the $\textbf{let}$ case.
+          We wish to show that for all 
+          $\sigma \sim_{\alpha} \sigma': s \cdot \Gamma + \Theta$ 
+          that:
+          $$
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)~\sigma
+          \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)~\sigma'
+          : \tau
+          $$
+          By Lemma~\ref{thm:sub-decomp} we have substitutions
+          $$
+          \sigma_{\Gamma} \sim_{\alpha} \sigma'_{\Gamma} : \Gamma
+          $$
+          $$
+          \sigma_{\Theta} \sim_{\alpha} \sigma'_{\Theta} : \Theta
+          $$
+          that we can plug into our inductive hypothesis. Plugging in, we
+          know that: $e~\sigma \mapsto \mathbf{in}_i~v$ 
+          and $e~\sigma' \mapsto \mathbf{in}_j~v'$ where
+          $\mathcal{SD}(\mathbf{in}_i~v, \mathbf{in}_j~v') 
+          \leq \gamma \cdot \Gamma$.
+          We now case over the following two scenarios:
+          \begin{description}
+            \item[Subcase $i = j$.] This subcase mirrors the proof for
+              \textbf{\underline{Property 2}} of the $\textbf{let}$ case.
+            \item[Subcase $i \not= j$.] In this case, we have:
+              $\mathcal{SD}(\mathbf{in}_i~v, \mathbf{in}_j~v') = \infty \leq
+              \alpha \cdot \Gamma$. Stepping and applying the inductive
+              hypothesis, we obtain:
+              $$
+              f_i [v/x]\sigma 
+              \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+              f_j [v'/x]\sigma'
+              : \tau
+              $$
+              Since $s$ is non-zero, by applying our inductive hypothesis we
+              know that $f_i$ and $f_j$ are non-zero sensitive in $x$ and since
+              positive $s \cdot \infty = \infty$, we know that $\alpha \cdot (s
+              \cdot \Gamma + \Theta) = \infty$. Therefore this subcase holds.
+              Note that it is essential in this case that $s$ is non-zero; If
+              $s$ is allowed to be zero, this would be a problem because $0
+              \cdot \infty = 0$.
+          \end{description}
+
+
       \end{description}
 
   \end{description}
