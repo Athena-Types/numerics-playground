@@ -1,0 +1,45 @@
+\section{Introduction}
+
+It is natural for ordinary users such as mathematicians and scientists to wish
+their computers operate over the reals. But this is impossible. We typically
+design languages that compute over the finitary floating-point number
+approximation.
+As language designers, we wish to assure the ordinary user that we have not
+scammed them: that the floating-point programming language semantics we have
+provided is close to what they desire. 
+To do this, we develop automated numerical analysis techniques that bound the
+maximum error introduced by floating-point computation.
+
+% cite Gappa, FPTaylor, Satire etc.
+
+A major challenge of the automated numerical analysis literature is scalability.
+In particular, many approaches rely on global optimization, % cite Satire
+rewrite saturation, % cite Gappa
+or SMT-based methods % find citation
+that frequently time-out on large codebases. 
+% explain a bit more about why these don't scale
+
+Recent work has applied typed-based analysis approaches to both forwards error
+analysis, such as Numerical Fuzz, and backwards numerical error analysis, such
+as in Bean. % cite NumFuzz and Bean
+In particular, Numerical Fuzz uses a graded effect and co-effect system to
+perform a forwards error analysis and is able to outperform many other
+state-of-the-art tools on existing benchmarks.
+% more about how NumFuzz works
+
+However, Numerical Fuzz is not capable of handling negative numbers and
+subtraction, which significantly limits its applicability.
+There are significant foundational problems with providing a simultaneously
+\textit{compositional} and \textit{scalable} analyis for forwards numerical
+error in the presence of subtraction. By \textit{compositional} we mean that
+the analysis need not be global. For this we can only rely on a relative notion
+of error. And by \textit{scalable} we mean that the analysis remains relatively
+tight as the program size balloons.
+
+The problem with providing a compositional and scalable analysis is due to
+\textit{catastrophic cancellation}: the phenomenon where two large nearby
+numbers with small relative error can be subtracted to produce a small number
+with arbitrarily high relative error. 
+
+
+% contributions
