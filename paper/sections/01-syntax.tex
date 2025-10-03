@@ -2,21 +2,28 @@
 
 \begin{figure}[tbp]
   \begin{alignat*}{3}
+         &\text{Bounds } b, b_0, b_1 &::=~ &\epsilon 
+         \mid k \in \textit{num}
+         \mid b_0 + b_1 
+         \mid b_0 \cdot b_1 \\
          &\text{Types } \tau, \tau_0, \tau_1 &::=~ &\mathbf{unit}
-         \mid \num
+         \mid \num_{i}
          \mid \tau_0 \times \tau_1
          \mid \tau_0 \otimes \tau_1
          \mid \tau_0 + \tau_1
          \mid \tau_0 \multimap \tau_1
          \mid {\bang{s} \tau}
          \mid {M_u \tau}
+         \mid (b_0, b_1)
+         \mid \forall \epsilon . \tau
          \\
          &\text{Values } v, w \ &::=~ &\langle \rangle
          \mid k \in R
          \mid \langle x,y \rangle 
          \mid (x, y)
          \mid \tin_i \ x
-         \mid \lambda x.~e \\
+         \mid \lambda x.~e
+         \mid \Lambda \epsilon . e \\
          % \mid \mathbf{op}(x) \\
          % & & & \mid [v]
          % \mid\rnd v
@@ -26,6 +33,7 @@
          \\
          &\text{Terms } e, f, g &::=~ &v
          \mid x
+         \mid \epsilon
          \mid \mathbf{op}(e)
          \mid e~f
          \mid {\pi}_i\ e
@@ -69,7 +77,9 @@
          \mid \letcobind x = C \ \tin \ f \\
   \end{alignat*}
   \caption{
-    Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$. 
+    Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$.
+    $\textit{num}$ is a parameter in the programming language representing the
+    set of numbers the language computes over.
   }
   \label{fig:syntax}
 \end{figure}

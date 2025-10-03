@@ -1,4 +1,14 @@
 \section{Static Semantics}
+We define an interpretation function $interp(b)$ evaluating bounds to points in
+$\textit{num}$. It is only defined over closed types.
+
+\begin{equation}
+  \begin{aligned}[c]
+    interp(k \in \textit{num}) &\triangleq k \\
+    interp(b_0 + b_1) &\triangleq interp(b_0) + interp(b_1) \\
+    interp(b_0 \cdot b_1) &\triangleq interp(b_0) \cdot interp(b_1) \\
+  \end{aligned}
+\end{equation}
 
 \begin{figure}
 %% ROW1
@@ -128,10 +138,14 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
+
+\vskip 1em
+
 %% const
-\AXC{$k \in R$}
+\AXC{$k \in \textit{num}$}
+\AXC{$k \in [interp(b_0), interp(b_1)]$}
 \RightLabel{(Const)}
-\UIC{$\Gamma \vdash k : \num$}
+\BIC{$\Gamma \vdash k : \num_{(b_0, b_1)}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -188,7 +202,7 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \vskip 1em
 
 
-%%% ROW 8
+%%% ROW 9
 
 
 % factor
@@ -197,6 +211,18 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %\AXC{$s = max(r,q)$}
 \RightLabel{(Factor)}
 \UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$\Gamma, \epsilon : i \vdash e : \tau$}
+\RightLabel{($\forall$-I)}
+\UIC{$\Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$\Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\RightLabel{($\forall$-E)}
+\UIC{$\Gamma \vdash e : \tau[i/\epsilon]$}
 \bottomAlignProof
 \DisplayProof
 
