@@ -10,15 +10,16 @@ Towards this end, we develop automated numerical analyses to bound the error
 introduced by our floating-point approximations.
 
 A major challenge in the automated numerical analysis literature is scalability.
-Many existing approaches rely on global optimization \cite{fptaylor} \cite{satire},
-rewrite saturation \cite{gappa}, or SMT-based methods \cite{rosa}. 
-However, as programs scale, these analysis approaches frequently time-out.
-Recent work has applied typed-based analysis approaches to both forwards and
-backwards error analysis, such as Numerical Fuzz \cite{numfuzz} and Bean \cite{bean}.
-The advantage of type-based methods is that they are inherently compositional
-and scalable: all of the information necessary to perform an error analysis on a
-function is contained within the function type --- no global optimization,
-rewrite saturation, or bit-blasting is necessary.
+Many existing approaches rely on global optimization \cite{fptaylor}
+\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
+\cite{rosa}. However, as programs scale, these analysis approaches frequently
+time-out. Recent work has applied typed-based analysis approaches to both
+forwards and backwards error analysis, such as Numerical Fuzz \cite{numfuzz} and
+Bean \cite{bean}. The advantage of type-based methods is that they are
+inherently compositional and scalable: all of the information necessary to
+perform an error analysis on a function is contained within the function type.
+There is no need to perform global optimization, run an algorithm to
+convergence, saturate rewrites, or bit-blast.
 
 However, prior type-based work for forwards error analysis is not capable of
 handling negative numbers and subtraction. The problem is essentially:
