@@ -27,19 +27,38 @@ perform a forwards error analysis and is able to outperform many other
 state-of-the-art tools on existing benchmarks.
 % more about how NumFuzz works
 
-However, Numerical Fuzz is not capable of handling negative numbers and
-subtraction, which significantly limits its applicability.
-There are significant foundational problems with providing a simultaneously
-\textit{compositional} and \textit{scalable} analyis for forwards numerical
-error in the presence of subtraction. By \textit{compositional} we mean that
-the analysis need not be global. For this we can only rely on a relative notion
-of error. And by \textit{scalable} we mean that the analysis remains relatively
-tight as the program size balloons.
+However, Numerical Fuzz does not handle negative numbers and subtraction, which
+significantly limits its applicability. There are significant foundational
+problems with providing a simultaneously \textit{compositional} and
+\textit{scalable} analysis for forwards numerical error in the presence of
+subtraction. By \textit{compositional} we mean that the analysis need not be
+global. For this we can only rely on a relative notion of error. And by
+\textit{scalable} we mean that the analysis remains relatively tight as the
+program size balloons.
 
 The problem with providing a compositional and scalable analysis is due to
 \textit{catastrophic cancellation}: the phenomenon where two large nearby
 numbers with small relative error can be subtracted to produce a small number
-with arbitrarily high relative error. 
+with arbitrarily high relative error. Relative notions of error are not
+well-behaved in the presence of subtraction and negative numbers. 
 
+% more build-up to the contributions, talk about a posteori bounds
 
-% contributions
+\subsection{Contributions}
+
+Our contributions are as follows:
+\begin{itemize}
+  \item To side-step the problem of catastrophic cancellation, we develop a
+    type-based approach to provide \textit{a posteriori} forwards error bounds
+    in the presence of subtraction and negative numbers. 
+
+  \item We discover that it is impossible to share error terms or sensitivities
+    in prior type-based work. We address this limitation by introducing a
+    previously-untypable \textbf{factor : M_q \tau_0 M_r \tau_1 \multimap
+    M_{max(q, r)} (\tau_0 \times \tau_1)} primitive that enables error terms and
+    sensitivities to be shared. This allows for tighter and more scalable error
+    bounds.
+
+  \item We extend Numerical Fuzz to handle expressions in more places, thereby
+    allowing more programs to be typed.
+\end{itemize}
