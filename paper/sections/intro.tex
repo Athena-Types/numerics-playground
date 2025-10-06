@@ -1,27 +1,28 @@
 \section{Introduction}
 
-It is natural for ordinary users such as mathematicians and scientists to wish
-their computers operate over the reals. But this is impossible. We typically
-design languages that compute over the finitary floating-point number
+It is natural for ordinary programmers such as mathematicians and scientists to
+wish their computers operate over the reals. But this is impossible. 
+Programming languages typically compute over the finitary floating-point number
 approximation.
 As language designers, we wish to assure the ordinary user that we have not
 scammed them: that the floating-point programming language semantics we have
 provided is close to what they desire. 
-To do this, we develop automated numerical analysis techniques that bound the
-maximum error introduced by floating-point computation.
+To do this, we wish to develop automated numerical analysis techniques that
+bound the maximum error introduced by floating-point computation.
 
 % cite Gappa, FPTaylor, Satire etc.
 
-A major challenge of the automated numerical analysis literature is scalability.
-In particular, many approaches rely on global optimization, % cite Satire
-rewrite saturation, % cite Gappa
-or SMT-based methods % find citation
+A major challenge in the automated numerical analysis literature is scalability.
+In particular, many approaches rely on global optimization \cite{fptaylor}
+\cite{satire}, 
+rewrite saturation \cite{gappa},
+or SMT-based methods % find citation, bit-blasting stuff I think?
 that frequently time-out on large codebases. 
 % explain a bit more about why these don't scale
 
 Recent work has applied typed-based analysis approaches to both forwards error
 analysis, such as Numerical Fuzz, and backwards numerical error analysis, such
-as in Bean. % cite NumFuzz and Bean
+as in Bean. \cite{numfuzz} \cite{bean}
 In particular, Numerical Fuzz uses a graded effect and co-effect system to
 perform a forwards error analysis and is able to outperform many other
 state-of-the-art tools on existing benchmarks.
@@ -54,8 +55,10 @@ Our contributions are as follows:
 
   \item We discover that it is impossible to share error terms or sensitivities
     in prior type-based work. We address this limitation by introducing a
-    previously-untypable \textbf{factor : M_q \tau_0 M_r \tau_1 \multimap
-    M_{max(q, r)} (\tau_0 \times \tau_1)} primitive that enables error terms and
+    previously-untypable 
+    $\textbf{factor} : M_q \tau_0 M_r \tau_1 \multimap M_{max(q, r)} (\tau_0
+    \times \tau_1)$
+    primitive that enables error terms and
     sensitivities to be shared. This allows for tighter and more scalable error
     bounds.
 
