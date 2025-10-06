@@ -1,72 +1,72 @@
 \section{Introduction}
-
 It is natural for ordinary programmers such as mathematicians and scientists to
-wish their computers operate over the reals. But this is impossible. 
-Programming languages typically compute over the finitary floating-point number
-approximation.
-As language designers, we wish to assure the ordinary user that we have not
-scammed them: that the floating-point programming language semantics we have
-provided is close to what they desire. 
-To do this, we wish to develop automated numerical analysis techniques that
-bound the maximum error introduced by floating-point computation.
-
-% cite Gappa, FPTaylor, Satire etc.
+wish their computers operate over the reals. 
+But this is impossible and programming languages typically compute over the
+finitary floating-point number approximation.
+As language designers, we wish to convince the ordinary programmer, who are
+largely not experts in numerical analysis, that we have not scammed them: that
+the floating-point programming language semantics we have provided is close to
+what they desire. 
+Towards this goal, we develop automated numerical analysis techniques that bound
+the maximum error introduced by floating-point computation.
 
 A major challenge in the automated numerical analysis literature is scalability.
-In particular, many approaches rely on global optimization \cite{fptaylor}
-\cite{satire}, 
-rewrite saturation \cite{gappa},
-or SMT-based methods % find citation, bit-blasting stuff I think?
-that frequently time-out on large codebases. 
-% explain a bit more about why these don't scale
+Many existing approaches rely on global optimization \cite{fptaylor} \cite{satire},
+rewrite saturation \cite{gappa}, or SMT-based methods \cite{rosa}. 
+However, as programs scale, these analysis approaches frequently time-out.
+Recent work has applied typed-based analysis approaches to both forwards and
+backwards error analysis, such as Numerical Fuzz \cite{numfuzz} and Bean \cite{bean}.
+The advantage of type-based methods is that they are inherently compositional
+and scalable: all of the information necessary to perform an error analysis on a
+function is contained within the function type --- no global optimization,
+rewrite saturation, or bit-blasting is necessary.
 
-Recent work has applied typed-based analysis approaches to both forwards error
-analysis, such as Numerical Fuzz, and backwards numerical error analysis, such
-as in Bean. \cite{numfuzz} \cite{bean}
-In particular, Numerical Fuzz uses a graded effect and co-effect system to
-perform a forwards error analysis and is able to outperform many other
-state-of-the-art tools on existing benchmarks.
-% more about how NumFuzz works
+However, prior type-based work for forwards error analysis is not capable of
+handling negative numbers and subtraction. The problem is essentially:
+compositional type-based error bounds seem to require relative notions of error;
+however, relative notions of error are not well-behaved in the presence of
+subtraction and negative numbers. This phenomenon is known as
+\textit{catastrophic cancellation}: two large nearby numbers with small relative
+error can be subtracted to produce a small number with arbitrarily high relative
+error. 
 
-However, Numerical Fuzz does not handle negative numbers and subtraction, which
-significantly limits its applicability. There are significant foundational
-problems with providing a simultaneously \textit{compositional} and
-\textit{scalable} analysis for forwards numerical error in the presence of
-subtraction. By \textit{compositional} we mean that the analysis need not be
-global. For this we can only rely on a relative notion of error. And by
-\textit{scalable} we mean that the analysis remains relatively tight as the
-program size balloons.
-
-The problem with providing a compositional and scalable analysis is due to
-\textit{catastrophic cancellation}: the phenomenon where two large nearby
-numbers with small relative error can be subtracted to produce a small number
-with arbitrarily high relative error. Relative notions of error are not
-well-behaved in the presence of subtraction and negative numbers. 
-
-% more build-up to the contributions, talk about a posteori bounds
-
-\subsection{Contributions}
-
-Our contributions are as follows:
+In this paper, we are interested in addressing the above limitations by
+providing a type-based forwards error analysis method that can handle broader
+classes of programs and provide tigher error bounds. 
+Concretely, our contributions are as follows:
 \begin{itemize}
   \item We develop the first type-based approach to forwards error analysis that
     enables both \textit{a priori} and \textit{a posterori} compositional error
     bounds in the presence of subtraction and negative numbers. We prove that
     our approach, which can handle strictly more programs, leads to forwards
-    error bounds no looser than prior type-based work.
+    error bounds no looser than prior type-based work for forwards analysis.
 
-  \item We extend Numerical Fuzz by introducing a
-    previously-untypable 
-    $\textbf{factor} : M_q \tau_0 M_r \tau_1 \multimap M_{max(q, r)} (\tau_0
-    \times \tau_1)$
-    primitive that enables error terms and sensitivities to be shared, allowing
-    for tighter error bounds. We also extend Numerical Fuzz to enable
+  \item We extend Numerical Fuzz by introducing a previously-untypable primitive
+    that enables the error and sensitivities in rounded terms to be shared,
+    allowing for tighter error bounds. We also extend Numerical Fuzz to enable
     expressions in more places. We prove the soundness of these extensions to
     Numerical Fuzz.
 
-  \item We provide an implementation of our type-based approach for forwards
-    error analysis. We evaluate our implementation against FPTaylor and Gappa on
-    a suite of benchmarks translated into our core language and demonstrate that
-    we obtain competitive error bounds with often faster performance.
+  \item We implement our type-based approach for forwards error analysis. We
+    evaluate our implementation against FPTaylor and Gappa on a suite of
+    benchmarks translated into our core language and demonstrate that we obtain
+    competitive error bounds with often faster performance.
     % todo: put in hard numbers
 \end{itemize}
+
+% Numerical Fuzz in particular uses a graded effect and co-effect type system to
+% track both the function sensitivity and round-off error of each function.
+% By simultaneously tracking both pieces of information, Numerical Fuzz is able to
+% compositionally reason about error.
+% However, Numerical Fuzz does not handle negative numbers and subtraction, which
+% significantly limits its applicability. 
+
+% There are significant foundational
+% problems with providing a simultaneously \textit{compositional} and
+% \textit{scalable} analysis for forwards numerical error in the presence of
+% subtraction. By \textit{compositional} we mean that the analysis need not be
+% global. For this we can only rely on a relative notion of error. And by
+% \textit{scalable} we mean that the analysis remains relatively tight as the
+% program size balloons.
+
+% more build-up to the contributions, talk about a posteori bounds

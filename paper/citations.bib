@@ -81,3 +81,22 @@
   numpages = {25},
   keywords = {Backward error, Floating point, Linear type systems}
 }
+@article{rosa,
+author = {Darulova, Eva and Kuncak, Viktor},
+title = {Towards a Compiler for Reals},
+year = {2017},
+issue_date = {June 2017},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {39},
+number = {2},
+issn = {0164-0925},
+url = {https://doi.org/10.1145/3014426},
+doi = {10.1145/3014426},
+abstract = {Numerical software, common in scientific computing or embedded systems, inevitably uses a finite-precision approximation of the real arithmetic in which most algorithms are designed. In many applications, the roundoff errors introduced by finite-precision arithmetic are not the only source of inaccuracy, and measurement and other input errors further increase the uncertainty of the computed results. Adequate tools are needed to help users select suitable data types and evaluate the provided accuracy, especially for safety-critical applications.We present a source-to-source compiler called Rosa that takes as input a real-valued program with error specifications and synthesizes code over an appropriate floating-point or fixed-point data type. The main challenge of such a compiler is a fully automated, sound, and yet accurate-enough numerical error estimation. We introduce a unified technique for bounding roundoff errors from floating-point and fixed-point arithmetic of various precisions. The technique can handle nonlinear arithmetic, determine closed-form symbolic invariants for unbounded loops, and quantify the effects of discontinuities on numerical errors. We evaluate Rosa on a number of benchmarks from scientific computing and embedded systems and, comparing it to the state of the art in automated error estimation, show that it presents an interesting tradeoff between accuracy and performance.},
+journal = {ACM Trans. Program. Lang. Syst.},
+month = mar,
+articleno = {8},
+numpages = {28},
+keywords = {Roundoff error, compilation, discontinuity error, fixed-point arithmetic, floating-point arithmetic, loops, sensitivity analysis, verification}
+}
