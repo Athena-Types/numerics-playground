@@ -55,6 +55,13 @@ capture the core information needed to prove our error soundness theorem.
     \mathcal{VR_{\mathbf{M_q \tau}}} &\triangleq 
       \{ (v, w) \ | \ v, w \in \mathcal{R}_{\tau} \text{ and } \mathcal{SDV}_{\tau}(v, w)
       \leq q \} \\
+    \mathcal{VR}_{(b_0, b_1)} &\triangleq \{ \epsilon \ | \ \epsilon \in
+    \textit{num} \text{ and } interp(b_0) \leq \epsilon \leq interp(b_1) \} \\
+    \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
+      \{ (c, v) \ | \
+        \exists b_0, b_1 \in \textit{num} \text{ s.t. } 
+        \ c \in \mathcal{VR}_{(b_0, b_1)} \text{ and } 
+        v \in \mathcal{R}_{\tau[c / \epsilon]}\} \\
   \end{aligned}
   \end{equation}
 \end{definition}
