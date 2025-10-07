@@ -53,20 +53,3 @@ Concretely, our contributions are as follows:
     competitive error bounds with often faster performance.
     % todo: put in hard numbers
 \end{itemize}
-
-% Numerical Fuzz in particular uses a graded effect and co-effect type system to
-% track both the function sensitivity and round-off error of each function.
-% By simultaneously tracking both pieces of information, Numerical Fuzz is able to
-% compositionally reason about error.
-% However, Numerical Fuzz does not handle negative numbers and subtraction, which
-% significantly limits its applicability. 
-
-% There are significant foundational
-% problems with providing a simultaneously \textit{compositional} and
-% \textit{scalable} analysis for forwards numerical error in the presence of
-% subtraction. By \textit{compositional} we mean that the analysis need not be
-% global. For this we can only rely on a relative notion of error. And by
-% \textit{scalable} we mean that the analysis remains relatively tight as the
-% program size balloons.
-
-% more build-up to the contributions, talk about a posteori bounds
