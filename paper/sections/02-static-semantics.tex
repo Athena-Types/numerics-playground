@@ -214,25 +214,29 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 \vskip 1em
 
-\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$}
-% \AXC{$\Delta \vdash i : \textbf{interval}$}
+\AXC{$\Delta, \epsilon : \textbf{interval} \ | \ \Gamma \vdash e : \tau$}
+\AXC{$\epsilon \not\in FTV(\Gamma)$}
 \RightLabel{($\forall$-I)}
-\UIC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\BIC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+
+\vskip 1em
+
 \AXC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
 \AXC{$\Delta \vdash i : \textbf{interval}$}
 \RightLabel{($\forall$-E)}
-\BIC{$\Delta \ | \ \Gamma \vdash e : \tau[i/\epsilon]$}
+\BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
 \bottomAlignProof
 \DisplayProof
+
+\vskip 1em
 
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
     and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
     Definition~\ref{def:numfuzz-interface} for details on picking an adequate
-    constant).}
+    constant). $FTV(\Gamma)$ refers to all the free type variables in $\Gamma$.}
     \label{fig:typing_rules}
 \end{figure}
 
