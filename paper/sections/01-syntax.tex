@@ -2,10 +2,9 @@
 
 \begin{figure}[tbp]
   \begin{alignat*}{3}
-         &\text{Bounds } b, b_0, b_1 &::=~ &\epsilon 
+         &\text{Intervals } i, i_0, i_1 &::=~ &\epsilon
          \mid k \in \textit{num}
-         \mid b_0 + b_1 
-         \mid b_0 \cdot b_1 \\
+         \mid \mathbf{op}(i_0, i_1) \\
          &\text{Types } \tau, \tau_0, \tau_1 &::=~ &\mathbf{unit}
          \mid \num_{i}
          \mid \tau_0 \times \tau_1
@@ -14,7 +13,7 @@
          \mid \tau_0 \multimap \tau_1
          \mid {\bang{s} \tau}
          \mid {M_u \tau}
-         \mid (b_0, b_1)
+         \mid \textbf{interval}
          \mid \forall \epsilon . \tau
          \\
          &\text{Values } v, w \ &::=~ &\langle \rangle
@@ -33,9 +32,10 @@
          \\
          &\text{Terms } e, f, g &::=~ &v
          \mid x
-         \mid \epsilon
+         % \mid (b_0, b_1)
          \mid \mathbf{op}(e)
          \mid e~f
+         \mid e~\{i\}
          \mid {\pi}_i\ e
          \mid \langle e,f \rangle 
          \mid (e, f) \\

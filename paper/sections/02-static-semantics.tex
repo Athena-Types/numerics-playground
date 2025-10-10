@@ -1,14 +1,15 @@
 \section{Static Semantics}
-We define an interpretation function $interp(b)$ evaluating bounds to points in
-$\textit{num}$. It is only defined over closed types.
-
-\begin{equation}
-  \begin{aligned}[c]
-    interp(k \in \textit{num}) &\triangleq k \\
-    interp(b_0 + b_1) &\triangleq interp(b_0) + interp(b_1) \\
-    interp(b_0 \cdot b_1) &\triangleq interp(b_0) \cdot interp(b_1) \\
-  \end{aligned}
-\end{equation}
+For the remainder of the paper, we only care about closed types.
+% We define an interpretation function $interp(b)$ evaluating bounds to points in
+% $\textit{num}$. 
+%
+% \begin{equation}
+%   \begin{aligned}[c]
+%     interp(k \in \textit{num}) &\triangleq k \\
+%     interp(b_0 + b_1) &\triangleq interp(b_0) + interp(b_1) \\
+%     interp(b_0 \cdot b_1) &\triangleq interp(b_0) \cdot interp(b_1) \\
+%   \end{aligned}
+% \end{equation}
 
 \begin{figure}
 %% ROW1
@@ -16,22 +17,23 @@ $\textit{num}$. It is only defined over closed types.
 %% var
 \AXC{$s \ge 1$}
 \RightLabel{(Var)}
-\UIC{$\Gamma, x:_s \tau, \Delta \vdash x : \tau$}
+\UIC{$\Delta \ | \ \Gamma, x:_s \tau, \Theta \vdash x : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% fun
-\AXC{$\Gamma, x:_1 \tau_0 \vdash e : \tau$}
+\AXC{$\Delta \ | \ \Gamma, x:_1 \tau_0 \vdash e : \tau$}
 \RightLabel{($\multimap$ I)}
-\UnaryInfC{$\Gamma \vdash \lambda x. e : \tau_0 \multimap \tau $}
+\UnaryInfC{$\Delta \ | \ \Gamma \vdash \lambda x. e : \tau_0 \multimap \tau $}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\vskip 1em
+
 %% app
-\AXC{$\Gamma \vdash e : \tau_0 \multimap \tau$}
-\AXC{$\Theta \vdash f : \tau_0 $}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 \multimap \tau$}
+\AXC{$\Delta_1 \ | \ \Theta \vdash f : \tau_0 $}
 \RightLabel{($\multimap$ E)}
-\BinaryInfC{$\Gamma + \Theta \vdash ef : \tau $}
+\BinaryInfC{$\Delta_0 + \Delta_1 \ | \ \Gamma + \Theta \vdash ef : \tau $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -41,55 +43,51 @@ $\textit{num}$. It is only defined over closed types.
 %% ROW2
 \AXC{}
 \RightLabel{(Unit)}
-\UIC{$\Gamma \vdash \langle \rangle : \mathbf{unit}$}
+\UIC{$\Delta \ | \ \Gamma \vdash \langle \rangle : \mathbf{unit}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% dep prod intro
-\AXC{$\Gamma \vdash e : \tau_0$}
-\AXC{$\Gamma \vdash f : \tau_1$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$}
+\AXC{$\Delta \ | \ \Gamma \vdash f : \tau_1$}
 \RightLabel{($\times$ I)}
-\BinaryInfC{$\Gamma \vdash \langle e, f \rangle: \tau_0 \times \tau_1$}
+\BinaryInfC{$\Delta \ | \ \Gamma \vdash \langle e, f \rangle: \tau_0 \times \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% dep prod elim
-\AXC{$\Gamma \vdash e : \tau_1 \times \tau_2$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_1 \times \tau_2$}
 \RightLabel{($\times$ E)}
-\UIC{$\Gamma \vdash {\pi}_i \ e : \tau_i$}
+\UIC{$\Delta \ | \ \Gamma \vdash {\pi}_i \ e : \tau_i$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 %%
 
 %% ind prod intro
-\AXC{$\Gamma \vdash e : \tau_0 $}
-\AXC{$\Theta \vdash f : \tau_1$}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 $}
+\AXC{$\Delta_1 \ | \ \Theta \vdash f : \tau_1$}
 \RightLabel{($\tensor$ I)}
-\BIC{$\Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.5em
-%% ind prod elim
-\AXC{$\Gamma \vdash e : \tau_0 \tensor \tau_1$ }
-\AXC{$\Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
-\RightLabel{($\tensor$ E)}
-\BIC{$s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
+\BIC{$\Delta_0 + \Delta_1 \ | \ \Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
-%%
 
-
-%% ROW 4
-
-%% ind sum intro
-\AXC{$\Gamma \vdash e : \tau_0$ }
-\RightLabel{($+$ $\text{I}_i$)}
-\UIC{$\Gamma \vdash \mathbf{in}_i \ e : \tau_0 + \tau_1$}
+%% ind prod elim
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 \tensor \tau_1$ }
+\AXC{$\Delta_1 \ | \ \Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
+\RightLabel{($\tensor$ E)}
+\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
+%% ind sum intro
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$ }
+\RightLabel{($+$ $\text{I}_i$)}
+\UIC{$\Delta \ | \ \Gamma \vdash \mathbf{in}_i \ e : \tau_0 + \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
 % %% ind sum intro
 % \AXC{$\Gamma \vdash e : \tau_1$ }
 % \RightLabel{($+$ $\text{I}_2$)}
@@ -98,10 +96,10 @@ $\textit{num}$. It is only defined over closed types.
 % \DisplayProof
 % \hskip 0.5em
 % box elim
-\AXC{$\Gamma \vdash e : {!_s \tau_0}$}
-\AXC{$\Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : {!_s \tau_0}$}
+\AXC{$\Delta_1 \ | \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
 \RightLabel{($!$ E)}
-\BIC{$t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
+\BIC{$\Delta_0 + \Delta_1 \ | \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -111,19 +109,19 @@ $\textit{num}$. It is only defined over closed types.
 %% ROW 5
 
 % sum elim
-\AXC{$\Gamma \vdash e : \tau_0+\tau_1$}
-\AXC{$\Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
-$\Theta, x:_s \tau_1 \vdash f_2: \tau$}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0+\tau_1$}
+\AXC{$\Delta_1 \ | \ \Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
+$\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \RightLabel{($+$ E)}
 \AXC{$s > 0$}
-\TIC{$s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
+\TIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % box intro
-\AXC{$\Gamma \vdash e : \tau$ }
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$ }
 \RightLabel{($!$ I)}
-\UIC{$s * \Gamma \vdash [e] : {!_s \tau}$}
+\UIC{$\Delta \ | \ s * \Gamma \vdash [e] : {!_s \tau}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -131,10 +129,10 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %%% ROW 6
 
 % let 
-\AXC{$\Gamma \vdash e :  \tau_0$}
-\AXC{$\Theta, x:_{s} \tau \vdash f : \tau$}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e :  \tau_0$}
+\AXC{$\Delta_1 \ | \ \Theta, x:_{s} \tau \vdash f : \tau$}
 \RightLabel{(Let)}
-\BIC{$s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
+\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -143,9 +141,9 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 %% const
 \AXC{$k \in \textit{num}$}
-\AXC{$k \in [interp(b_0), interp(b_1)]$}
+\AXC{$k \in interp(\Gamma, i)$}
 \RightLabel{(Const)}
-\BIC{$\Gamma \vdash k : \num_{(b_0, b_1)}$}
+\BIC{$\Delta \ | \ \Gamma \vdash k : \num_{b}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -154,24 +152,24 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %%% ROW 7
 
 %% subsumption
-\AXC{$\Gamma \vdash e :  M_q \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e :  M_q \tau$}
 \AXC{$r \ge q$}
 \RightLabel{(Subsumption)}
-\BIC{$\Gamma \vdash e :  M_{r} \tau$}
+\BIC{$\Delta \ | \ \Gamma \vdash e :  M_{r} \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% return
-\AXC{$\Gamma \vdash e : \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$}
 \RightLabel{(Ret)}
-\UIC{$\Gamma \vdash \ret e : M_0 \tau$}
+\UIC{$\Delta \ | \ \Gamma \vdash \ret e : M_0 \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% RND
-\AXC{$\Gamma \vdash e : \num$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \num$}
 \RightLabel{(Rnd)}
-\UIC{$\Gamma \vdash \rnd \ e : M_u \ \num$}
+\UIC{$\Delta \ | \ \Gamma \vdash \rnd \ e : M_u \ \num$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -181,10 +179,10 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 
 % let-bind
-\AXC{$\Gamma \vdash e : M_r \tau_0$}
-\AXC{$\Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : M_r \tau_0$}
+\AXC{$\Delta_1 \ | \ \Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
 \RightLabel{($M_u$ E)}
-\BIC{$s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
+\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
 \bottomAlignProof
 \DisplayProof
 
@@ -192,10 +190,10 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \vskip 1em
 
 % funs
-\AXC{$\Gamma \vdash e : \tau_0$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$}
 \AXC{$\{ \mathbf{op} :\tau_0 \lin \tau_1 \} \in \Sigma$}
 \RightLabel{(Op)}
-\BIC{$\Gamma \vdash \mathbf{op}(e) : \tau_1$}
+\BIC{$\Delta \ | \ \Gamma \vdash \mathbf{op}(e) : \tau_1$}
 \bottomAlignProof
 \DisplayProof
 
@@ -206,23 +204,27 @@ $\Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 
 % factor
-\AXC{$\Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
 %\AXC{$r + q \leq s$}
 %\AXC{$s = max(r,q)$}
 \RightLabel{(Factor)}
-\UIC{$\Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
+\UIC{$\Delta \ | \ \Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
-\AXC{$\Gamma, \epsilon : i \vdash e : \tau$}
+
+\vskip 1em
+
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$}
+% \AXC{$\Delta \vdash i : \textbf{interval}$}
 \RightLabel{($\forall$-I)}
-\UIC{$\Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\UIC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$\Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\AXC{$\Delta \vdash i : \textbf{interval}$}
 \RightLabel{($\forall$-E)}
-\UIC{$\Gamma \vdash e : \tau[i/\epsilon]$}
+\BIC{$\Delta \ | \ \Gamma \vdash e : \tau[i/\epsilon]$}
 \bottomAlignProof
 \DisplayProof
 
