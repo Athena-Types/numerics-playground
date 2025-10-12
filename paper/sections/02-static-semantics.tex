@@ -221,6 +221,19 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 \vskip 1em
 
+\AXC{$\Delta \vdash i_0 : \textbf{bnd}$}
+\AXC{$\Delta \vdash i_1 : \textbf{bnd}$}
+\RightLabel{($\textbf{bnd}$-\textbf{op})}
+\BIC{$\Delta \vdash \textbf{op}(i_0, i_1) : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{}
+\RightLabel{($\textbf{bnd-var}$)}
+\UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
+
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
     and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
