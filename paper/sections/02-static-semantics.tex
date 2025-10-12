@@ -117,13 +117,6 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \TIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
-% box intro
-\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$ }
-\RightLabel{($!$ I)}
-\UIC{$\Delta \ | \ s * \Gamma \vdash [e] : {!_s \tau}$}
-\bottomAlignProof
-\DisplayProof
 \vskip 1em
 
 %%% ROW 6
@@ -136,9 +129,6 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-
-\vskip 1em
-
 %% const
 \AXC{$k \in \textit{num}$}
 \AXC{$k \in interp(\Gamma, i)$}
@@ -163,6 +153,13 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \AXC{$\Delta \ | \ \Gamma \vdash e : \tau$}
 \RightLabel{(Ret)}
 \UIC{$\Delta \ | \ \Gamma \vdash \ret e : M_0 \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+% box intro
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$ }
+\RightLabel{($!$ I)}
+\UIC{$\Delta \ | \ s * \Gamma \vdash [e] : {!_s \tau}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -196,13 +193,7 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta \ | \ \Gamma \vdash \mathbf{op}(e) : \tau_1$}
 \bottomAlignProof
 \DisplayProof
-
-\vskip 1em
-
-
-%%% ROW 9
-
-
+\hskip 0.5em
 % factor
 \AXC{$\Delta \ | \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
 %\AXC{$r + q \leq s$}
@@ -214,17 +205,15 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 \vskip 1em
 
-\AXC{$\Delta, \epsilon : \textbf{interval} \ | \ \Gamma \vdash e : \tau$}
+\AXC{$\Delta, \epsilon : \textbf{bnd} \ | \ \Gamma \vdash e : \tau$}
 \AXC{$\epsilon \not\in FTV(\Gamma)$}
 \RightLabel{($\forall$-I)}
 \BIC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
 \bottomAlignProof
 \DisplayProof
-
-\vskip 1em
-
+\hskip 0.5em
 \AXC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
-\AXC{$\Delta \vdash i : \textbf{interval}$}
+\AXC{$\Delta \vdash i : \textbf{bnd}$}
 \RightLabel{($\forall$-E)}
 \BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
 \bottomAlignProof
