@@ -216,19 +216,23 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \AXC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
 \AXC{$\Delta \vdash i : \textbf{bnd}$}
 \RightLabel{($\forall$-E)}
-\BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
+\BIC{$\Delta \ | \ \Gamma \vdash e~\{b\} : \tau[b/\epsilon]$}
 \bottomAlignProof
 \DisplayProof
 
 \vskip 1em
 
-\AXC{$\Delta \vdash i_0 : \textbf{bnd}$}
-\AXC{$\Delta \vdash i_1 : \textbf{bnd}$}
+\AXC{$\Delta \vdash b_0 : \textbf{bnd}$}
+\AXC{$\ldots$}
+\AXC{$\Delta \vdash b_c : \textbf{bnd}$}
+\AXC{$\textbf{op}_c \in \Sigma_{\textbf{bnd}}$}
 \RightLabel{($\textbf{bnd}$-\textbf{op})}
-\BIC{$\Delta \vdash \textbf{op}(i_0, i_1) : \textbf{bnd}$}
+\QIC{$\Delta \vdash \textbf{op}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+
+\vskip 1em
+
 \AXC{}
 \RightLabel{($\textbf{bnd-var}$)}
 \UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
