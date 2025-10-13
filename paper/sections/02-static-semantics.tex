@@ -128,12 +128,13 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\vskip 1em
+
 %% const
-\AXC{$k \in \textit{num}$}
-\AXC{$k \in interp(\Gamma, i)$}
+\AXC{$k, k_0, k_1 \in \textit{num}$}
+\AXC{$k_0 \leq k \leq k_1$}
 \RightLabel{(Const)}
-\BIC{$\Delta \ | \ \Gamma \vdash k : \num_{b}$}
+\BIC{$\Delta \ | \ \Gamma \vdash k : \num_{(k_0, k_1)}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em

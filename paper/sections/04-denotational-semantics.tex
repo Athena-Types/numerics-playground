@@ -19,6 +19,7 @@
   \end{equation}
 \end{definition}
 
+Recall that we only care about closed types.
 Let $CV(\tau)$ be the closed values of type $\tau$ and $CE(\tau)$ be the closed
 expressions of type $\tau$. Then we can define a unary logical relation over types which
 capture the core information needed to prove our error soundness theorem.
@@ -26,7 +27,6 @@ capture the core information needed to prove our error soundness theorem.
 \begin{definition}[Logical relation]
   \begin{equation}
   \begin{aligned}[c]
-    % same from Ariel's paper
     \mathcal{R_{\tau}} &\triangleq 
       \{ e \ | \ e \in CE(\tau) \text{ and } \exists v
         \in CV(\tau) \text{ s.t. } e \mapsto^{*} v \text{ and } v \in \mathcal{VR_{\tau}} 
