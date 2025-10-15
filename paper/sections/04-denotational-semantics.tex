@@ -32,7 +32,11 @@ capture the core information needed to prove our error soundness theorem.
         \in CV(\tau) \text{ s.t. } e \mapsto^{*} v \text{ and } v \in \mathcal{VR_{\tau}} 
       \} \\
     \mathcal{VR_{\mathbf{unit}}} &\triangleq \{ \langle \rangle \} \\
-    \mathcal{VR_{\mathbf{num}}} &\triangleq \mathbb{R} \\
+    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq 
+      \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} 
+      \hspace{22em} \text{if } b \mapsto^* (k_0, k_1) \\
+    \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} &\triangleq 
+      \{ k \ | \ k \in \mathit{num} \text{ and } k_0 \leq k \leq k_1 \} \\
     \mathcal{VR_{\mathbf{\tau_0 \times \tau_1}}} &\triangleq 
       \{ \langle v, w \rangle \ | 
         \ v \in \mathcal{R}_{\tau_0} \text{ and } w \in \mathcal{R}_{\tau_1}
@@ -80,7 +84,7 @@ values as follows:
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \infty &\text{ otherwise } \\
     \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w =
       \langle \rangle \\
-    \mathcal{SDV_{\mathbf{num}}}(k_0, k_1) &\triangleq 
+    \mathcal{SDV}_{\mathbf{num_{b}}}(k_0, k_1) &\triangleq 
       d_\mathbb{R} &\text{ for } k_0, k_1 \in \mathbb{R} \\
     \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
       &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_0}(v_1, w_1))
