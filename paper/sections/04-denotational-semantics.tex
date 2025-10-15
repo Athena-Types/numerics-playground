@@ -55,13 +55,12 @@ capture the core information needed to prove our error soundness theorem.
     \mathcal{VR_{\mathbf{M_q \tau}}} &\triangleq 
       \{ (v, w) \ | \ v, w \in \mathcal{R}_{\tau} \text{ and } \mathcal{SDV}_{\tau}(v, w)
       \leq q \} \\
-    \mathcal{VR}_{(b_0, b_1)} &\triangleq \{ \epsilon \ | \ \epsilon \in
-    \textit{num} \text{ and } interp(b_0) \leq \epsilon \leq interp(b_1) \} \\
+    \mathcal{VR}_{\textbf{bnd}} &\triangleq \{ (k_0, k_1) \ | \ k_0 \leq k_1 \ \forall k_0, k_1 \in
+    \textit{ num } \} \\
     \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
-      \{ (c, v) \ | \
-        \exists b_0, b_1 \in \textit{num} \text{ s.t. } 
-        \ c \in \mathcal{VR}_{(b_0, b_1)} \text{ and } 
-        v \in \mathcal{R}_{\tau[c / \epsilon]}\} \\
+      \{ ((k_0, k_1), v) \ | \
+        \forall (k_0, k_1) \in \mathcal{VR}_{\textbf{bnd}} \text{ s.t. } 
+        v \in \mathcal{R}_{\tau[(k_0, k_1) / \epsilon]}\} \\
   \end{aligned}
   \end{equation}
 \end{definition}
@@ -79,7 +78,8 @@ values as follows:
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \mathcal{SDV}_{\tau}(v_0, v_1)
     &\text{ if } e_0 \mapsto^{*} v_0 \text{ and } e_1 \mapsto^{*} v_1 \\
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \infty &\text{ otherwise } \\
-    \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w = \langle \rangle \\
+    \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w =
+      \langle \rangle \\
     \mathcal{SDV_{\mathbf{num}}}(k_0, k_1) &\triangleq 
       d_\mathbb{R} &\text{ for } k_0, k_1 \in \mathbb{R} \\
     \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
@@ -100,6 +100,12 @@ values as follows:
     \\
     \mathcal{SDV}_{M_q~\tau}((v_0, v_1), (w_0, w_1)) 
       &\triangleq \mathcal{SDV}_{\tau}(v_0, w_0)
+    \\
+    \mathcal{SDV}_{\textbf{bnd}}((k_0, k_1), (k_0, k_1)) 
+      &\triangleq 0 
+    \\
+    \mathcal{SDV}_{\textbf{bnd}}((k_0, k_1), (k'_0, k'_1)) 
+    &\triangleq \infty &\text{ otherwise }
     \\
     \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
   \end{aligned}
