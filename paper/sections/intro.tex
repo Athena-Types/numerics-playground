@@ -51,14 +51,16 @@ Our approach centers around representing each possibly negative number, $r$, in
 our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
 $r = (a, b)$ and $r' = (a', b')$ to produce $r + r' = (a + a', b + b')$. When
 our semantics subtracts two numbers $r - r' = (a + b', b + a')$, our paired type
-represenation does not need to subtract. We use this representation combined
-with an intervals bounds analysis using type polymorphism that tracks the pairs
-to provide both $\textit{a priori}$ and $\textit{a posteori}$ error bounds.
-Importantly, the operational semantics of the programming language remains
-standard and unpaired. We additionally prove that our approach provides no
-looser error bounds than prior type-based approaches while covering many more
-programs, including those with subtraction. We defer the details of this
-approach to Section ?. % todo: fill in section with ref
+represenation only needs to add components; subtraction is represented
+implictly. We use this representation combined with an intervals bounds analysis
+using type polymorphism to track the pairs and provide both $\textit{a priori}$
+and $\textit{a posteori}$ error bounds. Importantly, the operational semantics
+of the programming language remains standard and unpaired. We additionally prove
+that our approach provides no looser error bounds than prior type-based
+approaches while covering many more programs, including those with subtraction
+and negative numbers.
+We defer the details of this approach to Section ?. 
+% todo: fill in section with ref
 
 We also address the above limitations by providing a scalable, type-based
 forwards error analysis that can handle broader classes of programs and, at the
