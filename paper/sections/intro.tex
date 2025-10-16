@@ -7,18 +7,19 @@ As language designers, we wish to convince the ordinary programmer, who are
 largely not experts in numerical analysis, that the floating-point semantics we
 have provided is ``close enough" to what they desire.
 Towards this end, we develop automated numerical analyses to bound the error
-introduced by our floating-point approximations.
+introduced by our floating-point approximations. We wish for our analyses to be
+efficient, as automatic as possible, and precise.
 
-A major challenge in the automated numerical analysis literature is scalability.
-Many existing approaches rely on global optimization \cite{fptaylor}
-\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
-\cite{rosa}. However, as programs scale, these analysis approaches frequently
-time-out. Recent work has applied typed-based analysis approaches to both
-forwards and backwards error analysis, such as Numerical Fuzz \cite{numfuzz} and
-Bean \cite{bean}. The advantage of type-based methods is that they are
-inherently compositional and scalable: all of the information necessary to
-perform an error analysis on a function is contained within the function type.
-There is no need to perform global optimization, run an algorithm to
+One major challenge in the automated numerical analysis literature is
+scalability. Many existing approaches rely on global optimization
+\cite{fptaylor} \cite{satire}, rewrite saturation \cite{gappa}, or SMT-based
+methods \cite{rosa}. However, as programs scale, these analysis approaches
+frequently time-out. Recent work has applied typed-based analysis approaches to
+both forwards and backwards error analysis, such as Numerical Fuzz
+\cite{numfuzz} and Bean \cite{bean}. The advantage of type-based methods is that
+they are inherently compositional and scalable: all of the information necessary
+to perform an error analysis on a function is contained within the function
+type. There is no need to perform global optimization, run an algorithm to
 convergence, saturate rewrites, or bit-blast.
 
 However, prior type-based work for forwards error analysis is not capable of
@@ -35,9 +36,14 @@ large nearby numbers with small relative error can be subtracted to produce a
 small number with arbitrarily high relative error. 
 
 When catestrophic cancellation occurs, it is impossible to obtain tight error
-bounds. Importantly, we often know when catestrophic canecellation will occur
-(\textit{a priori}) and when it has occured (\textit{a posteori}). In both
-circumstances, our approach is able to reason about the possibility of
+bounds. Importantly, we often know when catestrophic cancellation will occur
+(\textit{a priori}) and when it has occured (\textit{a posteori}). \textit{A
+posterori} error bounds are particularly promising as catestrophic cancellation
+only occurs when two large numbers are subtracted to produce a \textit{small}
+number with arbitrarily high error. Knowing that the final value is large allows
+for the ruling out of catestrophic cancellation, sidestepping the problem
+entirely.
+In both circumstances, our approach is able to reason about the possibility of
 catestrophic cancellation (or rule it out) in order to produce useful bounds.
 
 Our approach centers around representing each possibly negative number, $r$, in
@@ -45,13 +51,20 @@ our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
 $r = (a, b)$ and $r' = (a', b')$ to produce $r + r' = (a + a', b + b')$. When
 our semantics subtracts two numbers $r - r' = (a + b', b + a')$, our paired type
 represenation does not need to subtract. We use this representation combined
-with an interval bounds analysis using type polymorphism to provide both
-$\textit{a priori}$ and $\textit{a posteori}$ error bounds. Importantly, the
-operational semantics of the programming language remains standard and unpaired.
+with an intervals bounds analysis using type polymorphism that tracks the pairs
+to provide both $\textit{a priori}$ and $\textit{a posteori}$ error bounds.
+Importantly, the operational semantics of the programming language remains
+standard and unpaired. We additionally prove that our approach provides no
+looser error bounds than prior type-based approaches while covering many more
+programs, including those with subtraction. We defer the details of this
+approach to Section ?. % todo: fill in section with ref
 
-In this paper, we address the above limitations by providing a type-based
+We also address the above limitations by providing a scalable, type-based
 forwards error analysis that can handle broader classes of programs and, at the
-same time, tighten error bounds. Concretely, our contributions are as follows:
+same time, tighten error bounds. Our approach is faster than competing
+approaches, mostly automatic with low type annotation overhead, and competitive
+on precision with other state-of-the-art techniques. Concretely, our
+contributions are as follows:
 \begin{itemize}
   \item We extend Numerical Fuzz by introducing a previously-untypable primitive
     that enables the error and sensitivities in rounded terms to be shared,
@@ -60,8 +73,9 @@ same time, tighten error bounds. Concretely, our contributions are as follows:
     Numerical Fuzz.
 
   \item We develop a way to incorporate interval analysis into the type system
-    using interval \textit{bound polymorphism}. We develop a sound type
-    inference and checking algorithm for bound polymorphism.
+    using interval \textit{bound polymorphism}. We develop a type
+    inference and checking algorithm for bound polymorphism. A soundness proof
+    of the algorithm is provided.
 
   \item We develop the first type-based approach to forwards error analysis that
     enables both \textit{a priori} and \textit{a posterori} compositional error
