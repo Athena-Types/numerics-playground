@@ -3,7 +3,8 @@ Following Fuzz, we prove the following syntanctic properties relating our type
 system and operational semantics.
 
 \begin{lemma}[Weakening]\label{thm:weakening}
-  If $\Gamma \vdash e : \tau$, then $\Gamma + \Sigma \vdash e : \tau$.
+  If $\Delta \ | \ \Gamma \vdash e : \tau$, then 
+  $\Delta \ | \ \Gamma + \Sigma \vdash e : \tau$.
 \end{lemma}
 \begin{proof}
   We induct over our typing devivation. 
@@ -18,7 +19,8 @@ system and operational semantics.
 
 Following Fuzz, we prove a $r$-sensitive substitution lemma.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
-  Let $\Gamma \vdash e : \tau$ and $\Theta, x :_r \tau \vdash e' : \tau'$, then 
+  Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and 
+  $\Delta_1 \ | \ \Theta, x :_r \tau \vdash e' : \tau'$, then 
   $r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
 \end{lemma}
 \begin{proof}
@@ -31,7 +33,7 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
       subsitute $e$ for $x$ with sensitivity $s$ and obtain a valid typing tree. 
       We apply this function to each premise (where $x$ is not captured by a
       binder). 
-      Now we want to construct a valid typing tree for $r \cdot \Gamma + \Theta
+      Now we want to construct a valid typing tree for $\Delta_1 \ | \ r \cdot \Gamma + \Theta
       \vdash e'[e/x] : \tau'$. We observe how $x$ gets scaled (in the $!_s \tau$
       rule) or combined in the typing derivation (whereever $\Gamma + \Theta$
       occurs) and observe that our invariant is maintained.
@@ -53,11 +55,12 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
 %
 \begin{lemma}[Subsitution decomposition]
   \label{thm:sub-decomp}
-  For substitutions $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$,
-  exists
-  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Gamma$
+  For substitutions 
+  $\sigma \sim_{\alpha} \sigma' : \Delta_0 + \Delta_1 \ | \ \Gamma + \Theta$,
+  there exists
+  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 | \Gamma$
   and
-  $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$.
+  $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
 \end{lemma}
 \begin{proof}
   Fix an ordering of the variables in $\Gamma + \Theta$. Follows by induction.
@@ -66,12 +69,13 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
 The below lemma is useful towards proving metric preservation:
 \begin{lemma}[Metric preservation under context evaluation stepping]
   \label{thm:ctx-stepping}
-  For a well-typed $\Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
-  \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Gamma$ and
+  For a well-typed $\Delta \ | \ \Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
+  \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ and
   $e~\sigma \mapsto^{*} v$ and
   $e~\sigma' \mapsto^{*} v'$.
-  If $C[v] \sigma \sim_{\gamma \cdot \Gamma} C[v'] \sigma' : \tau$ then
-  $C[e] \sigma \sim_{\gamma \cdot \Gamma} C [e] \sigma' : \tau$.
+  If $C[v] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[v'] \sigma' : \tau$ 
+  then
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C [e] \sigma' : \tau$.
 \end{lemma}
 \begin{proof}
   By inspection of our stepping relation, we can tell that stepping is
@@ -88,10 +92,10 @@ The below lemma is useful towards proving metric preservation:
   \mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = 
   \mathcal{SD}_{\tau}(C[e~\sigma]\sigma, C[e~\sigma']\sigma') = 
   \mathcal{SD}_{\tau}(C[v]\sigma, C[v']\sigma') = 
-  \gamma \cdot \Gamma
+  \gamma \cdot (\Delta \ | \ \Gamma)
   $$
   respectively and therefore 
-  $C[e] \sigma \sim_{\gamma \cdot \Gamma} C[e] \sigma'$
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[e] \sigma'$
   holds.
 \end{proof}
 
