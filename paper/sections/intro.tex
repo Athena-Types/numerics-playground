@@ -36,15 +36,16 @@ large nearby numbers with small relative error can be subtracted to produce a
 small number with arbitrarily high relative error. 
 
 When catestrophic cancellation occurs, it is impossible to obtain tight error
-bounds. Importantly, we often know when catestrophic cancellation will occur
-(\textit{a priori}) and when it has occured (\textit{a posteori}). \textit{A
-posterori} error bounds are particularly promising as catestrophic cancellation
-only occurs when two large numbers are subtracted to produce a \textit{small}
-number with arbitrarily high error. Knowing that the final value is large allows
-for the ruling out of catestrophic cancellation, sidestepping the problem
-entirely.
-In both circumstances, our approach is able to reason about the possibility of
-catestrophic cancellation (or rule it out) in order to produce useful bounds.
+bounds. Importantly, we often know when catestrophic cancellation cannot not
+occur (\textit{a priori}) and can detect when it has occured (\textit{a
+posteori}). \textit{A posterori} error bounds are particularly promising as
+catestrophic cancellation only occurs when two large numbers are subtracted to
+produce a \textit{small} number with arbitrarily high error. Knowing that the
+final value is large allows for the ruling out of catestrophic cancellation,
+sidestepping the problem entirely.
+In both circumstances, our approach is able to reason about the presence of
+catestrophic cancellation (or rule it out) in order to produce useful error
+bounds.
 
 Our approach centers around representing each possibly negative number, $r$, in
 our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
