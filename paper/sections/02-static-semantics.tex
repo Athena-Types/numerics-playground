@@ -14,6 +14,13 @@ For the remainder of the paper, we only care about closed types.
 \begin{figure}
 %% ROW1
 \begin{center}
+%% unit
+\AXC{}
+\RightLabel{(Unit)}
+\UIC{$\Delta \ | \ \Gamma \vdash \langle \rangle : \mathbf{unit}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
 %% var
 \AXC{$s \ge 1$}
 \RightLabel{(Var)}
@@ -36,16 +43,6 @@ For the remainder of the paper, we only care about closed types.
 \BinaryInfC{$\Delta_0 + \Delta_1 \ | \ \Gamma + \Theta \vdash ef : \tau $}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-%%
-
-
-%% ROW2
-\AXC{}
-\RightLabel{(Unit)}
-\UIC{$\Delta \ | \ \Gamma \vdash \langle \rangle : \mathbf{unit}$}
-\bottomAlignProof
-\DisplayProof
 \hskip 0.5em
 %% dep prod intro
 \AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$}
@@ -54,16 +51,18 @@ For the remainder of the paper, we only care about closed types.
 \BinaryInfC{$\Delta \ | \ \Gamma \vdash \langle e, f \rangle: \tau_0 \times \tau_1$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\vskip 1em
+%%
+
+
+%% ROW2
 %% dep prod elim
 \AXC{$\Delta \ | \ \Gamma \vdash e : \tau_1 \times \tau_2$}
 \RightLabel{($\times$ E)}
 \UIC{$\Delta \ | \ \Gamma \vdash {\pi}_i \ e : \tau_i$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-%%
-
+\hskip 0.5em
 %% ind prod intro
 \AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 $}
 \AXC{$\Delta_1 \ | \ \Theta \vdash f : \tau_1$}
@@ -88,25 +87,6 @@ For the remainder of the paper, we only care about closed types.
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
-% %% ind sum intro
-% \AXC{$\Gamma \vdash e : \tau_1$ }
-% \RightLabel{($+$ $\text{I}_2$)}
-% \UIC{$\Gamma \vdash \mathbf{in}_2 \ e : \tau_0 + \tau_1$}
-% \bottomAlignProof
-% \DisplayProof
-% \hskip 0.5em
-% box elim
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : {!_s \tau_0}$}
-\AXC{$\Delta_1 \ | \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
-\RightLabel{($!$ E)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-%%
-
-
-%% ROW 5
 
 % sum elim
 \AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0+\tau_1$}
@@ -119,6 +99,27 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 \vskip 1em
 
+% box elim
+\AXC{$\Delta_0 \ | \ \Gamma \vdash e : {!_s \tau_0}$}
+\AXC{$\Delta_1 \ | \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
+\RightLabel{($!$ E)}
+\BIC{$\Delta_0 + \Delta_1 \ | \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+% ops
+% \AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$}
+\AXC{$\{ \mathbf{op} :\tau \} \in \Sigma$}
+\RightLabel{(Op)}
+\UIC{$\Delta \ | \ \Gamma \vdash \mathbf{op} : \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+%%
+
+
+%% ROW 5
+
 %%% ROW 6
 
 % let 
@@ -128,8 +129,7 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-
+\hskip 0.5em
 %% const
 \AXC{$k, k_0, k_1 \in \textit{num}$}
 \AXC{$k_0 \leq k \leq k_1$}
@@ -192,17 +192,8 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 
-% \hskip 0.5em
 \vskip 1em
 
-% funs
-% \AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0$}
-\AXC{$\{ \mathbf{op} :\tau \} \in \Sigma$}
-\RightLabel{(Op)}
-\UIC{$\Delta \ | \ \Gamma \vdash \mathbf{op} : \tau$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.5em
 % factor
 \AXC{$\Delta \ | \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
 %\AXC{$r + q \leq s$}
@@ -211,6 +202,13 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \UIC{$\Delta \ | \ \Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
 \bottomAlignProof
 \DisplayProof
+\hskip 0.5em
+\AXC{}
+\RightLabel{($\textbf{bnd-var}$)}
+\UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
+
 
 \vskip 1em
 
@@ -240,13 +238,6 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 
 \vskip 1em
-
-\AXC{}
-\RightLabel{($\textbf{bnd-var}$)}
-\UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
-\bottomAlignProof
-\DisplayProof
-
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
     and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
