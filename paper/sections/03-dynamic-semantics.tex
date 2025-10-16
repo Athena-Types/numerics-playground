@@ -11,7 +11,7 @@ necessarily to values).
 
 \begin{equation*}
 \begin{aligned}[c]
-	\mathbf{op}(v) &\mapsto op(v)\\
+	\mathbf{op} &\mapsto op\\
 	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
 	(\lambda x.e) \ v &\mapsto e[v/x] \\
   \rnd k &\mapsto (k, \rho(k))
@@ -64,6 +64,6 @@ necessarily to values).
     \caption{Substitution-style evaluation rules for \Lang. Parameterized for $i
     \in \{1, 2 \}$. $op$ is a higher-order metavar. When bolded $\mathbf{op}$
     refers to the syntax and when italicized $op$ refers to the corresponding
-    function mapping syntactic values to syntactic values.}
+    function on syntactic values (it may be a constant function).}
     \label{fig:sub_eval_rules}
 \end{figure}

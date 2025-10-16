@@ -1,6 +1,6 @@
 \section{Type Soundness}
 Following Fuzz, we prove the following syntanctic properties relating our type
-systema and operational semantics.
+system and operational semantics.
 
 \begin{lemma}[Weakening]\label{thm:weakening}
   If $\Gamma \vdash e : \tau$, then $\Gamma + \Sigma \vdash e : \tau$.
@@ -38,36 +38,6 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
   \end{description}
 \end{proof}
 
-The following notation mirrors the look of the Fuzz metric perservation theorem
-statement but contains differences in the construction. In particular, our
-logical relation is neither coinductive nor step-indexed. It is also unary,
-using mutual (well-founded) recursion between the definition of a syntactic term
-falling within the logical relation and the definition of the syntactic distance
-between terms.
-
-For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
-e_1 \in R_\tau$, we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0,
-e_1) \leq r$. Similarly, we can write lists of expressions (e.g. for
-subsitutions) $\sigma_0, \sigma_1$ for a given typing context $\Gamma$ such
-that: $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ for a \textit{distance vector}
-$\gamma$
-where
-$\sigma_0 = e_0,~e_1,~\ldots e_{n-1}$ 
-and $\sigma_1 = e'_0,~e'_1,~\ldots e'_{n-1}$ 
-and $\gamma = r_0, r_1, \ldots r_{n-1}$ such that:
-$$e_0 \sim_{r_0} e'_0 : \tau_0,~e_0 \sim_{r_0} e'_0 : \tau_0,~\ldots e_{n-1}
-\sim_{r_1} e'_{n-1} : \tau_n$$
-We also say that a substitution $[e_1/x_1, e_2/x_2 \ldots]$ is
-\textit{compatible} with a typing context $x_1 : \tau_1, x_2 : \tau_2, \ldots$
-if each term $e_1 \in \mathcal{R}_{\tau_1}, e_2 \in \mathcal{R}_{\tau_2},
-\ldots$
-
-Our definition for the dot product of a distance vector is the same as Fuzz. We
-also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
-lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
-in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
-treat and represent our distance vector $\gamma$ as a lookup function and assume
-that there is an implicit fixed ordering on the variables.
 % todo: put it in here
 
 % Max: Theorem statement is not interesting when stepping is only over closed

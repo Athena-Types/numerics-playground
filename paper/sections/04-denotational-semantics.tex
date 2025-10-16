@@ -116,6 +116,36 @@ values as follows:
   \end{equation}
 \end{definition}
 
+The following notation is to mirror the look of the Fuzz metric perservation
+theorem statement but contains differences in the setup. For example, our
+logical relation is neither coinductive nor step-indexed. It is also unary,
+using mutual (well-founded) recursion between the definition of a syntactic term
+falling within the logical relation and the definition of the syntactic distance
+between terms.
+
+For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
+e_1 \in R_\tau$, we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0,
+e_1) \leq r$. Similarly, we can write lists of expressions (e.g. for
+subsitutions) $\sigma_0, \sigma_1$ for a given typing context $\Gamma$ such
+that: $\sigma_0 \sim_{\gamma} \sigma_1 : \Gamma$ for a \textit{distance vector}
+$\gamma$
+where
+$\sigma_0 = e_0,~e_1,~\ldots e_{n-1}$ 
+and $\sigma_1 = e'_0,~e'_1,~\ldots e'_{n-1}$ 
+and $\gamma = r_0, r_1, \ldots r_{n-1}$ such that:
+$$e_0 \sim_{r_0} e'_0 : \tau_0,~e_0 \sim_{r_0} e'_0 : \tau_0,~\ldots e_{n-1}
+\sim_{r_1} e'_{n-1} : \tau_n$$
+We also say that a substitution $[e_1/x_1, e_2/x_2 \ldots]$ is
+\textit{compatible} with a typing context $x_1 : \tau_1, x_2 : \tau_2, \ldots$
+if each term $e_1 \in \mathcal{R}_{\tau_1}, e_2 \in \mathcal{R}_{\tau_2},
+\ldots$
+
+Our definition for the dot product of a distance vector is the same as Fuzz. We
+also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
+treat and represent our distance vector $\gamma$ as a lookup function and assume
+that there is an implicit fixed ordering on the variables.
 
 Numerical Fuzz is a modular family of programming langauges paramterized by the
 appropriate $\rho$, constant parameter $u$, and the appropriate set of numeric
@@ -127,24 +157,33 @@ to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.
 \begin{definition}[Interface for instantiating Numerical Fuzz.]
   \label{def:numfuzz-interface}
-  The interface for Numerical Fuzz consists of $\rho$, $u$, and $\Sigma$ such
-  that the following properties hold: 
+  The interface for Numerical Fuzz consists of $\rho$, $u$, $\Sigma$, and
+  $\Sigma_{\mathbf{bnd}}$ such that the following properties hold: 
 \begin{description}
   \item[a) Property of $\rho$ and constant parameter $u$.] We assume that the
     $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e)
     \leq q$ where $q$ is the grade in the $\mathbf{rnd}$ typing rule.
   \item[b) Property of $\mathbf{op}$.] We also assume that for every operation
-    $\mathbf{op} : \tau_0 \multimap \tau_1 \ \in \ \Sigma$ we have a
+    $\mathbf{op} : \tau \in \ \Sigma$ we have a
     corresponding function $op$ mapping syntactic values in
-    $\mathcal{VR}_{\tau_0}$ to $\mathcal{VR}_{\tau_1}$ and where
-    the following two properties hold:
+    $\mathcal{VR}_{\tau}$ where metric preservation holds: For all $\sigma
+    \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
+    \Gamma} \textit{op} : \tau$.
+    Or, expanded:
     \begin{description}
-      \item[\underline{1) Type denotation.}] For any $e \in
-        \mathcal{R}_{\tau_0}$ that $\mathbf{op}(e) \in \mathcal{R}_{\tau_1}$.
-      \item[\underline{2) Sensitivity.}] For any $e_1, e_2 \in \mathcal{R}_{\tau_0}$ that
-        $\mathcal{SD}_{\tau_1}(\mathbf{op}(e_1), \mathbf{op}(e_2)) \leq
-        \mathcal{SD}_{\tau_0}(e_1, e_2)$.
+      \item[\underline{1) Type denotation.}] $\mathbf{op} \in
+        \mathcal{R}_{\tau_1}$. The operation will step to something in the
+        value relation.
+      \item[\underline{2) Context sensitivity.}]
+        We can view $\textit{op}$ as a (possibly constant) metalevel function.
+        Accordingly, this property states that for every $\textbf{op}$, the
+        corresponding $\textit{op}$ preserves the metric. For any two
+        substitutions $\sigma, \sigma'$ such that:
+        $\sigma \sim_{\gamma} \sigma' : \Gamma$, 
+        $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
     \end{description}
+  \item[c) Property of $\mathbf{iop}$.] We further need to assume that for every
+    operation $\mathbf{iop} : \Sigma_\textbf{num}$, we have that 
 \end{description}
 \end{definition}
 
