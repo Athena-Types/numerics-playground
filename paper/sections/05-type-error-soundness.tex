@@ -106,11 +106,11 @@ The below lemma is useful towards proving metric preservation:
 \end{theorem}
 \begin{proof}
   We induct over our typing derivation. The base cases (Var, \textbf{bnd-var},
-  Unit, Const) follow trivially. The subsumption case also follows trivially. We
-  detail the remaining cases here. Note that the distance between $\textbf{bnd}$
-  vars in $\Delta$ is $\infty$ if they correspond to different intervals.
-  Therefore for the cases that do not touch $\Delta$ or $\textbf{bnd}$, we omit
-  reptitively reasoning about $\Delta$ substitutions:
+  Unit, Const) follow trivially. The subsumption and widening cases also follow
+  trivially. We detail the remaining cases here. Note that the distance between
+  $\textbf{bnd}$ vars in $\Delta$ is $\infty$ if they correspond to different
+  intervals. Therefore for the cases that do not touch $\Delta$ or
+  $\textbf{bnd}$, we omit reptitively reasoning about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
       We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and

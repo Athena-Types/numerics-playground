@@ -137,7 +137,15 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta \ | \ \Gamma \vdash k : \num_{(k_0, k_1)}$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\vskip 1em
+
+%% widen
+\AXC{$(k_0, k_1) \sqsubseteq (k'_0, k'_1)$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \num_{(k_0, k_1)}$}
+\RightLabel{(Widen)}
+\BIC{$\Delta \ | \ \Gamma \vdash e : \num_{(k'_0, k'_1)}$}
+\bottomAlignProof
+\DisplayProof
 \vskip 1em
 
 %%% ROW 7
