@@ -100,9 +100,9 @@ The below lemma is useful towards proving metric preservation:
 \end{proof}
 
 \begin{theorem}[Metric preservation]
-  For any $\Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
-  $\sigma \sim_{\gamma} \sigma' : \Gamma$, then 
-  $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma'$.
+  For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
+  $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
+  $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma'$.
 \end{theorem}
 \begin{proof}
   We induct over our typing derivation. The base cases (Var, Unit, Const) follow
