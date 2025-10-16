@@ -105,9 +105,12 @@ The below lemma is useful towards proving metric preservation:
   $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma'$.
 \end{theorem}
 \begin{proof}
-  We induct over our typing derivation. The base cases (Var, Unit, Const) follow
-  trivially. The subsumption case also follows trivially. We detail the
-  remaining cases here:
+  We induct over our typing derivation. The base cases (Var, \textbf{bnd-var},
+  Unit, Const) follow trivially. The subsumption case also follows trivially. We
+  detail the remaining cases here. Note that the distance between $\textbf{bnd}$
+  vars in $\Delta$ is $\infty$ if they correspond to different intervals.
+  Therefore for the cases that do not touch $\Delta$ or $\textbf{bnd}$, we omit
+  reptitively reasoning about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
       We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
@@ -656,9 +659,34 @@ The below lemma is useful towards proving metric preservation:
               \cdot \infty = 0$.
           \end{description}
 
+    \end{description}
 
-      \end{description}
+  \end{description}
+  The remaining cases in this proof deal with bound polymorphism:
+  \begin{description}
+    \item[Case \textbf{bnd-op}.] Holds by the spec on our language interface and
+      from the fact that any differring $\Delta$-substitutions must be $\infty$
+      apart.
 
+    \item[Case $\forall$ I.] We need to show that for any substitutions:
+
+      $$\sigma \sim_{\alpha} \sigma' : \Delta \ | \ \Gamma$$
+
+      that 
+
+      $\Lambda \epsilon . e~\sigma \sim_{\alpha \cdot (\Delta \ | \ \Gamma)}
+      \Lambda \epsilon . e~\sigma : \forall \epsilon . \tau$. Similarly to the
+      above cases, we observe that if the $\Delta$-substitutions in $\sigma$ and
+      $\sigma'$ are different, the distance is $\infty$ and we are done. In the
+      case that the $\Delta$-substitutions are the same, we unfold our
+      definition of $\mathcal{R}_{\forall \epsilon . \tau}$ and observe that
+      since $\epsilon \not\in FTV(\Gamma)$, we can apply our inductive
+      hypothesis.
+
+    \item[Case $\forall$ E.] We similarly observe that if the
+      $\Delta$-substitutions in $\sigma$ and $\sigma'$ are different, the
+      distance is $\infty$ and we are done. Unfolding our logical relation and
+      applying our inductive hypothesis finishes the case.
   \end{description}
 \end{proof}
 

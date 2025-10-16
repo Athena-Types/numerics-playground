@@ -213,10 +213,10 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \forall \epsilon . \tau$}
 \AXC{$\Delta \vdash i : \textbf{bnd}$}
 \RightLabel{($\forall$-E)}
-\BIC{$\Delta \ | \ \Gamma \vdash e~\{b\} : \tau[b/\epsilon]$}
+\BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
 \bottomAlignProof
 \DisplayProof
 
