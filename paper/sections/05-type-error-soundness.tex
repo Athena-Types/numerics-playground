@@ -8,8 +8,8 @@ system and operational semantics.
 \end{lemma}
 \begin{proof}
   We induct over our typing devivation. 
-  For each case, we can ignore arbitrary variables in our context (the type system is
-  affine). 
+  For each case, we can ignore arbitrary variables in our context (the type
+  system is affine). 
   In particular, for the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E},
   \textbf{$M_u$~E}, and \textbf{$\otimes$ I} rules, the enviroment must be split
   into a $\Gamma$ (which can in some cases be scaled) and $\Delta$ (which does
@@ -109,8 +109,8 @@ The below lemma is useful towards proving metric preservation:
   Unit, Const) follow trivially. The subsumption and widening cases also follow
   trivially. We detail the remaining cases here. Note that the distance between
   $\textbf{bnd}$ vars in $\Delta$ is $\infty$ if they correspond to different
-  intervals. Therefore for the cases that do not touch $\Delta$ or
-  $\textbf{bnd}$, we omit reptitively reasoning about $\Delta$ substitutions:
+  intervals. Therefore for the following cases, we omit reptitively reasoning
+  about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
       We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
