@@ -127,31 +127,36 @@ using mutual (well-founded) recursion between the definition of a syntactic term
 falling within the logical relation and the definition of the syntactic distance
 between terms.
 
+For any two closed bounds, we can write $i \sim_0 i$ or $i \sim_{\infty} i$. 
 For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
-e_1 \in R_\tau$, we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0,
-e_1) \leq r$. We can also do the same thing for bounds $i \sim_0 i$. Generally,
-we can write lists of expressions (e.g. for subsitutions) $\sigma_0, \sigma_1$
-for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma_0 \sim_{\gamma} \sigma_1
+e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1$
+where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
+Generally, we can write vectors of expressions (e.g. for subsitutions) $\sigma =
+\sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
+\sigma'_{\Gamma}$
+for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
 : \Delta \ | \ \Gamma$ for a \textit{distance vector}
-$\gamma$
+$\gamma = r_0, r_1, \ldots$
 where
-$\sigma_0 = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
+$\sigma = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
 and 
-$\sigma_0 = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
-and $\gamma = r_0, r_1, \ldots$ such that:
+$\sigma' = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
+such that:
 $$
-i_0 \sim_{r_0} i'_0 : \mathbf{bnd},~i_1 \sim_{r_1} i'_1 : \mathbf{bnd},~\ldots 
-\ | \ e_0 \sim_{r_m} e'_0 : \tau_0,~e_0 \sim_{r_{m+1}} e'_0 : \tau_1,~\ldots
+i_0 \sim_{r_0} i'_0 : \mathbf{bnd},~i_1 \sim_{r_1} i'_1 : \mathbf{bnd},~\ldots \
+| \ e_0 \sim_{r_m} e'_0 :
+\tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
+\tau_1~[\sigma_{\Delta}],~\ldots
 $$
-We also say that a substitution $[i_0 / \epsilon_0, i_1 / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ is
+We also say that a substitution vector $[i_0 / \epsilon_0, i_1 / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ is
 \textit{compatible} with a typing context 
 $i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
 if each term 
 $i_0 \in \mathcal{R}_{\mathbf{bnd}}, 
-i_1 \in \mathcal{R}_{\mathbf{bnd}}, \ldots \ | \ 
-e_1 \in \mathcal{R}_{\tau_1}, e_2 \in \mathcal{R}_{\tau_2}, \ldots$.
-Note that substitutions occurs right-to-left to ensure that type vars get
-appropriately subsituted into.
+i_1 \in \mathcal{R}_{\mathbf{bnd}}, 
+\ldots \ | 
+\ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
+e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
 
 Our definition for the dot product of a distance vector is the same as Fuzz. We
 also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
