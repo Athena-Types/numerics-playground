@@ -146,6 +146,13 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta \ | \ \Gamma \vdash e : \num_{(k'_0, k'_1)}$}
 \bottomAlignProof
 \DisplayProof
+\hskip 0.5em
+% box intro
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$ }
+\RightLabel{($!$ I)}
+\UIC{$\Delta \ | \ s * \Gamma \vdash [e] : {!_s \tau}$}
+\bottomAlignProof
+\DisplayProof
 \vskip 1em
 
 %%% ROW 7
@@ -158,17 +165,17 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
+% factor
+\AXC{$\Delta \ | \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
+\RightLabel{(Factor)}
+\UIC{$\Delta \ | \ \Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
 %% return
 \AXC{$\Delta \ | \ \Gamma \vdash e : \tau$}
 \RightLabel{(Ret)}
 \UIC{$\Delta \ | \ \Gamma \vdash \ret e : M_0 \tau$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-% box intro
-\AXC{$\Delta \ | \ \Gamma \vdash e : \tau$ }
-\RightLabel{($!$ I)}
-\UIC{$\Delta \ | \ s * \Gamma \vdash [e] : {!_s \tau}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -193,16 +200,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 
 \vskip 1em
-
-% factor
-\AXC{$\Delta \ | \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
-%\AXC{$r + q \leq s$}
-%\AXC{$s = max(r,q)$}
-\RightLabel{(Factor)}
-\UIC{$\Delta \ | \ \Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.5em
+% bnd-var
 \AXC{}
 \RightLabel{($\textbf{bnd-var}$)}
 \UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
@@ -238,6 +236,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 
 \vskip 1em
+
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
     and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
