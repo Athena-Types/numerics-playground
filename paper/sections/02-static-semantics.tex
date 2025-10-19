@@ -37,10 +37,10 @@ For the remainder of the paper, we only care about closed types.
 \vskip 1em
 
 %% app
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 \multimap \tau$}
-\AXC{$\Delta_1 \ | \ \Theta \vdash f : \tau_0 $}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0 \multimap \tau$}
+\AXC{$\Delta \ | \ \Theta \vdash f : \tau_0 $}
 \RightLabel{($\multimap$ E)}
-\BinaryInfC{$\Delta_0 + \Delta_1 \ | \ \Gamma + \Theta \vdash ef : \tau $}
+\BinaryInfC{$\Delta \ | \ \Gamma + \Theta \vdash ef : \tau $}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -64,19 +64,19 @@ For the remainder of the paper, we only care about closed types.
 \DisplayProof
 \hskip 0.5em
 %% ind prod intro
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 $}
-\AXC{$\Delta_1 \ | \ \Theta \vdash f : \tau_1$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0 $}
+\AXC{$\Delta \ | \ \Theta \vdash f : \tau_1$}
 \RightLabel{($\tensor$ I)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ \Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
+\BIC{$\Delta \ | \ \Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 %% ind prod elim
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0 \tensor \tau_1$ }
-\AXC{$\Delta_1 \ | \ \Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0 \tensor \tau_1$ }
+\AXC{$\Delta \ | \ \Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
 \RightLabel{($\tensor$ E)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
+\BIC{$\Delta \ | \ s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -89,21 +89,21 @@ For the remainder of the paper, we only care about closed types.
 \vskip 1em
 
 % sum elim
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : \tau_0+\tau_1$}
-\AXC{$\Delta_1 \ | \ \Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
-$\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : \tau_0+\tau_1$}
+\AXC{$\Delta \ | \ \Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
+$\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \RightLabel{($+$ E)}
 \AXC{$s > 0$}
-\TIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
+\TIC{$\Delta + \Delta \ | \ s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 % box elim
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : {!_s \tau_0}$}
-\AXC{$\Delta_1 \ | \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : {!_s \tau_0}$}
+\AXC{$\Delta \ | \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
 \RightLabel{($!$ E)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
+\BIC{$\Delta \ | \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -123,10 +123,10 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %%% ROW 6
 
 % let 
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e :  \tau_0$}
-\AXC{$\Delta_1 \ | \ \Theta, x:_{s} \tau \vdash f : \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e :  \tau_0$}
+\AXC{$\Delta \ | \ \Theta, x:_{s} \tau \vdash f : \tau$}
 \RightLabel{(Let)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
+\BIC{$\Delta \ | \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -185,10 +185,10 @@ $\Delta_1 \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 
 % let-bind
-\AXC{$\Delta_0 \ | \ \Gamma \vdash e : M_r \tau_0$}
-\AXC{$\Delta_1 \ | \ \Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
+\AXC{$\Delta \ | \ \Gamma \vdash e : M_r \tau_0$}
+\AXC{$\Delta \ | \ \Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
 \RightLabel{($M_u$ E)}
-\BIC{$\Delta_0 + \Delta_1 \ | \ s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
+\BIC{$\Delta \ | \ s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
 \bottomAlignProof
 \DisplayProof
 
