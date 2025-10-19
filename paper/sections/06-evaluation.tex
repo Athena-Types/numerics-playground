@@ -1,4 +1,4 @@
-\section{Implementation, language instantiation, and type inference}
+\section{Type inference}
 
 Conceptually, we can think of our type inference and checking algorithm in two
 stages. Users write programs in \Lang. We then perform the type sensitivity and
@@ -20,7 +20,6 @@ annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
   \end{aligned}
 \end{equation}
 
-\subsection{Type inference}
 \begin{example}[Unannotated program]
   \begin{equation}
     \lambda x \ . \ \mathbf{let} \ s \ = \ add \ x \ \tin \ (\mathbf{rnd} \ s)
@@ -40,3 +39,134 @@ annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
     \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}}
   \end{equation}
 \end{example}
+
+\subsection{Actual setup}
+
+We have context skeletons $\Gamma^{\bullet}$, type contexts $\Gamma$ without any
+bounds, and fully annotated contexts $\bnd{\Delta \ | \ \Gamma}$ with bound
+polymorphism. 
+We also have erased programs $e^{\bullet}$ with polymorphic abstraction,
+instantiation, etc. removed.
+
+% The goal of type inference, then, is to take a program $e^{\bullet}$ in
+% context skeleton $\Gamma^{\bullet}$ and produce a program, possibly using bound
+% polymorphism, $e$, such that .
+
+\begin{definition}[Type inference and checking problem]
+Given an erased context skeleton $\Delta \ | \ \Gamma^{\bullet}$ and program
+$e^{\bullet}$ in \Lang with erased type $\tau^{\bullet}$, produce a derivation
+of $\Delta \ | \ \Gamma \vdash e : \tau$ for $e$ in \bnd{\Lang} if such a
+derivation exists. We write this like: $$\Delta \ | \ \Gamma^{\bullet};
+e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
+\end{definition}
+
+\begin{figure}
+%% ROW1
+\begin{center}
+\begin{equation}
+\begin{aligned}[c]
+\end{aligned}
+\end{equation}
+
+\AXC{}
+\UIC{$I(\textbf{unit}^{\bullet}, \Gamma, \Delta) \to \textbf{unit}; .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+% \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
+\AXC{$\epsilon \text{ globally fresh}$}
+\UIC{$ I(\textbf{num}^{\bullet}, \Gamma, \Delta) \to \textbf{num}_{\epsilon};
+\epsilon $}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \times \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 \times
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \otimes \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 \otimes
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 + \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 +
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \multimap \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0
+\multimap \tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau^{\bullet}, \Gamma, \Delta) \to \tau; \beta$}
+\UIC{$I(!_s (\tau^{\bullet}), \Gamma, \Delta) \to !_s \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$I(\tau^{\bullet}, \Gamma, \Delta) \to \tau; \beta$}
+\UIC{$I(M_u (\tau^{\bullet}), \Gamma, \Delta) \to M_u \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\vskip 3em
+
+%% fun
+\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \epsilon_0, \ldots,
+\epsilon_n$}
+\AXC{$\Delta, \epsilon_0 : \textbf{bnd} , \ldots, \epsilon_n : \textbf{bnd}
+\ | \ \Gamma^{\bullet}, x : \tau_0; e^{\bullet} \implies \Delta' \ | \ \Gamma, x
+:_s \tau_0; e; \tau$}
+% \AXC{$\epsilon_0, \ldots, \epsilon_n \not\in FTV(\Gamma) \cup DOM(\Delta)$}
+\RightLabel{($\multimap$ I)}
+\BIC{$\Delta \ | \ \Gamma^{\bullet}; \lambda (x : \annotate{\tau_0^{\bullet}}).
+e^{\bullet} \implies \Delta' \ | \ \Gamma; \Lambda \epsilon_0, \ldots,
+\epsilon_n (\lambda (x : \tau_0) . e); \tau_0 \multimap
+\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0, f; \tau_0 \multimap \tau$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1, e; \tau'_0$}
+\AXC{$\tau'_0 \sqsubseteq \tau_0$}
+\RightLabel{($\multimap$ E)}
+\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
+\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+% TODO: figure out epsilon vars to elim / reintro
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0, f; \forall \epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1, e; \tau'_0$}
+\AXC{$\tau'_0 \sqsubseteq \tau_0$}
+\RightLabel{($\forall \multimap$ E)}
+\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
+\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\end{center}
+    \caption{Algorithmic rules. \annotate{Red text} are user-required
+    annotations. To help define the $\implies$ relation, we define a $\to$
+    relation that annotates (removes the bullet) for a given type.}
+    \label{fig:type_inference}
+\end{figure}
+
+
+\section{Implementation and language instantiation}
