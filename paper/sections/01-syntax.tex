@@ -2,18 +2,18 @@
 
 \begin{figure}[tbp]
   \begin{alignat*}{3}
-         &\text{Intervals } b, b_0, b_1 &::=~ &\epsilon
-         \mid (k_0, k_1) \in \textit{num}^{2}
-         \mid \mathbf{iop_c(b_0, \ldots, b_c)} \\
+    &\bnd{\text{Intervals } b, b_0, b_1} &::=~ &\bnd{\epsilon}
+         \mid \bnd{(k_0, k_1) \in \textit{num}^{2}}
+         \mid \bnd{\mathbf{iop_c(b_0, \ldots, b_c)}} \\
          &\text{Types } \tau, \tau_0, \tau_1 &::=~ &\mathbf{unit}
-         \mid \num_{b}
+         \mid \num_{\bnd{b}}
          \mid \tau_0 \times \tau_1
          \mid \tau_0 \otimes \tau_1
          \mid \tau_0 + \tau_1
          \mid \tau_0 \multimap \tau_1
          \mid {\bang{s} \tau}
          \mid {M_u \tau}
-         \mid \textbf{bnd}
+         \mid \bnd{\textbf{bnd}}
          \mid \forall \epsilon . \tau
          \\
          &\text{Values } v, w \ &::=~ &\langle \rangle
@@ -22,7 +22,7 @@
          \mid (x, y)
          \mid \tin_i \ x
          \mid \lambda x.~e
-         \mid \Lambda \epsilon . e \\
+         \mid \bnd{\Lambda \epsilon . e} \\
          % \mid \mathbf{op}(x) \\
          % & & & \mid [v]
          % \mid\rnd v
@@ -35,7 +35,7 @@
          % \mid (b_0, b_1)
          \mid \mathbf{op}
          \mid e~f
-         \mid e~\{i\}
+         \mid \bnd{e~\{i\}}
          \mid {\pi}_i\ e
          \mid \langle e,f \rangle 
          \mid (e, f) \\
@@ -57,8 +57,8 @@
          \mid \mathbf{op}(C) 
          \mid C~e 
          \mid v~C 
-         \mid C~\{i\}
-         \mid v~\{C\}
+         \mid \bnd{C~\{i\}}
+         \mid \bnd{v~\{C\}}
          \mid \pi_i~C \\
          & & &
          \mid \mathbf{in}_i~C

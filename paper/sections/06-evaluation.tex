@@ -1,1 +1,42 @@
-\section{Evaluation}
+\section{Implementation, language instantiation, and type inference}
+
+Conceptually, we can think of our type inference and checking algorithm in two
+stages. Users write programs in \Lang. We then perform the type sensitivity and
+inference algorithm developed in \cite{NumFuzz}, extended to our core language
+without bound polymorphism. Finally, we automatically infer polymorphic bound
+annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
+
+\begin{equation}
+  \begin{aligned}[c]
+    add &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
+    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
+    \multimap \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}} \\
+    sub &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
+    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
+    \multimap \textbf{num}_{\bnd{\epsilon_0 - \epsilon_1}} \\
+    mult &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
+    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
+    \multimap \textbf{num}_{\bnd{\epsilon_0 \cdot \epsilon_1}} \\
+  \end{aligned}
+\end{equation}
+
+\subsection{Type inference}
+\begin{example}[Unannotated program]
+  \begin{equation}
+    \lambda x \ . \ \mathbf{let} \ s \ = \ add \ x \ \tin \ (\mathbf{rnd} \ s)
+    : \textbf{num} \times \textbf{num} \multimap \textbf{num}
+  \end{equation}
+\end{example}
+\begin{example}[Annotated program]
+  \begin{equation}
+    \bnd{\Lambda \epsilon_0, \epsilon_1 \ .} \lambda x : num_{\bnd{\epsilon_0}}
+    \times num_{\bnd{\epsilon_1}} \ . \ 
+    \mathbf{let} \ s \ = \ add \ \bnd{\{\epsilon_0\}} \ \{\bnd{\epsilon_1\}} \ x
+    \ \tin \ (\mathbf{rnd} \ s)
+    : 
+    \bnd{\forall \epsilon_0, \epsilon_1 \ .} \ 
+    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
+    \multimap
+    \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}}
+  \end{equation}
+\end{example}
