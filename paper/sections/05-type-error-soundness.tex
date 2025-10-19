@@ -105,7 +105,7 @@ The below lemma is useful towards proving metric preservation:
   $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma'$.
 \end{theorem}
 \begin{proof}
-  We induct over our typing derivation. The base cases (Var, \textbf{bnd-var},
+  We induct over our typing derivation. The base cases (Var, \textbf{bvar},
   Unit, Const) follow trivially. The subsumption and widening cases also follow
   trivially. We detail the remaining cases here. Note that the distance between
   $\textbf{bnd}$ vars in $\Delta$ is $\infty$ if they correspond to different
@@ -664,7 +664,7 @@ The below lemma is useful towards proving metric preservation:
   \end{description}
   The remaining cases in this proof deal with bound polymorphism:
   \begin{description}
-    \item[Case \textbf{bnd-op}.] Holds by the spec on our language interface and
+    \item[Case \textbf{bop}.] Holds by the spec on our language interface and
       from the fact that any differring $\Delta$-substitutions must be $\infty$
       apart.
 

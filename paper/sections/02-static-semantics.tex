@@ -198,16 +198,23 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\Delta \ | \ s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
 \bottomAlignProof
 \DisplayProof
-
 \vskip 1em
-% bnd-var
+
+% bvar
 \AXC{}
-\RightLabel{($\textbf{bnd-var}$)}
+\RightLabel{($\textbf{bvar}$)}
 \UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
-
-
+\hskip 0.5em
+\AXC{$\Delta \vdash b_0 : \textbf{bnd}$}
+\AXC{$\ldots$}
+\AXC{$\Delta \vdash b_c : \textbf{bnd}$}
+\AXC{$\textbf{iop}_c \in \Sigma_{\textbf{bnd}}$}
+\RightLabel{($\textbf{b}$\textbf{op})}
+\QIC{$\Delta \vdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
 \vskip 1em
 
 \AXC{$\Delta, \epsilon : \textbf{bnd} \ | \ \Gamma \vdash e : \tau$}
@@ -224,18 +231,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 
-\vskip 1em
-
-\AXC{$\Delta \vdash b_0 : \textbf{bnd}$}
-\AXC{$\ldots$}
-\AXC{$\Delta \vdash b_c : \textbf{bnd}$}
-\AXC{$\textbf{iop}_c \in \Sigma_{\textbf{bnd}}$}
-\RightLabel{($\textbf{bnd}$-\textbf{op})}
-\QIC{$\Delta \vdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
-\bottomAlignProof
-\DisplayProof
-
-\vskip 1em
+\vskip 3em
 
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
