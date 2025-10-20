@@ -1,17 +1,17 @@
 ## Tracking outstanding tasks
 
 Paper tasks (big):
-- [ ] Finish defining interface for iop
-
 - [ ] Prove language instantiation we care about satisfies interface spec; final
 error soundness for the instantiated langauge we care about.
-
-- [ ] Complete soundness proof w bound polymorphism.
 
 - [ ] Soundness of polymorphic type inference; maybe relative completeness
 proof?
 
 - [ ] Prove that bounds are "no looser" in the paired setup.
+
+- [x] Finish defining interface for iop
+
+- [x] Complete soundness proof w bound polymorphism.
 
 Implementation tasks:
 
@@ -27,3 +27,4 @@ seem to use them anymore.
 - [ ] Double-check if r-sensitive sub works with polymorphism (something seems
 off).
 
+- [ ] Chelesky decomp inner loop?

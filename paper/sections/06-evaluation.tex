@@ -151,12 +151,13 @@ e^{\bullet} \implies \Delta' \ | \ \Gamma; \Lambda \epsilon_0, \ldots,
 \vskip 1em
 
 % TODO: figure out epsilon vars to elim / reintro
+\AXC{$E(\tau_0, \Gamma, \Delta) \to i_0, \ldots, i_n$}
 \AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0, f; \forall \epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau$}
 \AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1, e; \tau'_0$}
-\AXC{$\tau'_0 \sqsubseteq \tau_0$}
+\AXC{$\tau'_0 \sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$}
 \RightLabel{($\forall \multimap$ E)}
-\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
-\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
+\QIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
+\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
