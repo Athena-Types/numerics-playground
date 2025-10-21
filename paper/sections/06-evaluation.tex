@@ -124,6 +124,55 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 
 \vskip 3em
 
+\AXC{}
+\UIC{$E(\textbf{unit}, \Gamma, \Delta) \to .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$\epsilon \text{ globally fresh}$}
+\UIC{$ E(\textbf{num}_i, \Gamma, \Delta) \to i$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \times \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \otimes \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
+\BIC{$E((\tau_0 + \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \multimap \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau, \Gamma, \Delta) \to \beta$}
+\UIC{$E(!_s (\tau), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$E(\tau, \Gamma, \Delta) \to \beta$}
+\UIC{$E(M_u (\tau), \Gamma, \Delta) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+
+\vskip 3em
+
 %% fun
 \AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \epsilon_0, \ldots,
 \epsilon_n$}
