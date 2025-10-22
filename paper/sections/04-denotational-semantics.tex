@@ -138,22 +138,23 @@ for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma
 : \Delta \ | \ \Gamma$ for a \textit{distance vector}
 $\gamma = r_0, r_1, \ldots$
 where
-$\sigma = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
+$\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
 and 
-$\sigma' = i_0,~i_1,~\ldots \ | \ e_0,~e_1,~\ldots$ 
+$\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
 such that:
 $$
-i_0 \sim_{r_0} i'_0 : \mathbf{bnd},~i_1 \sim_{r_1} i'_1 : \mathbf{bnd},~\ldots \
+(k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
 | \ e_0 \sim_{r_m} e'_0 :
 \tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
 \tau_1~[\sigma_{\Delta}],~\ldots
 $$
-We also say that a substitution vector $[i_0 / \epsilon_0, i_1 / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ is
-\textit{compatible} with a typing context 
+We also say that a substitution vector 
+$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ 
+is \textit{compatible} with a typing context 
 $i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
 if each term 
-$i_0 \in \mathcal{R}_{\mathbf{bnd}}, 
-i_1 \in \mathcal{R}_{\mathbf{bnd}}, 
+$(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
+(k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
 \ldots \ | 
 \ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
 e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.

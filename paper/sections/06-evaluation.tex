@@ -1,5 +1,27 @@
 \section{Type inference}
 
+\subsection{Subtyping}
+We extend the subtyping relation from \cite{NumFuzz} to work with interval
+bounds in the following way:
+
+$$
+\begin{aligned}[c]
+\textbf{num}_{(k_0, k_1)} \sqsubseteq \textbf{num}_{(k'_0, k'_1)} \triangleq 
+k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
+\textbf{num}_{i} \sqsubseteq \textbf{num}_{i'} \triangleq 
+\forall \sigma : \Delta, \
+\textbf{num}_{i}~[\sigma] \sqsubseteq \textbf{num}_{i'}~[\sigma]
+\end{aligned}
+$$
+
+\begin{theorem}[Admissibility of subtyping]
+  The admissibility of subtyping follows from the proof in \cite{NumFuzz} and the
+new interval widening rule in our type system, corresponding to the
+$\textbf{num}$ subtyping case.
+\end{theorem}
+
+\subsection{Algorithmic Type Inference}
+
 Conceptually, we can think of our type inference and checking algorithm in two
 stages. Users write programs in \Lang. We then perform the type sensitivity and
 inference algorithm developed in \cite{NumFuzz}, extended to our core language
@@ -173,8 +195,26 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 
 \vskip 3em
 
+%% unit
+\AXC{}
+\RightLabel{(Unit)}
+\UIC{$\Delta \ | \ \Gamma^{\bullet}; \langle \rangle \implies \Delta \ | \
+\Gamma^{0}; \langle \rangle; \textbf{unit}$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%% var
+\AXC{}
+\RightLabel{(Var)}
+\UIC{$\Delta \ | \ \Gamma^{\bullet}, x : \sigma; \langle \rangle \implies \Delta \ | \
+\Gamma^{0}, x :_1 \sigma; x; \sigma$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
 %% fun
-\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \epsilon_0, \ldots,
+\AXC{$I(\tau_0^{\bullet}, \Gamma^{\bullet}, \Delta) \to \tau_0; \epsilon_0, \ldots,
 \epsilon_n$}
 \AXC{$\Delta, \epsilon_0 : \textbf{bnd} , \ldots, \epsilon_n : \textbf{bnd}
 \ | \ \Gamma^{\bullet}, x : \tau_0; e^{\bullet} \implies \Delta' \ | \ \Gamma, x
@@ -189,8 +229,9 @@ e^{\bullet} \implies \Delta' \ | \ \Gamma; \Lambda \epsilon_0, \ldots,
 \DisplayProof
 \vskip 1em
 
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0, f; \tau_0 \multimap \tau$}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1, e; \tau'_0$}
+%% imp elim
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; f; \tau_0 \multimap \tau$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; e; \tau'_0$}
 \AXC{$\tau'_0 \sqsubseteq \tau_0$}
 \RightLabel{($\multimap$ E)}
 \TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
@@ -199,27 +240,50 @@ e^{\bullet} \implies \Delta' \ | \ \Gamma; \Lambda \epsilon_0, \ldots,
 \DisplayProof
 \vskip 1em
 
+%% imp elim, forall
 \AXC{$\begin{aligned}[t]
-E(\tau_0, \Gamma, \Delta) &\to i_0, \ldots, i_n \\
+E(\tau_0, \Gamma^{\bullet}, \Delta) &\to i_0, \ldots, i_n \\
 \tau'_0 &\sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \\
 \end{aligned}
-$
-}
+$}
 \AXC{$
 \begin{aligned}[t]
 \Delta \ | \ \Gamma^{\bullet}; e^{\bullet} &\implies \Delta'_0 \ | \ \Gamma_0; f;
 \forall \epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau \\
-\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} &\implies \Delta'_1 \ | \ \Gamma_1 e
-\tau'_0 \\
+\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} &\implies \Delta'_1 \ | \ \Gamma_1;
+e; \tau'_0 \\
 \end{aligned}
 $}
-% \AXC{}
 \RightLabel{($\forall \multimap$ E)}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
-\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau$}
+\BIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta'_0
++ \Delta'_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
+
+%% times intro 
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; e; \tau_0$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; f; \tau_1$}
+% \AXC{$
+% \begin{aligned}[t]
+% \Delta'_0 \sqsubseteq \Delta' \\
+% \Delta'_1 \sqsubseteq \Delta' \\
+% \end{aligned}
+% $}
+% \AXC{$
+% \begin{aligned}[t]
+% \Gamma'_0 \sqsubseteq \Gamma' \\
+% \Gamma'_1 \sqsubseteq \Gamma' \\
+% \end{aligned}
+% $}
+\RightLabel{($\times$ I)}
+\BIC{$\Delta \ | \ \Gamma^{\bullet}; \langle f^{\bullet}, e^{\bullet} \rangle
+\implies \Delta'_0 + \Delta'_1 \ | \ \Gamma'_0 + \Gamma'_1; \langle f, e
+\rangle; \tau_0 \times \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+% todo: go over with Justin this
 
 \end{center}
     \caption{Algorithmic rules. \annotate{Red text} are user-required
