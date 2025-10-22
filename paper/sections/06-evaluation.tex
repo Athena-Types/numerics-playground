@@ -192,9 +192,15 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 \UIC{$E(M_u (\tau), \Gamma, \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
+\end{center}
+    \caption{Ancillary functions for defining algorithmic type inference.}
+    \label{fig:helper_type_inference}
+\end{figure}
 
-\vskip 3em
+\newpage
 
+\begin{figure}
+\begin{center}
 %% unit
 \AXC{}
 \RightLabel{(Unit)}
@@ -209,6 +215,16 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 \RightLabel{(Var)}
 \UIC{$\Delta \ | \ \Gamma^{\bullet}, x : \sigma; \langle \rangle \implies \Delta \ | \
 \Gamma^{0}, x :_1 \sigma; x; \sigma$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%% bang intro
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; [e]_{\annotate{s}} \implies \Delta' \ | \
+\Gamma; [e]_{\annotate{s}}; \tau$}
+\RightLabel{($!$ I)}
+\UIC{$\Delta \ | \ \Gamma^{\bullet}; [e]_{\annotate{s}} \implies \Delta' \ | \
+s * \Gamma; [e]_{\annotate{s}}; !_s~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -254,12 +270,37 @@ $}
 e; \tau'_0 \\
 \end{aligned}
 $}
+\AXC{$
+\begin{aligned}[t]
+\tau &\mapsto^{*} \tau' \\
+\tau' &\not\mapsto 
+\end{aligned}
+$}
 \RightLabel{($\forall \multimap$ E)}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta'_0
-+ \Delta'_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau$}
+\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta'_0
++ \Delta'_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau'$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
+
+\RightLabel{(\textbf{op})}
+\AXC{$\{\textbf{op} : \tau\} \in \Sigma$}
+\UIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{op} 
+\implies \Delta \ | \ \Gamma^{0}; \textbf{op}; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\RightLabel{(\textbf{factor})}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} 
+\implies \Delta' \ | \ \Gamma; e; (M_q \tau_0 \times M_r \tau_1)$}
+\UIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{factor}~e^{\bullet} \implies \Delta
+\ | \ \Gamma; \textbf{factor}~e; M_{max(q, r)} (\tau_0 \times \tau_1)$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\vskip 3em
 
 %% times intro 
 \AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; e; \tau_0$}
@@ -278,12 +319,33 @@ $}
 % $}
 \RightLabel{($\times$ I)}
 \BIC{$\Delta \ | \ \Gamma^{\bullet}; \langle f^{\bullet}, e^{\bullet} \rangle
-\implies \Delta'_0 + \Delta'_1 \ | \ \Gamma'_0 + \Gamma'_1; \langle f, e
+\implies \Delta'_0 + \Delta'_1 \ | \ max(\Gamma'_0, \Gamma'_1); \langle f, e
 \rangle; \tau_0 \times \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 % todo: go over with Justin this
+
+%% otimes intro 
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; e; \tau_0$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; f; \tau_1$}
+\RightLabel{($\otimes$ I)}
+\BIC{$\Delta \ | \ \Gamma^{\bullet}; \langle f^{\bullet}, e^{\bullet} \rangle
+\implies \Delta'_0 + \Delta'_1 \ | \ \Gamma'_0 + \Gamma'_1; (f, e); \tau_0 \otimes \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\RightLabel{(\textbf{let-bind})}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta_0 \ | \ \Gamma; e; M_r~\tau_0$}
+\AXC{$\Delta \ | \ \Gamma^{\bullet}, x; f^{\bullet} \implies \Delta_1 \ | \ \Theta, x
+:_s \tau_0; M_q~\tau$}
+\BIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{let-bind} \ x \ = \ e^{\bullet} \
+\textbf{in} \ f^{\bullet} \implies \Delta_0 + \Delta_1 \ | \ s * \Gamma +
+\Theta; \textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f; M_{s*r + q}~\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
 
 \end{center}
     \caption{Algorithmic rules. \annotate{Red text} are user-required
