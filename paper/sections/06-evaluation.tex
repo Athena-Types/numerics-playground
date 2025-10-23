@@ -15,10 +15,15 @@ k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
 $$
 
 \begin{theorem}[Admissibility of subtyping]
+  The typing judgement $\Delta \ | \ \Gamma \vdash e : \tau$ is derivable if
+  $\Delta \ | \ \Gamma \vdash e : \tau'$ has a derivation and $\tau \sqsubseteq
+  \tau'$.
+\end{theorem}
+\begin{proof}
   The admissibility of subtyping follows from the proof in \cite{NumFuzz} and the
 new interval widening rule in our type system, corresponding to the
 $\textbf{num}$ subtyping case.
-\end{theorem}
+\end{proof}
 
 \subsection{Algorithmic Type Inference}
 
@@ -62,25 +67,102 @@ annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
   \end{equation}
 \end{example}
 
-\subsection{Actual setup}
+\subsection{Problem setup}
+We define two erasure operations over terms, types and contexts. Full typing contexts
+can be seen as maps from variables to pairs of sensitivities and types. 
 
-We have context skeletons $\Gamma^{\bullet}$, type contexts $\Gamma$ without any
-bounds, and fully annotated contexts $\bnd{\Delta \ | \ \Gamma}$ with bound
-polymorphism. 
-We also have erased programs $e^{\bullet}$ with polymorphic abstraction,
-instantiation, etc. removed.
+\begin{definition}[Sensitivity and round-off erasure]
+For a fully annotated typing context $\Gamma$, a fully erased typing context
+$\Gamma^{\bullet} = \Gamma \circ (map \ \pi_2)$ with all sensitivity and
+round-off information erased.
+\end{definition}
 
-% The goal of type inference, then, is to take a program $e^{\bullet}$ in
-% context skeleton $\Gamma^{\bullet}$ and produce a program, possibly using bound
-% polymorphism, $e$, such that .
+\begin{definition}[Bound erasure]
+We define bound erasure ($-^{\bnd{\bullet}}$) over types and terms below:
+\begin{equation}
+\begin{aligned}[c]
+\textbf{unit}^{\bnd{\bullet}} &\triangleq \textbf{unit} \\
+\textbf{num}_i^{\bnd{\bullet}} &\triangleq \textbf{num} \\
+(!_s \tau)^{\bnd{\bullet}} &\triangleq !_s \tau^{\bnd{\bullet}} \\
+(M_u \tau)^{\bnd{\bullet}} &\triangleq M_u \tau^{\bnd{\bullet}} \\
+(\forall \epsilon . \tau)^{\bnd{\bullet}} &\triangleq \tau^{\bnd{\bullet}} \\
+(\tau_0 \times \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \times \tau_1^{\bnd{\bullet}}) \\
+(\tau_0 \otimes \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \otimes \tau_1^{\bnd{\bullet}}) \\
+(\tau_0 \multimap \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \multimap \tau_1^{\bnd{\bullet}}) \\
+\end{aligned}
+\end{equation}
+
+We similarly define an erasure operation for terms:
+\begin{equation}
+\begin{aligned}[c]
+(e \{ i \})^{\bnd{\bullet}} &\triangleq e  \\
+(\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e \\
+e^{\bnd{\bullet}} &\triangleq e &\text{otherwise} 
+\end{aligned}
+\end{equation}
+\end{definition}
 
 \begin{definition}[Type inference and checking problem]
-Given an erased context skeleton $\Delta \ | \ \Gamma^{\bullet}$ and program
-$e^{\bullet}$ in \Lang with erased type $\tau^{\bullet}$, produce a derivation
-of $\Delta \ | \ \Gamma \vdash e : \tau$ for $e$ in \bnd{\Lang} if such a
-derivation exists. We write this like: $$\Delta \ | \ \Gamma^{\bullet};
-e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
+Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
+: \tau$ for $e$ in \Lang if such a derivation exists. 
 \end{definition}
+
+\subsection{Inference algorithm}
+We write our inference algorithm this like:
+$$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
+where we start a program with a typing context $\Gamma^{\bullet}$ that has
+erased sensitivity information (but with bound variables) and an erased program
+$e^{\bnd{\bullet}}$ with no polymorphic bounds, and produces a typing context
+$\Gamma$ with sensitivity information and fully annotated program e and type
+$\tau$ such that
+$\Delta \ | \ \Gamma' \vdash e' : \tau$
+is derivable for some $\Delta$ (our soundness criterion). We start type
+inference by passing the empty context (written .), along with the bound-erased
+program (written $e^{\bnd{\bullet}}$) to the inference algorithm.
+
+Our type inference algorithm occurs in two stages, starting from an erased
+program (with no $\Lambda$ or polymoprhic instantiations) and sensitivity erased
+typing context $\Gamma^{\bullet}$:
+\begin{enumerate}
+  \item We infer sensitivities via the type inference algorithm
+  provided in \cite{NumFuzz}, extended to deal with our new $\mathbf{factor}$
+  primitive and interval bounds (Section~\ref{sec:sen-type-infer}). 
+  $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{sens.}{\implies} \Gamma;
+  e^{\bnd{\bullet}}; \tau^{\bnd{\bullet}}$$
+
+  \item We infer bounds (Section~\ref{sec:bnd-type-infer}):
+  $$\Gamma; e^{\bnd{\bullet}}; \tau^{\bnd{\bullet}} \underset{bnd.}{\implies}
+  \Gamma; e'; \tau'$$
+\end{enumerate}
+The full type inference algorithm is $\implies \triangleq
+\underset{bnd.}{\implies} \circ \underset{sens.}{\implies}$, defined below.
+
+\subsubsection{Stage 1/2: Sensitivity inference} \label{sec:sen-type-infer}
+Our sensitivity inference algorithm extends the inference algorithm presented in
+\cite{NumFuzz} with the following case for \textbf{factor}
+(Figure~\ref{fig:factor-type-infer}).
+
+\begin{figure} 
+\begin{center}
+\RightLabel{(\textbf{factor})}
+\AXC{$\Gamma^{\bullet}; e \underset{sens.}{\implies} \Gamma;
+e^{\bnd{\bullet}}; (M_q~\tau_0 \times M_r~\tau_1)^{\bnd{\bullet}}$}
+\UIC{$\Gamma^{\bullet}; \mathbf{factor}~e^{\bnd{\bullet}} \underset{sens.}{\implies}
+\Gamma; \mathbf{factor}~e^{\bnd{\bullet}};
+M_{max(q,r)}~(\tau_0 \times \tau_1)^{\bnd{\bullet}}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\end{center}
+    \caption{Rule for factor sensitivity inference. Note that $q,r$ are concrete
+    numbers so $max(q,r)$ is a concrete, computable number as well.}
+    \label{fig:factor-type-infer}
+\end{figure}
+
+\subsubsection{Stage 2/2: Bound inference} \label{sec:bnd-type-infer}
+The goal of this stage of type inference, then, is to take a program
+$e^{\bnd{\bullet}}$ in context $\Gamma$ and produce a program and with type in
+context, possibly using bound polymorphism.
 
 \begin{figure}
 %% ROW1
@@ -91,55 +173,55 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 \end{equation}
 
 \AXC{}
-\UIC{$I(\textbf{unit}^{\bullet}, \Gamma, \Delta) \to \textbf{unit}; .$}
+\UIC{$I(\textbf{unit}^{\bnd{\bullet}}, \Delta) \to \textbf{unit}; .$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
 \AXC{$\epsilon \text{ globally fresh}$}
-\UIC{$ I(\textbf{num}^{\bullet}, \Gamma, \Delta) \to \textbf{num}_{\epsilon};
+\UIC{$ I(\textbf{num}^{\bnd{\bullet}}, \Delta) \to \textbf{num}_{\epsilon};
 \epsilon $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \times \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 \times
+\AXC{$I(\tau_0^{\bnd{\bullet}},\Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \times
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \otimes \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 \otimes
+\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \otimes
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 + \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0 +
-\tau_1; \alpha, \beta$}
+\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 + \tau_1; \alpha,
+\beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau_0^{\bullet}, \Gamma, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bullet}, \Gamma, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \multimap \tau_1)^{\bullet}, \Gamma, \Delta) \to \tau_0
-\multimap \tau_1; \alpha, \beta$}
+\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \multimap
+\tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau^{\bullet}, \Gamma, \Delta) \to \tau; \beta$}
-\UIC{$I(!_s (\tau^{\bullet}), \Gamma, \Delta) \to !_s \tau ; \alpha, \beta$}
+\AXC{$I(\tau^{\bnd{\bullet}}, \Delta) \to \tau; \beta$}
+\UIC{$I(!_s (\tau^{\bnd{\bullet}}), \Delta) \to !_s \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau^{\bullet}, \Gamma, \Delta) \to \tau; \beta$}
-\UIC{$I(M_u (\tau^{\bullet}), \Gamma, \Delta) \to M_u \tau ; \alpha, \beta$}
+\AXC{$I(\tau^{\bnd{\bullet}}, \Delta) \to \tau; \beta$}
+\UIC{$I(M_u (\tau^{\bnd{\bullet}}), \Delta) \to M_u \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -147,49 +229,49 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 \vskip 3em
 
 \AXC{}
-\UIC{$E(\textbf{unit}, \Gamma, \Delta) \to .$}
+\UIC{$E(\textbf{unit}, \Delta) \to .$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 \AXC{$\epsilon \text{ globally fresh}$}
-\UIC{$ E(\textbf{num}_i, \Gamma, \Delta) \to i$}
+\UIC{$E(\textbf{num}_i, \Delta) \to i$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \times \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \times \tau_1), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \otimes \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \otimes \tau_1), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
-\BIC{$E((\tau_0 + \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Delta) \to \beta$}
+\BIC{$E((\tau_0 + \tau_1), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau_0, \Gamma, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Gamma, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \multimap \tau_1), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0, \Delta) \to \alpha$}
+\AXC{$E(\tau_1, \Delta) \to \beta$}
+\BIC{$E((\tau_0 \multimap \tau_1), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau, \Gamma, \Delta) \to \beta$}
-\UIC{$E(!_s (\tau), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau, \Delta) \to \beta$}
+\UIC{$E(!_s (\tau), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau, \Gamma, \Delta) \to \beta$}
-\UIC{$E(M_u (\tau), \Gamma, \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau, \Delta) \to \beta$}
+\UIC{$E(M_u (\tau), \Delta) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \end{center}
@@ -204,70 +286,61 @@ e^{\bullet} \implies \Delta \ | \ \Gamma'; e'; \tau$$
 %% unit
 \AXC{}
 \RightLabel{(Unit)}
-\UIC{$\Delta \ | \ \Gamma^{\bullet}; \langle \rangle \implies \Delta \ | \
-\Gamma^{0}; \langle \rangle; \textbf{unit}$}
+\UIC{$\Gamma; \langle \rangle^{\bnd{\bullet}} \implies \Gamma; \langle \rangle; \textbf{unit}$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-
+\hskip 0.5em
 %% var
 \AXC{}
 \RightLabel{(Var)}
-\UIC{$\Delta \ | \ \Gamma^{\bullet}, x : \sigma; \langle \rangle \implies \Delta \ | \
-\Gamma^{0}, x :_1 \sigma; x; \sigma$}
+\UIC{$\Gamma, x :_s \tau, x^{\bnd{\bullet}} \implies \Gamma, x :_s \tau; x; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
-
 %% bang intro
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; [e]_{\annotate{s}} \implies \Delta' \ | \
-\Gamma; [e]_{\annotate{s}}; \tau$}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau$}
 \RightLabel{($!$ I)}
-\UIC{$\Delta \ | \ \Gamma^{\bullet}; [e]_{\annotate{s}} \implies \Delta' \ | \
-s * \Gamma; [e]_{\annotate{s}}; !_s~\tau$}
+\UIC{$s * \Gamma; [e]_{\annotate{s}}^{\bnd{\bullet}} \implies s * \Gamma;
+[e]_{\annotate{s}}; !_s~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 %% fun
-\AXC{$I(\tau_0^{\bullet}, \Gamma^{\bullet}, \Delta) \to \tau_0; \epsilon_0, \ldots,
-\epsilon_n$}
-\AXC{$\Delta, \epsilon_0 : \textbf{bnd} , \ldots, \epsilon_n : \textbf{bnd}
-\ | \ \Gamma^{\bullet}, x : \tau_0; e^{\bullet} \implies \Delta' \ | \ \Gamma, x
-:_s \tau_0; e; \tau$}
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \epsilon_0, \ldots, \epsilon_n$}
+\AXC{$\Gamma, x : \tau_0; e^{\bnd{\bullet}} \implies \Gamma, x :_s \tau_0; e;
+\tau$}
 % \AXC{$\epsilon_0, \ldots, \epsilon_n \not\in FTV(\Gamma) \cup DOM(\Delta)$}
 \RightLabel{($\multimap$ I)}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; \lambda (x : \annotate{\tau_0^{\bullet}}).
-e^{\bullet} \implies \Delta' \ | \ \Gamma; \Lambda \epsilon_0, \ldots,
-\epsilon_n (\lambda (x : \tau_0) . e); \tau_0 \multimap
-\tau$}
+\BIC{$\Gamma; \lambda (x : \annotate{\tau_0^{\bnd{\bullet}}}). e^{\bnd{\bullet}}
+\implies \Gamma; \Lambda \epsilon_0, \ldots, \epsilon_n (\lambda (x : \tau_0) .
+e); \forall \epsilon_0, \ldots, \epsilon_n . \ \tau_0 \multimap \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-%% imp elim
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; f; \tau_0 \multimap \tau$}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; e; \tau'_0$}
-\AXC{$\tau'_0 \sqsubseteq \tau_0$}
-\RightLabel{($\multimap$ E)}
-\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
-\Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
+% %% imp elim
+% \AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; f; \tau_0 \multimap \tau$}
+% \AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; e; \tau'_0$}
+% \AXC{$\tau'_0 \sqsubseteq \tau_0$}
+% \RightLabel{($\multimap$ E)}
+% \TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
+% \Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
+% \bottomAlignProof
+% \DisplayProof
+% \vskip 1em
 
 %% imp elim, forall
-\AXC{$\begin{aligned}[t]
-E(\tau_0, \Gamma^{\bullet}, \Delta) &\to i_0, \ldots, i_n \\
-\tau'_0 &\sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \\
-\end{aligned}
-$}
 \AXC{$
 \begin{aligned}[t]
-\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} &\implies \Delta'_0 \ | \ \Gamma_0; f;
-\forall \epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau \\
-\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} &\implies \Delta'_1 \ | \ \Gamma_1;
-e; \tau'_0 \\
+\Theta; f^{\bnd{\bullet}} &\implies \Theta; f; \forall \epsilon_0, \ldots,
+\epsilon_n \ . \ \tau_0 \multimap \tau \\
+\Gamma; e^{\bnd{\bullet}} &\implies \Gamma; e; \tau'_0 \\ \end{aligned}
+$}
+\hskip 0.5em
+\AXC{$\begin{aligned}[t]
+E(\tau_0) &\to i_0, \ldots, i_n \\
+\tau'_0 &\sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \\
 \end{aligned}
 $}
 \AXC{$
@@ -276,35 +349,54 @@ $}
 \tau' &\not\mapsto 
 \end{aligned}
 $}
-\RightLabel{($\forall \multimap$ E)}
-\TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta'_0
-+ \Delta'_1 \ | \ \Gamma_0 + \Gamma_1 ; (f~\{ i_0 \}~\ldots~\{ i_n \})~e; \tau'$}
+\RightLabel{($\multimap$ E)}
+\TIC{$\Gamma + \Theta; (f~e)^{\bnd{\bullet}} \implies \Gamma + \Theta; (f~\{ i_0
+\}~\ldots~\{ i_n \})~e; \tau'$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{op})}
 \AXC{$\{\textbf{op} : \tau\} \in \Sigma$}
-\UIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{op} 
-\implies \Delta \ | \ \Gamma^{0}; \textbf{op}; \tau$}
+\UIC{$\Gamma; \textbf{op}^{\bnd{\bullet}} 
+\implies \Gamma; \textbf{op}; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{factor})}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} 
-\implies \Delta' \ | \ \Gamma; e; (M_q \tau_0 \times M_r \tau_1)$}
-\UIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{factor}~e^{\bullet} \implies \Delta
-\ | \ \Gamma; \textbf{factor}~e; M_{max(q, r)} (\tau_0 \times \tau_1)$}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; (M_q \tau_0 \times M_r
+\tau_1)$}
+\UIC{$\Gamma; \textbf{factor}~e^{\bnd{\bullet}} \implies \Gamma;
+\textbf{factor}~e; M_{max(q, r)} (\tau_0 \times \tau_1)$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\vskip 3em
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          Structural rules below                            %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip 2em
+
+%% Ret
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau$}
+\RightLabel{(\textbf{Ret})}
+\UIC{$\Gamma; \textbf{ret}~e^{\bnd{\bullet}} \implies \Gamma; \textbf{ret}~e;
+M_0~\tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% Rnd
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau$}
+\RightLabel{(\textbf{Rnd})}
+\UIC{$\Gamma; \textbf{rnd}~e^{\bnd{\bullet}} \implies \Gamma; \textbf{rnd}~e;
+M_q~\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
 
 %% times intro 
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; e; \tau_0$}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; f; \tau_1$}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau_0$}
+\AXC{$\Gamma; f^{\bnd{\bullet}} \implies \Gamma; f; \tau_1$}
 % \AXC{$
 % \begin{aligned}[t]
 % \Delta'_0 \sqsubseteq \Delta' \\
@@ -318,31 +410,49 @@ $}
 % \end{aligned}
 % $}
 \RightLabel{($\times$ I)}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; \langle f^{\bullet}, e^{\bullet} \rangle
-\implies \Delta'_0 + \Delta'_1 \ | \ max(\Gamma'_0, \Gamma'_1); \langle f, e
+\BIC{$\Gamma; \langle f, e \rangle^{\bnd{\bullet}} \implies \Gamma; \langle f, e
 \rangle; \tau_0 \times \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
-% todo: go over with Justin this
 
 %% otimes intro 
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; e; \tau_0$}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; f; \tau_1$}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau_0$}
+\AXC{$\Theta; f^{\bnd{\bullet}} \implies \Theta; f; \tau_1$}
 \RightLabel{($\otimes$ I)}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; \langle f^{\bullet}, e^{\bullet} \rangle
-\implies \Delta'_0 + \Delta'_1 \ | \ \Gamma'_0 + \Gamma'_1; (f, e); \tau_0 \otimes \tau_1$}
+\BIC{$\Gamma + \Theta; \langle f, e \rangle^{\bnd{\bullet}} \implies \Gamma +
+\Theta; (f, e); \tau_0 \otimes \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\RightLabel{(\textbf{let})}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; \tau_0$}
+\AXC{$\Gamma, x; f^{\bnd{\bullet}} \implies \Theta, x :_s \tau_0; \tau$}
+\BIC{$s * \Gamma + \Theta; (\textbf{let} \ x \ = \ e \ \textbf{in} \ f)^{\bnd{\bullet}}
+\implies s * \Gamma + \Theta; \textbf{let} \ x \ = \ e \ \textbf{in} \ f; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\RightLabel{(\textbf{let-pair})}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Delta_0 \ | \ \Gamma;
+e; \tau_0 \otimes \tau_1$}
+\AXC{$\Gamma, x, y; f^{\bnd{\bullet}} \implies \Delta_1 \ | \ \Theta, x :_s
+\tau_0, y :_s \tau_1; f; \tau$}
+\BIC{$s * \Gamma + \Theta; (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \implies s * \Gamma + \Theta; \textbf{let-pair} \ (x, y) \ =
+\ e \ \textbf{in} \ f; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{let-bind})}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta_0 \ | \ \Gamma; e; M_r~\tau_0$}
-\AXC{$\Delta \ | \ \Gamma^{\bullet}, x; f^{\bullet} \implies \Delta_1 \ | \ \Theta, x
-:_s \tau_0; M_q~\tau$}
-\BIC{$\Delta \ | \ \Gamma^{\bullet}; \textbf{let-bind} \ x \ = \ e^{\bullet} \
-\textbf{in} \ f^{\bullet} \implies \Delta_0 + \Delta_1 \ | \ s * \Gamma +
-\Theta; \textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f; M_{s*r + q}~\tau$}
+\AXC{$\Gamma; e^{\bnd{\bullet}} \implies \Gamma; e; M_r~\tau_0$}
+\AXC{$\Gamma, x; f^{\bnd{\bullet}} \implies \Theta, x :_s \tau_0; M_q~\tau$}
+\BIC{$s * \Gamma + \Theta; (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \implies s * \Gamma + \Theta; \textbf{let-bind} \ x \ = \ e \
+\textbf{in} \ f; M_{s*r + q}~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -354,5 +464,11 @@ $}
     \label{fig:type_inference}
 \end{figure}
 
+\begin{theorem}[Algorithmic Soundness]
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is some
+$\Delta$ such that $\Delta \ | \ \Gamma \vdash e' : \tau$ has a typing derivation.
+\end{theorem}
+\begin{proof}
+\end{proof}
 
 \section{Implementation and language instantiation}
