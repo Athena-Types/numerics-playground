@@ -1,0 +1,36 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function rigidBody1 
+ (x1' : ![2.0]num)
+ (x2' : ![2.0]num)
+ (x3' : ![2.0]num)
+{
+  let [x1] = x1';
+  let [x2] = x2';
+  let [x3] = x3';
+
+  s1 = mulfp64(x1, x2);
+  let a1 = s1;
+
+  a2 = minus(a1);
+
+  s3 = mulfp64(2.0, x2);
+  let a3 = s3;
+
+  s4 = mulfp64(a3, x3);
+  let a4 = s4;
+
+  s5 = subfp64(|a2, a4|);
+  let a5 = s5;
+
+  s6 = subfp64(|a5, x1|);
+  let a6 = s6;
+
+  s7 = subfp64(|a6, x3|);
+  s7
+}
+
+rigidBody1

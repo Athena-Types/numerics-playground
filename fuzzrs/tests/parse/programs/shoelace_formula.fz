@@ -1,0 +1,59 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function shoelace_formula
+  (x1' : ![2.0]num)
+  (y1' : ![2.0]num)
+  (x2' : ![2.0]num)
+  (y2' : ![2.0]num)
+  (x3' : ![2.0]num)
+  (y3' : ![2.0]num)
+{
+  let [x1] = x1';
+  let [y1] = y1';
+  let [x2] = x2';
+  let [y2] = y2';
+  let [x3] = x3';
+  let [y3] = y3';
+
+  // first let
+  b1 = mulfp64(x1, y2);
+  let c1 = b1;
+
+  b2 = mulfp64(y1, x2);
+  let c2 = b2;
+
+  s1 = subfp64(|c1, c2|);
+  let a1 = s1;
+
+  // second let
+  b3 = mulfp64(x2, y3);
+  let c3 = b3;
+  b4 = mulfp64(y2, x3);
+  let c4 = b4;
+  s2 = subfp64(|c3, c4|);
+  let a2 = s2;
+
+  // third let
+  b4 = mulfp64(x3, y1);
+  let c4 = b4;
+  b5 = mulfp64(y3, x1);
+  let c5 = b5;
+  s3 = subfp64(|c4, c5|);
+  let a3 = s3;
+
+  // build up final exp
+  fin1 = addfp64(|a1, a2|);
+  let fin1d = fin1;
+
+  fin2 = addfp64(|fin1d, a3|);
+  let fin2d = fin2;
+
+  fin = mulfp64(0.5, fin2d);
+  fin
+}
+
+shoelace_formula
+

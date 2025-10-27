@@ -1,0 +1,59 @@
+program = { declaration+ }
+declaration = { include | function | name }
+
+function = { "function" ~ name ~ args ~ body }
+name = @{ ASCII_ALPHA ~ ("_" | "-" | "'" | ASCII_ALPHANUMERIC)* }
+
+args = { arg* }
+arg = { "(" ~ name ~ ":" ~ type ~ ")" }
+// type = { unit | bang | num | tensor | cartesian | sum | fun | monad | bang }
+type = { unit | bang | num | tensor | cartesian | monad | bang }
+unit = { "()" }
+num = { "num" }
+tensor = { "(" ~ type ~ "," ~ type ~ ")" }
+cartesian = { "<" ~ type ~ "," ~ type ~ ">" }
+sum = { type ~ ("+" ~ type) }
+fun = { (type ~ "-o") ~ type }
+monad = { ("M[" ~ float ~ "]"~ type) }
+bang = { ("![" ~ float ~ "]"~ type) }
+
+body = { "{" ~ expr ~ "}" }
+expr = { float | abs | app | let | lb | lcb | op | proj | tens | cart | in | case | ret | rnd | factor | scale }
+let = { "let" ~ name ~ "=" ~ expr ~ "in" ~ expr }
+lb = { "lb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
+lcb = { "lcb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
+op = { "add" ~ expr | "sub" ~ expr | "mul" ~ expr}
+abs = { "fun" ~ args ~ body }
+app = { atom ~ atom }
+atom = { name | "(" ~ expr ~ ")" }
+proj = { "fst" ~ expr | "snd" ~ expr }
+tens = { "(" ~ expr ~ "," ~ expr ~ ")" }
+cart = { "<" ~ expr ~ "," ~ expr ~ ">" }
+in = { "inl" ~ expr | "inr" ~ expr }
+case = { 
+  "case" ~ expr ~ 
+    "{" ~ 
+      "inl" ~ expr ~ "=>" ~ expr 
+      ~ "|" ~ 
+      "inr" ~ expr ~ "=>" ~ expr ~ 
+    "}"
+  }
+ret = { "ret" ~ expr }
+rnd = { "ret" ~ expr }
+factor = { "ret" ~ expr }
+scale = { "[" ~ expr ~ "]" }
+
+
+include = { "#include" ~ "\"" ~ filename ~ "\"" ~ (";")? }
+filename = { path ~ ".fz" }
+path = @{ ("." | name )  ~ ("/" ~ name)* }
+
+// Numbers, taken from the pest docs
+integer = { ("+" | "-")? ~ int }
+float   = { ("+" | "-")? ~ int ~ ("." ~ digits ~ exp? | exp)? }
+int     = { "0" | (ASCII_NONZERO_DIGIT ~ digits?) }
+digits  = { (ASCII_DIGIT | ("_" ~ ASCII_DIGIT))+ }
+exp     = { ("E" | "e") ~ ("+" | "-")? ~ int }
+
+space = _{ " " | NEWLINE | WHITE_SPACE }
+WHITESPACE = _{ " " | NEWLINE | WHITE_SPACE }

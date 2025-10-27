@@ -1,0 +1,66 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function rigidBody2 
+ (x1' : ![2.0]num)
+ (x2' : ![4.0]num)
+ (x3' : ![6.0]num)
+{
+  let [x1] = x1';
+  let [x2] = x2';
+  let [x3] = x3';
+
+  s1 = mulfp64(2.0, x1);
+  let a1 = s1;
+
+  s2 = mulfp64(a1, x2);
+  let a2 = s2;
+
+  // (* (* (* 2 x1) x2) x3)
+  s3 = mulfp64(a2, x3);
+  let a3 = s3;
+
+  s4 = mulfp64(3.0, x3);
+  let a4 = s4;
+
+  // (* (* 3 x3) x3)
+  s5 = mulfp64(a4, x3);
+  let a5 = s5;
+
+  // (+ (* (* (* 2 x1) x2) x3) (* (* 3 x3) x3))
+  s6 = addfp64(|a3, a5|);
+  let a6 = s6;
+
+  s7 = mulfp64(x2, x1);
+  let a7 = s7;
+
+  s8 = mulfp64(a7, x2);
+  let a8 = s8;
+
+  // (* (* (* x2 x1) x2) x3)
+  s9 = mulfp64(a8, x3);
+  let a9 = s9;
+
+  // (- (+ (* (* (* 2 x1) x2) x3) (* (* 3 x3) x3)) (* (* (* x2 x1) x2) x3))
+  s10 = subfp64(|a6, a9|);
+  let a10 = s10;
+
+  s11 = mulfp64(3.0, x3);
+  let a11 = s11;
+
+  // (* (* 3 x3) x3)
+  s12 = mulfp64(a11, x3);
+  let a12 = s12;
+
+  // + _ _
+  s13 = addfp64(|a10, a12|);
+  let a13 = s13;
+
+  // - _ _
+  s14 = subfp64(|a13, x2|);
+  s14
+}
+
+rigidBody2

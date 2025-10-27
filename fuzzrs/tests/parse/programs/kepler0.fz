@@ -1,0 +1,66 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function kepler0 
+  (x1' : ![2.0]num)
+  (x2' : ![3.0]num)
+  (x3' : ![3.0]num)
+  (x4 : num)
+  (x5' : ![3.0]num)
+  (x6' : ![3.0]num)
+{
+  let [x1] = x1';
+  let [x2] = x2';
+  let [x3] = x3';
+  let [x5] = x5';
+  let [x6] = x6';
+
+  s1 = mulfp64(x2, x5);
+  let a1 = s1;
+
+  s2 = mulfp64(x3, x6);
+  let a2 = s2;
+
+  s3 = addfp64(|a1, a2|);
+  let a3 = s3;
+
+  s4 = mulfp64(x2, x3);
+  let a4 = s4;
+
+  s5 = subfp64(|a3, a4|);
+  let a5 = s5;
+
+  s6 = mulfp64(x5, x6);
+  let a6 = s6;
+
+  // (- (- (+ (* x2 x5) (* x3 x6)) (* x2 x3)) (* x5 x6))
+  s7 = subfp64(|a5, a6|);
+  let a7 = s7;
+
+  b1 = minus(x1);
+  b2 = addfp64(|b1, x2|);
+  let c2 = b2;
+
+  b3 = addfp64(|c2, x3|);
+  let c3 = b3;
+
+  b4 = subfp64(|c3, x4|);
+  let c4 = b4;
+  
+  b5 = addfp64(|c4, x5|);
+  let c5 = b5;
+
+  b6 = addfp64(|c5, x6|);
+  let c6 = b6;
+
+  // (* x1 (+ (+ (- (+ (+ (- x1) x2) x3) x4) x5) x6))
+  b7 = mulfp64(x1, c6);
+  let c7 = b7;
+  
+  fin = addfp64(|a7, c7|);
+  fin
+}
+
+kepler0

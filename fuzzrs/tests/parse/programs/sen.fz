@@ -1,0 +1,31 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+
+// sen2 :: ((![2.] ℝ) ⊸ (ℝ ⊸ (M[4.4408920985e-16] ℝ)))
+function sen2
+   (x1' : ![2.0]num)
+{
+  let [x1] = x1';
+
+  x1_mul_x1 = mulfp64(x1,x1);
+  let ax1_mul_x1 = x1_mul_x1;
+
+  s1 = mulfp64(ax1_mul_x1, 1.0);
+  s1
+}
+
+// main :: ((![3.] ℝ) ⊸ ((![3.] ℝ) ⊸ (M[1.11022302463e-15] ℝ)))
+// It should actually be two-sensitive in the args!
+function main
+   (x1' : ![3.0]num)
+{
+  let [x1] = x1';
+
+  d1 = sen2([x1{2.0}]);
+  let a1 = d1;
+
+  d3 = addfp64(|a1, x1|);
+  d3
+}
+
+main

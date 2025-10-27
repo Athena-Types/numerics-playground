@@ -1,0 +1,56 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function sqroot
+  (x' : ![10.0]num)
+{
+  let [x] = x';
+
+  s1 = mulfp64(0.5, x);
+  let a1 = s1;
+
+  s2 = addfp64(|1.0, a1|);
+  let a2 = s2;
+
+  s3 = mulfp64(0.125, x);
+  let a3 = s3;
+
+  s4 = mulfp64(a3, x);
+  let a4 = s4;
+
+  s5 = subfp64(|a2, a4|);
+  let a5 = s5;
+
+  s6 = mulfp64(0.0625, x);
+  let a6 = s6;
+
+  s7 = mulfp64(a6, x);
+  let a7 = s7;
+
+  s8 = mulfp64(a7, x);
+  let a8 = s8;
+
+  // (+ (- (+ 1 (* 1/2 x)) (* (* 1/8 x) x)) (* (* (* 1/16 x) x) x))
+  s9 = addfp64(|a5, a8|);
+  let a9 = s9;
+
+  s10 = mulfp64(0.0390625, x);
+  let a10 = s10;
+
+  s11 = mulfp64(a10, x);
+  let a11 = s11;
+
+  s12 = mulfp64(a11, x);
+  let a12 = s12;
+
+  // (* (* (* (* 5/128 x) x) x) x)
+  s13 = mulfp64(a12, x);
+  let a13 = s13;
+
+  fin = subfp64(|a9, a13|);
+  fin
+}
+
+sqroot
