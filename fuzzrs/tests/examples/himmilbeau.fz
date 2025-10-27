@@ -1,0 +1,21 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+
+function himmilbeau
+   (x1' : ![2.0]num) (x2 : num)
+{
+  // x1 * x1
+  let [x1] = x1';
+  s1 = mulfp64(x1,x1);
+  // (x1 * x1) + x2
+  let a1 = s1;
+  s2 = addfp64(|a1,x2|);
+  // ((x1 * x1) + x2) - 11
+  let a2 = s2;
+  s3 = subfp64(|a2, 11.0|);
+  s3
+}
+
+himmilbeau

@@ -2,6 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
+use fuzzrs::parser::*;
 use fuzzrs::{RawLang, Rule};
 use pest::Parser;
 
@@ -40,8 +41,8 @@ fn main() {
 
     let opt = Opt::from_args();
 
-    let file = fs::read_to_string(opt.input).expect("File not found!");
+    let prog = fuzzrs::parser::parse_file(opt.input);
 
-    let prog = RawLang::parse(Rule::program, &file);
+    // let prog = RawLang::parse(Rule::program, &file);
     println!("{:?}", prog);
 }

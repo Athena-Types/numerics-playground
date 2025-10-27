@@ -3,7 +3,7 @@ declaration = { include | function | name }
 
 keywords = { "let" | "lcb" | "lb" | "case"| "in" | "of" | "=" }
 
-function = { "function" ~ name ~ args ~ body }
+function = { "function" ~ name ~ args ~ (":" ~ type)? ~ body }
 name = @{ 
   !keywords ~
   ASCII_ALPHA ~ ("_" | "-" | "'" | ASCII_ALPHANUMERIC)* 
@@ -13,14 +13,15 @@ args = { arg* }
 arg = { "(" ~ name ~ ":" ~ type ~ ")" }
 type = { 
   monad | bang | forall | fun |
-  unit | bang | num | tensor | cartesian | sum
+  unit | bang | num | tensor | cartesian | sum |
+  "(" ~ type ~ ")"
 }
 unit = { "()" }
 num = { "num" | "num[" ~ iop ~ "]" }
 tensor = { "(" ~ type ~ "," ~ type ~ ")" }
 cartesian = { "<" ~ type ~ "," ~ type ~ ">" }
 sum = { atom_ty ~ "+" ~ type }
-fun = { atom_ty ~ "+" ~ type }
+fun = { atom_ty ~ "-o" ~ type }
 monad = { "M[" ~ (eps | float) ~ "]" ~ type }
 bang = { ("![" ~ float ~ "]"~ type) }
 forall = { "forall" ~ name ~ "." ~ type }
@@ -32,27 +33,27 @@ lifted_op = { "+" | "*" | "-" }
 
 body = { "{" ~ expr ~ "}" }
 expr = { 
-  let | lcb | lb | lp |
+  letassign | lcb | lb | lp |
   float | abs | app | op | proj | 
   tens | cart | in | 
   case | ret | rnd | factor | scale |
   var | atom
 }
 var = { name }
-let = { 
-  ("let" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+letassign = { 
+  ("let " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | (name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lcb = { 
-  ("lcb" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  ("lcb " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | ("let" ~ "[" ~ name ~ "]" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lb = { 
-  ("lb" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  ("lb " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | ("let" ~ name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lp = { 
-  ("lp" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  ("lp " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | ("let" ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 op = { "add" ~ expr | "sub" ~ expr | "mul" ~ expr}
@@ -96,4 +97,4 @@ exp     = { ("E" | "e") ~ ("+" | "-")? ~ int }
 
 space = _{ " " | NEWLINE | WHITE_SPACE }
 WHITESPACE = _{ " " | NEWLINE | WHITE_SPACE }
-COMMENT = ${ "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE }
+COMMENT = _{ "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE }

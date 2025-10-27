@@ -6,3 +6,4 @@ use pest_derive::Parser;
 pub struct RawLang;
 
 pub mod exprs;
+pub mod parser;

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::fs;
 
-use pest::Parser;
 use fuzzrs::{RawLang, Rule};
+use pest::Parser;
 
 #[test]
 fn test_parse_floats() {
@@ -31,7 +31,7 @@ fn test_type() {
 }
 
 #[test]
-fn test_parse_programs() {
+fn test_lex_programs() {
     let paths = fs::read_dir("tests/parse/programs").unwrap();
 
     for path in paths {
@@ -41,4 +41,23 @@ fn test_parse_programs() {
         let prog = RawLang::parse(Rule::program, &file).expect(fname.to_str().unwrap());
         // println!("{:?}", prog);
     }
+}
+
+#[test]
+fn test_parse_programs() {
+    let paths = fs::read_dir("tests/examples").unwrap();
+
+    let mut counter = 0;
+    for path in paths {
+        let p = path.as_ref().unwrap().path().clone();
+        if let Some(ext) = p.extension() {
+            if ext.to_str().unwrap() == "fz" {
+                eprintln!("{:?}", p);
+                let prog = fuzzrs::parser::parse_file(p);
+                eprintln!("{:?}", prog);
+                counter += 1;
+            }
+        }
+    }
+    assert_eq!(counter, 33);
 }

@@ -1,0 +1,4 @@
+function minus(x : num) : num {
+  s1 = sub(|0.0,x|);
+  s1
+}

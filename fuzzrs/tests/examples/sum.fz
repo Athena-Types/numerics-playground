@@ -1,0 +1,38 @@
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+function sum
+  (x0' : ![3.0]num)
+  (x1' : ![3.0]num)
+  (x2' : ![3.0]num)
+{
+  let [x0] = x0';
+  let [x1] = x1';
+  let [x2] = x2';
+
+  s1 = addfp64(|x0, x1|);
+  let a1 = s1;
+
+  s2 = subfp64(|a1, x2|);
+  let p0 = s2;
+
+  s3 = addfp64(|x1, x2|);
+  let a3 = s3;
+
+  s4 = subfp64(|a3, x0|);
+  let p1 = s4;
+
+  s5 = addfp64(|x2, x0|);
+  let a5 = s5;
+
+  s6 = subfp64(|a5, x1|);
+  let p2 = s6;
+
+  fin1 = addfp64(|p0, p1|);
+  let fin1d = fin1;
+
+  fin = addfp64(|fin1d, p2|);
+  fin
+}
+
+sum
