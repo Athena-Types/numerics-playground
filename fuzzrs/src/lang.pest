@@ -1,19 +1,27 @@
-program = { declaration+ }
+program = { SOI ~ declaration+ ~ EOI }
 declaration = { include | function | name }
 
+keywords = { "let" | "lcb" | "lb" | "case"| "in" | "of" | "=" }
+
 function = { "function" ~ name ~ args ~ body }
-name = @{ ASCII_ALPHA ~ ("_" | "-" | "'" | ASCII_ALPHANUMERIC)* }
+name = @{ 
+  !keywords ~
+  ASCII_ALPHA ~ ("_" | "-" | "'" | ASCII_ALPHANUMERIC)* 
+  }
 
 args = { arg* }
 arg = { "(" ~ name ~ ":" ~ type ~ ")" }
-type = { unit | bang | num | tensor | cartesian | sum | fun | monad | bang | forall}
+type = { 
+  monad | bang | forall | fun |
+  unit | bang | num | tensor | cartesian | sum
+}
 unit = { "()" }
 num = { "num" | "num[" ~ iop ~ "]" }
 tensor = { "(" ~ type ~ "," ~ type ~ ")" }
 cartesian = { "<" ~ type ~ "," ~ type ~ ">" }
 sum = { atom_ty ~ "+" ~ type }
 fun = { atom_ty ~ "+" ~ type }
-monad = { ("M[" ~ float ~ "]"~ type) }
+monad = { "M[" ~ (eps | float) ~ "]" ~ type }
 bang = { ("![" ~ float ~ "]"~ type) }
 forall = { "forall" ~ name ~ "." ~ type }
 
@@ -23,18 +31,42 @@ iop = { name ~ "(" ~ float ~ "," ~ float ~ ")" | lifted_op ~ iop ~ iop }
 lifted_op = { "+" | "*" | "-" }
 
 body = { "{" ~ expr ~ "}" }
-expr = { var | float | abs | app | let | lb | lcb | op | proj | tens | cart | in | case | ret | rnd | factor | scale }
+expr = { 
+  let | lcb | lb | lp |
+  float | abs | app | op | proj | 
+  tens | cart | in | 
+  case | ret | rnd | factor | scale |
+  var | atom
+}
 var = { name }
-let = { "let" ~ name ~ "=" ~ expr ~ "in" ~ expr }
-lb = { "lb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
-lcb = { "lcb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
+let = { 
+  ("let" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  | (name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
+}
+lcb = { 
+  ("lcb" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  | ("let" ~ "[" ~ name ~ "]" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
+}
+lb = { 
+  ("lb" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  | ("let" ~ name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
+}
+lp = { 
+  ("lp" ~ name ~ "=" ~ expr ~ "in" ~ expr) 
+  | ("let" ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
+}
 op = { "add" ~ expr | "sub" ~ expr | "mul" ~ expr}
 abs = { "fun" ~ args ~ body }
-app = { atom ~ atom }
+app = { 
+  atom ~ expr 
+}
 atom = { var | float | "(" ~ expr ~ ")" }
 proj = { "fst" ~ expr | "snd" ~ expr }
 tens = { "(" ~ expr ~ "," ~ expr ~ ")" }
-cart = { "<" ~ expr ~ "," ~ expr ~ ">" }
+cart = { 
+  ("|" ~ expr ~ "," ~ expr ~ "|") | 
+  ("<" ~ expr ~ "," ~ expr ~ ">") // old syntax
+}
 in = { "inl" ~ expr | "inr" ~ expr }
 case = { 
   "case" ~ expr ~ 
@@ -56,6 +88,7 @@ path = @{ ("." | name )  ~ ("/" ~ name)* }
 
 // Numbers, taken from the pest docs
 integer = { ("+" | "-")? ~ int }
+eps = @{ "eps" ~ ( "16" | "32" | "64") ~ "_" ~ ("up" | "down") }
 float   = { ("+" | "-")? ~ int ~ ("." ~ digits ~ exp? | exp)? }
 int     = { "0" | (ASCII_NONZERO_DIGIT ~ digits?) }
 digits  = { (ASCII_DIGIT | ("_" ~ ASCII_DIGIT))+ }
@@ -63,3 +96,4 @@ exp     = { ("E" | "e") ~ ("+" | "-")? ~ int }
 
 space = _{ " " | NEWLINE | WHITE_SPACE }
 WHITESPACE = _{ " " | NEWLINE | WHITE_SPACE }
+COMMENT = ${ "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE }

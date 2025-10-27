@@ -4,16 +4,17 @@ pub enum Op {
     Sub
 }
 
+type float = f64;
+
 pub enum Interval {
     Eps(String),
-    Const(f64, f64),
+    Const((float, float), (float, float)),
     IOp(Op, Vec<Interval>)
 }
 
-
 pub enum Expr {
     Var(String),
-    Num(f64, f64),
+    Num(float, float),
     Op(Op),
     Lam(Box<Expr>, Box<Expr>),
     App(Box<Expr>, Box<Expr>),
@@ -31,6 +32,6 @@ pub enum Expr {
     In(usize, Box<Expr>),
     Rnd(Box<Expr>),
     Ret(Box<Expr>),
-    Scale(Box<Expr>),
+    Scale(float, Box<Expr>),
     Factor(Box<Expr>),
 }

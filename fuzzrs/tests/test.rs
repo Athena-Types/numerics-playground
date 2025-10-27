@@ -15,7 +15,19 @@ fn test_parse_floats() {
         counter += 1;
     }
 
-    assert_eq!(counter, 8);
+    assert_eq!(counter, 9);
+}
+
+#[test]
+fn test_eps() {
+    let eps = RawLang::parse(Rule::eps, "eps64_up").unwrap();
+    println!("{:?}", eps);
+}
+
+#[test]
+fn test_type() {
+    let ty = RawLang::parse(Rule::r#type, "M[eps64_up]num").unwrap();
+    println!("{:?}", ty);
 }
 
 #[test]
@@ -23,9 +35,10 @@ fn test_parse_programs() {
     let paths = fs::read_dir("tests/parse/programs").unwrap();
 
     for path in paths {
-        let file = fs::read_to_string(path.unwrap().path()).expect("File not found!");
+        let fname = path.unwrap().path();
+        let file = fs::read_to_string(&fname).expect("File not found!");
 
-        let prog = RawLang::parse(Rule::program, &file).unwrap();
-        println!("{:?}", prog);
+        let prog = RawLang::parse(Rule::program, &file).expect(fname.to_str().unwrap());
+        // println!("{:?}", prog);
     }
 }

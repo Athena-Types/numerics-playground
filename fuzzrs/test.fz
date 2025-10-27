@@ -1,0 +1,18 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function kepler0 
+  (x1' : ![2.0]num)
+  (x2' : ![3.0]num)
+  (x3' : ![3.0]num)
+  (x4 : num)
+  (x5' : ![3.0]num)
+  (x6' : ![3.0]num)
+{
+  lcb x1 = x1 in fin
+}
+  // 3.2
+
+kepler0
