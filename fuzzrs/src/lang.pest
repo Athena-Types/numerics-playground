@@ -6,26 +6,32 @@ name = @{ ASCII_ALPHA ~ ("_" | "-" | "'" | ASCII_ALPHANUMERIC)* }
 
 args = { arg* }
 arg = { "(" ~ name ~ ":" ~ type ~ ")" }
-// type = { unit | bang | num | tensor | cartesian | sum | fun | monad | bang }
-type = { unit | bang | num | tensor | cartesian | monad | bang }
+type = { unit | bang | num | tensor | cartesian | sum | fun | monad | bang | forall}
 unit = { "()" }
-num = { "num" }
+num = { "num" | "num[" ~ iop ~ "]" }
 tensor = { "(" ~ type ~ "," ~ type ~ ")" }
 cartesian = { "<" ~ type ~ "," ~ type ~ ">" }
-sum = { type ~ ("+" ~ type) }
-fun = { (type ~ "-o") ~ type }
+sum = { atom_ty ~ "+" ~ type }
+fun = { atom_ty ~ "+" ~ type }
 monad = { ("M[" ~ float ~ "]"~ type) }
 bang = { ("![" ~ float ~ "]"~ type) }
+forall = { "forall" ~ name ~ "." ~ type }
+
+atom_ty = { unit | num | "(" ~ type ~ ")" }
+
+iop = { name ~ "(" ~ float ~ "," ~ float ~ ")" | lifted_op ~ iop ~ iop }
+lifted_op = { "+" | "*" | "-" }
 
 body = { "{" ~ expr ~ "}" }
-expr = { float | abs | app | let | lb | lcb | op | proj | tens | cart | in | case | ret | rnd | factor | scale }
+expr = { var | float | abs | app | let | lb | lcb | op | proj | tens | cart | in | case | ret | rnd | factor | scale }
+var = { name }
 let = { "let" ~ name ~ "=" ~ expr ~ "in" ~ expr }
 lb = { "lb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
 lcb = { "lcb" ~ name ~ "=" ~ expr ~ "in" ~ expr }
 op = { "add" ~ expr | "sub" ~ expr | "mul" ~ expr}
 abs = { "fun" ~ args ~ body }
 app = { atom ~ atom }
-atom = { name | "(" ~ expr ~ ")" }
+atom = { var | float | "(" ~ expr ~ ")" }
 proj = { "fst" ~ expr | "snd" ~ expr }
 tens = { "(" ~ expr ~ "," ~ expr ~ ")" }
 cart = { "<" ~ expr ~ "," ~ expr ~ ">" }
@@ -41,7 +47,7 @@ case = {
 ret = { "ret" ~ expr }
 rnd = { "ret" ~ expr }
 factor = { "ret" ~ expr }
-scale = { "[" ~ expr ~ "]" }
+scale = { "[" ~ expr ~ "{" ~ float ~ "}" ~ "]" }
 
 
 include = { "#include" ~ "\"" ~ filename ~ "\"" ~ (";")? }

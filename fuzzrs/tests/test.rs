@@ -1,8 +1,7 @@
-use pest::Parser;
-
 use std::collections::HashMap;
 use std::fs;
 
+use pest::Parser;
 use fuzzrs::{RawLang, Rule};
 
 #[test]
