@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 use structopt::StructOpt;
+use std::collections::HashMap;
+use std::sync::atomic::AtomicUsize;
 
 use fuzzrs::parser::*;
 use fuzzrs::{RawLang, Rule};
@@ -43,8 +45,9 @@ fn main() {
 
     let prog = fuzzrs::parser::start(opt.input);
 
-    // let ty = fuzzrs::typer::infer(HashMap::new(), prog);
+    println!("program {:#?}", prog);
+    let mut eps_c = AtomicUsize::new(0);
+    let ty = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
 
     // let prog = RawLang::parse(Rule::program, &file);
-    println!("{:#?}", prog);
 }

@@ -32,11 +32,12 @@ iop = { name ~ "(" ~ float ~ "," ~ float ~ ")" | lifted_op ~ iop ~ iop }
 lifted_op = { "+" | "*" | "-" }
 
 body = { "{" ~ expr ~ "}" }
-expr = { 
+expr = {
+  ret | rnd |
   letassign | lcb | lb | lp |
   float | abs | app | op | proj | 
   tens | cart | in | 
-  case | ret | rnd | factor | scale |
+  case | factor | scale |
   var | atom
 }
 var = { name }
@@ -56,12 +57,12 @@ lp = {
   ("lp " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | ("let" ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
-op = { "add" ~ expr | "sub" ~ expr | "mul" ~ expr}
+op = { "add" | "sub" | "mul" }
 abs = { "fun" ~ args ~ body }
 app = { 
   atom ~ expr 
 }
-atom = { var | float | "(" ~ expr ~ ")" }
+atom = { op | var | float | "(" ~ expr ~ ")" }
 proj = { "fst" ~ expr | "snd" ~ expr }
 tens = { "(" ~ expr ~ "," ~ expr ~ ")" }
 cart = { 
@@ -78,9 +79,10 @@ case = {
     "}"
   }
 ret = { "ret" ~ expr }
-rnd = { "ret" ~ expr }
+rnd = { "rnd" ~ modes ~ expr }
 factor = { "ret" ~ expr }
 scale = { "[" ~ expr ~ "{" ~ float ~ "}" ~ "]" }
+modes = { "16" | "32" | "64" }
 
 
 include = { "#include" ~ "\"" ~ filename ~ "\"" ~ (";")? }
@@ -89,7 +91,7 @@ path = @{ ("." | name )  ~ ("/" ~ name)* }
 
 // Numbers, taken from the pest docs
 integer = { ("+" | "-")? ~ int }
-eps = @{ "eps" ~ ( "16" | "32" | "64") ~ "_" ~ ("up" | "down") }
+eps = @{ "eps" ~ modes ~ "_" ~ ("up" | "down") }
 float   = { ("+" | "-")? ~ int ~ ("." ~ digits ~ exp? | exp)? }
 int     = { "0" | (ASCII_NONZERO_DIGIT ~ digits?) }
 digits  = { (ASCII_DIGIT | ("_" ~ ASCII_DIGIT))+ }

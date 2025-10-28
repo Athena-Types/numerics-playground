@@ -1,7 +1,7 @@
 use pest::Parser;
 // use pest::ParseResult;
 // use pest::error::Error;
-use crate::exprs::Expr::*;
+use crate::exprs::Expr::{Var, Rnd};
 use crate::exprs::*;
 use crate::{RawLang, Rule};
 use pest::iterators::{Pair, Pairs};
@@ -140,13 +140,7 @@ pub fn parse_ty(input: Pair<'_, Rule>) -> Ty {
 }
 
 pub fn parse_arg(input: Pair<'_, Rule>) -> (String, Ty) {
-    eprintln!("{:#?}", input);
-    eprintln!("{:#?}", input.as_span());
-    // unwrap if arg
     let mut components = input.clone().into_inner();
-    // if (input.as_rule() == Rule::arg) {
-    //     components = components.next().unwrap().into_inner();
-    // }
     let name = components.next().unwrap().as_str();
     let ty = parse_ty(components.next().unwrap());
     (name.to_string(), ty)
@@ -165,11 +159,10 @@ pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Ty) {
         .into_inner()
         .map(|x| parse_arg(x))
         .collect();
-    // eprintln!("function type inputs: {:?}", args);
 
-    let mut return_ty = Ty::Hole;
+    let mut ty = Ty::Hole;
     if innards.len() == 2 {
-        return_ty = parse_ty(innards.next().unwrap());
+        ty = parse_ty(innards.next().unwrap());
     }
     let body = parse_expr(innards.next().unwrap().into_inner().next().unwrap());
 
@@ -182,10 +175,11 @@ pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Ty) {
                 Box::new(typ.clone()),
                 Box::new(fun),
             );
+            ty = Ty::Fun(Box::new(typ.clone()), Box::new(ty));
         }
     }
 
-    (fname.to_string(), fun, return_ty)
+    (fname.to_string(), fun, ty)
 }
 
 pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
@@ -283,6 +277,21 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
                 }
             }
             fun
+        }
+        Rule::op => {
+            let op = inner_expr.as_str();
+            match op {
+                "mul" => Expr::Op(Op::Mul),
+                "add" => Expr::Op(Op::Add),
+                "sub" => Expr::Op(Op::Sub),
+                _ => todo!("unhandled op {:?}", inner_expr)
+            }
+        }
+        Rule::rnd => {
+            let mut components = inner_expr.into_inner();
+            let size = components.next().unwrap().as_str().parse::<usize>().unwrap();
+            let e = parse_expr(components.next().unwrap());
+            Rnd(size, Box::new(e))
         }
         _ => todo!("unimplemented rule for {:?}", inner_expr),
     };
