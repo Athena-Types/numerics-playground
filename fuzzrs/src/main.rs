@@ -41,8 +41,10 @@ fn main() {
 
     let opt = Opt::from_args();
 
-    let prog = fuzzrs::parser::parse_file(opt.input);
+    let prog = fuzzrs::parser::start(opt.input);
+
+    // let ty = fuzzrs::typer::infer(HashMap::new(), prog);
 
     // let prog = RawLang::parse(Rule::program, &file);
-    println!("{:?}", prog);
+    println!("{:#?}", prog);
 }

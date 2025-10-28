@@ -46,7 +46,8 @@ pub enum Expr {
     Cart(Box<Expr>, Box<Expr>),
     Tens(Box<Expr>, Box<Expr>),
 
-    Let(Box<Expr>, Box<Expr>, Box<Expr>),
+    // the ty here is optional (will usually be a hole)
+    Let(Box<Expr>, Box<Ty>, Box<Expr>, Box<Expr>),
     LB(Box<Expr>, Box<Expr>, Box<Expr>),
     LCB(Box<Expr>, Box<Expr>, Box<Expr>),
     LP(Box<Expr>, Box<Expr>, Box<Expr>, Box<Expr>),
@@ -58,16 +59,18 @@ pub enum Expr {
     Factor(Box<Expr>),
 }
 
-pub struct Ctx {
-    program: Expr,
-    context: HashMap<String, Expr>,
-}
-
-impl Ctx {
-    pub fn new(program: Expr, context: HashMap<String, Expr>) -> Ctx {
-        Ctx {
-            program: program,
-            context: context,
-        }
-    }
-}
+pub type CtxSkeleton = HashMap<String, (Expr, Ty)>;
+pub type Ctx = HashMap<String, (Expr, Ty)>;
+// pub struct Ctx {
+//     program: Expr,
+//     context: HashMap<String, Expr>,
+// }
+//
+// impl Ctx {
+//     pub fn new(program: Expr, context: HashMap<String, (Expr, Ty)>) -> Ctx {
+//         Ctx {
+//             program: program,
+//             context: context,
+//         }
+//     }
+// }

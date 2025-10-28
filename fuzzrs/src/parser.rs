@@ -10,6 +10,28 @@ use std::fs;
 use std::path::PathBuf;
 use std::vec;
 
+pub fn start(filename: PathBuf) -> Expr {
+    let (decls, prog) = parse_file(filename);
+    combine_decls(decls, prog)
+}
+
+pub fn combine_decls(decls: HashMap<String, (Expr, Ty)>, e: Expr) -> Expr {
+    let mut body = e;
+
+    let mut bindings: Vec<(String, (Expr, Ty))> = decls.into_iter().collect();
+    bindings.reverse();
+
+    for (name, (exp, ty)) in &bindings {
+        body = Expr::Let(
+            Box::new(Expr::Var(name.to_string())), 
+            Box::new(ty.clone()), 
+            Box::new(exp.clone()), 
+            Box::new(body)
+        );
+    }
+    body
+}
+
 pub fn parse_file(filename: PathBuf) -> (HashMap<String, (Expr, Ty)>, Expr) {
     let file = fs::read_to_string(&filename)
         .expect(&format!("File not found at {:?}!", filename).to_string());
@@ -51,8 +73,8 @@ pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> HashMap<String, (E
     let filename = import.as_span().as_str();
     new_loc.push(filename);
 
-    // eprintln!("{:?}", new_loc);
-    let (decls, body) = parse_file(new_loc.to_path_buf());
+    // we throw away the body in files we import
+    let (decls, _body) = parse_file(new_loc.to_path_buf());
     decls
 }
 
@@ -179,9 +201,10 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         Rule::letassign => {
             let mut components = inner_expr.into_inner();
             let v = Box::new(parse_expr(components.next().unwrap()));
+            let ty = Box::new(Ty::Hole);
             let e = Box::new(parse_expr(components.next().unwrap()));
             let f = Box::new(parse_expr(components.next().unwrap()));
-            Expr::Let(v, e, f)
+            Expr::Let(v, ty, e, f)
         }
         Rule::lcb => {
             let mut components = inner_expr.into_inner();

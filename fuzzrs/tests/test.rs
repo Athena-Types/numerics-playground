@@ -61,3 +61,22 @@ fn test_parse_programs() {
     }
     assert_eq!(counter, 33);
 }
+
+#[test]
+fn test_parse_programs_load_into_one_expr() {
+    let paths = fs::read_dir("tests/examples").unwrap();
+
+    let mut counter = 0;
+    for path in paths {
+        let p = path.as_ref().unwrap().path().clone();
+        if let Some(ext) = p.extension() {
+            if ext.to_str().unwrap() == "fz" {
+                eprintln!("{:?}", p);
+                let prog = fuzzrs::parser::start(p);
+                eprintln!("{:?}", prog);
+                counter += 1;
+            }
+        }
+    }
+    assert_eq!(counter, 33);
+}
