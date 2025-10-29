@@ -15,10 +15,12 @@ pub fn start(filename: PathBuf) -> Expr {
     combine_decls(decls, prog)
 }
 
-pub fn combine_decls(decls: HashMap<String, (Expr, Ty)>, e: Expr) -> Expr {
+pub fn combine_decls(decls: Vec<(String, (Expr, Ty))>, e: Expr) -> Expr {
     let mut body = e;
 
-    let mut bindings: Vec<(String, (Expr, Ty))> = decls.into_iter().collect();
+    println!("{:?}", decls);
+
+    let mut bindings = decls.clone();
     bindings.reverse();
 
     for (name, (exp, ty)) in &bindings {
@@ -32,15 +34,15 @@ pub fn combine_decls(decls: HashMap<String, (Expr, Ty)>, e: Expr) -> Expr {
     body
 }
 
-pub fn parse_file(filename: PathBuf) -> (HashMap<String, (Expr, Ty)>, Expr) {
+pub fn parse_file(filename: PathBuf) -> (Vec<(String, (Expr, Ty))>, Expr) {
     let file = fs::read_to_string(&filename)
         .expect(&format!("File not found at {:?}!", filename).to_string());
     let pairs = RawLang::parse(Rule::program, &file).unwrap();
     parse_program(pairs, &filename)
 }
 
-pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (HashMap<String, (Expr, Ty)>, Expr) {
-    let mut decl_pairs: HashMap<String, (Expr, Ty)> = HashMap::new();
+pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (Vec<(String, (Expr, Ty))>, Expr) {
+    let mut decl_pairs: Vec<(String, (Expr, Ty))> = Vec::new();
     let mut body = Expr::Unit;
 
     for pair in input {
@@ -53,7 +55,7 @@ pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (HashMap<String, 
                     }
                     Rule::function => {
                         let (fname, e, ty) = parse_function(decl.clone());
-                        decl_pairs.insert(fname, (e, ty));
+                        decl_pairs.push((fname, (e, ty)));
                     }
                     Rule::name => {
                         body = parse_name(decl);
@@ -67,7 +69,7 @@ pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (HashMap<String, 
     (decl_pairs, body)
 }
 
-pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> HashMap<String, (Expr, Ty)> {
+pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> Vec<(String, (Expr, Ty))> {
     let import = input.into_inner().next().unwrap();
     let mut new_loc = loc.parent().unwrap().to_path_buf().clone();
     let filename = import.as_span().as_str();
@@ -109,7 +111,7 @@ pub fn parse_ty(input: Pair<'_, Rule>) -> Ty {
             let mut components = inner_ty.into_inner();
             let l = Box::new(parse_ty(components.next().unwrap()));
             let r = Box::new(parse_ty(components.next().unwrap()));
-            Ty::Ten(l, r)
+            Ty::Tens(l, r)
         }
         Rule::cartesian => {
             let mut components = inner_ty.into_inner();
@@ -281,9 +283,9 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         Rule::op => {
             let op = inner_expr.as_str();
             match op {
-                "mul" => Expr::Op(Op::Mul),
-                "add" => Expr::Op(Op::Add),
-                "sub" => Expr::Op(Op::Sub),
+                "mul " => Expr::Op(Op::Mul),
+                "add " => Expr::Op(Op::Add),
+                "sub " => Expr::Op(Op::Sub),
                 _ => todo!("unhandled op {:?}", inner_expr)
             }
         }
@@ -300,11 +302,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
 
 pub fn parse_float(input: Pair<'_, Rule>) -> Expr {
     let num = input.as_str().to_string().parse::<Float>().unwrap();
-    if num >= 0.0 {
-        return Expr::Num(0.0, num);
-    } else {
-        return Expr::Num(-num, 0.0);
-    }
+    Expr::Num(num)
 }
 
 pub fn parse_atom(input: Pair<'_, Rule>) -> Expr {

@@ -12,7 +12,7 @@ pub type Float = f64;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Interval {
-    Eps(String),
+    Eps(usize),
     Const((Float, Float), (Float, Float)),
     IOp(Op, Vec<Interval>),
 }
@@ -22,8 +22,8 @@ pub enum Ty {
     Hole,
     Unit,
     NumErased,
-    Num(Interval, Interval),
-    Ten(Box<Ty>, Box<Ty>),
+    Num(Interval),
+    Tens(Box<Ty>, Box<Ty>),
     Cart(Box<Ty>, Box<Ty>),
     Sum(Box<Ty>, Box<Ty>),
     Fun(Box<Ty>, Box<Ty>),
@@ -34,14 +34,14 @@ pub enum Ty {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
-    //ExpHole,
+    // ExpHole,
     Unit,
     Var(String),
-    Num(Float, Float),
+    Num(Float),
     Op(Op),
     Lam(Box<Expr>, Box<Ty>, Box<Expr>),
     App(Box<Expr>, Box<Expr>),
-    PolyAbs(Box<Interval>, Box<Expr>),
+    PolyAbs(usize, Box<Expr>),
     PolyInst(Box<Expr>, Box<Expr>),
     Inst(Box<Expr>, Box<Expr>),
     Proj(usize, Box<Expr>),
@@ -103,6 +103,24 @@ impl ops::Add<Ctx> for Ctx {
         for (x, (sens, ty)) in self.lookup {
             if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
                 new_ctx.insert(x.to_string(), (o_sens + sens, ty));
+            } else {
+                new_ctx.insert(x.to_string(), (sens, ty));
+            }
+        }
+        Ctx {
+            lookup: new_ctx
+        }
+    }
+}
+
+impl ops::BitOr<Ctx> for Ctx {
+    type Output = Ctx;
+
+    fn bitor(self, c: Ctx) -> Ctx {
+        let mut new_ctx = c.clone().lookup;
+        for (x, (sens, ty)) in self.lookup {
+            if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
+                new_ctx.insert(x.to_string(), (o_sens.max(sens), ty));
             } else {
                 new_ctx.insert(x.to_string(), (sens, ty));
             }

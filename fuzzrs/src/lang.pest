@@ -57,7 +57,7 @@ lp = {
   ("lp " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
   | ("let" ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
-op = { "add" | "sub" | "mul" }
+op = { "add " | "sub " | "mul " }
 abs = { "fun" ~ args ~ body }
 app = { 
   atom ~ expr 
