@@ -236,14 +236,15 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let mut new_c = c.clone();
             new_c.insert(x.clone(), tau.clone());
             let (mut theta, ty) = infer(new_c, *f, eps_c);
-            let (sens, _) = theta.get(&x).expect("Var not found in env");
+            let (sens, _) = theta.remove(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
                 eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
+                // TODO: generalize + assert that these are alpha-equiv
                 //assert_eq!(tau, *ty_i)
             }
 
-            ((gamma*(*sens)) + theta, ty)
+            ((gamma*(sens)) + theta, ty)
         }
         Expr::LCB(box_x, e, f) => {
             println!("expr {:?} in ctx {:?}", e, c);
@@ -261,7 +262,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             new_c.insert(x.clone(), tau_0);
             let (mut theta, tau) = infer(new_c, *f, eps_c);
 
-            let (ts, _) = theta.get(&x).expect("Var not found in env").clone();
+            let (ts, _) = theta.remove(&x).expect("Var not found in env").clone();
             let t = ts / s;
             ((gamma*t) + theta, tau)
         }
@@ -285,7 +286,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 _ => panic!("Expected a monad type!")
             };
 
-            let (s, _) = theta.get(&x).expect("Var not found in env").clone();
+            let (s, _) = theta.remove(&x).expect("Var not found in env").clone();
             ((gamma*s) + theta, Ty::Monad(s*r + q, Box::new(*tau)))
         }
         Expr::Lam(box_x, ty_i, f) => {
@@ -301,9 +302,11 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let (ty_with_eps, eps_v) = inst(*ty_i.clone(), &mut eps_v, eps_c);
 
             let mut c_ext= c.clone();
-            c_ext.insert(x, ty_with_eps.clone());
+            c_ext.insert(x.clone(), ty_with_eps.clone());
 
-            let (gamma, mut tau) = infer(c_ext, *f, eps_c);
+            let (mut gamma, mut tau) = infer(c_ext, *f, eps_c);
+            gamma.remove(&x).unwrap();
+
             tau = Ty::Fun(Box::new(ty_with_eps), Box::new(tau));
 
             //let mut body = f;

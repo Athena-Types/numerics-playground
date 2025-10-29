@@ -47,7 +47,8 @@ fn main() {
 
     println!("program: {:#?}", prog);
     let mut eps_c = AtomicUsize::new(0);
-    let (c, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
+    let (ctx, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
+    println!("final ctx: {:#?}", ctx);
     println!("final ty: {:#?}", ty);
 
     // let prog = RawLang::parse(Rule::program, &file);

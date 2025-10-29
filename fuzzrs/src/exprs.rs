@@ -77,6 +77,9 @@ impl Ctx {
     pub fn get(&mut self, k: &String) -> Option<&(Float, Ty)> {
         self.lookup.get(k)
     }
+    pub fn remove(&mut self, k: &String) -> Option<(Float, Ty)> {
+        self.lookup.remove(k)
+    }
     pub fn new() -> Ctx {
         Ctx {
             lookup : HashMap::new()
