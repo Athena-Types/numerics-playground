@@ -231,8 +231,17 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             let e2 = Box::new(parse_expr(components.next().unwrap()));
             Expr::App(e1, e2)
         }
-        Rule::atom => parse_atom(input.into_inner().next().unwrap()),
-        Rule::var => parse_name(input.into_inner().next().unwrap()),
+        Rule::atom => parse_atom(inner_expr),
+        Rule::var => {
+            // kludge, TODO: fix lexer
+            match inner_expr.as_str() {
+                "mul" => Expr::Op(Op::Mul),
+                "add" => Expr::Op(Op::Add),
+                "sub" => Expr::Op(Op::Sub),
+                x => Expr::Var(x.to_string()),
+            }
+            //parse_name(input.into_inner().next().unwrap())
+        },
         Rule::tens => {
             let mut components = inner_expr.into_inner();
             let e1 = Box::new(parse_atom(components.next().unwrap()));
@@ -280,15 +289,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             }
             fun
         }
-        Rule::op => {
-            let op = inner_expr.as_str();
-            match op {
-                "mul " => Expr::Op(Op::Mul),
-                "add " => Expr::Op(Op::Add),
-                "sub " => Expr::Op(Op::Sub),
-                _ => todo!("unhandled op {:?}", inner_expr)
-            }
-        }
+        Rule::op => parse_op(inner_expr),
         Rule::rnd => {
             let mut components = inner_expr.into_inner();
             let size = components.next().unwrap().as_str().parse::<usize>().unwrap();
@@ -300,14 +301,26 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
     expr
 }
 
+pub fn parse_op(input: Pair<'_, Rule>) -> Expr {
+    let op = input.as_str();
+    match op {
+        "mul " => Expr::Op(Op::Mul),
+        "add " => Expr::Op(Op::Add),
+        "sub " => Expr::Op(Op::Sub),
+        _ => todo!("unhandled op {:?}", op)
+    }
+}
+
 pub fn parse_float(input: Pair<'_, Rule>) -> Expr {
     let num = input.as_str().to_string().parse::<Float>().unwrap();
     Expr::Num(num)
 }
 
 pub fn parse_atom(input: Pair<'_, Rule>) -> Expr {
+    println!("{:?}", input);
     match input.as_rule() {
         Rule::var => parse_name(input.into_inner().next().unwrap()),
+        Rule::op => parse_op(input),
         Rule::float => todo!(),
         _ => parse_expr(input.into_inner().next().unwrap()),
         // _ => todo!(),

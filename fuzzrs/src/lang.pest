@@ -60,7 +60,8 @@ lp = {
 op = { "add " | "sub " | "mul " }
 abs = { "fun" ~ args ~ body }
 app = { 
-  atom ~ expr 
+  atom ~ expr
+  // (atom ~ WHITESPACE ~ expr) | (atom ~ WHITESPACE? ~ &"(" ~ WHITESPACE? ~ expr) 
 }
 atom = { op | var | float | "(" ~ expr ~ ")" }
 proj = { "fst" ~ expr | "snd" ~ expr }
