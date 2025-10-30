@@ -115,17 +115,18 @@ needed:
 \textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
  & \triangleq \lambda ~ y. ~ 
    \langle
-     \textbf{let-bind} \ x ~ = ~ y \ in \ \textbf{ret}(\pi_1 ~ x),
-     \textbf{let-bind} \ x ~ = ~ y \ in \ \textbf{ret}(\pi_2 ~ x),
+     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_1 ~ x),
+     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_2 ~ x),
    \rangle
 \end{aligned}
 \end{equation*}
 
 By contrast, inverse program $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
-\multimap M_q (\tau_0 \times \tau_1)$ is not derivable. $\textbf{factor}$ is a
-useful primitive to have for sequencing computations. For example, consider the
-following side-by-side comparison in Figure~\ref{fig:factor-side-by-side} with
-interval bounds erased for presentational purposes.
+\multimap M_q (\tau_0 \times \tau_1)$ is neither derivable nor admissible (but
+is sound). $\textbf{factor}$ is a particularly useful primitive to have for
+sequencing computations. For example, consider the following side-by-side
+comparison in Figure~\ref{fig:factor-side-by-side} with interval bounds erased
+for presentational purposes.
 
 \begin{figure}[ht]
 \centering
@@ -158,7 +159,7 @@ Note that $u$ represents the unit round-off associated with $addfp :
 \textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$. In the summation
 example, the program with factor has an error bound of two ULPs whereas the
 program without factor has an error bound of three ULPs. Clearly,
-$\textbf{factor}$ helps users achieve tighter error bounds.
+$\textbf{factor}$ helps users design programs that achieve tighter error bounds.
 
 \subsubsection*{Interval analysis and bound polymorphism}
 We wish to extend the type system to be able to perform an interval analysis. A
@@ -184,7 +185,7 @@ closed terms in \Lang to closed terms in \Lang.
 
 \input{sections/03-dynamic-semantics.tex}
 
-\subsection{Denotational Semantics}
+\subsection{Logical Relation}
 \input{sections/04-denotational-semantics.tex}
 
 \subsection{Modular Interface}
