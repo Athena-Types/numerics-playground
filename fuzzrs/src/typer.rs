@@ -57,10 +57,16 @@ pub fn zero_ctx(c : CtxSkeleton) -> Ctx {
 
 type Sub = HashMap<usize, Interval>;
 
-pub fn make_subs(v : Vec<usize>, i : Vec<Interval>) -> Sub {
+pub fn make_subs(v : Vec<Interval>, i : Vec<Interval>) -> Sub {
+    let mut map: HashMap<usize, Interval> = HashMap::new();
     let mut map = HashMap::new();
     for (eps, interval) in zip(v, i) {
-        map.insert(eps, interval);
+        match eps {
+            Eps(e) => {
+                map.insert(e, interval);
+            },
+            _ => todo!("not expected!")
+        }
     }
     map
 }
@@ -325,23 +331,21 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 fun => infer(c.clone(), fun, eps_c),
             };
             let (delta, mut tau_0) = infer(c.clone(), *f.clone(), eps_c);
-            println!("app e {:?} {:?}", tau_fun, e);
-            println!("app f {:?} {:?}", tau_0, f);
 
             // gather subs
-            let mut eps_v = Vec::new();
-            let (eps_v, tau_fun_stripped) = strip_foralls(tau_fun.clone(), &mut eps_v);
+            let mut forall_v = Vec::new();
+            let (_, tau_fun_stripped) = strip_foralls(tau_fun.clone(), &mut forall_v);
 
 
             let tau_1 = match tau_fun_stripped {
                 Ty::Fun(tau_0_sup, tau_1) => {
+                    // find subs
                     let mut intervals = Vec::new();
                     intervals = elim(tau_0.clone(), &mut intervals).to_vec();
-                    println!("{:?} intervals", intervals);
-                    println!("{:?} eps", eps_v.clone());
-                    println!("{:?} {:?}", tau_0_sup, tau_1);
+                    let mut eps_v = Vec::new();
+                    eps_v = elim(*tau_0_sup.clone(), &mut eps_v).to_vec();
                     let subs = make_subs(eps_v.to_vec(), intervals);
-                    // make subs
+                    // perform subs
                     let tau_0_sup_sub = sub_ty(*tau_0_sup, &subs);
                     let tau_1_sub = sub_ty(*tau_1, &subs);
                     // make sure contravariant
