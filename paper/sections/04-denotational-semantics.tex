@@ -1,5 +1,3 @@
-\section{Denotational Semantics}
-
 \begin{definition}[Type interpretation]
   A type $\tau$ is interpreted with $\llbracket - \rrbracket : \textit{type} \to
   \textbf{Met}$ in the same way as in the original NumFuzz system.
@@ -118,97 +116,6 @@ values as follows:
     \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
   \end{aligned}
   \end{equation}
-\end{definition}
-
-The following notation is to mirror the look of the Fuzz metric perservation
-theorem statement but contains differences in the setup. For example, our
-logical relation is neither coinductive nor step-indexed. It is also unary,
-using mutual (well-founded) recursion between the definition of a syntactic term
-falling within the logical relation and the definition of the syntactic distance
-between terms.
-
-For any two closed bounds, we can write $i \sim_0 i$ or $i \sim_{\infty} i$. 
-For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
-e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1$
-where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
-Generally, we can write vectors of expressions (e.g. for subsitutions) $\sigma =
-\sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
-\sigma'_{\Gamma}$
-for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
-: \Delta \ | \ \Gamma$ for a \textit{distance vector}
-$\gamma = r_0, r_1, \ldots$
-where
-$\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
-and 
-$\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
-such that:
-$$
-(k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
-| \ e_0 \sim_{r_m} e'_0 :
-\tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
-\tau_1~[\sigma_{\Delta}],~\ldots
-$$
-We also say that a substitution vector 
-$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ 
-is \textit{compatible} with a typing context 
-$i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
-if each term 
-$(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
-(k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
-\ldots \ | 
-\ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
-e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
-
-Our definition for the dot product of a distance vector is the same as Fuzz. We
-also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
-lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
-in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
-treat and represent our distance vector $\gamma$ as a lookup function and assume
-that there is an implicit fixed ordering on the variables.
-
-Numerical Fuzz is a modular family of programming langauges paramterized by the
-appropriate $\rho$, constant parameter $u$, and the appropriate set of numeric
-computations $\Sigma$.  
-We can now state a few assumptions about how the operational and static
-semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
-It is the proof obligation for any language designer instantiating the language
-to demonstrate that these properties hold in order for our paramterized
-soundness theorems to follow.
-\begin{definition}[Interface for instantiating Numerical Fuzz.]
-  \label{def:numfuzz-interface}
-  The interface for Numerical Fuzz consists of $\rho$, $u$, $\Sigma$, and
-  $\Sigma_{\mathbf{bnd}}$ such that the following properties hold: 
-\begin{description}
-  \item[a) Property of $\rho$ and constant parameter $u$.] We assume that the
-    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e)
-    \leq q$ where $q$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[b) Property of $\mathbf{op}$.] 
-    We can view $\textit{op}$ as a (possibly constant) metalevel function.
-    We also assume that for every operation
-    $\mathbf{op} : \tau \in \ \Sigma$ we have a
-    corresponding function $op$ mapping syntactic values in
-    $\mathcal{VR}_{\tau}$ where metric preservation holds: For all $\sigma
-    \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
-    \Gamma} \textit{op} : \tau$.
-    Or, expanded:
-    \begin{description}
-      \item[\underline{1) Type denotation.}] $\mathit{op} \in
-        \mathcal{R}_{\tau}$. The metalevel operation will step to something in the
-        value relation.
-      \item[\underline{2) Context sensitivity.}]
-        This property states that for every $\textbf{op}$, the
-        corresponding $\textit{op}$ preserves the metric. For any two
-        substitutions $\sigma, \sigma'$ such that:
-        $\sigma \sim_{\gamma} \sigma' : \Gamma$
-        we have that
-        $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
-    \end{description} \item[c) Property of $\mathbf{iop}$.] We further need to
-      assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
-      have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
-      corresponding metalevel function will actually map to a concrete bound
-      where $\textit{iop}_c(b_0, b_1, \ldots) : \textbf{bnd} = (k_0, k_1)$
-      holds.
-\end{description}
 \end{definition}
 
 \begin{lemma}[$\mathcal{SD}$ is a metric]

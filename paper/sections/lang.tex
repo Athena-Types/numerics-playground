@@ -1,0 +1,206 @@
+\section{Language} \label{sec:lang}
+We are interested in developing a modular family of languages for analyzing
+numerical round-off error. Modularity enables differing floating-point bit
+precisions (e.g. 32-bit floats, 64-bit floats) and floating-point operations to
+be soundly instantiated.
+
+% In this section, we detail the construction of our modular family of languages.
+% We extend the Numerical Fuzz family of languages to support two key features:
+% \begin{enumerate}
+%   \item Error and sensitivity sharing between terms, through the addition of a
+%   \textbf{factor} primitive (Section~\ref{sec:error-sharing}). This enables more
+%   programs to be typed with tighter error bounds.
+%   % todo: add section ref
+%   \item Interval analysis, through the incorporation of \textit{bound
+%   polymorphism} (Section~\ref{sec:bound-poly}). In
+%   (Section~\ref{sec:tightness}), we will prove that this will result in error
+%   bounds no looser than prior type-based approaches for forwards analysis.
+% \end{enumerate}
+% Finally, we
+% provide a formal specification for soundly instantiating a particular
+% language and prove soundness via a logical relations argument.
+%
+% \subsection{Sharing Error} \label{sec:error-sharing}
+%
+% \subsection{Type-based Interval Analysis and Bound Polymorphism} \label{sec:bound-poly}
+
+\subsection{Syntax}
+We present the full syntax for types, terms, and evaluation contexts in
+Figure~\ref{fig:syntax}. Our language is an extension of the Numerical Fuzz
+\cite{NumFuzz} language, a call-by-value affine lambda calculus.
+
+\subsubsection*{Types}
+Our type system has monad types $M_u \tau$ for tracking the round-off error in
+$\tau$ and bounding it by a real, non-negative grade $u$, scaled metric types
+$!_s \tau$, and linear function types $\tau_0 \multimap \tau$ for 1-sensitive
+functions. We also also incorporate an interval-style analysis by annotating
+$\textbf{num}_{\bnd{i}}$ types with a subscript bound with the grammar $\bnd{i}$
+shown in Figure~\ref{fig:syntax}. For the remainder of this paper we use the
+color $\bnd{\textit{blue}}$ to denote bound polymorphism.
+
+Many programs we wish to type call the same function many times. To ensure that
+our interval analysis is scalable and that functions types can be reused, we
+support \textit{bound polymorphism}, which allows us to specialize our function
+to have different concrete bounds for each function call site. We write types
+$\tau$ polymorphic in interval variable $\epsilon$ as $\forall \epsilon. \tau$.
+
+\subsubsection*{Terms}
+Our term syntax has explicit terms to represent polymorphic abstraction
+$\bnd{(\Lambda \epsilon. e)}$ and instantiation $\bnd{(e \{i\})}$. We also have
+explicit terms to represent scaling ($[e]$), rounding ($\textbf{rnd}~e$).
+For sequencing and combining computation, we have $\textbf{let}$,
+$\textbf{let-pair}$, $\textbf{let-bind}$, and $\textbf{let-cobind}$ for
+sequencing assignment, tuple unpacking, monadic, and comonadic computations
+respectively.
+
+In linear and affine logic, we have the alternative conjunction $\tau_0 \times
+\tau_1$, (sometimes written $\tau_0~\&~\tau_1$). We can view the introduction
+rule as allowing $\tau_0$ and $\tau_1$ to share resources in $\Gamma$, their
+construction. Correspondingly, the elimination rules can be viewed as forcing
+consumers to internally choose between allocating the resources in $\Gamma$
+towards either constructing $\tau_1$ or $\tau_2$.
+
+However, the ability to share resources interacts poorly with our sequenced
+$\textbf{let-bind}$ and call-by-value evaluation strategy, which pessimistically
+prohibits the sharing of resources between the bound argument and the body. As a
+toy example, if we have two monadic types $M_q \tau_0 \times M_q \tau_1$ that
+shared resources in their construction, we have no way of constructing $M_q
+(\tau_0 \times \tau_1)$ with a shared error grade. A similar problem exists for
+sharing context sensitivities. To enabling the sharing of round-off and
+sensitivity information, we introduce a new primitive new primitive
+($\textbf{factor} : (M_q \tau_0 \times M_r \tau_1) \multimap M_{max(q, r)}
+(\tau_0 \times \tau_1)$) which allows for error and sensitivity information to
+be shared between monadic terms.
+
+
+\subsubsection*{Evaluation contexts}
+We extend the Numerical Fuzz language to allow expressions in more places. To
+separate the structural plumbing of the operational semantics from the more
+interesting portions of the operational semantics, we define evaluation
+contexts.
+
+\input{sections/01-syntax.tex}
+
+\subsection{Static Semantics}
+Our static semantics extends Numerical Fuzz by adding expressions in more places
+(e.g. the application rule), a $\textbf{factor}$ primitive, and bound
+polymorphism. We outline the two key additions:
+
+\subsubsection*{Factor}
+% todo
+
+\subsubsection*{Bound polymorphism}
+% todo
+
+% For the remainder of the paper, we only care about closed types.
+\input{sections/02-static-semantics.tex}
+
+\subsection{Dynamic Semantics}
+The following is defined over closed terms. In particular, we define the
+operational semantics rewrite relation $\mapsto$ to map from closed terms in
+\Lang to closed terms in \Lang.
+
+\input{sections/03-dynamic-semantics.tex}
+
+\subsection{Denotational Semantics}
+\input{sections/04-denotational-semantics.tex}
+
+\subsection{Modular Interface}
+The following notation is to mirror the look of the Fuzz metric preservation
+theorem statement but contains differences in the setup. For example, our
+logical relation is neither coinductive nor step-indexed. It is also unary,
+using mutual (well-founded) recursion between the definition of a syntactic term
+falling within the logical relation and the definition of the syntactic distance
+between terms.
+
+For any two closed bounds, we can write $i \sim_0 i$ or $i \sim_{\infty} i$. 
+For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
+e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1$
+where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
+Generally, we can write vectors of expressions (e.g. for subsitutions) $\sigma =
+\sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
+\sigma'_{\Gamma}$
+for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
+: \Delta \ | \ \Gamma$ for a \textit{distance vector}
+$\gamma = r_0, r_1, \ldots$
+where
+$\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+and 
+$\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+such that:
+$$
+(k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
+| \ e_0 \sim_{r_m} e'_0 :
+\tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
+\tau_1~[\sigma_{\Delta}],~\ldots
+$$
+We also say that a substitution vector 
+$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ 
+is \textit{compatible} with a typing context 
+$i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
+if each term 
+$(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
+(k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
+\ldots \ | 
+\ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
+e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
+
+Our definition for the dot product of a distance vector is the same as Fuzz. We
+also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
+treat and represent our distance vector $\gamma$ as a lookup function and assume
+that there is an implicit fixed ordering on the variables.
+
+Numerical Fuzz is a modular family of programming langauges paramterized by the
+appropriate $\rho$, constant parameter $u$, and the appropriate set of numeric
+computations $\Sigma$.  
+We can now state a few assumptions about how the operational and static
+semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
+It is the proof obligation for any language designer instantiating the language
+to demonstrate that these properties hold in order for our paramterized
+soundness theorems to follow.
+\begin{definition}[Interface for instantiating Numerical Fuzz.]
+  \label{def:numfuzz-interface}
+  The interface for Numerical Fuzz consists of $\rho$, $u$, $\Sigma$, and
+  $\Sigma_{\mathbf{bnd}}$ such that the following properties hold: 
+\begin{description}
+  \item[a) Property of $\rho$ and constant parameter $u$.] We assume that the
+    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho(e), e)
+    \leq q$ where $q$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[b) Property of $\mathbf{op}$.] 
+    We can view $\textit{op}$ as a (possibly constant) metalevel function.
+    We also assume that for every operation
+    $\mathbf{op} : \tau \in \ \Sigma$ we have a
+    corresponding function $op$ mapping syntactic values in
+    $\mathcal{VR}_{\tau}$ where metric preservation holds: For all $\sigma
+    \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
+    \Gamma} \textit{op} : \tau$.
+    Or, expanded:
+    \begin{description}
+      \item[\underline{1) Type denotation.}] $\mathit{op} \in
+        \mathcal{R}_{\tau}$. The metalevel operation will step to something in the
+        value relation.
+      \item[\underline{2) Context sensitivity.}]
+        This property states that for every $\textbf{op}$, the
+        corresponding $\textit{op}$ preserves the metric. For any two
+        substitutions $\sigma, \sigma'$ such that:
+        $\sigma \sim_{\gamma} \sigma' : \Gamma$
+        we have that
+        $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
+    \end{description} \item[c) Property of $\mathbf{iop}$.] We further need to
+      assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
+      have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
+      corresponding metalevel function will actually map to a concrete bound
+      where $\textit{iop}_c(b_0, b_1, \ldots) : \textbf{bnd} = (k_0, k_1)$
+      holds.
+\end{description}
+\end{definition}
+
+\subsection{Soundness}
+\input{sections/05-type-error-soundness.tex}
+
+\subsection{Tightness} \label{sec:tightness}
+
+
+
