@@ -84,21 +84,103 @@ contexts.
 \subsection{Static Semantics}
 Our static semantics extends Numerical Fuzz by adding expressions in more places
 (e.g. the application rule), a $\textbf{factor}$ primitive, and bound
-polymorphism. We outline the two key additions:
+polymorphism. We outline the two key additions below.
 
-\subsubsection*{Factor}
-% todo
+\subsubsection*{Factoring and Distributing Error}
+Suppose, by way of example, that we wish to compute the sum 
+$w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
+with round-off error.
+It is well known that round-off error grows linearly in the height of a
+summation tree. So, a user might naturally want to sequence the summation as
+a perfect binary tree: $(w~\tilde{+}~x)~\tilde{+}~(y~\tilde{+}~z)$.
+However Numerical Fuzz forces all monadic computation to be sequenced, forcing
+the error analysis 
+to always compute the worst-case round-off error associated with the
+pathological degenerate tree: $((w~\tilde{+}~x)~\tilde{+}~y)~\tilde{+}~z$.
 
-\subsubsection*{Bound polymorphism}
-% todo
+Our extension enables the user to structure the computation tree arbitrarily,
+providing tighter error bounds when possible. It is inspired by the resource
+interpretation of linear logic: we can either give our error budget $M_q$ to
+$\tau_0$ or $\tau_1$ or equivalently give the same error budget $M_q$ to
+$\tau_0$ \textit{with} $\tau_1$. To show that $M_q ~ (\tau_0 \times \tau_1)$
+is equivalent to
+$(M_q ~ \tau_0) \times (M_q \tau_1)$, we need to construct two 1-sensitive
+functions in the forwards and backwards direction.
 
-% For the remainder of the paper, we only care about closed types.
+The program $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0)
+\times (M_q \tau_1)$ is derivable in Numerical Fuzz, so no special primitive is
+needed:
+\begin{equation*} \label{eq:distribute}
+\begin{aligned}[c]
+\textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
+ & \triangleq \lambda ~ y. ~ 
+   \langle
+     \textbf{let-bind} \ x ~ = ~ y \ in \ \textbf{ret}(\pi_1 ~ x),
+     \textbf{let-bind} \ x ~ = ~ y \ in \ \textbf{ret}(\pi_2 ~ x),
+   \rangle
+\end{aligned}
+\end{equation*}
+
+By contrast, inverse program $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
+\multimap M_q (\tau_0 \times \tau_1)$ is not derivable. $\textbf{factor}$ is a
+useful primitive to have for sequencing computations. For example, consider the
+following side-by-side comparison in Figure~\ref{fig:factor-side-by-side} with
+interval bounds erased for presentational purposes.
+
+\begin{figure}[ht]
+\centering
+
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[3*u] num 
+let-bind a = addfp <w, x> in
+let-bind b = addfp <y, z> in
+let-bind c = addfp <a, b> in
+addfp c 
+\end{lstlisting}
+\caption{Without factor}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[2*u] num 
+let-bind a = 
+  factor <addfp <w, x>, addfp <y, z>> in
+  addfp a
+\end{lstlisting}
+\caption{With factor}
+\end{subfigure}
+
+\caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
+\label{fig:factor-side-by-side}
+\end{figure}
+Note that $u$ represents the unit round-off associated with $addfp :
+\textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$. In the summation
+example, the program with factor has an error bound of two ULPs whereas the
+program without factor has an error bound of three ULPs. Clearly,
+$\textbf{factor}$ helps users achieve tighter error bounds.
+
+\subsubsection*{Interval analysis and bound polymorphism}
+We wish to extend the type system to be able to perform an interval analysis. A
+naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
+subscript interval $\bnd{i}$. However, if we have a function, such as the
+identity function over numbers $id : \textbf{num}_{\bnd{i}} \multimap
+\textbf{num}_{\bnd{i}}$ called at two different call sites with intervals $j$
+and $k$, the inferred bound for $i$ would be $j \cup k$.
+
+To solve this problem, we add bounds and \textit{bound polymorphism} for
+functions, allowing the functions to be typed like so: $id : \bnd{\forall
+\epsilon.} ~ \textbf{num}_{\bnd{\epsilon}} \multimap
+\textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate polymorphism via
+the $\forall$ introduction and elimination rules provided in
+Figure~\ref{fig:typing_rules}.
+
 \input{sections/02-static-semantics.tex}
 
 \subsection{Dynamic Semantics}
-The following is defined over closed terms. In particular, we define the
-operational semantics rewrite relation $\mapsto$ to map from closed terms in
-\Lang to closed terms in \Lang.
+We only define our language over closed terms. In Figure~\ref{fig:typing_rules},
+we define the operational semantics rewrite relation $\mapsto$ to map from
+closed terms in \Lang to closed terms in \Lang.
 
 \input{sections/03-dynamic-semantics.tex}
 
