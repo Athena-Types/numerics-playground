@@ -201,57 +201,79 @@ For example, the bound $(0, 1) + (2,3) \mapsto (2, 4)$.
 \input{sections/04-denotational-semantics.tex}
 
 \subsection{Modular Interface} \label{sec:interface}
-The following notation is to mirror the look of the Fuzz metric preservation
-theorem statement but contains differences in the setup. For example, our
-logical relation is neither coinductive nor step-indexed. It is also unary,
-using mutual (well-founded) recursion between the definition of a syntactic term
-falling within the logical relation and the definition of the syntactic distance
-between terms.
+To define the modular interface that enables sound instantiation of the
+Numerical Fuzz family of programming languages, we first define distances
+between intervals, expresions, vectors of expressions, and substitutions. This
+notation will be useful later for stating and proving type soundness.
 
-For any two closed bounds, we can write $i \sim_0 i$ or $i \sim_{\infty} i$. 
-For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
-e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1$
-where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
-Generally, we can write vectors of expressions (e.g. for subsitutions) $\sigma =
-\sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
-\sigma'_{\Gamma}$
-for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
-: \Delta \ | \ \Gamma$ for a \textit{distance vector}
-$\gamma = r_0, r_1, \ldots$
-where
-$\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
-and 
-$\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
-such that:
-$$
-(k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
-| \ e_0 \sim_{r_m} e'_0 :
-\tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
-\tau_1~[\sigma_{\Delta}],~\ldots
-$$
-We also say that a substitution vector 
-$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$ 
-is \textit{compatible} with a typing context 
-$i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
-if each term 
-$(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
-(k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
-\ldots \ | 
-\ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
-e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
+\begin{definition}[Distance between intervals, expressions, expression vectors,
+and substitutions.]
+We incrementally build up to the definition of distance between substitutions
+below:
+\begin{description}
+  \item[Distance between intervals.] For any two closed bounds, we write $i
+  \sim_0 i$ or $i \sim_{\infty} i'$ for $i \not= i'$. 
 
-Our definition for the dot product of a distance vector is the same as Fuzz. We
-also write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
-lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
-in the domain, $\gamma(x) = 0$ by default. From here on in the paper, we'll
-treat and represent our distance vector $\gamma$ as a lookup function and assume
-that there is an implicit fixed ordering on the variables.
+  \item[Distance between expressions.] For any two closed expressions $e_0, e_1$
+  falling in same type relation $e_0, e_1 \in R_\tau$ (where $\tau$ is a closed
+  type), we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0, e_1) \leq
+  r$. 
 
-Numerical Fuzz is a modular family of programming langauges paramterized by the
-appropriate $\rho$, constant parameter $u$, and the appropriate set of numeric
-computations $\Sigma$.  
-We can now state a few assumptions about how the operational and static
-semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
+  \item[Distance between expression vectors.]
+    Generally, we can write vectors of expressions (e.g. for substitutions) $\sigma =
+    \sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
+    \sigma'_{\Gamma}$
+    for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
+    : \Delta \ | \ \Gamma$ for a \textit{distance vector}
+    $\gamma = r_0, r_1, \ldots$
+    where
+    $\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+    and 
+    $\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+    such that:
+    $$
+    (k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
+    | \ e_0 \sim_{r_m} e'_0 :
+    \tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
+    \tau_1~[\sigma_{\Delta}],~\ldots
+    $$
+
+  \item[Distance between substitutions.]
+    We also say that a substitution vector 
+    $$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$$
+    is \textit{compatible} with a typing context 
+    $i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
+    if each term 
+    $(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
+    (k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
+    \ldots \ | 
+    \ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
+    e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
+\end{description}
+\end{definition}
+
+\begin{definition}[Dot product of distance vectors.]
+Our definition for the dot product of a distance vector $\gamma = r_0, \ldots,
+r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
+the same as Fuzz \cite{Fuzz}:
+$\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
+\end{definition}
+
+In the remainder of the paper, we'll treat and represent our distance vector
+$\gamma$ as a lookup function and assume that there is an implicit fixed
+ordering on the variables.
+\begin{definition}[Distance vector lookup.]
+  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+  in the domain, $\gamma(x) = 0$ by default. 
+\end{definition}
+
+We are now ready to state the interface for soundly instantiating Numerical
+Fuzz. Numerical Fuzz is a modular family of programming langauges paramterized
+by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
+numeric computations $\Sigma$.  
+% We can now state a few assumptions about how the operational and static
+% semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
 It is the proof obligation for any language designer instantiating the language
 to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.

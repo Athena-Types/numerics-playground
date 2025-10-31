@@ -17,10 +17,18 @@
 %   \end{equation}
 % \end{definition}
 
+
+% The following notation is to mirror the look of the Fuzz metric preservation
+% theorem statement but contains differences in the setup. For example, our
+% logical relation is neither coinductive nor step-indexed. It is also unary,
+% using mutual (well-founded) recursion between the definition of a syntactic term
+% falling within the logical relation and the definition of the syntactic distance
+% between terms.
+
 In our language, we only reason about closed types and terms. Let $CV(\tau)$ be
 the closed values of type $\tau$ and $CE(\tau)$ be the closed expressions of
 type $\tau$. Then we can define a unary logical relation over types which
-capture the core information needed to prove our error soundness theorem:
+capture the core information needed to prove our error soundness theorem.
 
 \begin{definition}[Logical relation]
   \begin{equation}
