@@ -20,9 +20,11 @@ $$
   \tau'$.
 \end{theorem}
 \begin{proof}
-  The admissibility of subtyping follows from the proof in \cite{NumFuzz} and the
-new interval widening rule in our type system, corresponding to the
-$\textbf{num}$ subtyping case.
+  The admissibility of subtyping follows from the proof in \cite{NumFuzz} and
+  the new interval widening rule in our type system, corresponding to the
+  $\textbf{num}$ subtyping case. Note that the proof in \cite{NumFuzz} relies on
+  the admissibility of weakening, which we proved in (Theorem
+  \cite{thm:weakening}).
 \end{proof}
 
 \subsection{Algorithmic Type Inference}
