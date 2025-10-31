@@ -183,6 +183,11 @@ We only define our language over closed terms. In Figure~\ref{fig:typing_rules},
 we define the operational semantics rewrite relation $\mapsto$ to map from
 closed terms in \Lang to closed terms in \Lang.
 
+We use evaluation contexts and the characteristic \textit{context rule} to
+simplify reasoning about the rewrite relation. Our rewrite relation has a
+restricted ability to step interval bounds and eliminate polymorphic variables.
+For example, the bound $(0, 1) + (2,3) \mapsto (2, 4)$.
+
 \input{sections/03-dynamic-semantics.tex}
 
 \subsection{Logical Relation}
@@ -282,8 +287,4 @@ soundness theorems to follow.
 
 \subsection{Soundness}
 \input{sections/05-type-error-soundness.tex}
-
-\subsection{Tightness} \label{sec:tightness}
-
-
 
