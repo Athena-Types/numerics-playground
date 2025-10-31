@@ -14,7 +14,7 @@ benchmarks/%.g: fpcore benchmarks/%.fpcore
 
 benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
 	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
-	python src/benchmark.py benchmarks/$*-relative.g 
+	python src/compute_bound.py benchmarks/$*-relative.g 
 
 ### Running Gappa
 benchmarks/%.g.out: benchmarks/%.g
