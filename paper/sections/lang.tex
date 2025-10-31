@@ -4,7 +4,14 @@ numerical round-off error. Modularity enables differing floating-point bit
 precisions (e.g. 32-bit floats, 64-bit floats) and floating-point operations to
 be soundly instantiated.
 
-% In this section, we detail the construction of our modular family of languages.
+In this section, we detail the construction of our modular family of languages.
+We first detail the syntax (Section~\ref{sec:syntax}), static semantics
+(Section~\ref{sec:static-semantics}), dynamic semantics
+(Section~\ref{sec:dynamic-semantics}), and logical relation for the family of
+languages (Section~\ref{sec:logical-relation}). Then, using our logical relation
+to precisely specify the required invariants for instantiating our language, we
+define a modular interface for instantiating the language as well as prove
+soundness for any interface-conforming instantiation of the language. 
 % We extend the Numerical Fuzz family of languages to support two key features:
 % \begin{enumerate}
 %   \item Error and sensitivity sharing between terms, through the addition of a
@@ -24,12 +31,12 @@ be soundly instantiated.
 %
 % \subsection{Type-based Interval Analysis and Bound Polymorphism} \label{sec:bound-poly}
 
-\subsection{Syntax}
+\subsection{Syntax} \label{sec:syntax}
 We present the full syntax for types, terms, and evaluation contexts in
 Figure~\ref{fig:syntax}. Our language is an extension of the Numerical Fuzz
 \cite{NumFuzz} language, a call-by-value affine lambda calculus.
 
-\subsubsection*{Types}
+\subsubsection*{Types} 
 Our type system has monad types $M_u \tau$ for tracking the round-off error in
 $\tau$ and bounding it by a real, non-negative grade $u$, scaled metric types
 $!_s \tau$, and linear function types $\tau_0 \multimap \tau$ for 1-sensitive
@@ -81,12 +88,12 @@ contexts.
 
 \input{sections/01-syntax.tex}
 
-\subsection{Static Semantics}
+\subsection{Static Semantics} \label{sec:static-semantics}
 Our static semantics extends Numerical Fuzz by adding expressions in more places
 (e.g. the application rule), a $\textbf{factor}$ primitive, and bound
 polymorphism. We outline the two key additions below.
 
-\subsubsection*{Factoring and Distributing Error}
+\subsubsection*{Factoring and Distributing Error} \label{sec:factor}
 Suppose, by way of example, that we wish to compute the sum 
 $w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
 with round-off error.
@@ -161,7 +168,7 @@ example, the program with factor has an error bound of two ULPs whereas the
 program without factor has an error bound of three ULPs. Clearly,
 $\textbf{factor}$ helps users design programs that achieve tighter error bounds.
 
-\subsubsection*{Interval analysis and bound polymorphism}
+\subsubsection*{Interval analysis and bound polymorphism} \label{sec:interval}
 We wish to extend the type system to be able to perform an interval analysis. A
 naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
 subscript interval $\bnd{i}$. However, if we have a function, such as the
@@ -178,7 +185,7 @@ Figure~\ref{fig:typing_rules}.
 
 \input{sections/02-static-semantics.tex}
 
-\subsection{Dynamic Semantics}
+\subsection{Dynamic Semantics} \label{sec:dynamic-semantics}
 We only define our language over closed terms. In Figure~\ref{fig:typing_rules},
 we define the operational semantics rewrite relation $\mapsto$ to map from
 closed terms in \Lang to closed terms in \Lang.
@@ -190,10 +197,10 @@ For example, the bound $(0, 1) + (2,3) \mapsto (2, 4)$.
 
 \input{sections/03-dynamic-semantics.tex}
 
-\subsection{Logical Relation}
+\subsection{Logical Relation} \label{sec:logical-relation}
 \input{sections/04-denotational-semantics.tex}
 
-\subsection{Modular Interface}
+\subsection{Modular Interface} \label{sec:interface}
 The following notation is to mirror the look of the Fuzz metric preservation
 theorem statement but contains differences in the setup. For example, our
 logical relation is neither coinductive nor step-indexed. It is also unary,
@@ -285,6 +292,6 @@ soundness theorems to follow.
 \end{description}
 \end{definition}
 
-\subsection{Soundness}
+\subsection{Soundness} \label{sec:soundness}
 \input{sections/05-type-error-soundness.tex}
 
