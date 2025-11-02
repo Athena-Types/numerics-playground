@@ -1,3 +1,114 @@
-\section{Instantiation}
+\section{Encoding}
+In this section we encode Numerical Fuzz to provide \textit{a priori} and
+\textit{a posterori} error bounds in the presence of subtraction and negative
+numbers.
+In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the modular interface defined in Definition~\ref{def:numfuzz-interface} using a $\textit{paired representation}$ introduced below.
+Then, in Section~\ref{sec:application} we demonstrate how to read out the $\textit{paired-representation}$ as concrete bounds for standard, unpaired, floating-point arithmetic.
 
-\subsection{Tightness} \label{sec:tightness}
+\subsection{Instantiation} \label{sec:instantiation}
+Our forwards error analysis relies on bounding Lipschitz function sensitivity.
+However, subtraction, and by extension addition with negative numbers, has
+unbounded Lipschitz sensitivity over the reals. This poses a challenge to a
+compositional type-based analysis of programs involving subtraction and negative
+numbers.
+To avoid this problem, we encode our semantics through a \textit{paired
+representation} where we associate for each real $r \in \mathbb{R}$ a pair $(r,
+a, b) \in \mathbb{P} = \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a -
+b$. 
+We measure distance in $\mathbb{P}$ via the following function: $d_\mathbb{P}((r, a, b), (r, a', b'))
+\triangleq max(d_\mathbb{R}(a,a'), d_\mathbb{R}(b,b'))$.
+
+\begin{lemma}[$\textit{num}$ forms a metric space.]
+\end{lemma}
+\begin{proof}
+Symmetry and reflexivity hold trivially. Triangle inequality holds from triangle
+inequality on $d_{\mathbb{R}}$.
+\end{proof}
+
+% To avoid this problem, we encode our semantics through a \textit{paired
+% representation} where we associate for each real $r \in \mathbb{R}$ a pair $(a,
+% b) \in \mathbb{R}^2$ such that $r = a - b$. 
+Our operations and interval bounds operate over the paired representation $\mathbb{P}$.
+In this manner, subtraction and negative numbers can be encoded using bounded-sensitivity operations over the non-negative reals, avoiding the problem of infinite sensitivity.
+Each of our operations $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul}
+\}$ and $\Sigma_\textbf{num} = \{ +, -, \cdot \}$ are defined as follows:
+
+\begin{equation}
+\begin{aligned}[c]
+  &\textbf{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 + \epsilon_2} \\
+  &\textbf{add} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a,
+  b), (r', a', b') \rangle) \mapsto (r + r', a + a', b + b') \\
+  \\
+  &\textbf{sub} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 - \epsilon_2} \\
+  &\textbf{sub} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a, b),
+  (r, a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
+  \\
+  &\textbf{mul} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 \cdot \epsilon_2} \\
+  &\textbf{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r, a',
+  b'))) \mapsto (r * r', a * b + b * b', b * a' + a * b') \\
+\end{aligned}
+\end{equation}
+
+Given a rounding function $\rho_\mathbb{R}$ over the reals, we can also
+associate a paired $\rho_{\mathbb{P}}((r, a, b)) = (\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
+It is sound to use the same round-off error bound $u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$:
+
+\begin{lemma}[Property of rounding and constant parameter $u$]
+We wish to show that given a $u$ and $\rho_{\mathbb{R}}$ such that 
+    $\forall e \in d_\mathbb{R} (\rho(e), e)
+    \leq u$, then
+    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
+    \leq u$. In other words, our translated rounding function from the unpaired representation respects the error bounds on the unpaired representation.
+\end{lemma}
+\begin{proof}
+$(\rho_{\mathbb{P}}((r, a, b)), (r, a, b)) = 
+(\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$ So, 
+$
+d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r}), (r, a, b)) = max(\rho_{\mathbb{R}}(r), \rho_{\mathbb{R}}(r)) = \rho_{\mathbb{R}} (r)
+$.
+\end{proof}
+
+Moreover, our operations satisfy metric preservation and our interval operations
+are closed over intervals ($\textit{num}^2$).
+% todo: these are closed over something other than num?
+
+\begin{lemma}[Operations satisfy metric preservation]
+Each $\textbf{op} : \tau \in \Sigma$ satisfies metric preservation.
+\end{lemma}
+\begin{proof}
+Holds by unfolding.
+\end{proof}
+
+
+\begin{lemma}[Interval operations closure.]
+Each interval operation is closed over our intervals $\textit{num}^2$.
+\end{lemma}
+\begin{proof}
+Holds by inspection.
+\end{proof}
+
+By stapling together the proceeding lemmas, the interface ($\mathbb{P}, d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) satisfy the interface for instantiating Numerical Fuzz specified in Definition~\ref{def:numfuzz-interface}.
+
+% \subsection{Tightness} \label{sec:tightness}
+
+\subsection{Application} \label{sec:application}
+For a given $. \vdash e : M_q \textbf{num}_{(k_0, k_1)}$, we wish to bound the
+error between $e$ computed ideally over the reals versus the floating-point approximation. We now prove our paired error theorem (Theorem~\ref{thm:paired-error}), which for a triple $(r, a, b)$ relates error on the paired components $a, b$ with error on $r$.
+
+\begin{theorem}[Paired error theorem]
+For $. \vdash e : M_q \mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq$ % TODO
+\end{theorem}
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a', b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$.
+  TODO
+\end{proof}
+
+
+

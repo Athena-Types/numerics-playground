@@ -1,5 +1,6 @@
 Following Fuzz, we prove the following syntanctic properties relating our type
-system and operational semantics.
+system and operational semantics. These syntactic properties will be useful for
+reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 
 \begin{lemma}[Admissibity of weakening]\label{thm:weakening}
   If $\Delta \ | \ \Gamma \vdash e : \tau$, then 
@@ -101,8 +102,8 @@ The below lemma is useful towards proving metric preservation:
 \begin{theorem}[Metric preservation]
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
-  $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma'$.
-\end{theorem}
+  $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
+\end{theorem} \label{thm:metric-preservation}
 \begin{proof}
   We induct over our typing derivation. The base cases (Var, \textbf{bvar},
   Unit, Const) follow trivially. The subsumption and widening cases also follow

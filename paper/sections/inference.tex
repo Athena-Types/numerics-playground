@@ -110,7 +110,7 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 \end{definition}
 
 \subsection{Inference algorithm}
-We write our inference algorithm this like:
+Our type inference algorithm has the following shape:
 $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
 where we start a program with a typing context $\Gamma^{\bullet}$ that has
 erased sensitivity information (but with bound variables) and an erased program
