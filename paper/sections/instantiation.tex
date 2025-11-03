@@ -215,6 +215,11 @@ b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
   Holds by our logical relation and error metric.
 \end{proof}
 
+We further observe that for a program with non-negative numbers and only-growing
+functions (e.g. $\mathbf{add}, \mathbf{mul}$), our type inference algo 
+
+TODO: state type inference algo theorem. A bit out of order tho.
+
 We are now ready to state our tightness theorem which guarantees that the paired
 representation produced error bounds no looser than the unpaired representation.
 
@@ -230,7 +235,7 @@ For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e 
 \end{theorem}
 \begin{proof}
 Observe that $b$ is zero by construction of the unpaired instantiation of our
-language.
+language. TODO.
 \end{proof}
 
-% TODO: clarify how to start / use interval analysis
+% TODO: clarify how to start / use interval analysis, stitch together theorems
