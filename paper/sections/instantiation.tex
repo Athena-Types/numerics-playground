@@ -95,20 +95,142 @@ Holds by inspection.
 
 By stapling together the proceeding lemmas, the interface ($\mathbb{P}, d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) satisfy the interface for instantiating Numerical Fuzz specified in Definition~\ref{def:numfuzz-interface}.
 
-% \subsection{Tightness} \label{sec:tightness}
-
 \subsection{Application} \label{sec:application}
 For a given $. \vdash e : M_q \textbf{num}_{(k_0, k_1)}$, we wish to bound the
-error between $e$ computed ideally over the reals versus the floating-point approximation. We now prove our paired error theorem (Theorem~\ref{thm:paired-error}), which for a triple $(r, a, b)$ relates error on the paired components $a, b$ with error on $r$.
+error between $e$ computed ideally over the reals versus the floating-point approximation. We now prove our paired error theorems (Theorem~\ref{thm:paired-a-posteriori}, Theorem~\ref{thm:paired-a-priori}), which for a triple $(r, a, b)$ relates error on the paired components $a, b$ with error on $r$.
 
-\begin{theorem}[Paired error theorem]
-For $. \vdash e : M_q \mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq$ % TODO
-\end{theorem}
+\begin{theorem}[Paired error theorem; a posteriori] \label{thm:paired-a-posteriori}
+For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the following bounds: 
+\begin{enumerate}
+  \item $max(|ln(e^u + \frac{a}{r'}(1-e^{2u}))|,|ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|)$
+  \item $max(|ln(e^{-u} + \frac{b}{r'}(e^{-2u}- 1))|,|ln(e^u + \frac{b}{r'}(e^{2u}-1))|)$
+\end{enumerate}
+\end{theorem} 
 \begin{proof}
   By our logical relation and metric preservation theorem (Theorem
   \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a', b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$.
-  TODO
+  Therefore, $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$.
+  Unfolding the definition of $d_\mathbb{R}$, which uses relative error, we wish
+  to bound $|ln(\frac{r}{r'})| = |ln(\frac{a - b}{a' - b'})|$.
+  We proceed to prove the first bound:
+
+  There are two cases, $r \leq r'$ or $r > r'$. In the first case, we wish to
+  minimize $a-b$ and maximize $a' - b'$. So, 
+  \begin{equation} \label{eq:a-priori-bnd-a-pos}
+  \begin{aligned}[c]
+    |ln(\frac{r}{r'})| \leq 
+    |ln(\frac{a - b'e^u}{a' - b'})| =
+    |ln(\frac{a - b' e^u + a'e^u - a'e^u}{a' - b'})| \\ =
+    |ln(e^u + \frac{a - a'e^u}{a' - b'})| \leq
+    |ln(e^u + \frac{a - ae^{2u}}{a' - b'})| =
+    |ln(e^u + \frac{a}{r'}(1-e^{2u}))|
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation} \label{eq:a-priori-bnd-a-neg}
+  \begin{aligned}[c]
+    |ln(\frac{r}{r'})| \leq 
+    |ln(\frac{a - b'e^{-u}}{a' - b'})| =
+    |ln(\frac{a - b'e^{-u} + a'e^{-u} - a'e^{-u}}{a' - b'})| \\ =
+    |ln(e^{-u} + \frac{a - a'e^{-u}}{a' - b'})| \leq
+    |ln(e^{-u} + \frac{a - ae^{-2u}}{a' - b'})| =
+    |ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|
+  \end{aligned}[c]
+  \end{equation}
+  A sound bound for both cases is the maximum of Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg}, which is exactly our first bound (1).
+  The proof strategy for the second bound (2) mirrors that of the first bound.
 \end{proof}
 
+\begin{theorem}[Paired error theorem; a priori] \label{thm:paired-a-priori}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the following bounds: 
+\begin{enumerate}
+  \item $max(|ln(e^{u} + \frac{a}{a-b}(e^{-u}- e^{u}))|, |ln(e^{-u} + \frac{a}{a-b}(e^{u}- e^{-u}))|)$
+  \item $max(|ln(e^u + \frac{b}{a-b}(e^u - b e^{-u}))|,|ln(e^u + \frac{b}{a-b}(e^u - e^{-u}))|)$
+\end{enumerate} 
+\end{theorem} 
+\begin{proof}
+  Our error metric is symmetric so for this theorem we wish to prove a bound on
+  $d_{\mathbb{R}}(r', r)$. Similarly to Theorem~\ref{thm:paired-a-posteriori},
+  we prove each bound and, for each bound, split into two cases: $r \leq r'$ or
+  $r > r'$. In the first case, we have:
+  \begin{equation} \label{eq:a-priori-bnd-a-pos}
+  \begin{aligned}[c]
+    |ln(\frac{r'}{r})| \leq 
+    |ln(\frac{a' - be^u}{a - b})| =
+    |ln(\frac{a' - be^u + ae^u - ae^u}{a - b})| \\ =
+    |ln(e^u + \frac{a' - ae^u}{a - b})| \leq
+    |ln(e^u + \frac{ae^{-u} - ae^u}{a - b})| =
+    |ln(e^u + \frac{a}{a - b}(e^{-u} - e^u))|
+  \end{aligned}
+  \end{equation}
+  In the second case, we have:
+  \begin{equation} \label{eq:a-priori-bnd-a-neg}
+  \begin{aligned}[c]
+    |ln(\frac{r'}{r})| \leq 
+    |ln(\frac{a' - be^{-u}}{a - b})| =
+    |ln(\frac{a' - be^{-u} + ae^{-u} - ae^{-u}}{a - b})| \\ =
+    |ln(e^{-u} + \frac{a' - ae^{-u}}{a - b})| \leq
+    |ln(e^{-u} + \frac{ae^{u} - ae^{-u}}{a - b})| =
+    |ln(e^{-u} + \frac{a}{a - b}(e^{u} - e^{-u}))|
+  \end{aligned}
+  \end{equation}
+  A sound bound for both cases is the maximum of Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg}, which is exactly our first bound (1).
+  The proof strategy for the second bound (2) mirrors that of the first bound.
+\end{proof}
 
+% TODO: detail how to plug in?
 
+\subsection{Tightness} \label{sec:tightness}
+A natural question to ask is whether the paired representation introduced in the
+proceeding section leads to looser error bounds on programs that could have been
+typed using the standard, unpaired representation. In the following section, we
+demonstrate that for the programs obtained using the unpaired representation,
+our bounds obtained through the paired representation are no looser.
+
+To demonstrate this, we instantiate our language with the following interface
+$(\mathbb{P}^{+}, d, \rho_{\mathbb{P}}, u, \Sigma = \{ \mathbf{add},
+\mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where $\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ and $d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
+Let us write programs derivable in this type system using the $\vdash_{\mathbb{R}}$ judgement.
+We observe that programs step the same in both instantiations of the language
+and also that programs derivable in $\vdash_{\mathbb{R}}$ have the same type
+with $\vdash$.
+\begin{lemma}[Derivablity]
+If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
+then
+$\Delta \ | \ \Gamma \vdash e : \tau$ 
+\end{lemma}
+\begin{proof}
+  $\vdash_{\mathbb{R}}$ has strictly less operations and the associated rounding
+  functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
+\end{proof}
+
+We also observe that for a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, $q$ suffices to bound the
+maximum permitted round-off error.
+
+\begin{theorem}[Unpaired error theorem]
+For a program $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we have that $ e \mapsto^{*} ((r, a,
+b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
+\end{theorem}
+\begin{proof}
+  Holds by our logical relation and error metric.
+\end{proof}
+
+We are now ready to state our tightness theorem which guarantees that the paired
+representation produced error bounds no looser than the unpaired representation.
+
+\begin{theorem}[Tightness]
+For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e :  M_q \mathbf{num}_i$ and $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where the following bounds are equivalent:
+\begin{itemize}
+  \item $q$
+  % \item $max(|ln(e^u + \frac{a}{r'}(1-e^{2u}))|,|ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|)$
+  \item $max(|ln(e^{-u} + \frac{b}{r'}(e^{-2u}- 1))|,|ln(e^u + \frac{b}{r'}(e^{2u}-1))|)$ (a posteriori)
+  % \item $max(|ln(e^{u} + \frac{a}{a-b}(e^{-u}- e^{u}))|, |ln(e^{-u} + \frac{a}{a-b}(e^{u}- e^{-u}))|)$
+  \item $max(|ln(e^u + \frac{b}{a-b}(e^u - b e^{-u}))|,|ln(e^u + \frac{b}{a-b}(e^u - e^{-u}))|)$ (a priori)
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Observe that $b$ is zero by construction of the unpaired instantiation of our
+language.
+\end{proof}
+
+% TODO: clarify how to start / use interval analysis
