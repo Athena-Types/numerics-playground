@@ -1,4 +1,13 @@
 \section{Type inference}
+Similar to our language syntax and semantics, our type inference approach is
+also modular and parameterized by an abstraction function mapping from our
+concrete domain $\textit{num}$ to intervals: $\alpha : \textit{num} \to
+\textit{num}^2$. 
+
+We only place the following constraint on $\alpha$:
+\begin{definition}[$\alpha$ is closed.] \label{def:alpha-closed}
+For all $k \in \textit{num}$, $k \in \alpha(k)$.
+\end{definition}
 
 \subsection{Subtyping}
 We extend the subtyping relation from \cite{NumFuzz} to work with interval
@@ -34,6 +43,28 @@ stages. Users write programs in \Lang. We then perform the type sensitivity and
 inference algorithm developed in \cite{NumFuzz}, extended to our core language
 without bound polymorphism. Finally, we automatically infer polymorphic bound
 annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
+For example, the following unannotated program would be transformed as follows:
+
+\begin{example}[Unannotated example program]
+  \begin{equation}
+    \lambda x \ . \ \mathbf{let} \ s \ = \ add \ x \ \tin \ (\mathbf{rnd} \ s)
+    : \textbf{num} \times \textbf{num} \multimap \textbf{num}
+  \end{equation}
+\end{example}
+
+\begin{example}[Annotated program]
+  \begin{equation}
+    \bnd{\Lambda \epsilon_0, \epsilon_1 \ .} \lambda x : num_{\bnd{\epsilon_0}}
+    \times num_{\bnd{\epsilon_1}} \ . \ 
+    \mathbf{let} \ s \ = \ add \ \bnd{\{\epsilon_0\}} \ \{\bnd{\epsilon_1\}} \ x
+    \ \tin \ (\mathbf{rnd} \ s)
+    : 
+    \bnd{\forall \epsilon_0, \epsilon_1 \ .} \ 
+    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
+    \multimap
+    \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}}
+  \end{equation}
+\end{example}
 
 \begin{equation}
   \begin{aligned}[c]
@@ -48,26 +79,6 @@ annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
     \multimap \textbf{num}_{\bnd{\epsilon_0 \cdot \epsilon_1}} \\
   \end{aligned}
 \end{equation}
-
-\begin{example}[Unannotated program]
-  \begin{equation}
-    \lambda x \ . \ \mathbf{let} \ s \ = \ add \ x \ \tin \ (\mathbf{rnd} \ s)
-    : \textbf{num} \times \textbf{num} \multimap \textbf{num}
-  \end{equation}
-\end{example}
-\begin{example}[Annotated program]
-  \begin{equation}
-    \bnd{\Lambda \epsilon_0, \epsilon_1 \ .} \lambda x : num_{\bnd{\epsilon_0}}
-    \times num_{\bnd{\epsilon_1}} \ . \ 
-    \mathbf{let} \ s \ = \ add \ \bnd{\{\epsilon_0\}} \ \{\bnd{\epsilon_1\}} \ x
-    \ \tin \ (\mathbf{rnd} \ s)
-    : 
-    \bnd{\forall \epsilon_0, \epsilon_1 \ .} \ 
-    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
-    \multimap
-    \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}}
-  \end{equation}
-\end{example}
 
 \subsection{Problem setup}
 We define two erasure operations over terms, types and contexts. Full typing contexts
@@ -170,10 +181,6 @@ context, possibly using bound polymorphism.
 \begin{figure}
 %% ROW1
 \begin{center}
-\begin{equation}
-\begin{aligned}[c]
-\end{aligned}
-\end{equation}
 
 \AXC{}
 \UIC{$I(\textbf{unit}^{\bnd{\bullet}}, \Delta) \to \textbf{unit}; .$}
@@ -302,6 +309,14 @@ context, possibly using bound polymorphism.
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
+%% const
+\AXC{}
+\RightLabel{(Const)}
+\UIC{$\Gamma; k^{\bnd{\bullet}}; \underset{bnd.}{\implies} \Gamma;
+k; \textbf{num}_{\bnd{\alpha(k)}}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
 %% bang intro
 \AXC{$\Gamma; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma; e'; \tau$}
 \RightLabel{($!$ I)}
@@ -527,6 +542,8 @@ follow from the soundness proof for $\underset{sens.}{\implies}$
 (in~\cite{NumFuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
 is non-structural below:
 \begin{description}
+  \item[$\textbf{num}$.] Holds by our interface for $\alpha$ from
+  Definition~\ref{def:alpha-closed}. 
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.
   \item[$\multimap$ I.] Apply $\forall-I$ for every free $\epsilon$.

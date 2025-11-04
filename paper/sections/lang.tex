@@ -3,9 +3,12 @@ We are interested in developing a modular family of languages for analyzing
 numerical round-off error. Modularity enables differing floating-point bit
 precisions (e.g. 32-bit floats, 64-bit floats) and floating-point operations to
 be soundly instantiated.
+In Section\ref{sec:encoding}, we will instantiate our family of languages with a
+paired representation which will help provide both a priori and a posteriori
+bounds.
 
 In this section, we detail the construction of our modular family of languages.
-We first detail the syntax (Section~\ref{sec:syntax}), static semantics
+We first describe the syntax (Section~\ref{sec:syntax}), static semantics
 (Section~\ref{sec:static-semantics}), dynamic semantics
 (Section~\ref{sec:dynamic-semantics}), and logical relation for the family of
 languages (Section~\ref{sec:logical-relation}). Then, using our logical relation
@@ -130,7 +133,7 @@ needed:
 
 By contrast, inverse program $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
 \multimap M_q (\tau_0 \times \tau_1)$ is neither derivable nor admissible (but
-is sound). $\textbf{factor}$ is a particularly useful primitive to have for
+is proved sound in Theorem~{\ref:metric-preservation}). $\textbf{factor}$ is a particularly useful primitive to have for
 sequencing computations. For example, consider the following side-by-side
 comparison in Figure~\ref{fig:factor-side-by-side} with interval bounds erased
 for presentational purposes.
@@ -206,57 +209,54 @@ Numerical Fuzz family of programming languages, we first define distances
 between intervals, expresions, vectors of expressions, and substitutions. This
 notation will be useful later for stating and proving type soundness.
 
-\begin{definition}[Distance between intervals, expressions, expression vectors,
-and substitutions.]
+\begin{definition}[Distance between expressions and expression vectors.]
 We incrementally build up to the definition of distance between substitutions
 below:
 \begin{description}
-  \item[Distance between intervals.] For any two closed bounds, we write $i
-  \sim_0 i$ or $i \sim_{\infty} i'$ for $i \not= i'$. 
-
+  % \item[Distance between intervals.] For any two closed bounds, we write $i
+  % \sim_0 i$ or $i \sim_{\infty} i'$ for $i \not= i'$. 
+  %
   \item[Distance between expressions.] For any two closed expressions $e_0, e_1$
   falling in same type relation $e_0, e_1 \in R_\tau$ (where $\tau$ is a closed
   type), we can write $e_0 \sim_r e_1$ where $\mathcal{SD}_{\tau}(e_0, e_1) \leq
   r$. 
 
   \item[Distance between expression vectors.]
-    Generally, we can write vectors of expressions (e.g. for substitutions) $\sigma =
-    \sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
-    \sigma'_{\Gamma}$
-    for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma'
-    : \Delta \ | \ \Gamma$ for a \textit{distance vector}
+    Generally, we can write vectors of expressions (e.g. for substitutions) 
+    % $\sigma =
+    % \sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
+    % \sigma'_{\Gamma}$
+    for a given typing context $\Delta \ | \ \Gamma$ such that: $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ for a \textit{distance vector}
     $\gamma = r_0, r_1, \ldots$
     where
-    $\sigma = (k^l_0, k^r_0),~(k^l_1, k^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+    $\sigma = \sigma_{\Delta}, e_0,~\ldots,~e_n$ 
     and 
-    $\sigma' = (k'^l_0, k'^r_0),~(k'^l_1, k'^r_1),~\ldots \ | \ e_0,~e_1,~\ldots$ 
+    $\sigma' = \sigma_{\Delta}, e'_0,~\ldots,~e'_n$ 
     such that:
     $$
-    (k^l_0, k^r_0) \sim_{r_0} (k'^l_0, k'^r_0) : \mathbf{bnd},~(k^l_1, k^r_1) \sim_{r_1} (k'^l_1, k'^r_1) : \mathbf{bnd},~\ldots \
-    | \ e_0 \sim_{r_m} e'_0 :
-    \tau_0~[\sigma_{\Delta}],~e_0 \sim_{r_{m+1}} e'_0 :
-    \tau_1~[\sigma_{\Delta}],~\ldots
+    e_0 \sim_{r_0} e'_0 : \tau_0~[\sigma_{\Delta}],
+    ~\ldots,
+    ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
     $$
+    where $\sigma_{\Delta}$ is a interval vector with no free varaibles.
+    Note that the distance between expression vectors are undefined when the
+    interval vector $\sigma_{\Delta}$ differs between substitutions.
 
-  \item[Distance between substitutions.]
     We also say that a substitution vector 
-    $$[(k^l_0, k^r_0) / \epsilon_0, (k^l_1, k^r_1) / \epsilon_1, \ldots \ | \ e_1/x_1, e_2/x_2, \ldots]$$
+    $$\sigma_{\Delta}, [e_0/x_0, \ldots, e_n/x_n]$$
     is \textit{compatible} with a typing context 
-    $i_0 : \mathbf{bnd}, i_1 : \mathbf{bnd}, \ldots \ | \ x_1 : \tau_1, x_2 : \tau_2, \ldots$
+    $x_0 : \tau_0, \ldots, x_n : \tau_n$
     if each term 
-    $(k^l_0, k^r_0) \in \mathcal{R}_{\mathbf{bnd}}, 
-    (k^l_1, k^r_1) \in \mathcal{R}_{\mathbf{bnd}}, 
-    \ldots \ | 
-    \ e_1 \in \mathcal{R}_{\tau_1~[\sigma_{\Delta}]}, 
-    e_2 \in \mathcal{R}_{\tau_2~[\sigma_{\Delta}]}, \ldots$ where all types are closed.
+    $e_0 \in \mathcal{R}_{\tau_0~[\sigma_{\Delta}]}, 
+    \ldots,
+    e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by the interval vector $\sigma_{\Delta}$.
 \end{description}
 \end{definition}
 
 \begin{definition}[Dot product of distance vectors.]
 Our definition for the dot product of a distance vector $\gamma = r_0, \ldots,
 r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
-the same as Fuzz \cite{Fuzz}:
-$\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
+the same as Fuzz \cite{Fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
 \end{definition}
 
 In the remainder of the paper, we'll treat and represent our distance vector
@@ -312,12 +312,12 @@ soundness theorems to follow.
     \item[d) Property of $\mathbf{iop}$: closure over intervals ($\textit{num}^2$).] We further need to
       assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
       have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
-      corresponding metalevel function will actually map to a concrete bound
-      where $\textit{iop}_c(b_0, b_1, \ldots) : \textbf{bnd} = (k_0, k_1)$
+      corresponding metalevel function will actually map concrete bounds to concrete bounds
+      where 
+      $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
       holds.
 \end{description}
 \end{definition}
 
 \subsection{Soundness} \label{sec:soundness}
 \input{sections/05-type-error-soundness.tex}
-
