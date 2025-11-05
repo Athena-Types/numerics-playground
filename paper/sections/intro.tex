@@ -76,31 +76,26 @@ approaches while covering many more programs, including those with subtraction
 and negative numbers.
 We defer the details of this approach to Section \ref{sec:encoding}. 
 
-We address the above limitations by providing a scalable, type-based
-forwards error analysis that can handle broader classes of programs and, at the
-same time, tighten error bounds. Our approach is faster than competing
-approaches, mostly automatic with low type annotation overhead, and competitive
-on precision with other state-of-the-art techniques. Concretely, our
-contributions are as follows:
+We address the above limitations by providing a scalable, type-based forwards
+error analysis that can handle broader classes of programs and, at the same
+time, more accurately structure and sequence arithemetic while tightening error
+bounds. Our approach is faster than competing approaches, mostly automatic with
+low type annotation overhead, and competitive on precision with other
+state-of-the-art techniques. Concretely, our contributions are as follows:
 \begin{itemize}
-  \item 
-    We extend the Numerical Fuzz family of languages by incorporating an
+  \item We extend the Numerical Fuzz family of languages by incorporating an
     interval-style analysis into the type system using interval \textit{bound
-    polymorphism}. We introduce a previously-untypable primitive that enables
-    the error and sensitivities in rounded terms to be shared, allowing for
-    tighter error bounds. We further extend Numerical Fuzz to enable expressions
-    in more places. We prove the soundness of our extensions to Numerical Fuzz
-    in (Section~\ref{sec:lang}).
+    polymorphism}. We further extend Numerical Fuzz to enable expressions in
+    more places. We prove the soundness of our extensions to Numerical Fuzz in
+    (Section~\ref{sec:lang}).
 
   \item We encode Numerical Fuzz to use a \textit{paired representation} that
     allows for subtraction and negative numbers to be soundly represented in a
-    finitely-sensitive manner (Section~\ref{sec:instantiation}).
-    We then prove both \textit{a priori} and \textit{a posterori} compositional
-    error bounds in the presence of subtraction and negative numbers
+    finitely-sensitive manner (Section~\ref{sec:instantiation}). We then prove
+    both \textit{a priori} and \textit{a posterori} compositional error bounds
+    in the presence of subtraction and negative numbers
     (Section~\ref{sec:application}). 
-    We further prove that our
-    approach leads to forwards error bounds no looser than prior type-based work
-    for forwards analysis (Section~\ref{sec:tightness}). 
+
     % todo: some claim about novelty is needed to put this contribution in context
     %
     % to develop the first type-based approach to forwards error analysis that
@@ -109,14 +104,23 @@ contributions are as follows:
     % To our knowledge, our approach is the first automatic general-purpose
     % numerical analysis that can produce usable \textit{a posteori} error bounds.
 
+  \item We enable the structuring and seqeuncing of arithmetic for tighter error
+    bounds by allowing error and sensitivities in rounded terms to be shared. We
+    accomplish this through the addition of a previously-untypable primitive
+    inspired by the resource interpretation of linear logic
+    (Section~\ref{sec:structure})
+
   \item We develop a type inference algorithm for our type system that can
     automatically infer bound polymorphism in many useful programs; the user can
     provide an entirely unannotated program for inference. We prove the
-    soundness of our type inference algorithm.
+    soundness of our type inference algorithm. We further prove that our
+    approach leads to forwards error bounds no looser than prior type-based work
+    for forwards analysis (Section~\ref{sec:tightness}). 
 
   \item We implement our type-based approach for forwards error analysis. We
     evaluate our implementation against FPTaylor and Gappa on a suite of
     benchmarks translated into our core language and demonstrate that we obtain
-    competitive error bounds with often faster performance.
+    competitive error bounds with often faster performance
+    (Section~\ref{sec:eval}).
     % todo: put in hard numbers
 \end{itemize}

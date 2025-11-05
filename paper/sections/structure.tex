@@ -1,0 +1,89 @@
+\section{Structuring and sequencing arithmetic} \label{sec:structure}
+We are are inspired by the resource
+interpretation of linear logic: we can either give our error budget $M_q$ to
+$\tau_0$ or $\tau_1$ or equivalently give the same error budget $M_q$ to
+$\tau_0$ \textit{with} $\tau_1$. To show that $M_q ~ (\tau_0 \times \tau_1)$
+is equivalent to
+$(M_q ~ \tau_0) \times (M_q \tau_1)$, we need to construct two 1-sensitive
+functions in the forwards and backwards direction.
+
+We additionally include a special primitive, $\textbf{factor}$, in our term
+language inspired by linear logic. This primitive enables more precise error
+analyses. In linear and affine logic, we have the alternative conjunction
+$\tau_0 \times \tau_1$, (sometimes written $\tau_0~\&~\tau_1$). We can view the
+introduction rule as allowing $\tau_0$ and $\tau_1$ to share resources in
+$\Gamma$, their construction. Correspondingly, the elimination rules can be
+viewed as forcing consumers to internally choose between allocating the
+resources in $\Gamma$ towards either constructing $\tau_1$ or $\tau_2$.
+
+However, the ability to share resources interacts poorly with our sequenced
+$\textbf{let-bind}$ and call-by-value evaluation strategy, which pessimistically
+prohibits the sharing of resources between the bound argument and the body. As a
+toy example, if we have two monadic types $M_q \tau_0 \times M_q \tau_1$ that
+shared resources in their construction, we have no way of constructing $M_q
+(\tau_0 \times \tau_1)$ with a shared error grade. A similar problem exists for
+sharing context sensitivities. To enabling the sharing of round-off and
+sensitivity information, we introduce a new primitive new primitive
+($\textbf{factor} : (M_q \tau_0 \times M_r \tau_1) \multimap M_{max(q, r)}
+(\tau_0 \times \tau_1)$) which allows for error and sensitivity information to
+be shared between monadic terms.
+
+
+\subsubsection*{Taking advantage of \textbf{factor}: a motivating example} 
+
+
+The program $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0)
+\times (M_q \tau_1)$ is derivable in Numerical Fuzz, so no special primitive is
+needed:
+\begin{equation*} \label{eq:distribute}
+\begin{aligned}[c]
+\textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
+ & \triangleq \lambda ~ y. ~ 
+   \langle
+     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_1 ~ x),
+     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_2 ~ x),
+   \rangle
+\end{aligned}
+\end{equation*}
+
+By contrast, inverse program $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
+\multimap M_q (\tau_0 \times \tau_1)$ is neither derivable nor admissible (but
+is proved sound in Theorem~{\ref:metric-preservation}). $\textbf{factor}$ is a
+particularly useful primitive to have for sequencing computations. For example,
+consider the following side-by-side comparison in
+Figure~\ref{fig:factor-side-by-side} with interval bounds erased for
+presentational purposes.
+
+\begin{figure}[ht]
+\centering
+
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[3*u] num 
+let-bind a = addfp <w, x> in
+let-bind b = addfp <y, z> in
+let-bind c = addfp <a, b> in
+addfp c 
+\end{lstlisting}
+\caption{Without factor}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[2*u] num 
+let-bind a = 
+  factor <addfp <w, x>, addfp <y, z>> in
+  addfp a
+\end{lstlisting}
+\caption{With factor}
+\end{subfigure}
+
+\caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
+\label{fig:factor-side-by-side}
+\end{figure}
+Note that $u$ represents the unit round-off associated with $addfp :
+\textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$. In the summation
+example, the program with factor has an error bound of two ULPs whereas the
+program without factor has an error bound of three ULPs. Clearly,
+$\textbf{factor}$ helps users design programs that achieve tighter error bounds.
+

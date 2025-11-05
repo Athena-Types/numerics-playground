@@ -1,0 +1,96 @@
+\section{Technical Overview}
+In this paper, we are primarily motivated to extend Numerical Fuzz to support
+more floating-point operations and more rich ways of structuring and sequencing
+arithmetic. We provide a brief background and overview our extensions below.
+
+% In this section, we briefly introduce floating-point round-off error and outline
+% the main technical features of our system. 
+\subsection{Background}
+\subsubsection*{Floating-point numbers, sensitivity, and round-off error}
+The floating-point number system is a family of formats following the following
+form:
+\begin{equation}
+  x = (-1)^s \cdot m \cdot \beta^{e - p + 1}
+\end{equation}
+where $s$ controls the sign, $m$ is the mantissa, $e$ is the exponent, and $p$
+is the precision. Formats are a subset of the reals and generally fix a specific
+precsision $p$, for example $\textsc{binary32}$ or $\textsc{binary64}$ which fix
+$p = 32$ or $p = 64$ respectively. 
+Operations over the reals can be represented in a floating-point system as the
+exact operation followed by rounding to a float. The error introduced by such
+rounding is known as \textit{round-off error}.
+
+A useful concept on bounding round-off error is Lipshitz function senstivity,
+which bounds the amount by which a function will amplify error in its inputs.
+\begin{definition}[Lipshitz function senstivity]
+  For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
+  $s$-sensitive if $\forall x, x' \in X, d_Y(f(x), f(x')) \leq s \cdot d_X(x,
+  x')$.
+\end{definition}
+
+In prior work and this paper, a graded effect and co-effect type system is used
+to simulatenously track round-off error and function sensitivity. For example,
+the following term with typing context and judgement indicates that the variable
+$x$ is $s$-sensitive in the expression $e$ and has round-off error upper-bounded
+by $q$.
+\begin{equation}
+  x :_s \tau_0 \vdash e : M_q \tau_1
+\end{equation}
+
+
+\subsection{Language Feature: Supporting Subtraction and Negative Numbers}
+Unfortuantely, subtraction over the reals is infinitely sensitive. Therefore,
+prior work does not support subtraction or addition by a negative number as the
+sensitivity cannot be bounded. This is a siginficant limitation as many
+numerical programs require subtraction or negative numbers. 
+
+In this paper, we develop a $\textit{paired representation}$ where subtraction
+and negative numbers have bounded sensitivty. The trick is to associate for each
+real $r \in \mathbb{R}$ a pair $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
+\mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$. 
+
+
+% TODO: show how it works with sub / mul / add
+% TODO: talk some more about the limitations of this approach, what it looks
+% like
+
+\subsection{Language Feature: Bound Polymorphism}
+
+% \subsubsection*{Interval analysis and bound polymorphism} \label{sec:interval}
+We wish to extend the type system to be able to perform an interval analysis. A
+naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
+subscript interval $\bnd{i}$. However, many programs we wish to type call the
+same function many times. To ensure that our interval analysis is scalable and
+that functions types can be reused, we support \textit{bound polymorphism},
+which allows us to specialize our function to have different concrete bounds for
+each function call site. We write types $\tau$ polymorphic in interval variable
+$\epsilon$ as $\forall \epsilon. \tau$.
+
+For example, if we have a function, such as the identity function over numbers
+$id : \textbf{num}_{\bnd{i}} \multimap \textbf{num}_{\bnd{i}}$ called at two
+different call sites with intervals $j$ and $k$, the inferred bound for $i$
+would be $j \cup k$.
+To solve this problem, we add bounds and \textit{bound polymorphism} for all
+types, allowing the functions to be typed like so: $id : \bnd{\forall \epsilon.}
+~ \textbf{num}_{\bnd{\epsilon}} \multimap \textbf{num}_{\bnd{\epsilon}}$. We can
+introduce and eliminate polymorphism via the $\forall$ introduction and
+elimination rules provided in Figure~\ref{fig:typing_rules}.
+
+\subsection{Language Feature: Structuring and Sequencing Arithmetic} \label{sec:factor}
+Suppose, by way of example, that we wish to compute the sum
+$w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
+with round-off error. It is well known that round-off error grows linearly in
+the height of a summation tree. So, a user might naturally want to sequence the
+summation as a perfect binary tree: $(w~\tilde{+}~x)~\tilde{+}~(y~\tilde{+}~z)$.
+In prior type-based work \cite{NumFuzz}, the monadic computation sequencing rule
+forces the error analysis to always compute the worst-case round-off error
+associated with the pathological degenerate tree:
+$((w~\tilde{+}~x)~\tilde{+}~y)~\tilde{+}~z$.
+
+Our extension enables the user to associate the computation tree arbitrarily,
+providing tighter error bounds when possible. 
+We do this by including a special primitive, $\textbf{factor}$, in our term
+language inspired by linear logic. We defer a detailed explaination of
+\textbf{factor} and how it allows for structuring and sequencing arithmetic
+towards a more precise error analysis in Section~\ref{sec:structure}.
+our
