@@ -3,7 +3,6 @@ Similar to our language syntax and semantics, our type inference approach is
 also modular and parameterized by an abstraction function mapping from our
 concrete domain $\textit{num}$ to intervals: $\alpha : \textit{num} \to
 \textit{num}^2$. 
-
 We only place the following constraint on $\alpha$:
 \begin{definition}[$\alpha$ is closed.] \label{def:alpha-closed}
 For all $k \in \textit{num}$, $k \in \alpha(k)$.
@@ -11,7 +10,7 @@ For all $k \in \textit{num}$, $k \in \alpha(k)$.
 
 \subsection{Subtyping}
 We extend the subtyping relation from \cite{NumFuzz} to work with interval
-bounds in the following way:
+bounds by adding the following case:
 
 $$
 \begin{aligned}[c]
@@ -36,10 +35,9 @@ $$
   \cite{thm:weakening}).
 \end{proof}
 
-\subsection{Algorithmic Type Inference}
-
-Conceptually, we can think of our type inference and checking algorithm in two
-stages. Users write programs in \Lang. We then perform the type sensitivity and
+\subsection{Problem setup}
+Conceptually, we can think of our type inference algorithm in two
+stages. Users write programs in \Lang, without sensitivities or bound polymorphism. We then perform the type sensitivity and
 inference algorithm developed in \cite{NumFuzz}, extended to our core language
 without bound polymorphism. Finally, we automatically infer polymorphic bound
 annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
@@ -80,9 +78,10 @@ For example, the following unannotated program would be transformed as follows:
   \end{aligned}
 \end{equation}
 
-\subsection{Problem setup}
-We define two erasure operations over terms, types and contexts. Full typing contexts
-can be seen as maps from variables to pairs of sensitivities and types. 
+To define the type inference problem, we first define two erasure operations
+over terms, types and contexts. Full typing contexts can be seen as maps from
+variables to pairs of sensitivities and types. We will then define type
+inference as inferring sensitivities and bound over erased, well-typed terms.
 
 \begin{definition}[Sensitivity and round-off erasure]
 For a fully annotated typing context $\Gamma$, a fully erased typing context
@@ -115,7 +114,7 @@ e^{\bnd{\bullet}} &\triangleq e &\text{otherwise}
 \end{equation}
 \end{definition}
 
-\begin{definition}[Type inference and checking problem]
+\begin{definition}[Type inference problem]
 Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 : \tau$ for $e$ in \Lang if such a derivation exists. 
 \end{definition}
@@ -542,7 +541,7 @@ follow from the soundness proof for $\underset{sens.}{\implies}$
 (in~\cite{NumFuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
 is non-structural below:
 \begin{description}
-  \item[$\textbf{num}$.] Holds by our interface for $\alpha$ from
+  \item[Const.] Holds by our interface for $\alpha$ from
   Definition~\ref{def:alpha-closed}. 
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.

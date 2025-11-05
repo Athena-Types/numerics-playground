@@ -1,9 +1,9 @@
 \section{Language} \label{sec:lang}
-We are interested in developing a modular family of languages for analyzing
-numerical round-off error. Modularity enables differing floating-point bit
-precisions (e.g. 32-bit floats, 64-bit floats) and floating-point operations to
-be soundly instantiated.
-In Section\ref{sec:encoding}, we will instantiate our family of languages with a
+Building off Numerical Fuzz \cite{NumFuzz}, we are interested in developing a
+modular family of languages for analyzing numerical round-off error. Modularity
+enables differing floating-point bit precisions (e.g. 32-bit floats, 64-bit
+floats) and floating-point operations to be soundly instantiated. In
+Section\ref{sec:encoding}, we will instantiate our family of languages with a
 paired representation which will help provide both a priori and a posteriori
 bounds.
 
@@ -11,10 +11,11 @@ In this section, we detail the construction of our modular family of languages.
 We first describe the syntax (Section~\ref{sec:syntax}), static semantics
 (Section~\ref{sec:static-semantics}), dynamic semantics
 (Section~\ref{sec:dynamic-semantics}), and logical relation for the family of
-languages (Section~\ref{sec:logical-relation}). Then, using our logical relation
+languages (Section~\ref{sec:logical-relation}). Finally, using our logical relation
 to precisely specify the required invariants for instantiating our language, we
 define a modular interface for instantiating the language as well as prove
-soundness for any interface-conforming instantiation of the language. 
+soundness for any interface-conforming instantiation of the language
+(Section~\ref{sec:interface}). 
 % We extend the Numerical Fuzz family of languages to support two key features:
 % \begin{enumerate}
 %   \item Error and sensitivity sharing between terms, through the addition of a

@@ -23,67 +23,84 @@ type. There is no need to perform global optimization, run an algorithm to
 convergence, saturate rewrites, or bit-blast.
 
 However, prior type-based work for forwards error analysis is not capable of
-handling negative numbers and subtraction. The problem is essentially:
-compositional type-based error bounds seem to require relative notions of error;
-however, relative notions of error are not well-behaved in the presence of
-subtraction and negative numbers. 
+handling negative numbers and subtraction. A crucial component of prior work was
+to track function Lipschitz sensitivity, which bounds the amount a function can
+amplify round-off error. The fundamental problem with adding negative numbers
+and subtraction is that those operations are infinitely-sensitive; relatively
+small peturbations in the input can lead to hard-to-bound relatively large
+perturbations in the output. As an illustrative toy example, suppose we have two
+large numbers like 1,000,001 and 1,000,000 that we wish to subtract. If we
+perturb the input by a small amount, for example, by 1 per-cent, we can observe
+quite large \textit{relative} changes in the output. 
+
 % As an illustrative toy example, suppose we
 % have two large numbers like 1,000,001 and 1,000,000 with little relative error.
 % Suppose that the relative error bounds for both large numbers is ``small" at 1
 % per cent. Then the relative error for $1,000,001 - 1,000,000 = 1$ is quite
 % large, upper-bounded at roughly 2,000,000 per cent.
-This fundamental phenomenon is known as \textit{catastrophic cancellation}: two
-large nearby numbers with small relative error can be subtracted to produce a
-small number with arbitrarily high relative error.
 
-When catestrophic cancellation occurs, it is impossible to obtain tight error
-bounds. Importantly, we often know when catestrophic cancellation cannot not
-occur (\textit{a priori}) and can detect when it has occured (\textit{a
-posteori}). \textit{A posterori} error bounds are particularly promising as
-catestrophic cancellation only occurs when two large numbers are subtracted to
-produce a \textit{small} number with arbitrarily high error. Knowing that the
-final value is large allows for the ruling out of catestrophic cancellation,
-sidestepping the problem entirely.
-In both circumstances, our approach is able to reason about the presence of
-catestrophic cancellation (or rule it out) in order to produce useful error
-bounds.
+% The problem is essentially:
+% compositional type-based error bounds seem to require relative notions of error;
+% however, relative notions of error are not well-behaved in the presence of
+% subtraction and negative numbers. 
+% This fundamental phenomenon is known as \textit{catastrophic cancellation}: two
+% large nearby numbers with small relative error can be subtracted to produce a
+% small number with arbitrarily high relative error.
+
+% When catestrophic cancellation occurs, it is impossible to obtain tight error
+% bounds. Importantly, we often know when catestrophic cancellation cannot not
+% occur (\textit{a priori}) and can detect when it has occured (\textit{a
+% posteori}). \textit{A posterori} error bounds are particularly promising as
+% catestrophic cancellation only occurs when two large numbers are subtracted to
+% produce a \textit{small} number with arbitrarily high error. Knowing that the
+% final value is large allows for the ruling out of catestrophic cancellation,
+% sidestepping the problem entirely.
+% In both circumstances, our approach is able to reason about the presence of
+% catestrophic cancellation (or rule it out) in order to produce useful error
+% bounds.
 
 Our approach centers around representing each possibly negative number, $r$, in
 our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
 $r = (a, b)$ and $r' = (a', b')$ to produce $r + r' = (a + a', b + b')$. When
 our semantics subtracts two numbers $r - r' = (a + b', b + a')$, our paired type
 represenation only needs to add components; subtraction is represented
-implictly. We use this representation combined with an intervals bounds analysis
+implictly. 
+In this manner, we encode subtraction and negative numbers in a
+finitely-sensitive manner.
+We use this representation combined with an intervals bounds analysis
 using type polymorphism to track the pairs and provide both $\textit{a priori}$
 and $\textit{a posteori}$ error bounds. Importantly, the operational semantics
 of the programming language remains standard and unpaired. We additionally prove
 that our approach provides no looser error bounds than prior type-based
 approaches while covering many more programs, including those with subtraction
 and negative numbers.
-We defer the details of this approach to Section ?. 
-% todo: fill in section with ref
+We defer the details of this approach to Section \ref{sec:encoding}. 
 
-We also address the above limitations by providing a scalable, type-based
+We address the above limitations by providing a scalable, type-based
 forwards error analysis that can handle broader classes of programs and, at the
 same time, tighten error bounds. Our approach is faster than competing
 approaches, mostly automatic with low type annotation overhead, and competitive
 on precision with other state-of-the-art techniques. Concretely, our
 contributions are as follows:
 \begin{itemize}
-  \item We extend the Numerical Fuzz family of languages by introducing a
-    previously-untypable primitive that enables the error and sensitivities in
-    rounded terms to be shared, allowing for tighter error bounds. We
-    incorporate an interval-style analysis into the type system using interval
-    \textit{bound polymorphism}. We further extend Numerical Fuzz to enable
-    expressions in more places. We prove the soundness of these extensions to
-    Numerical Fuzz (Section~\ref{sec:lang}).
+  \item 
+    We extend the Numerical Fuzz family of languages by incorporating an
+    interval-style analysis into the type system using interval \textit{bound
+    polymorphism}. We introduce a previously-untypable primitive that enables
+    the error and sensitivities in rounded terms to be shared, allowing for
+    tighter error bounds. We further extend Numerical Fuzz to enable expressions
+    in more places. We prove the soundness of our extensions to Numerical Fuzz
+    in (Section~\ref{sec:lang}).
 
-  \item We encode Numerical Fuzz to provide both \textit{a priori} and \textit{a
-    posterori} compositional error bounds in the presence of subtraction and
-    negative numbers. 
-    We prove the soundness of our instantation. We further prove that our
+  \item We encode Numerical Fuzz to use a \textit{paired representation} that
+    allows for subtraction and negative numbers to be soundly represented in a
+    finitely-sensitive manner (Section~\ref{sec:instantiation}).
+    We then prove both \textit{a priori} and \textit{a posterori} compositional
+    error bounds in the presence of subtraction and negative numbers
+    (Section~\ref{sec:application}). 
+    We further prove that our
     approach leads to forwards error bounds no looser than prior type-based work
-    for forwards analysis. 
+    for forwards analysis (Section~\ref{sec:tightness}). 
     % todo: some claim about novelty is needed to put this contribution in context
     %
     % to develop the first type-based approach to forwards error analysis that
@@ -92,9 +109,10 @@ contributions are as follows:
     % To our knowledge, our approach is the first automatic general-purpose
     % numerical analysis that can produce usable \textit{a posteori} error bounds.
 
-  \item We develop a type inference and checking algorithm for our type system
-    that can automatically infer bound polymorphism in many useful programs. We
-    prove the soundness of our type inference algorithm.
+  \item We develop a type inference algorithm for our type system that can
+    automatically infer bound polymorphism in many useful programs; the user can
+    provide an entirely unannotated program for inference. We prove the
+    soundness of our type inference algorithm.
 
   \item We implement our type-based approach for forwards error analysis. We
     evaluate our implementation against FPTaylor and Gappa on a suite of
