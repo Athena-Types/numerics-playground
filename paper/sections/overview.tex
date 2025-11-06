@@ -6,7 +6,7 @@ arithmetic. We provide a brief background and overview our extensions below.
 % In this section, we briefly introduce floating-point round-off error and outline
 % the main technical features of our system. 
 \subsection{Background}
-\subsubsection*{Floating-point numbers, sensitivity, and round-off error}
+\subsubsection*{Floating-point numbers, measuring error, sensitivity, and round-off error}
 The floating-point number system is a family of formats following the following
 form:
 \begin{equation}
@@ -14,13 +14,35 @@ form:
 \end{equation}
 where $s$ controls the sign, $m$ is the mantissa, $e$ is the exponent, and $p$
 is the precision. Formats are a subset of the reals and generally fix a specific
-precsision $p$, for example $\textsc{binary32}$ or $\textsc{binary64}$ which fix
-$p = 32$ or $p = 64$ respectively. 
+precsision $p$, for example $\textsc{binary32}$ and $\textsc{binary64}$ which
+fix $p = 32$ and $p = 64$ respectively. 
 Operations over the reals can be represented in a floating-point system as the
-exact operation followed by rounding to a float. The error introduced by such
+exact operation followed by rounding by a function $\rho$ to a float. The error introduced by such
 rounding is known as \textit{round-off error}.
 
-A useful concept on bounding round-off error is Lipshitz function senstivity,
+The standard rounding error model assumes $\rho$ will observe round-off error in
+at most the last bit:
+\begin{equation}
+  \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
+\end{equation}
+where $u$ is the \textit{unit round-off} value representing the maximum error
+possible in the last bit for the floating point format (e.g. $2^{-24}$ and
+$2^{-53}$ for 32 and 64-bit floating-point numbers respectively).
+
+We wish to bound round-off error. 
+To bound error, one must first be capable of measuring it. Following Numerical
+Fuzz, we rely on Olver's \cite{olver} \textit{relative precision} metric which
+forms a true metric and allows for compositional error reasoning. 
+
+\begin{equation}
+  d_{\mathbb{R}}(r, r') = | ln(\frac{r}{r'})|
+\end{equation}
+
+In our case, we crucially rely on triangle inequality for the soundness of the
+error grades of our charateristic monadic bind rule.
+Importantly, triangle inequality does not hold for \textit{relative error}.
+
+A useful concept for bounding round-off error is Lipshitz function senstivity,
 which bounds the amount by which a function will amplify error in its inputs.
 \begin{definition}[Lipshitz function senstivity]
   For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
@@ -39,26 +61,40 @@ by $q$.
 
 
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
-Unfortuantely, subtraction over the reals is infinitely sensitive. Therefore,
-prior work does not support subtraction or addition by a negative number as the
-sensitivity cannot be bounded. This is a siginficant limitation as many
-numerical programs require subtraction or negative numbers. 
+Many real-world programs use subtraction or negative numbers. Unfortuantely,
+subtraction over the reals is infinitely sensitive. This poses a significant
+challenge for reasoning about subtraction in prior type-based work. 
 
 In this paper, we develop a $\textit{paired representation}$ where subtraction
 and negative numbers have bounded sensitivty. The trick is to associate for each
-real $r \in \mathbb{R}$ a pair $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
+real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
 \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$. 
+Our error function $d_{\mathbb{P}}((r, a, b)(r', a', b'))$ over $\mathbb{P}$ is
+measured as the $max(d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b'))$.
 
+Under the paired representation, we can implement and faitfully type addition,
+subtraction, and multiplication in terms of only-growing operations over the
+paired components:
+\begin{equation}
+  \begin{aligned}[c]
+    sub((r, a, b), (r', a', b')) &\mapsto (r - r', a + b', a' + b) \\
+    add((r, a, b), (r', a', b')) &\mapsto (r + r', a + a', b + b') \\
+    mul((r, a, b), (r', a', b')) &\mapsto (r * r', a * a' + b * b', a * b' + a' * b)
+  \end{aligned}
+\end{equation}
+In this manner, we can bound the sensitivity of each operation and soundly
+assign a type.
 
-% TODO: show how it works with sub / mul / add
-% TODO: talk some more about the limitations of this approach, what it looks
-% like
 
 \subsection{Language Feature: Bound Polymorphism}
+Unfortuantely, the error bounds obtained through the paired representation only
+only bound the maximum error on the paired components. To turn these bounds into
+useful bounds on the unpaired components, we extend the type system to be able
+to perform an interval-style analysis on the paired components. We then apply
+the results of the interval anslysis to the invariant that for a triple $(r, a,
+b)$ that $r = a - b$.
 
-% \subsubsection*{Interval analysis and bound polymorphism} \label{sec:interval}
-We wish to extend the type system to be able to perform an interval analysis. A
-naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
+A naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
 subscript interval $\bnd{i}$. However, many programs we wish to type call the
 same function many times. To ensure that our interval analysis is scalable and
 that functions types can be reused, we support \textit{bound polymorphism},
@@ -82,15 +118,17 @@ $w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
 with round-off error. It is well known that round-off error grows linearly in
 the height of a summation tree. So, a user might naturally want to sequence the
 summation as a perfect binary tree: $(w~\tilde{+}~x)~\tilde{+}~(y~\tilde{+}~z)$.
-In prior type-based work \cite{NumFuzz}, the monadic computation sequencing rule
+In prior type-based work \cite{numfuzz}, the monadic computation sequencing rule
 forces the error analysis to always compute the worst-case round-off error
 associated with the pathological degenerate tree:
 $((w~\tilde{+}~x)~\tilde{+}~y)~\tilde{+}~z$.
+In other words, the error bound obtained by \cite{numfuzz} grows linearly in
+size of the number of \textit{nodes}.
 
 Our extension enables the user to associate the computation tree arbitrarily,
-providing tighter error bounds when possible. 
-We do this by including a special primitive, $\textbf{factor}$, in our term
+and to obtain error bounds that grow linearly in size of the \textit{height} of
+the tree.
+We accomplish this by including a special primitive, $\textbf{factor}$, in our term
 language inspired by linear logic. We defer a detailed explaination of
 \textbf{factor} and how it allows for structuring and sequencing arithmetic
 towards a more precise error analysis in Section~\ref{sec:structure}.
-our

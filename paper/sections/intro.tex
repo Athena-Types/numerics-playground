@@ -61,12 +61,12 @@ quite large \textit{relative} changes in the output.
 
 Our approach centers around representing each possibly negative number, $r$, in
 our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
-$r = (a, b)$ and $r' = (a', b')$ to produce $r + r' = (a + a', b + b')$. When
+$r = (a, b)$ and $r' = (a', b')$ we produce $r + r' = (a + a', b + b')$. When
 our semantics subtracts two numbers $r - r' = (a + b', b + a')$, our paired type
 represenation only needs to add components; subtraction is represented
 implictly. 
 In this manner, we encode subtraction and negative numbers in a
-finitely-sensitive manner.
+finite-sensitive manner.
 We use this representation combined with an intervals bounds analysis
 using type polymorphism to track the pairs and provide both $\textit{a priori}$
 and $\textit{a posteori}$ error bounds. Importantly, the operational semantics
@@ -76,11 +76,11 @@ approaches while covering many more programs, including those with subtraction
 and negative numbers.
 We defer the details of this approach to Section \ref{sec:encoding}. 
 
-We address the above limitations by providing a scalable, type-based forwards
-error analysis that can handle broader classes of programs and, at the same
-time, more accurately structure and sequence arithemetic while tightening error
-bounds. Our approach is faster than competing approaches, mostly automatic with
-low type annotation overhead, and competitive on precision with other
+We address the limitations of prior work by providing a scalable, type-based
+forwards error analysis that can handle broader classes of programs and, at the
+same time, more accurately structure and sequence arithemetic while tightening
+error bounds. Our approach is faster than competing approaches, mostly automatic
+with low type annotation overhead, and competitive on precision with other
 state-of-the-art techniques. Concretely, our contributions are as follows:
 \begin{itemize}
   \item We extend the Numerical Fuzz family of languages by incorporating an
