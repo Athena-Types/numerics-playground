@@ -67,14 +67,16 @@ represenation only needs to add components; subtraction is represented
 implictly. 
 In this manner, we encode subtraction and negative numbers in a
 finite-sensitive manner.
-We use this representation combined with an intervals bounds analysis
-using type polymorphism to track the pairs and provide both $\textit{a priori}$
-and $\textit{a posteori}$ error bounds. Importantly, the operational semantics
-of the programming language remains standard and unpaired. We additionally prove
-that our approach provides no looser error bounds than prior type-based
-approaches while covering many more programs, including those with subtraction
-and negative numbers.
-We defer the details of this approach to Section \ref{sec:encoding}. 
+We use this representation combined with a polymorphic intervals bounds analysis
+in the type system to track the pairs and provide both $\textit{a priori}$ and
+$\textit{a posteori}$ error bounds. Importantly, the operational semantics of
+the programming language remains standard and unpaired and the interval analysis
+can be automatically inferred via type inference. We additionally prove that our
+approach provides no looser error bounds than prior type-based approaches while
+covering many more programs, including those with subtraction and negative
+numbers.
+We defer the details of our paired approach to Section~\ref{sec:encoding} and
+type inference to Section~\ref{sec:inference}. 
 
 We address the limitations of prior work by providing a scalable, type-based
 forwards error analysis that can handle broader classes of programs and, at the
