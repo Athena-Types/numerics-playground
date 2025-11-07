@@ -50,16 +50,6 @@ which bounds the amount by which a function will amplify error in its inputs.
   x')$.
 \end{definition}
 
-In prior work and this paper, a graded effect and co-effect type system is used
-to simulatenously track round-off error and function sensitivity. For example,
-the following term with typing context and judgement indicates that the variable
-$x$ is $s$-sensitive in the expression $e$ and has round-off error upper-bounded
-by $q$.
-\begin{equation}
-  x :_s \tau_0 \vdash e : M_q \tau_1
-\end{equation}
-
-
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
 Many real-world programs use subtraction or negative numbers. Unfortuantely,
 subtraction over the reals is infinitely sensitive. This poses a significant
