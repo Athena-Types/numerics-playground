@@ -1,40 +1,47 @@
 \section{Structuring and sequencing arithmetic} \label{sec:structure}
-We are are inspired by the resource
-interpretation of linear logic: we can either give our error budget $M_q$ to
-$\tau_0$ or $\tau_1$ or equivalently give the same error budget $M_q$ to
-$\tau_0$ \textit{with} $\tau_1$. To show that $M_q ~ (\tau_0 \times \tau_1)$
-is equivalent to
-$(M_q ~ \tau_0) \times (M_q \tau_1)$, we need to construct two 1-sensitive
-functions in the forwards and backwards direction.
+Floating-point operations are far from associative; it is well-known that the
+round-off error of a sequence of additions is linear in the height of the
+computation tree. As a running example, consider the expression $w + x + y + z$.
+We can choose to associate the expression in the degenerate way, resembling a
+linked-list and with error terms growing in $O(n)$, where $n$ is the number of
+subterms:
+$$((w + x) + y) + z$$
+or in the balanced way with error growing in $O(ln(n))$, resembling a perfect
+binary tree:
+$$(w + x) + (y + z)$$
+It is clear from this example that the clever user may wish to structure and
+sequence computation in a manner that minimizes the height of their computation
+tree.
+Unfortunately, taking advantage of well-structured programs is not possible in
+Numerical Fuzz. The characteristic monadic bind rule, which sequences
+computation, forces the error to grow in $O(n)$ of the number of added subterms.
+To better understand why, we can look to the role of $\times$ in the resource
+interpretation of linear logic.
+In this section, we omit our interval annotations for presentational purposes.
+Further, recall that $\textbf{addfp}$ and $\textbf{subfp}$ have type $(\textbf{num}
+\times \textbf{num}) \multimap M_q ~ \textbf{num}$.
 
-We additionally include a special primitive, $\textbf{factor}$, in our term
-language inspired by linear logic. This primitive enables more precise error
-analyses. In linear and affine logic, we have the alternative conjunction
-$\tau_0 \times \tau_1$, (sometimes written $\tau_0~\&~\tau_1$). We can view the
-introduction rule as allowing $\tau_0$ and $\tau_1$ to share resources in
-$\Gamma$, their construction. Correspondingly, the elimination rules can be
-viewed as forcing consumers to internally choose between allocating the
-resources in $\Gamma$ towards either constructing $\tau_1$ or $\tau_2$.
+In the resource interpretation, $\tau_0 \times \tau_1$ (written as $\&$ in
+linear logic and pronounced \textit{with}) is also known as internal choice: for
+a given resource budget (typing context), the consumer gets to decide whether to
+allocate the budget towards constructing $\tau_0$ or $\tau_1$. 
+From the producer's perspective, a type $\tau_0 \times \tau_1$ in a context
+$\Gamma$ indicates that we can share the resources in $\Gamma$ towards the
+allocation of $\tau_0$ and $\tau_1$ as only one will eventually be consumed
+(consumer's choice).
+We can view the introduction rule as allowing $\tau_0$ and $\tau_1$ to share
+resources in $\Gamma$, their construction. Correspondingly, the elimination
+rules can be viewed as forcing consumers to internally choose between allocating
+the resources in $\Gamma$ towards either constructing $\tau_1$ or $\tau_2$.
+For monadic types, we can either give our error budget $M_q$ to $\tau_0$
+\textit{with} $\tau_1$; or equivalently, give the same error budget $M_q$ to
+$\tau_0$ \textit{with} $\tau_1$.
 
-However, the ability to share resources interacts poorly with our sequenced
-$\textbf{let-bind}$ and call-by-value evaluation strategy, which pessimistically
-prohibits the sharing of resources between the bound argument and the body. As a
-toy example, if we have two monadic types $M_q \tau_0 \times M_q \tau_1$ that
-shared resources in their construction, we have no way of constructing $M_q
-(\tau_0 \times \tau_1)$ with a shared error grade. A similar problem exists for
-sharing context sensitivities. To enabling the sharing of round-off and
-sensitivity information, we introduce a new primitive new primitive
-($\textbf{factor} : (M_q \tau_0 \times M_r \tau_1) \multimap M_{max(q, r)}
-(\tau_0 \times \tau_1)$) which allows for error and sensitivity information to
-be shared between monadic terms.
-
-
-\subsubsection*{Taking advantage of \textbf{factor}: a motivating example} 
-
-
-The program $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0)
-\times (M_q \tau_1)$ is derivable in Numerical Fuzz, so no special primitive is
-needed:
+We now explore whether our typing rules can derive the equivalence between $M_q
+(\tau_0 \times \tau_1)$ and $M_q \tau_0 \times M_q \tau_1$.
+Interestingly, the program $\textbf{distribute} : M_q (\tau_0 \times \tau_1)
+\multimap (M_q \tau_0) \times (M_q \tau_1)$ is derivable in Numerical Fuzz, so
+no special primitive is needed to structure arithmetic in the reverse direction:
 \begin{equation*} \label{eq:distribute}
 \begin{aligned}[c]
 \textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
@@ -49,11 +56,41 @@ needed:
 By contrast, inverse program $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
 \multimap M_q (\tau_0 \times \tau_1)$ is neither derivable nor admissible (but
 is proved sound in Theorem~{\ref:metric-preservation}). $\textbf{factor}$ is a
-particularly useful primitive to have for sequencing computations. For example,
-consider the following side-by-side comparison in
-Figure~\ref{fig:factor-side-by-side} with interval bounds erased for
-presentational purposes.
+particularly useful primitive to have for sequencing computations. 
 
+In particular, the ability for a producer to share resources interacts poorly with our
+sequenced $\textbf{let-bind}$ and call-by-value evaluation strategy, which
+pessimistically prohibits the sharing of resources between the bound argument
+and the body. If we have two monadic types $M_q \tau_0 \times M_q \tau_1$ that
+shared resources in their construction, we have no way of constructing $M_q
+(\tau_0 \times \tau_1)$ with a shared error grade. A similar problem exists for
+sharing context sensitivities. 
+To better understand the problem, recall that the monadic bind rule has the
+form:
+\begin{figure}[ht]
+\AXC{$\Gamma \vdash e : M_r \tau_0$}
+\AXC{$\Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
+\RightLabel{($M_u$ E)}
+\BIC{$s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
+\bottomAlignProof
+\DisplayProof
+\end{figure}
+and is the only way to eliminate the monadic $M_q \tau$ type. Since the sole way
+to eliminate the monadic types in $M_q \tau_0 \times M_q \tau_1$ is through
+$\textbf{let-bind}$, the producer must simultaneously produce $\tau_0$ and
+$\tau_1$ without any sharing.
+In other words, we have no way of constructing $M_q (\tau_0 \times \tau_1)$ in a
+grade-preserving way while preserving the consumer's internal choice.
+
+To enabling the sharing of round-off and sensitivity information, we simply add
+the new primitive $\textbf{factor} : (M_q \tau_0 \times M_r \tau_1) \multimap
+M_{max(q, r)} (\tau_0 \times \tau_1)$ witnessing the resource interpretation and
+allowing for error and sensitivity information to be shared between monadic
+terms.
+Armed with a new primitive and more expressive language, we now return to our
+running example. In the below figure, we demonstrate how the $\textbf{let-bind}$
+rule interacts with our linear $\times$ to enable more efficiently structured
+computation. 
 \begin{figure}[ht]
 \centering
 
@@ -81,9 +118,9 @@ let-bind a =
 \caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
 \label{fig:factor-side-by-side}
 \end{figure}
-Note that $u$ represents the unit round-off associated with $addfp :
-\textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$. In the summation
-example, the program with factor has an error bound of two ULPs whereas the
-program without factor has an error bound of three ULPs. Clearly,
+Note that $u$ represents the unit round-off associated with $\textbf{addfp}$. In
+the summation example, the program with factor has an error bound of two ULPs
+whereas the program without factor has an error bound of three ULPs. Clearly,
 $\textbf{factor}$ helps users design programs that achieve tighter error bounds.
 
+We now explore the interaction between $\textbf{factor}$ and subtraction. TODO??
