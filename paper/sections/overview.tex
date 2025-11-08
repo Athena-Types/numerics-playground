@@ -1,12 +1,12 @@
 \section{Technical Overview}
 In this paper, we are primarily motivated to extend Numerical Fuzz to support
 more floating-point operations and more rich ways of structuring and sequencing
-arithmetic. We provide a brief background and overview our extensions below.
+arithmetic. We provide some background and briefly overview our extensions
+below.
 
 % In this section, we briefly introduce floating-point round-off error and outline
 % the main technical features of our system. 
-\subsection{Background}
-\subsubsection*{Floating-point numbers, measuring error, sensitivity, and round-off error}
+\subsection{Background: floating-point, error metrics, and function sensitivity.}
 The floating-point number system is a family of formats following the following
 form:
 \begin{equation}
@@ -17,8 +17,8 @@ is the precision. Formats are a subset of the reals and generally fix a specific
 precsision $p$, for example $\textsc{binary32}$ and $\textsc{binary64}$ which
 fix $p = 32$ and $p = 64$ respectively. 
 Operations over the reals can be represented in a floating-point system as the
-exact operation followed by rounding by a function $\rho$ to a float. The error introduced by such
-rounding is known as \textit{round-off error}.
+exact operation followed by rounding by a function $\rho$ to a float. The error
+introduced by the rounding function $\rho$ is known as \textit{round-off error}.
 
 The standard rounding error model assumes $\rho$ will observe round-off error in
 at most the last bit:
@@ -29,15 +29,17 @@ where $u$ is the \textit{unit round-off} value representing the maximum error
 possible in the last bit for the floating point format (e.g. $2^{-24}$ and
 $2^{-53}$ for 32 and 64-bit floating-point numbers respectively).
 
-We wish to bound round-off error. 
+We are interested in bounding round-off error. 
 To bound error, one must first be capable of measuring it. Following Numerical
-Fuzz, we rely on Olver's \cite{olver} \textit{relative precision} metric which
-forms a true metric and allows for compositional error reasoning. 
+Fuzz, we rely on Olver's \cite{olver} \textit{relative precision} metric for
+measuring round-off error. 
 
 \begin{equation}
   d_{\mathbb{R}}(r, r') = | ln(\frac{r}{r'})|
 \end{equation}
 
+Relative precision forms a true metric and allows for compositional error
+reasoning. 
 In our case, we crucially rely on triangle inequality for the soundness of the
 error grades of our charateristic monadic bind rule.
 Importantly, triangle inequality does not hold for \textit{relative error}.
@@ -55,10 +57,12 @@ Many real-world programs use subtraction or negative numbers. Unfortuantely,
 subtraction over the reals is infinitely sensitive. This poses a significant
 challenge for reasoning about subtraction in prior type-based work. 
 
-In this paper, we develop a $\textit{paired representation}$ where subtraction
-and negative numbers have bounded sensitivty. The trick is to associate for each
-real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
-\mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$. 
+We develop a $\textit{paired representation}$ where subtraction and negative
+numbers have finitely-bounded sensitivty. The trick is to semantically associate
+for each real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R}
+\times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
+The paired components $a$ and $b$ are only used for error analysis and serve a
+function similar to ghost variables in other program analyses.
 Our error function $d_{\mathbb{P}}((r, a, b)(r', a', b'))$ over $\mathbb{P}$ is
 measured as the $max(d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b'))$.
 
@@ -75,32 +79,39 @@ paired components:
 In this manner, we can bound the sensitivity of each operation and soundly
 assign a type.
 
-
 \subsection{Language Feature: Bound Polymorphism}
 Unfortuantely, the error bounds obtained through the paired representation only
-only bound the maximum error on the paired components. To turn these bounds into
-useful bounds on the unpaired components, we extend the type system to be able
-to perform an interval-style analysis on the paired components. We then apply
-the results of the interval anslysis to the invariant that for a triple $(r, a,
-b)$ that $r = a - b$.
+bound the maximum error on the paired components. To be useful, we desire bounds
+on the actual program, e.g. $r$ the unpaired component. We can obtain bounds on
+$r$ by extending the type system to be able to perform an interval-style
+analysis on the paired components. Armed with more information, we can apply the
+results of the interval anslysis to the invariant that for a triple $(r, a, b)$
+that $r = a - b$.
 
-A naive approach would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
-subscript interval $\bnd{i}$. However, many programs we wish to type call the
-same function many times. To ensure that our interval analysis is scalable and
-that functions types can be reused, we support \textit{bound polymorphism},
-which allows us to specialize our function to have different concrete bounds for
-each function call site. We write types $\tau$ polymorphic in interval variable
-$\epsilon$ as $\forall \epsilon. \tau$.
+A naive approach to incorporating a bounds analysis in the type system  would be
+to annotate each $\textbf{num}_{\bnd{i}}$ with a subscript interval $\bnd{i}$.
+However, many programs we wish to type call the same function many times. To
+ensure that our interval analysis is scalable and that functions types can be
+reused, we support \textit{bound polymorphism}, which allows us to specialize
+our function to have different concrete bounds $\bnd{i}$ for each function call
+site. We write types $\tau$ polymorphic in interval variable $\bnd{\epsilon}$ as
+$\bnd{\forall \epsilon.} \tau$.
 
-For example, if we have a function, such as the identity function over numbers
+For example, if we have a function such as the identity function over numbers
 $id : \textbf{num}_{\bnd{i}} \multimap \textbf{num}_{\bnd{i}}$ called at two
 different call sites with intervals $j$ and $k$, the inferred bound for $i$
 would be $j \cup k$.
-To solve this problem, we add bounds and \textit{bound polymorphism} for all
-types, allowing the functions to be typed like so: $id : \bnd{\forall \epsilon.}
-~ \textbf{num}_{\bnd{\epsilon}} \multimap \textbf{num}_{\bnd{\epsilon}}$. We can
-introduce and eliminate polymorphism via the $\forall$ introduction and
-elimination rules provided in Figure~\ref{fig:typing_rules}.
+By adding \textit{bound polymorphism}, we allow functions to be
+typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
+\multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
+polymorphism via $\forall$ introduction and elimination rules.
+% provided in Figure~\ref{fig:typing_rules}.
+
+To reduce annotation overhead, we provide a type inference algorithm that can
+automatically infer bound polymorphism abstraction and instantiation sites. We
+prove our type inference algorithm sound in Section~\ref{sec:inference}. We also
+prove that our low-annotation approach gives us bounds no looser than prior type
+based work while also supporting subtraction and negative numbers.
 
 \subsection{Language Feature: Structuring and Sequencing Arithmetic} \label{sec:factor}
 Suppose, by way of example, that we wish to compute the sum

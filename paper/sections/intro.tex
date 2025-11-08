@@ -26,14 +26,15 @@ convergence, saturate rewrites, or bit-blast.
 The core idea of prior type-based work is to track two key properties of each
 function: the function sensitivity $s$ and the maximum round-off error $q$
 introduced by the function. Intuitively, $s$ upper-bounds the amount by which
-perturbations in a function's input affect its output. For given function $f$
-with senstivity $s$ and round-off error $q$ with at most $r$ error in its
-inputs, we can apply triangle inequality to reason that $f(x)$ will exhibit at
-most $s \cdot r + q$ round-off error. As explained visually below, it is the
+perturbations in a function's input affect its output. 
+As explained visually in Figure~\ref{fig:sen}, it is the
 combination of function sensitivity along with round-off error that allows
 results in a compositional error bound.
+For given function $f$ with senstivity $s$ and round-off error $q$ with at most
+$r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to reason
+that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error. 
 
-\begin{figure}[ht]
+\begin{figure}[ht] \label{fig:sen}
 % https://q.uiver.app/#q=WzAsNyxbMCwwLCJ4Il0sWzMsMCwiXFx0aWxkZXt4fSJdLFswLDIsImYoeCkiXSxbOCwyLCJcXHdpZGV0aWxkZXtmKHgpfSJdLFswLDNdLFs4LDNdLFs0LDEsImYoXFx0aWxkZXt4fSkiXSxbMCwxLCJcXHRleHR7KHBlcnR1cmJhdGlvbiBpbiBmdW5jdGlvbiBpbnB1dHMpfSBcXFxcIHIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzAsMiwiIiwxLHsiY29sb3VyIjpbMTIwLDYwLDMwXX1dLFsxLDMsIiIsMSx7ImNvbG91ciI6WzAsNjAsNTJdfV0sWzQsNSwicyBcXGNkb3QgciArIHEgXFxcXCBcXHRleHR7KHRyaWFuZ2xlIGluZXF1YWxpdHksIGZpbmFsIGJvdW5kKX0iLDIseyJzdHlsZSI6eyJ0YWlsIjp7Im5hbWUiOiJhcnJvd2hlYWQifX19XSxbNiwzLCJxIFxcXFwgXFx0ZXh0eyhlcnJvciBpbiBmKX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6NzAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMSw2LCIiLDEseyJjb2xvdXIiOlsxMjAsNjAsMzBdfV0sWzIsNiwicyBcXGNkb3QgciBcXFxcIFxcdGV4dHsoYm91bmRlZCBieSBmdW5jdGlvbiBzZW5zaXRpdml0eSB9cykiLDIseyJsYWJlbF9wb3NpdGlvbiI6NjAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XV0=
 \[\begin{tikzcd}
 	x &&& {\tilde{x}} \\
@@ -50,15 +51,15 @@ results in a compositional error bound.
 \end{tikzcd}\]
 \end{figure}
 
-However, subtraction (and adding by a negative number) is infinitely-sensitive.
-Infinitely-sensitive functions are impossible to bound using this approach. The
-fundamental problem with adding negative numbers and subtraction is that those
-operations are infinitely-sensitive; relatively small peturbations in the input
-can lead to hard-to-bound relatively large perturbations in the output. As an
-illustrative toy example, suppose we have two large numbers like 1,000,001 and
-1,000,000 that we wish to subtract. If we perturb the input by a small amount,
-for example, by 1 per-cent, we can observe quite large \textit{relative} changes
-in the output. 
+However, subtraction (and adding by a negative number) is infinitely-sensitive,
+which poses a challenge for a compositional analysis that relies on functions
+with finite senstivity bounds. The fundamental problem with adding negative
+numbers and subtraction is that those operations are infinitely-sensitive;
+relatively small peturbations in the input can lead to hard-to-bound relatively
+large perturbations in the output. As an illustrative toy example, suppose we
+have two large numbers like 1,000,001 and 1,000,000 that we wish to subtract. If
+we perturb the input by a small amount, for example, by 1 per-cent, we can
+observe quite large \textit{relative} changes in the output. 
 
 % As an illustrative toy example, suppose we
 % have two large numbers like 1,000,001 and 1,000,000 with little relative error.
@@ -86,24 +87,25 @@ in the output.
 % catestrophic cancellation (or rule it out) in order to produce useful error
 % bounds.
 
-Our approach centers around representing each possibly negative number, $r$, in
-our type semantics with a pair of non-negative $(a, b)$. When our semantics adds
-$r = (a, b)$ and $r' = (a', b')$ we produce $r + r' = (a + a', b + b')$. When
-our semantics subtracts two numbers $r - r' = (a + b', b + a')$, our paired type
-represenation only needs to add components; subtraction is represented
-implictly. 
-In this manner, we encode subtraction and negative numbers in a
-finite-sensitive manner.
-We use this representation combined with a polymorphic intervals bounds analysis
-in the type system to track the pairs and provide both $\textit{a priori}$ and
-$\textit{a posteori}$ error bounds. Importantly, the operational semantics of
-the programming language remains standard and unpaired and the interval analysis
-can be automatically inferred via type inference. We additionally prove that our
-approach provides no looser error bounds than prior type-based approaches while
-covering many more programs, including those with subtraction and negative
-numbers.
-We defer the details of our paired approach to Section~\ref{sec:encoding} and
-type inference to Section~\ref{sec:inference}. 
+\paragraph{Our approach} 
+The techniques detailed in this paper centers around representing each possibly
+negative number, $r$, in our type semantics with a pair of non-negative $(a,
+b)$. When our semantics adds $r = (a, b)$ and $r' = (a', b')$ we produce $r + r'
+= (a + a', b + b')$. When our semantics subtracts two numbers $r - r' = (a + b',
+b + a')$, our paired type represenation only needs to add components;
+subtraction is represented implictly. Distance between $(a, b)$ and $(a', b')$
+is encoded as the maximum of the pairwise distance: $max(d(a, a'), d(b, b'))$.
+In this manner, we encode subtraction and negative numbers in a finite-sensitive
+manner. We combine this representation with a polymorphic intervals bounds
+analysis in the type system to track the pairs and provide both $\textit{a
+priori}$ and $\textit{a posteori}$ error bounds. Importantly, the operational
+semantics of the programming language remains standard and unpaired and the
+interval analysis can be automatically inferred via type inference. We
+additionally prove that our approach provides no looser error bounds than prior
+type-based approaches while covering many more programs, including those with
+subtraction and negative numbers. We defer the details of our paired approach to
+Section~\ref{sec:encoding} and type inference to Section~\ref{sec:inference}. 
+% max: maybe refer to sec 5 (factor) above too?
 
 We address the limitations of prior work by providing a scalable, type-based
 forwards error analysis that can handle broader classes of programs and, at the
@@ -126,7 +128,6 @@ state-of-the-art techniques. Concretely, our contributions are as follows:
     (Section~\ref{sec:application}). 
 
     % todo: some claim about novelty is needed to put this contribution in context
-    %
     % to develop the first type-based approach to forwards error analysis that
     % enables
     % Our instantiation relies on a \textit{paired numeric representation}. 
