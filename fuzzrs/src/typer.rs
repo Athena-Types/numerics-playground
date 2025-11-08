@@ -43,7 +43,7 @@ pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
 }
 
 pub fn subtype(sub : Ty, sup : Ty) -> bool {
-    eprintln!("subtype op: {:?} {:?}", sub, sup);
+    //eprintln!("subtype op: {:?} {:?}", sub, sup);
     sup == sub
 }
 
@@ -174,7 +174,7 @@ pub fn strip_foralls<'a>(t : Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>,
 }
 
 pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
-    eprintln!("elim {:?} in vector {:?}", t, v);
+    //eprintln!("elim {:?} in vector {:?}", t, v);
     match t {
         Ty::Unit => v,
         Ty::NumErased => panic!("We should not see erased terms!"),
@@ -245,7 +245,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let (sens, _) = theta.remove(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
-                eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
+                //eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
                 // TODO: generalize + assert that these are alpha-equiv
                 //assert_eq!(tau, *ty_i)
             }
@@ -253,7 +253,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*(sens)) + theta, ty)
         }
         Expr::LCB(box_x, e, f) => {
-            println!("expr {:?} in ctx {:?}", e, c);
+            //eprintln!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -273,7 +273,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*t) + theta, tau)
         }
         Expr::LB(box_x, e, f) => {
-            println!("expr {:?} in ctx {:?}", e, c);
+            //eprintln!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -296,7 +296,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*s) + theta, Ty::Monad(s*r + q, Box::new(*tau)))
         }
         Expr::Lam(box_x, ty_i, f) => {
-            println!("{:?}", f);
+            //eprintln!("{:?}", f);
             assert!(*ty_i != Ty::Hole);
 
             let x = match *box_x {
@@ -315,14 +315,11 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
 
             tau = Ty::Fun(Box::new(ty_with_eps), Box::new(tau));
 
-            //let mut body = f;
-
             for e in eps_v {
-                //body = Expr::PolyAbs(e, body);
                 tau = Ty::Forall(*e, Box::new(tau));
             }
-            //(gamma, Ty::Fun(ty_i, Box::new(tau)))
-            println!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
+
+            //eprintln!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
             (gamma, tau)
         }
         Expr::App(e, f) => {
@@ -344,6 +341,10 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                     intervals = elim(tau_0.clone(), &mut intervals).to_vec();
                     let mut eps_v = Vec::new();
                     eps_v = elim(*tau_0_sup.clone(), &mut eps_v).to_vec();
+                    //eprintln!("e {:?}", e);
+                    //eprintln!("f {:?}", f);
+                    //eprintln!("eps_v {:?}", eps_v);
+                    //eprintln!("intervals {:?}", intervals);
                     let subs = make_subs(eps_v.to_vec(), intervals);
                     // perform subs
                     let tau_0_sup_sub = sub_ty(*tau_0_sup, &subs);
@@ -359,7 +360,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 }
                 _ => panic!("{:?} is not a function type!", tau_fun)
             };
-            println!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
+            //eprintln!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
             (gamma + delta, tau_1)
         }
         Expr::Op(o) => todo!("should be handled by the app case!"),

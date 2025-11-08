@@ -18,7 +18,7 @@ pub fn start(filename: PathBuf) -> Expr {
 pub fn combine_decls(decls: Vec<(String, (Expr, Ty))>, e: Expr) -> Expr {
     let mut body = e;
 
-    println!("{:?}", decls);
+    //println!("{:?}", decls);
 
     let mut bindings = decls.clone();
     bindings.reverse();
@@ -317,7 +317,7 @@ pub fn parse_float(input: Pair<'_, Rule>) -> Expr {
 }
 
 pub fn parse_atom(input: Pair<'_, Rule>) -> Expr {
-    println!("{:?}", input);
+    //println!("{:?}", input);
     match input.as_rule() {
         Rule::var => parse_name(input.into_inner().next().unwrap()),
         Rule::op => parse_op(input),
