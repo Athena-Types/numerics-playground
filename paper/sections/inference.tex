@@ -1,39 +1,12 @@
 \section{Type inference} \label{sec:inference}
 Similar to our language syntax and semantics, our type inference approach is
-also modular and parameterized by an abstraction function mapping from our
-concrete domain $\textit{num}$ to intervals: $\alpha : \textit{num} \to
+also modular. We parametrize our algorithm by an abstraction function mapping
+from our concrete domain $\textit{num}$ to intervals: $\alpha : \textit{num} \to
 \textit{num}^2$. 
-We only place the following constraint on $\alpha$:
+We only constrain $\alpha$ to be closed:
 \begin{definition}[$\alpha$ is closed.] \label{def:alpha-closed}
 For all $k \in \textit{num}$, $k \in \alpha(k)$.
 \end{definition}
-
-\subsection{Subtyping}
-We extend the subtyping relation from \cite{NumFuzz} to work with interval
-bounds by adding the following case:
-
-$$
-\begin{aligned}[c]
-\textbf{num}_{(k_0, k_1)} \sqsubseteq \textbf{num}_{(k'_0, k'_1)} \triangleq 
-k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
-\textbf{num}_{i} \sqsubseteq \textbf{num}_{i'} \triangleq 
-\forall \sigma : \Delta, \
-\textbf{num}_{i}~[\sigma] \sqsubseteq \textbf{num}_{i'}~[\sigma]
-\end{aligned}
-$$
-
-\begin{theorem}[Admissibility of subtyping]
-  The typing judgement $\Delta \ | \ \Gamma \vdash e : \tau$ is derivable if
-  $\Delta \ | \ \Gamma \vdash e : \tau'$ has a derivation and $\tau \sqsubseteq
-  \tau'$.
-\end{theorem}
-\begin{proof}
-  The admissibility of subtyping follows from the proof in \cite{NumFuzz} and
-  the new interval widening rule in our type system, corresponding to the
-  $\textbf{num}$ subtyping case. Note that the proof in \cite{NumFuzz} relies on
-  the admissibility of weakening, which we proved in (Theorem
-  \cite{thm:weakening}).
-\end{proof}
 
 \subsection{Problem setup}
 Conceptually, we can think of our type inference algorithm in two
@@ -119,7 +92,103 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 : \tau$ for $e$ in \Lang if such a derivation exists. 
 \end{definition}
 
+\subsection{Subtyping and supertyping}
+Before we provide the algorithm, we extend the subtyping and supertyping
+relations in Numerical Fuzz. In particular, we add the following cases to
+deal with bounds and bound polymoprhism. 
+$$
+\begin{aligned}[c]
+  \textbf{num}_{(k_0, k_1)} \sqsubseteq \textbf{num}_{(k'_0, k'_1)} &\triangleq 
+k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
+  \textbf{num}_{i} \sqsubseteq \textbf{num}_{i'} &\triangleq \forall i :
+  \Delta, \textbf{num}_{i}~[\sigma] \sqsubseteq \textbf{num}_{i'}~[\sigma] \\
+  \forall \epsilon_0. \tau \sqsubseteq \forall \epsilon_1. \tau' &\triangleq 
+  \forall i : \Delta, \tau~[i/\epsilon_0] \sqsubseteq \tau'~[i/\epsilon_1]
+\end{aligned}
+$$
+the remaining cases are unchanged:
+\begin{figure}[htbp]
+$$
+\begin{aligned}[c]
+  \textbf{unit} \sqsubseteq \textbf{unit} \\
+\end{aligned}
+$$
+
+%% ROW1
+\begin{center}
+%% CART PROD
+\AXC{$\sigma \sqsubseteq \sigma'$}
+\AXC{$\tau \sqsubseteq \tau'$}
+\RightLabel{$\sqsubseteq .\times$}
+\BIC{$ \sigma \times \tau \sqsubseteq \sigma' \times \tau' $}
+\DisplayProof
+\hskip 2.5em
+%% TEN PROD
+\AXC{$\sigma \sqsubseteq \sigma'$}
+\AXC{$\tau \sqsubseteq \tau'$}
+\RightLabel{$\sqsubseteq .\tensor$}
+\BIC{$ \sigma \tensor \tau \sqsubseteq \sigma' \tensor \tau' $}
+\DisplayProof
+\hskip 2.5em
+%% SUM
+\AXC{$\sigma \sqsubseteq \sigma'$}
+\AXC{$\tau \sqsubseteq \tau'$}
+\RightLabel{$\sqsubseteq .+$}
+\BIC{$ \sigma + \tau \sqsubseteq \sigma' + \tau' $}
+\DisplayProof
+\vskip 1em
+
+%% FUN
+\AXC{$\sigma' \sqsubseteq \sigma$}
+\AXC{$\tau \sqsubseteq \tau' $}
+\RightLabel{$\sqsubseteq .\multimap$}
+\BIC{$ \sigma \multimap \tau \sqsubseteq \sigma' \multimap \tau' $}
+\DisplayProof
+\hskip 2.5em
+%% MONAD
+\AXC{$\sigma \sqsubseteq \sigma'$}
+\AXC{$u \le u'$}
+\RightLabel{$\sqsubseteq .$M}
+\BIC{$ \text{M}_u \sigma \sqsubseteq \text{M}_{u'} \sigma' $}
+\DisplayProof
+\hskip 2.5em
+%% BANG
+\AXC{$\sigma \sqsubseteq \sigma'$}
+\AXC{$s \le s'$}
+\RightLabel{$\sqsubseteq .!$}
+\BIC{$ \bang{s'} \sigma \sqsubseteq !_{s} \sigma' $}
+\DisplayProof
+
+\end{center}
+    \caption{The subtype relation in \Lang, with $s,s',u,u' \in \NNR \cup \{\infty\}$. }
+    \label{fig:sub_ty}
+\end{figure}
+
+\begin{theorem}[Admissibility of subtyping]
+  The typing judgement $\Delta \ | \ \Gamma \vdash e : \tau$ is derivable if
+  $\Delta \ | \ \Gamma \vdash e : \tau'$ has a derivation and $\tau \sqsubseteq
+  \tau'$.
+\end{theorem}
+\begin{proof}
+  The admissibility of subtyping mostly follows from the proof in
+  \cite{NumFuzz}.
+  We detail the new cases that are not immediate below:
+  \begin{description}
+    \item[Case (Widen).] Corresponds to the new \textbf{num} cases we added to
+      the subtyping relation. 
+    \item[Case $\forall \epsilon_0 . \tau$.] Follows from application of the
+      inductive hypothesis.
+  \end{description}
+  and the new interval widening rule in our type
+  system, which corresponds to the $\textbf{num}$ subtyping case. 
+  Note that the proof in \cite{NumFuzz} relies on
+  the admissibility of weakening, which we proved in (Theorem
+  \ref{thm:weakening}).
+\end{proof}
+
+
 \subsection{Inference algorithm}
+We are now ready to define the type inference algorithm
 Our type inference algorithm has the following shape:
 $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
 where we start a program with a typing context $\Gamma^{\bullet}$ that has
@@ -144,6 +213,9 @@ typing context $\Gamma^{\bullet}$:
 
   \item We infer bounds (Section~\ref{sec:bnd-type-infer}):
   $$\Gamma; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma; e'; \tau'$$
+    During bound inference, we rely on helper functions $I$ and $E$
+    (Figure~\label{fig:helper_type_inference}) to automatically instantiate and
+    eliminate bound variables.
 \end{enumerate}
 The full type inference algorithm is $\implies \triangleq
 \underset{bnd.}{\implies} \circ \underset{sens.}{\implies}$, throwing away the
@@ -456,8 +528,8 @@ $}
 \AXC{$\Gamma; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma; e'; \tau_0$}
 \AXC{$\Theta, x; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Theta, x :_s
 \tau_0; f'; \tau$}
-\BIC{$s * \Gamma + \Theta; (\textbf{let} \ x \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s * \Gamma + \Theta; \textbf{let} \
+\BIC{$s \cdot \Gamma + \Theta; (\textbf{let} \ x \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s \cdot \Gamma + \Theta; \textbf{let} \
 x \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
@@ -467,9 +539,9 @@ x \ = \ e' \ \textbf{in} \ f'; \tau$}
 \AXC{$\Gamma; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Delta_0 \ | \ \Gamma;
 e'; \tau_0 \otimes \tau_1$}
 \AXC{$\Theta, x, y; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Delta_1 \ | \
-\Theta, x :_s \tau_0, y :_s \tau_1; f'; \tau$}
+\Theta, x :_s \tau_0, y :_s' \tau_1; f'; \tau$}
 \BIC{$s * \Gamma + \Theta; (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s * \Gamma + \Theta;
+f)^{\bnd{\bullet}} \underset{bnd.}{\implies} max(s, s') \cdot \Gamma + \Theta;
 \textbf{let-pair} \ (x, y) \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
@@ -481,8 +553,8 @@ M_r~\tau_0$}
 \AXC{$\Theta, x:_s \tau_0; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Theta, x
 :_s \tau_0; f; M_q~\tau$}
 \BIC{$s * \Gamma + \Theta; (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s * \Gamma + \Theta;
-\textbf{let-bind} \ x \ = \ e' \ \textbf{in} \ f'; M_{s*r + q}~\tau$}
+f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s \cdot \Gamma + \Theta;
+\textbf{let-bind} \ x \ = \ e' \ \textbf{in} \ f'; M_{s \cdot r + q}~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -494,10 +566,10 @@ f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s * \Gamma + \Theta;
 \Theta, x :_s \tau_0; f'_1; \tau$}
 \AXC{$\Theta, x :_s \tau_0 ; f_2^{\bnd{\bullet}} \underset{bnd.}{\implies}
 \Theta, x :_s \tau_0; f'_2; \tau$}
-\TIC{$s * \Gamma + \Theta; (\textbf{case} \ e \ \textbf{of} \
+\TIC{$s \cdot \Gamma + \Theta; (\textbf{case} \ e \ \textbf{of} \
 (\textbf{in}_1~x.f_1 ~ | ~ \textbf{in}_2~x.f_2))^{\bnd{\bullet}}
-\underset{bnd.}{\implies} s * \Gamma + \Theta; (\textbf{case} \ e' \ \textbf{of}
-\ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; M_{s*r + q}~\tau$}
+\underset{bnd.}{\implies} s \cdot \Gamma + \Theta; (\textbf{case} \ e' \ \textbf{of}
+\ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; M_{s \cdot r + q}~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em

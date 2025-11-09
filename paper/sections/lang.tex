@@ -46,16 +46,24 @@ soundness.
 % We present the full syntax for types, terms, and evaluation contexts in
 % Figure~\ref{fig:syntax}. 
 
-Building off the term language for \cite{NumFuzz}, our term syntax has explicit
-terms to represent scaling ($[e]$), rounding ($\textbf{rnd}~e$). For sequencing
-and combining computation, we have $\textbf{let}$, $\textbf{let-pair}$,
-$\textbf{let-bind}$, and $\textbf{let-cobind}$ for sequencing assignment, tuple
-unpacking, monadic, and comonadic computations respectively. Most exotically, we
-have a language for intervals (shown in Figure~\ref{fig:syntax}) as well as
-explicit terms to represent polymorphic abstraction $\bnd{(\Lambda \epsilon.
-e)}$ and instantiation $\bnd{(e \{i\})}$. This is useful for incorporating a
-interval analysis into the type system, which we detail in the following
-section.
+Like many lambda calculi for linear type systems, we have variables, lambda
+abstraction and application, $\pi_i$ for projection, $in_i$ for injection, and
+two different types of products.
+Our term syntax has explicit terms to represent our effects (rounding to the
+nearest float: $\textbf{rnd}~e$) and coeffects (scaling sensitivity: $[e]$). For
+sequencing and structuring
+computation, we have $\textbf{let-bind}$ for sequencing monadic computation,
+$\textbf{let-cobind}$ for sequencing comonadic computation, $\textbf{let-pair}$
+for unpacking tensors, and \textbf{case \ldots of \ldots} for unpacking sum
+types, and \textbf{let} for sequencing ordinary computation.
+Note that our term language is more expressive than Numerical Fuzz as we can
+bind and sequence expressions. 
+
+Most exotically, we introduce a language for intervals (shown in
+Figure~\ref{fig:syntax}) as well as explicit terms to represent polymorphic
+abstraction $\bnd{(\Lambda \epsilon. e)}$ and instantiation $\bnd{(e \{i\})}$.
+This is useful for incorporating a interval analysis into the type system, which
+we detail in the following section.
 
 \input{sections/01-syntax.tex}
 

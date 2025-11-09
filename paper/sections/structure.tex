@@ -1,5 +1,5 @@
 \section{Structuring and sequencing arithmetic} \label{sec:structure}
-Floating-point operations are far from associative; it is well-known that the
+Floating-point operations are far from associative. It is well-known that the
 round-off error of a sequence of additions is linear in the height of the
 computation tree. As a running example, consider the expression $w + x + y + z$.
 We can choose to associate the expression in the degenerate way, resembling a
@@ -12,6 +12,7 @@ $$(w + x) + (y + z)$$
 It is clear from this example that the clever user may wish to structure and
 sequence computation in a manner that minimizes the height of their computation
 tree.
+
 Unfortunately, taking advantage of well-structured programs is not possible in
 Numerical Fuzz. The characteristic monadic bind rule, which sequences
 computation, forces the error to grow in $O(n)$ of the number of added subterms.
