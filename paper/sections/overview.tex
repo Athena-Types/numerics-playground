@@ -6,22 +6,24 @@ below.
 
 % In this section, we briefly introduce floating-point round-off error and outline
 % the main technical features of our system. 
-\subsection{Background: floating-point, error metrics, and function sensitivity.}
+\subsection{Background: floating-point and error metrics}
 The floating-point number system is a family of formats following the following
 form:
 \begin{equation}
   x = (-1)^s \cdot m \cdot \beta^{e - p + 1}
 \end{equation}
 where $s$ controls the sign, $m$ is the mantissa, $e$ is the exponent, and $p$
-is the precision. Formats are a subset of the reals and generally fix a specific
-precsision $p$, for example $\textsc{binary32}$ and $\textsc{binary64}$ which
-fix $p = 32$ and $p = 64$ respectively. 
+is the precision. A specific floating-point number system represents a subset of
+the reals and generally fix a particular precision $p$, for example
+$\textsc{binary32}$ and $\textsc{binary64}$ which fix $p = 32$ and $p = 64$
+respectively. 
 Operations over the reals can be represented in a floating-point system as the
 exact operation followed by rounding by a function $\rho$ to a float. The error
 introduced by the rounding function $\rho$ is known as \textit{round-off error}.
 
-The standard rounding error model assumes $\rho$ will observe round-off error in
-at most the last bit:
+For this paper, we assume the absence of overflow and underflow. Then, the
+standard rounding error model assumes $\rho$ will observe round-off error in at
+most the last bit:
 \begin{equation}
   \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
 \end{equation}
@@ -35,7 +37,7 @@ Fuzz, we rely on Olver's \cite{olver} \textit{relative precision} metric for
 measuring round-off error. 
 
 \begin{equation}
-  d_{\mathbb{R}}(r, r') = | ln(\frac{r}{r'})|
+  d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|
 \end{equation}
 
 Relative precision forms a true metric and allows for compositional error
@@ -43,14 +45,6 @@ reasoning.
 In our case, we crucially rely on triangle inequality for the soundness of the
 error grades of our charateristic monadic bind rule.
 Importantly, triangle inequality does not hold for \textit{relative error}.
-
-A useful concept for bounding round-off error is Lipshitz function senstivity,
-which bounds the amount by which a function will amplify error in its inputs.
-\begin{definition}[Lipshitz function senstivity]
-  For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
-  $s$-sensitive if $\forall x, x' \in X, d_Y(f(x), f(x')) \leq s \cdot d_X(x,
-  x')$.
-\end{definition}
 
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
 Many real-world programs use subtraction or negative numbers. Unfortuantely,
@@ -63,21 +57,29 @@ for each real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R}
 \times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
-Our error function $d_{\mathbb{P}}((r, a, b)(r', a', b'))$ over $\mathbb{P}$ is
-measured as the $max(d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b'))$.
+Our error function $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b}))$
+over $\mathbb{P}$ is measured as the 
+$max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
 
 Under the paired representation, we can implement and faitfully type addition,
 subtraction, and multiplication in terms of only-growing operations over the
 paired components:
 \begin{equation}
   \begin{aligned}[c]
-    sub((r, a, b), (r', a', b')) &\mapsto (r - r', a + b', a' + b) \\
-    add((r, a, b), (r', a', b')) &\mapsto (r + r', a + a', b + b') \\
-    mul((r, a, b), (r', a', b')) &\mapsto (r * r', a * a' + b * b', a * b' + a' * b)
+    sub((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) &\mapsto (r - \tilde{r}, a + \tilde{b}, \tilde{a} + b) \\
+    add((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) &\mapsto (r + \tilde{r}, a + \tilde{a}, b + \tilde{b}) \\
+    mul((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) 
+      &\mapsto 
+    (r * \tilde{r}, a * \tilde{a} + b * \tilde{b}, a * \tilde{b} + \tilde{a} * b)
   \end{aligned}
 \end{equation}
 In this manner, we can bound the sensitivity of each operation and soundly
-assign a type.
+assign a type. 
+$\textbf{add}$ and $\textbf{mul}$ 
+have the same type as in Numerical Fuzz. Suprisingly, subtraction has type as
+addition: $\textbf{sub} : \textbf{num} \times \textbf{num} \multimap
+\textbf{num}$. We defer the details on our approach to
+Section~\ref{sec:encoding}.
 
 \subsection{Language Feature: Bound Polymorphism}
 Unfortuantely, the error bounds obtained through the paired representation only
@@ -113,7 +115,8 @@ prove our type inference algorithm sound in Section~\ref{sec:inference}. We also
 prove that our low-annotation approach gives us bounds no looser than prior type
 based work while also supporting subtraction and negative numbers.
 
-\subsection{Language Feature: Structuring and Sequencing Arithmetic} \label{sec:factor}
+\subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
+\label{sec:factor}
 Suppose, by way of example, that we wish to compute the sum
 $w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
 with round-off error. It is well known that round-off error grows linearly in
@@ -127,9 +130,41 @@ In other words, the error bound obtained by \cite{numfuzz} grows linearly in
 size of the number of \textit{nodes}.
 
 Our extension enables the user to associate the computation tree arbitrarily,
-and to obtain error bounds that grow linearly in size of the \textit{height} of
+and to obtain tighter error bounds that grow linearly in size of the \textit{height} of
 the tree.
-We accomplish this by including a special primitive, $\textbf{factor}$, in our term
-language inspired by linear logic. We defer a detailed explaination of
-\textbf{factor} and how it allows for structuring and sequencing arithmetic
-towards a more precise error analysis in Section~\ref{sec:structure}.
+We accomplish this by including a special primitive $\textbf{factor}$ in our
+term language inspired by linear logic. Stucturing the example arithmetic into a
+program below, we can see that using factor results in a 50\% smaller error
+bound for a program representing the same association and order of operations.
+
+\begin{figure}[ht] \label{fig:factor-cmp-overview}
+\centering
+
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[3*u] num 
+let-bind a = addfp <w, x> in
+let-bind b = addfp <y, z> in
+let-bind c = addfp <a, b> in
+addfp c 
+\end{lstlisting}
+\caption{Without factor: error bound is $3u$.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[2*u] num 
+let-bind a = 
+  factor <addfp <w, x>, addfp <y, z>> in
+  addfp a
+\end{lstlisting}
+\caption{With factor: error bound is $2u$.}
+\end{subfigure}
+
+\caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
+\label{fig:factor-side-by-side}
+\end{figure}
+
+We defer a detailed explaination of \textbf{factor} and how it allows for
+structuring and sequencing arithmetic towards a more precise error analysis in
+Section~\ref{sec:structure}.

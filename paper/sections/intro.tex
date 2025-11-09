@@ -22,16 +22,25 @@ to perform an error analysis on a function is contained within the function
 type. There is no need to perform global optimization, run an algorithm to
 convergence, saturate rewrites, or bit-blast.
 
-\paragraph{Limitations of prior type-based work} 
+\paragraph{Prior type-based work; limitations.} 
 The core idea of prior type-based work is to track two key properties of each
 function: the function sensitivity $s$ and the maximum round-off error $q$
 introduced by the function. Intuitively, $s$ upper-bounds the amount by which
 perturbations in a function's input affect its output. 
-As explained visually in Figure~\ref{fig:sen}, it is the
-combination of function sensitivity along with round-off error that allows
-results in a compositional error bound.
-For given function $f$ with senstivity $s$ and round-off error $q$ with at most
-$r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to reason
+Formally, function sensitivity is defined below:
+\begin{definition}[Lipshitz function senstivity]
+  For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
+  $s$-sensitive if $\forall x, \tilde{x} \in X, d_Y(f(x), f(\tilde{x})) \leq s
+  \cdot d_X(x, \tilde{x})$.
+\end{definition}
+
+As explained visually in Figure~\ref{fig:sen}, the combination of function
+sensitivity with round-off error gives the analysis enough information for a
+compositional error bound.
+For every symbol $\alpha$, $\tilde{\alpha}$ represents the floating-point
+approximation of $\alpha$.
+If a given function $f$ with senstivity $s$ and round-off error $q$ has at most
+$r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to obtain
 that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error. 
 
 \begin{figure}[ht] \label{fig:sen}
@@ -51,15 +60,14 @@ that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error.
 \end{tikzcd}\]
 \end{figure}
 
-However, subtraction (and adding by a negative number) is infinitely-sensitive,
-which poses a challenge for a compositional analysis that relies on functions
-with finite senstivity bounds. The fundamental problem with adding negative
-numbers and subtraction is that those operations are infinitely-sensitive;
-relatively small peturbations in the input can lead to hard-to-bound relatively
-large perturbations in the output. As an illustrative toy example, suppose we
-have two large numbers like 1,000,001 and 1,000,000 that we wish to subtract. If
-we perturb the input by a small amount, for example, by 1 per-cent, we can
-observe quite large \textit{relative} changes in the output. 
+However, subtraction over the reals is infinitely-sensitive, which poses a
+challenge for a compositional analysis that relies on functions with finite
+senstivity bounds. The core problem is that relatively small peturbations in the
+input of subtraction can lead to hard-to-bound relatively large perturbations in
+the output. As an illustrative toy example, suppose we have two large numbers
+like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
+by a small amount, for example, by 1 per-cent, we can observe quite large
+\textit{relative} changes in the output. 
 
 % As an illustrative toy example, suppose we
 % have two large numbers like 1,000,001 and 1,000,000 with little relative error.
@@ -90,29 +98,60 @@ observe quite large \textit{relative} changes in the output.
 \paragraph{Our approach} 
 The techniques detailed in this paper centers around representing each possibly
 negative number, $r$, in our type semantics with a pair of non-negative $(a,
-b)$. When our semantics adds $r = (a, b)$ and $r' = (a', b')$ we produce $r + r'
-= (a + a', b + b')$. When our semantics subtracts two numbers $r - r' = (a + b',
-b + a')$, our paired type represenation only needs to add components;
-subtraction is represented implictly. Distance between $(a, b)$ and $(a', b')$
-is encoded as the maximum of the pairwise distance: $max(d(a, a'), d(b, b'))$.
-In this manner, we encode subtraction and negative numbers in a finite-sensitive
-manner. We combine this representation with a polymorphic intervals bounds
-analysis in the type system to track the pairs and provide both $\textit{a
-priori}$ and $\textit{a posteori}$ error bounds. Importantly, the operational
-semantics of the programming language remains standard and unpaired and the
-interval analysis can be automatically inferred via type inference. We
-additionally prove that our approach provides no looser error bounds than prior
-type-based approaches while covering many more programs, including those with
-subtraction and negative numbers. We defer the details of our paired approach to
-Section~\ref{sec:encoding} and type inference to Section~\ref{sec:inference}. 
+b)$. When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$ we
+produce $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When our semantics subtracts two
+numbers $r_0 - r_1 = (a_0 + b_1, b_0 + a_1)$, our paired type represenation only
+needs to add components; subtraction is represented implictly. Distance between
+$(a_0, b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the pairwise
+distance: $max(d(a_0, a_1), d(b_0, b_1))$. In this manner, we encode subtraction
+and negative numbers in a finite-sensitive manner. 
+
+We wish to turn our relative bounds on the paired components $a$ and $b$, into a
+useful bound on $r$ (ideal) and $\tilde{r}$ (approximate); this would turn $a$
+and $b$ into something akin to ghost variables. To produce a useful bounds, we
+take advantage of the invariant that $r = a - b$ and $\tilde{r} = \tilde{a} -
+\tilde{b}$. We observe that there are two approaches one could take to covert
+relative bounds on the paired components to relative bounds on $r$ and
+$\tilde{r}$:
+\begin{description}
+  \item[1) \textit{A priori.}] If we can obtain interval bounds on the paired
+    ideal components $a$ or $b$, we would be able to statically produce bounds
+    on $r$ and $\tilde{r}$.
+  \item[2) \textit{A posterori.}] If we are able to obtain bounds on either $a$
+    or $b$ \textit{and} know the value of $\tilde{r}$ from the actual execution
+    of the floating-point program, we can also obtain after-the-fact bounds on
+    $r$ and $\tilde{r}$.
+\end{description}
+To obtain interval bounds on the ideal components, we
+encorporate an interval bounds analysis in the type system. A challenge of doing
+interval analysis in the type system is how to assign a precise interval bound
+to a function that has multiple call sites. A na{\"i}ve approach might widen the
+intervals for each call site, drastically reducing the precision of the interval
+analysis. We address this challenge by introducing interval \textit{bound
+polymorphism}, allowing functions to be polymorphic in the interval bounds
+assigned to the inputs. At each call site, we specialize the polymorphic
+function to the appropriate intervals. 
+
+% and the interval analysis can be automatically inferred via type inference. 
+To reduce the user type annotation burden, we provide a type inference algorithm
+that can automatically generalize and instantiate bound-polymorphic functions.
+We prove the soundness of our type inference algorithm and evaluate its utility
+and performance. We additionally prove that our approach provides no looser
+error bounds than prior type-based approaches while covering many more programs,
+including those with subtraction and negative numbers. We defer the details of
+our paired approach to Section~\ref{sec:encoding} and type inference to
+Section~\ref{sec:inference}. 
+
 % max: maybe refer to sec 5 (factor) above too?
 
-We address the limitations of prior work by providing a scalable, type-based
-forwards error analysis that can handle broader classes of programs and, at the
-same time, more accurately structure and sequence arithemetic while tightening
-error bounds. Our approach is faster than competing approaches, mostly automatic
-with low type annotation overhead, and competitive on precision with other
-state-of-the-art techniques. Concretely, our contributions are as follows:
+Our approach addresses the limitations of prior work by providing a scalable,
+type-based forwards error analysis that can handle broader classes of programs
+and, at the same time, more accurately structure and sequence arithemetic while
+tightening error bounds. 
+Our approach is faster than competing approaches, mostly automatic with low type
+annotation overhead, and competitive on precision with other state-of-the-art
+techniques.
+Concretely, our contributions are as follows:
 \begin{itemize}
   \item We extend the Numerical Fuzz family of languages by incorporating an
     interval-style analysis into the type system using interval \textit{bound
@@ -142,7 +181,7 @@ state-of-the-art techniques. Concretely, our contributions are as follows:
 
   \item We develop a type inference algorithm for our type system that can
     automatically infer bound polymorphism in many useful programs; the user can
-    provide an entirely unannotated program for inference. We prove the
+    provide an program without bound annotations for inference. We prove the
     soundness of our type inference algorithm. We further prove that our
     approach leads to forwards error bounds no looser than prior type-based work
     for forwards analysis (Section~\ref{sec:tightness}). 
