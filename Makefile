@@ -73,7 +73,7 @@ BENCHMARK_NAMES_STAGE_4 = $(wildcard benchmarks/*.fz)
 ## Paper stuff
 
 paper/main.pdf: paper/citations.bib paper/main.tex $(wildcard paper/sections/*.tex) 
-	cd paper && pdflatex -halt-on-error main.tex
+	cd paper && latexmk -pdf -halt-on-error main.tex
 
 ################################################################################
 ## Meta stuff
