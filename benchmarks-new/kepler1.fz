@@ -1,0 +1,93 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function kepler1
+  (x1' : ![6.0]num)
+  (x2' : ![6.0]num)
+  (x3' : ![6.0]num)
+  (x4' : ![6.0]num)
+{
+  let [x1] = x1';
+  let [x2] = x2';
+  let [x3] = x3';
+  let [x4] = x4';
+
+  s1 = mulfp64(x1, x4);
+  let a1 = s1;
+
+  s2 = minus(x1);
+
+  s3 = addfp64(|s2, x2|);
+  let a3 = s3;
+
+  s4 = addfp64(|a3, x3|);
+  let a4 = s4;
+
+  s5 = subfp64(|a4, x4|);
+  let a5 = s5;
+
+  // (* (* x1 x4) (- (+ (+ (- x1) x2) x3) x4))
+  s6 = mulfp64(a1, a5);
+  let a6 = s6;
+
+  s7 = subfp64(|x1, x2|);
+  let a7 = s7;
+
+  s8 = addfp64(|a7, x3|);
+  let a8 = s8;
+
+  s9 = addfp64(|a8, x4|);
+  let a9 = s9;
+
+  // (* x2 (+ (+ (- x1 x2) x3) x4))
+  s10 = mulfp64(x2, a9);
+  let a10 = s10;
+
+  // (+ (* (* x1 x4) (- (+ (+ (- x1) x2) x3) x4)) (* x2 (+ (+ (- x1 x2) x3) x4)))
+  s11 = addfp64(|a6, a10|);
+  let a11 = s11;
+
+  s12 = addfp64(|x1, x2|);
+  let a12 = s12;
+
+  s13 = subfp64(|a7, x3|);
+  let a13 = s13;
+
+  s14 = addfp64(|a8, x4|);
+  let a14 = s14;
+
+  // (* x3 (+ (- (+ x1 x2) x3) x4))
+  s15 = mulfp64(x3, a14);
+  let a15 = s15;
+
+  s16 = addfp64(|a11, a15|);
+  let a16 = s16;
+
+  s17 = mulfp64(x2, x3);
+  let a17 = s17;
+
+  s18 = mulfp64(a17, x4);
+  let a18 = s18;
+
+  s19 = subfp64(|a16, a18|);
+  let a19 = s19;
+
+  s20 = mulfp64(x1, x3);
+  let a20 = s20;
+
+  s21 = subfp64(|a19, a20|);
+  let a21 = s21;
+
+  s22 = mulfp64(x1, x2);
+  let a22 = s22;
+
+  s23 = subfp64(|a21, a22|);
+  let a23 = s23;
+
+  fin = subfp64(|a23, x4|);
+  fin
+}
+
+kepler1[4,6.36][4,6.36][4,6.36][4,6.36]

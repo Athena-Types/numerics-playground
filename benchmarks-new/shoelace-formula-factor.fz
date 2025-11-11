@@ -1,0 +1,44 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function shoelace_formula_factor
+  (x1' : ![2.0]num)
+  (y1' : ![2.0]num)
+  (x2' : ![2.0]num)
+  (y2' : ![2.0]num)
+  (x3' : ![2.0]num)
+  (y3' : ![2.0]num)
+{
+  let [x1] = x1';
+  let [y1] = y1';
+  let [x2] = x2';
+  let [y2] = y2';
+  let [x3] = x3';
+  let [y3] = y3';
+
+  // build up final exp
+  lb fin2_factor = factor|
+    lb fin1_factor = factor|
+      lb c1 = mulfp64(x1, y2) in
+      lb c2 = mulfp64(y1, x2) in
+      subfp64(|c1, c2|),
+      lb c3 = mulfp64(x2, y3) in
+      lb c4 = mulfp64(y2, x3) in
+      subfp64(|c3, c4|)
+    | in
+    addfp64(fin1_factor),
+    lb c4 = mulfp64(x3, y1) in
+    lb c5 = mulfp64(y3, x1) in
+    subfp64(|c4, c5|)
+  | in
+
+  fin2 = addfp64(fin2_factor);
+  let fin2d = fin2;
+
+  fin = mulfp64(0.5, fin2d);
+  fin
+}
+
+shoelace_formula_factor[1,1000][1,1000][1,1000][1,1000][1,1000][1,1000]
