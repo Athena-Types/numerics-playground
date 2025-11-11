@@ -1,0 +1,4 @@
+function subfp32 (xy: <num, num>) : M[eps32_up]num {
+  s = sub xy;
+  rnd32 s
+}

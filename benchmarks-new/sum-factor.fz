@@ -1,0 +1,27 @@
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+function sum_factor
+  (x0' : ![3.0]num)
+  (x1' : ![3.0]num)
+  (x2' : ![3.0]num)
+{
+  let [x0] = x0';
+  let [x1] = x1';
+  let [x2] = x2';
+
+  lb fin_factor = factor |
+    lb fin1_factor = factor | 
+      lb a1 = addfp64(|x0, x1|) in
+      subfp64(|a1, x2|),
+      lb a3 = addfp64(|x1, x2|) in
+      subfp64(|a3, x0|)
+      | in
+    addfp64(fin1_factor),
+    lb a5 = addfp64(|x2, x0|) in
+    subfp64(|a5, x1|)
+    | in
+  addfp64(fin_factor)
+}
+
+sum_factor[1,2][1,2][1,2]

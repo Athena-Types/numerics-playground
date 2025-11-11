@@ -1,0 +1,9 @@
+#include "float_ops/subfp64.fz"
+
+function sub_small
+  (x : num) (y : num)
+{
+  subfp64(|x, y|)
+}
+
+sub_small[1,1000][1,1000]

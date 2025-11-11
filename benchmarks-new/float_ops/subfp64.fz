@@ -1,0 +1,4 @@
+function subfp64 (xy: <num, num>) : M[eps64_up]num {
+  s = sub xy;
+  rnd64 s
+}

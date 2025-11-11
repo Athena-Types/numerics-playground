@@ -1,0 +1,11 @@
+#include "float_ops/addfp64.fz"
+
+function add_4
+  (w : num) (x : num) (y : num) (z : num)
+{
+  lb a = addfp64(|w, x|) in
+  (lb b = addfp64(|y, z|) in
+  addfp64(|a, b|)) 
+}
+
+add_4[1,1000][1,1000][1,1000][1,1000]

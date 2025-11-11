@@ -1,10 +1,13 @@
 use std::collections::HashMap;
 use std::sync::atomic::*;
 use std::iter::zip;
-use std::cmp::max;
+//use std::cmp::max;
+use crate::analysis::min;
+use crate::analysis::max;
 
 use crate::exprs::Expr::Var;
 use crate::exprs::Op;
+use crate::exprs::Op::*;
 use crate::exprs::*;
 use crate::typer::Interval::*;
 use crate::typer::Interval;
@@ -129,9 +132,9 @@ pub fn sub_ty(t : Ty, s : &Sub) -> Ty {
     }
 }
 
-pub fn step_interval(i : &Interval) -> Interval {
-    match i {
-        &IOp(ref Add, ref v) => {
+pub fn step_interval(i : Interval) -> Interval {
+    let res = match i.clone() {
+        IOp(Add, v) => {
             let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
             let larg = stepped_v[0].clone();
             let rarg = stepped_v[1].clone();
@@ -139,18 +142,58 @@ pub fn step_interval(i : &Interval) -> Interval {
                 (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
                  Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) 
                     => Const((r_l + r_l_a, a_l + a_l_a, b_l + b_l_a), (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a)),
-                _ => i.clone()
+                _ => IOp(Op::Add, stepped_v)
+            }
+        },
+        IOp(Sub, v) => {
+            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
+            let larg = stepped_v[0].clone();
+            let rarg = stepped_v[1].clone();
+            match (larg, rarg) {
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
+                    {
+                        // do the stupid thing instead of casing
+                        let r_min = min(min(r_l - r_h_a, r_h - r_h_a), min(r_l - r_l_a, r_h - r_l_a));
+                        let r_max = max(max(r_l - r_h_a, r_h - r_h_a), max(r_l - r_l_a, r_h - r_l_a));
+                        Const((r_min, a_l + b_l_a, b_l + a_l_a), (r_max, a_h + b_h_a, b_h + a_h_a))
+                    },
+                _ => IOp(Op::Sub, stepped_v)
             }
         }
-        _ => i.clone(),
-    }
+        IOp(Mul, v) => {
+            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
+            let larg = stepped_v[0].clone();
+            let rarg = stepped_v[1].clone();
+            match (larg, rarg) {
+
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
+                    {
+                        // do the stupid thing instead of casing
+                        let r_min = min(min(r_l * r_h_a, r_h * r_h_a), min(r_l * r_l_a, r_h * r_l_a));
+                        let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
+
+                        Const(
+                            (r_min, (a_l * a_l_a) + (b_l * b_l_a), (a_l * b_l_a) + (b_l * a_l_a)), 
+                            (r_max, (a_h * a_h_a) + (b_h * b_h_a), (a_h * b_h_a) + (b_h * a_h_a))
+                        )
+                    },
+                _ => IOp(Op::Mul, stepped_v)
+            }
+        },
+        Const(_, _) => i.clone(),
+        Eps(_) => i.clone(),
+    };
+    eprintln!("stepping {:?} to {:?}", i, res);
+    res
 }
 
 pub fn step_ty_one(t : Ty) -> Ty {
     match t {
         Ty::Unit => t,
         Ty::NumErased => t,
-        Ty::Num(interval) => Ty::Num(step_interval(&interval)),
+        Ty::Num(interval) => Ty::Num(step_interval(interval)),
         Ty::Tens(t0, t1) => {
             let t0n = step_ty_one(*t0);
             let t1n = step_ty_one(*t1);
