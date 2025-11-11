@@ -31,9 +31,9 @@ fn main() {
     //println!("program: {:?}", prog);
     let mut eps_c = AtomicUsize::new(0);
     let (ctx, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
-    let bound_a_priori = fuzzrs::analysis::a_priori_bound(ty.clone());
     //println!("final ctx: {:?}", ctx);
     println!("final ty: {:#?}", ty);
+    let bound_a_priori = fuzzrs::analysis::a_priori_bound(ty.clone());
     println!("final bound (pre): {:#?}", bound_a_priori);
     if let Some(val) = opt.post {
         let bound_a_post = fuzzrs::analysis::a_posteriori_bound(ty.clone(), val);
