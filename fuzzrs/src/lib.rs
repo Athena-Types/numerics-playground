@@ -8,3 +8,4 @@ pub struct RawLang;
 pub mod exprs;
 pub mod parser;
 pub mod typer;
+pub mod analysis;
