@@ -330,6 +330,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             fun
         }
         Rule::op => parse_op(inner_expr),
+        Rule::factor => parse_factor(inner_expr),
         Rule::rnd => {
             let mut components = inner_expr.into_inner();
             let size = components.next().unwrap().as_str().parse::<usize>().unwrap();
@@ -339,6 +340,11 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         _ => todo!("unimplemented rule for {:?}", inner_expr),
     };
     expr
+}
+
+pub fn parse_factor(input: Pair<'_, Rule>) -> Expr {
+    let e = parse_expr(input.into_inner().next().unwrap());
+    Expr::Factor(Box::new(e))
 }
 
 pub fn parse_op(input: Pair<'_, Rule>) -> Expr {

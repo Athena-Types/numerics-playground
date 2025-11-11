@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::atomic::*;
 use std::iter::zip;
+use std::cmp::max;
 
 use crate::exprs::Expr::Var;
 use crate::exprs::Op;
@@ -480,6 +481,28 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             eprintln!("polyinst {:?}", e.clone());
             eprintln!("tau {:?}", tau);
             (gamma, step_ty(rec_poly(tau, *i)))
+        }
+        Expr::Factor(e) => {
+            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
+            eprintln!("factor ty: {:?}", tau);
+            match tau {
+                Ty::Cart(m0, m1) =>
+                {
+                    match (*m0, *m1) {
+                        (Ty::Monad(g0, t0), Ty::Monad(g1, t1)) => 
+                        {
+                            let mut max_g = g0;
+                            if g1 > g0 {
+                                max_g = g1;
+                            }
+                            (gamma, Ty::Monad(max_g, Box::new(Ty::Cart(t0, t1))))
+
+                        }
+                        _ => panic!("Bad type passed to factor!"),
+                    }
+                }
+                _ => panic!("Bad type passed to factor!"),
+            }
         }
         _ => todo!("{:?}", e),
     }

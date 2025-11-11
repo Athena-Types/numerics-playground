@@ -65,7 +65,7 @@ app = {
   atom ~ expr
   // (atom ~ WHITESPACE ~ expr) | (atom ~ WHITESPACE? ~ &"(" ~ WHITESPACE? ~ expr) 
 }
-atom = { op | var | float | "(" ~ expr ~ ")" }
+atom = { op | factor | var | float | "(" ~ expr ~ ")" }
 proj = { "fst" ~ expr | "snd" ~ expr }
 tens = { "(" ~ expr ~ "," ~ expr ~ ")" }
 cart = { 
@@ -83,7 +83,7 @@ case = {
   }
 ret = { "ret" ~ expr }
 rnd = { "rnd" ~ modes ~ expr }
-factor = { "ret" ~ expr }
+factor = { "factor" ~ expr }
 scale = { "[" ~ expr ~ "{" ~ float ~ "}" ~ "]" }
 modes = { "16" | "32" | "64" }
 
