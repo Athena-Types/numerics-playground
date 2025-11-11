@@ -32,6 +32,33 @@ pub enum Ty {
     Forall(usize, Box<Ty>),
 }
 
+//impl PartialEq for Ty {
+//    fn eq(&self, other: &Self) -> bool {
+//        eprintln!("{:?} =? {:?}", self, other);
+//        match (self, other) {
+//            (Ty::Hole, Ty::Hole) => true,
+//            (Ty::Unit, Ty::Unit) => true,
+//            (Ty::NumErased, Ty::NumErased) => true,
+//            (Ty::Num(i0), Ty::Num(i1)) => i0==i1,
+//            (Ty::Tens(t0l, t0r), Ty::Tens(t1l, t1r)) => 
+//                (*t0l == *t1l) && (*t0r == *t1r),
+//            (Ty::Cart(t0l, t0r), Ty::Cart(t1l, t1r)) => 
+//                (*t0l == *t1l) && (*t0r == *t1r),
+//            (Ty::Sum(t0l, t0r), Ty::Sum(t1l, t1r)) => 
+//                (*t0l == *t1l) && (*t0r == *t1r),
+//            (Ty::Fun(t0l, t0r), Ty::Fun(t1l, t1r)) => 
+//                (*t0l == *t1l) && (*t0r == *t1r),
+//            (Ty::Bang(s0, t0), Ty::Bang(s1, t1)) =>
+//                (s0 == s1) && (*t0==*t1),
+//            (Ty::Monad(g0, t0), Ty::Monad(g1, t1)) => 
+//                (g0 == g1) && (*t0==*t1),
+//            (Ty::Forall(eps_0, t0), Ty::Forall(eps_1, t1)) => 
+//                (eps_0 == eps_1) && (*t0==*t1),
+//            _ => false,
+//        }
+//    }
+//}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     // ExpHole,

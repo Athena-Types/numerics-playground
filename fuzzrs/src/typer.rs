@@ -128,8 +128,75 @@ pub fn sub_ty(t : Ty, s : &Sub) -> Ty {
     }
 }
 
+pub fn step_interval(i : &Interval) -> Interval {
+    match i {
+        &IOp(ref Add, ref v) => {
+            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
+            let larg = stepped_v[0].clone();
+            let rarg = stepped_v[1].clone();
+            match (larg, rarg) {
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) 
+                    => Const((r_l + r_l_a, a_l + a_l_a, b_l + b_l_a), (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a)),
+                _ => i.clone()
+            }
+        }
+        _ => i.clone(),
+    }
+}
+
+pub fn step_ty_one(t : Ty) -> Ty {
+    match t {
+        Ty::Unit => t,
+        Ty::NumErased => t,
+        Ty::Num(interval) => Ty::Num(step_interval(&interval)),
+        Ty::Tens(t0, t1) => {
+            let t0n = step_ty_one(*t0);
+            let t1n = step_ty_one(*t1);
+            Ty::Tens(Box::new(t0n), Box::new(t1n))
+        },
+        Ty::Cart(t0, t1) => {
+            let t0n = step_ty_one(*t0);
+            let t1n = step_ty_one(*t1);
+            Ty::Cart(Box::new(t0n), Box::new(t1n))
+        },
+        Ty::Sum(t0, t1) => {
+            let t0n = step_ty_one(*t0);
+            let t1n = step_ty_one(*t1);
+            Ty::Sum(Box::new(t0n), Box::new(t1n))
+        },
+        Ty::Fun(t0, t1) => {
+            let t0n = step_ty_one(*t0);
+            let t1n = step_ty_one(*t1);
+            Ty::Fun(Box::new(t0n), Box::new(t1n))
+        },
+        Ty::Bang(sens, t) => {
+            let tn = step_ty_one(*t);
+            Ty::Bang(sens, Box::new(tn))
+        },
+        Ty::Monad(g, t) => {
+            let tn = step_ty_one(*t);
+            Ty::Monad(g, Box::new(tn))
+        },
+        Ty::Forall(eps, t) => {
+            let tn = step_ty_one(*t);
+            Ty::Forall(eps, Box::new(tn))
+            //panic!("Should not see forall here!")
+        },
+        Ty::Hole => panic!("Should not see hole here!"),
+    }
+}
+
 pub fn step_ty(t : Ty) -> Ty {
-    t
+    eprintln!("stepping ty: {:?}", t);
+    let mut prev_ty = t.clone();
+    let mut new_ty = step_ty_one(t.clone());
+
+    while prev_ty.ne(&new_ty) {
+        prev_ty = new_ty;
+        new_ty = step_ty_one(t.clone());
+    }
+    new_ty
 }
 
 pub fn inst<'a>(t : Ty, v : &'a mut Vec<usize>, eps_c : &AtomicUsize) -> (Ty, &'a mut Vec<usize>) {
@@ -412,15 +479,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
             eprintln!("polyinst {:?}", e.clone());
             eprintln!("tau {:?}", tau);
-            (gamma, rec_poly(tau, *i))
-            //match tau {
-            //    Ty::Forall(eps, ty) => {
-            //        let mut sub = HashMap::new();
-            //        sub.insert(eps, *i);
-            //        (gamma, sub_ty(*ty, &sub))
-            //    },
-            //    _ => panic!("Can't instantiate when there is no forall!"),
-            //}
+            (gamma, step_ty(rec_poly(tau, *i)))
         }
         _ => todo!("{:?}", e),
     }
