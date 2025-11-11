@@ -1,5 +1,5 @@
-\section{Encoding} \label{sec:encoding}
-In this section we encode Numerical Fuzz to provide \textit{a priori} and
+\section{Instantiation} \label{sec:encoding}
+In this section we instantiate Numerical Fuzz to provide \textit{a priori} and
 \textit{a posterori} error bounds in the presence of subtraction and negative
 numbers.
 In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the
@@ -17,13 +17,14 @@ compositional type-based analysis of programs involving subtraction and negative
 numbers.
 
 To avoid this problem, we encode our semantics through a \textit{paired
-representation} where we associate for each real $r \in \mathbb{R}$ a triple
-$(r, a, b) \in \mathbb{P} = \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ =
-\mathit{num}$ such that $r = a - b$. To soundly use our encoding, we must show
-it satisfies the correctness properties demanded by the modular interface
-defined in Section~\ref{sec:lang}.
+representation} where we associate for each real $r \in \mathbb{R}$ a class of
+triples
+$(r, a, b) \in \mathbb{P} = \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ 
+such that $r = a - b$. To soundly use our encoding, we must show it satisfies
+the correctness properties demanded by the modular interface defined in
+Section~\ref{sec:lang}.
 
-\begin{lemma}[$\textit{num}$ forms a metric space.]
+\begin{lemma}[$\mathbb{P}$ forms a metric space.]
 \end{lemma}
 \begin{proof}
 Symmetry and reflexivity hold trivially. Triangle inequality holds from triangle
@@ -33,11 +34,31 @@ inequality on $d_{\mathbb{R}}$.
 % To avoid this problem, we encode our semantics through a \textit{paired
 % representation} where we associate for each real $r \in \mathbb{R}$ a pair $(a,
 % b) \in \mathbb{R}^2$ such that $r = a - b$. 
-Our operations and interval bounds operate over the paired representation $\mathbb{P}$.
-In this manner, subtraction and negative numbers can be encoded using bounded-sensitivity operations over the non-negative reals, avoiding the problem of infinite sensitivity.
-Each of our operations $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul}
-\}$ and $\Sigma_\textbf{num} = \{ +, -, \cdot \}$ are defined as follows:
-
+Our operations and interval bounds operate over the paired representation
+$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
+using bounded-sensitivity operations over the non-negative reals, avoiding the
+problem of infinite sensitivity.
+We instantiate the modular interface with the interval operations 
+$\Sigma_\textbf{num} = \{+, -, \cdot \}$, defined as follows:
+\begin{equation}
+  \begin{aligned}[c]
+    ((r_l, a_l, b_l),(r_h, a_h, b_h)) + 
+      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
+      ((r_l + r'_l, a_l + a'_l, b_l + b'_l), (r_h + r'_h, a_h + a'_h, b_h + b'_h)) \\
+    ((r_l, a_l, b_l),(r_h, a_h, b_h)) - 
+      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
+      ((r_l - r'_h, a_l + b'_l, b_l + a'_l), (r_h - r'_l, a_h + b'_h, b_h + a'_h)) \\
+    ((r_l, a_l, b_l),(r_h, a_h, b_h)) \cdot
+      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
+      ((r''_l, a_l a'_l + b_l b'_l, a_l b'_l + a_l b'_l), \\ 
+      & \quad \quad (r''_h, a_h a'_h + b_h b'_h, a_h b'_h + a_h b'_h)) \\
+  \end{aligned}
+\end{equation}
+where $r''_l = min(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+and $r''_h = max(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+and term-level operations 
+$\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul} \}$
+are given as follows:
 \begin{equation}
 \begin{aligned}[c]
   &\textbf{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
@@ -58,29 +79,38 @@ Each of our operations $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul}
 \end{equation}
 
 Given a rounding function $\rho_\mathbb{R}$ over the reals, we can also
-associate a paired $\rho_{\mathbb{P}}((r, a, b)) = (\rho_{\mathbb{R}}(r), a
-\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
-It is sound to use the same round-off error bound $u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$:
-
+associate a paired $\rho_{\mathbb{P}}$, defined below:
+\begin{definition}[Rounding over pairs]
+$\rho_{\mathbb{P}}((r, a, b)) = 
+\begin{cases}
+  (0, a, b)  & r = 0\\
+(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
+  \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
+\end{cases}
+$.
+\end{definition}
+It is sound to use the same round-off error bound $u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
+In other words, we wish to show that the translated rounding function can share
+the same unit round-off constant as the original rounding function over the
+unpaired representation:
 \begin{lemma}[Property of rounding and constant parameter $u$]
-We wish to show that given a $u$ and $\rho_{\mathbb{R}}$ such that 
-    $\forall e \in d_\mathbb{R} (\rho(e), e)
-    \leq u$, then
+We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
+    $\forall e \in d_\mathbb{R} (\rho(e), e) \leq u$, then
     $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
-    \leq u$. In other words, our translated rounding function from the unpaired representation respects the error bounds on the unpaired representation.
+    \leq u$. 
 \end{lemma}
 \begin{proof}
 $(\rho_{\mathbb{P}}((r, a, b)), (r, a, b)) = 
 (\rho_{\mathbb{R}}(r), a
-\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$ So, 
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
+So, 
 $
 d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
 \cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r}), (r, a, b)) = max(\rho_{\mathbb{R}}(r), \rho_{\mathbb{R}}(r)) = \rho_{\mathbb{R}} (r)
 $.
 \end{proof}
 
-Moreover, our operations satisfy metric preservation and our interval operations
-are closed over intervals ($\textit{num}^2$).
+Our operations satisfy metric preservation.
 % todo: these are closed over something other than num?
 
 \begin{lemma}[Operations satisfy metric preservation]
@@ -91,8 +121,9 @@ Holds by unfolding.
 \end{proof}
 
 
+Moreover, our interval operations are closed over intervals ($\mathbb{P}^2$).
 \begin{lemma}[Interval operations closure.]
-Each interval operation is closed over our intervals $\textit{num}^2$.
+Each interval operation is closed over our intervals $\mathbb{P}^2$.
 \end{lemma}
 \begin{proof}
 Holds by inspection.

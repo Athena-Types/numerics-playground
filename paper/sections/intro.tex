@@ -22,47 +22,53 @@ to perform an error analysis on a function is contained within the function
 type. There is no need to perform global optimization, run an algorithm to
 convergence, saturate rewrites, or bit-blast.
 
+% max: do I need to explain round-off error first?
 \paragraph{Prior type-based work and limitations.} 
-The core idea of prior type-based work is to track two key properties of each
-function: the function sensitivity $s$ and the maximum round-off error $q$
-introduced by the function. Intuitively, $s$ upper-bounds the amount by which
-perturbations in a function's input affect its output. 
-Formally, function sensitivity is defined below:
-\begin{definition}[Lipshitz function senstivity]
+In this paper, we extend Numerical Fuzz, an affine call-by-value graded type
+system for bounding round-off error. The core idea of Numerical Fuzz is to track
+two key properties of each function: the function sensitivity $s$ and the
+maximum error $q$ introduced by the function. Intuitively, $s$ upper-bounds the
+amount by which perturbations in a function's input affect its output. Formally,
+function sensitivity is defined below.
+In this paper, for every symbol $\phi$, $\tilde{\phi}$ represents the
+floating-point approximation of $\phi$.
+
+\begin{definition}[Lipschitz function senstivity]
   For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
   $s$-sensitive if $\forall x, \tilde{x} \in X, d_Y(f(x), f(\tilde{x})) \leq s
   \cdot d_X(x, \tilde{x})$.
 \end{definition}
 
-As explained visually in Figure~\ref{fig:sen}, the combination of function
-sensitivity with round-off error gives the analysis enough information for a
-compositional error bound.
-For every symbol $\alpha$, $\tilde{\alpha}$ represents the floating-point
-approximation of $\alpha$.
-If a given function $f$ with senstivity $s$ and round-off error $q$ has at most
-$r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to obtain
-that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error. 
-
-\begin{figure}[ht] \label{fig:sen}
-% https://q.uiver.app/#q=WzAsNyxbMCwwLCJ4Il0sWzMsMCwiXFx0aWxkZXt4fSJdLFswLDIsImYoeCkiXSxbOCwyLCJcXHdpZGV0aWxkZXtmKHgpfSJdLFswLDNdLFs4LDNdLFs0LDEsImYoXFx0aWxkZXt4fSkiXSxbMCwxLCJcXHRleHR7KHBlcnR1cmJhdGlvbiBpbiBmdW5jdGlvbiBpbnB1dHMpfSBcXFxcIHIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzAsMiwiIiwxLHsiY29sb3VyIjpbMTIwLDYwLDMwXX1dLFsxLDMsIiIsMSx7ImNvbG91ciI6WzAsNjAsNTJdfV0sWzQsNSwicyBcXGNkb3QgciArIHEgXFxcXCBcXHRleHR7KHRyaWFuZ2xlIGluZXF1YWxpdHksIGZpbmFsIGJvdW5kKX0iLDIseyJzdHlsZSI6eyJ0YWlsIjp7Im5hbWUiOiJhcnJvd2hlYWQifX19XSxbNiwzLCJxIFxcXFwgXFx0ZXh0eyhlcnJvciBpbiBmKX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6NzAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMSw2LCIiLDEseyJjb2xvdXIiOlsxMjAsNjAsMzBdfV0sWzIsNiwicyBcXGNkb3QgciBcXFxcIFxcdGV4dHsoYm91bmRlZCBieSBmdW5jdGlvbiBzZW5zaXRpdml0eSB9cykiLDIseyJsYWJlbF9wb3NpdGlvbiI6NjAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XV0=
-\[\begin{tikzcd}
-	x &&& {\tilde{x}} \\
-	&&&& {f(\tilde{x})} \\
-	{f(x)} &&&&&&&& {\widetilde{f(x)}} \\
-	{} &&&&&&&& {}
-	\arrow["\begin{array}{c} \text{(perturbation in function inputs)} \\ r \end{array}", no head, from=1-1, to=1-4]
-	\arrow[color={rgb,255:red,31;green,122;blue,31}, from=1-1, to=3-1]
-	\arrow[color={rgb,255:red,31;green,122;blue,31}, from=1-4, to=2-5]
-	\arrow[color={rgb,255:red,206;green,59;blue,59}, from=1-4, to=3-9]
-	\arrow["\begin{array}{c} q \\ \text{(error in f)} \end{array}"'{pos=0.7}, no head, from=2-5, to=3-9]
-	\arrow["\begin{array}{c} s \cdot r \\ \text{(bounded by function sensitivity }s) \end{array}"'{pos=0.6}, no head, from=3-1, to=2-5]
-	\arrow["\begin{array}{c} s \cdot r + q \\ \text{(triangle inequality, final bound)} \end{array}"', tail reversed, from=4-1, to=4-9]
-\end{tikzcd}\]
-\end{figure}
-
-However, subtraction over the reals is infinitely-sensitive, which poses a
-challenge for a compositional analysis that relies on functions with finite
-senstivity bounds. The core problem is that relatively small peturbations in the
+Function sensitivity bounds the amount by which error in a function's inputs
+will become magnified in its outputs.
+% If a given function $f$ with senstivity $s$ and round-off error $q$ has at most
+% $r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to obtain
+% that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error. 
+% We can see the approach of combining function sensitivity with round-off error
+% in Figure~\ref{fig:sen}.
+% \begin{figure}[ht] 
+% % https://q.uiver.app/#q=WzAsNyxbMCwwLCJ4Il0sWzMsMCwiXFx0aWxkZXt4fSJdLFswLDIsImYoeCkiXSxbOCwyLCJcXHdpZGV0aWxkZXtmKHgpfSJdLFswLDNdLFs4LDNdLFs0LDEsImYoXFx0aWxkZXt4fSkiXSxbMCwxLCJcXHRleHR7KHBlcnR1cmJhdGlvbiBpbiBmdW5jdGlvbiBpbnB1dHMpfSBcXFxcIHIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzAsMiwiIiwxLHsiY29sb3VyIjpbMTIwLDYwLDMwXX1dLFsxLDMsIiIsMSx7ImNvbG91ciI6WzAsNjAsNTJdfV0sWzQsNSwicyBcXGNkb3QgciArIHEgXFxcXCBcXHRleHR7KHRyaWFuZ2xlIGluZXF1YWxpdHksIGZpbmFsIGJvdW5kKX0iLDIseyJzdHlsZSI6eyJ0YWlsIjp7Im5hbWUiOiJhcnJvd2hlYWQifX19XSxbNiwzLCJxIFxcXFwgXFx0ZXh0eyhlcnJvciBpbiBmKX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6NzAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMSw2LCIiLDEseyJjb2xvdXIiOlsxMjAsNjAsMzBdfV0sWzIsNiwicyBcXGNkb3QgciBcXFxcIFxcdGV4dHsoYm91bmRlZCBieSBmdW5jdGlvbiBzZW5zaXRpdml0eSB9cykiLDIseyJsYWJlbF9wb3NpdGlvbiI6NjAsInN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XV0=
+% \[\begin{tikzcd}
+% 	x &&& {\tilde{x}} \\
+% 	&&&& {f(\tilde{x})} \\
+% 	{f(x)} &&&&&&&& {\widetilde{f(x)}} \\
+% 	{} &&&&&&&& {}
+% 	\arrow["\begin{array}{c} \text{(perturbation in function inputs)} \\ r \end{array}", no head, from=1-1, to=1-4]
+% 	\arrow[color={rgb,255:red,31;green,122;blue,31}, from=1-1, to=3-1]
+% 	\arrow[color={rgb,255:red,31;green,122;blue,31}, from=1-4, to=2-5]
+% 	\arrow[color={rgb,255:red,206;green,59;blue,59}, from=1-4, to=3-9]
+% 	\arrow["\begin{array}{c} q \\ \text{(error in f)} \end{array}"'{pos=0.7}, no head, from=2-5, to=3-9]
+% 	\arrow["\begin{array}{c} s \cdot r \\ \text{(bounded by function sensitivity }s) \end{array}"'{pos=0.6}, no head, from=3-1, to=2-5]
+% 	\arrow["\begin{array}{c} s \cdot r + q \\ \text{(triangle inequality, final bound)} \end{array}"', tail reversed, from=4-1, to=4-9]
+% \end{tikzcd}\]
+% \caption{Diagram showing the use of function senstivity and triangle inequality
+%   to bound round-off error.}
+%   \label{fig:sen}
+% \end{figure}
+However, subtraction over the reals is infinitely-sensitive, which leads
+Numerical Fuzz to conservatively conclude that any use of subtraction might lead
+to infinite round-off error.
+The core problem is that relatively small peturbations in the
 input of subtraction can lead to hard-to-bound relatively large perturbations in
 the output. As an illustrative toy example, suppose we have two large numbers
 like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
@@ -96,41 +102,41 @@ by a small amount, for example, by 1 per-cent, we can observe quite large
 % bounds.
 
 \paragraph{Our approach} 
-The techniques detailed in this paper centers around representing each possibly
-negative number, $r$, in our type semantics with a pair of non-negative $(a,
-b)$. When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$ we
-produce $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When our semantics subtracts two
-numbers $r_0 - r_1 = (a_0 + b_1, b_0 + a_1)$, our paired type represenation only
-needs to add components; subtraction is represented implictly. Distance between
-$(a_0, b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the pairwise
-distance: $max(d(a_0, a_1), d(b_0, b_1))$. In this manner, we encode subtraction
-and negative numbers in a finite-sensitive manner. 
+The techniques detailed in this paper center around representing each possibly
+negative number, $r$, in our semantics with a pair of non-negative $(a, b)$
+which behave akin to ghost variables.
+When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$ we produce
+$r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When our semantics subtracts two numbers
+$r_0 - r_1 = (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs
+to add components; subtraction is represented implictly. Distance between $(a_0,
+b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the pairwise distance:
+$max(d(a_0, a_1), d(b_0, b_1))$. In this manner, we encode subtraction and
+negative numbers in a finite-sensitive manner. 
 
 We wish to turn our relative bounds on the paired components $a$ and $b$, into a
-useful bound on $r$ (ideal) and $\tilde{r}$ (approximate); this would turn $a$
-and $b$ into something akin to ghost variables. To produce a useful bounds, we
-take advantage of the invariant that $r = a - b$ and $\tilde{r} = \tilde{a} -
-\tilde{b}$. We observe that there are two approaches one could take to covert
-relative bounds on the paired components to relative bounds on $r$ and
-$\tilde{r}$:
+useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce a useful
+bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
+\tilde{a} - \tilde{b}$. We detail two approaches towards covert relative bounds
+on the paired components (e.g. $d(a, \tilde{a}), d(b, \tilde{b}) \leq q$) to
+relative bounds on $r$ and $\tilde{r}$ (e.g. bounds on $d(r, \tilde{r})$):
 \begin{description}
   \item[1) \textit{A priori.}] If we can obtain interval bounds on the paired
-    ideal components $a$ or $b$, we would be able to statically produce bounds
-    on $r$ and $\tilde{r}$.
+    ideal components $a$ and $b$, we would be able to statically produce bounds
+    on the distance beteen $r$ and $\tilde{r}$.
   \item[2) \textit{A posterori.}] If we are able to obtain bounds on either $a$
     or $b$ \textit{and} know the value of $\tilde{r}$ from the actual execution
     of the floating-point program, we can also obtain after-the-fact bounds on
     $r$ and $\tilde{r}$.
 \end{description}
-To obtain interval bounds on the ideal components, we
-encorporate an interval bounds analysis in the type system. A challenge of doing
-interval analysis in the type system is how to assign a precise interval bound
-to a function that has multiple call sites. A na{\"i}ve approach might widen the
-intervals for each call site, drastically reducing the precision of the interval
-analysis. We address this challenge by introducing interval \textit{bound
-polymorphism}, allowing functions to be polymorphic in the interval bounds
-assigned to the inputs. At each call site, we specialize the polymorphic
-function to the appropriate intervals. 
+Both approaches rely on having useful bounds for the ideal components. To
+accomplish this, we incorporate an interval bounds analysis in the type system.
+A challenge of doing interval analysis in the type system is how to assign a
+precise interval bound to a function that has multiple call sites. A na{\"i}ve
+approach might widen the intervals for each call site, drastically reducing the
+precision of the interval analysis. We address this challenge by introducing
+interval \textit{bound polymorphism}, allowing functions to be polymorphic in
+the interval bounds assigned to the inputs. At each call site, we specialize the
+polymorphic function to the appropriate intervals. 
 
 % and the interval analysis can be automatically inferred via type inference. 
 To reduce the user type annotation burden, we provide a type inference algorithm
@@ -159,12 +165,12 @@ Concretely, our contributions are as follows:
     more places. We prove the soundness of our extensions to Numerical Fuzz in
     (Section~\ref{sec:lang}).
 
-  \item We encode Numerical Fuzz to use a \textit{paired representation} that
-    allows for subtraction and negative numbers to be soundly represented in a
-    finitely-sensitive manner (Section~\ref{sec:instantiation}). We then prove
-    both \textit{a priori} and \textit{a posterori} compositional error bounds
-    in the presence of subtraction and negative numbers
-    (Section~\ref{sec:application}). 
+  \item We instantiate Numerical Fuzz to use a \textit{paired representation}
+    that allows for subtraction and negative numbers to be soundly represented
+    in a finitely-sensitive manner (Section~\ref{sec:instantiation}). We prove
+    that error types can be used to provide both \textit{a priori} and \textit{a
+    posterori} compositional error bounds in the presence of subtraction and
+    negative numbers (Section~\ref{sec:application}). 
 
     % todo: some claim about novelty is needed to put this contribution in context
     % to develop the first type-based approach to forwards error analysis that
@@ -173,7 +179,7 @@ Concretely, our contributions are as follows:
     % To our knowledge, our approach is the first automatic general-purpose
     % numerical analysis that can produce usable \textit{a posteori} error bounds.
 
-  \item We enable the precise structuring and seqeuncing of arithmetic for by
+  \item We enable the precise structuring and seqeuncing of arithmetic by
     allowing error and sensitivities in rounded terms to be shared. We
     accomplish this through the addition of a previously-untypable primitive
     inspired by the resource interpretation of linear logic

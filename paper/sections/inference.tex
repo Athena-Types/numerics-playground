@@ -11,7 +11,7 @@ For all $k \in \textit{num}$, $k \in \alpha(k)$.
 \subsection{Problem setup}
 Conceptually, we can think of our type inference algorithm in two
 stages. Users write programs in \Lang, without sensitivities or bound polymorphism. We then perform the type sensitivity and
-inference algorithm developed in \cite{NumFuzz}, extended to our core language
+inference algorithm developed in \cite{numfuzz}, extended to our core language
 without bound polymorphism. Finally, we automatically infer polymorphic bound
 annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
 For example, the following unannotated program would be transformed as follows:
@@ -171,7 +171,7 @@ $$
 \end{theorem}
 \begin{proof}
   The admissibility of subtyping mostly follows from the proof in
-  \cite{NumFuzz}.
+  \cite{numfuzz}.
   We detail the new cases that are not immediate below:
   \begin{description}
     \item[Case (Widen).] Corresponds to the new \textbf{num} cases we added to
@@ -181,7 +181,7 @@ $$
   \end{description}
   and the new interval widening rule in our type
   system, which corresponds to the $\textbf{num}$ subtyping case. 
-  Note that the proof in \cite{NumFuzz} relies on
+  Note that the proof in \cite{numfuzz} relies on
   the admissibility of weakening, which we proved in (Theorem
   \ref{thm:weakening}).
 \end{proof}
@@ -206,7 +206,7 @@ program (with no $\Lambda$ or polymoprhic instantiations) and sensitivity erased
 typing context $\Gamma^{\bullet}$:
 \begin{enumerate}
   \item We infer sensitivities via the type inference algorithm
-  provided in \cite{NumFuzz}, extended to deal with our new $\mathbf{factor}$
+  provided in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$
   primitive and interval bounds (Section~\ref{sec:sen-type-infer}). 
   $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{sens.}{\implies} \Gamma;
   e^{\bnd{\bullet}}; \tau^{\bnd{\bullet}}$$
@@ -224,7 +224,7 @@ intermediate $\tau'$. The construction is detailed below.
 \subsubsection{Stage 1/2: Sensitivity and round-off inference}
 \label{sec:sen-type-infer}
 Our sensitivity inference algorithm extends the inference algorithm presented in
-\cite{NumFuzz} with the following case for \textbf{factor}
+\cite{numfuzz} with the following case for \textbf{factor}
 (Figure~\ref{fig:factor-type-infer}).
 
 \begin{figure} 
@@ -610,7 +610,7 @@ intermediate $\tau$):
 \end{equation}
 We induct over each typing / case in the full algorithm. Many of the cases that
 follow from the soundness proof for $\underset{sens.}{\implies}$
-(in~\cite{NumFuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
+(in~\cite{numfuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
 is non-structural below:
 \begin{description}
   \item[Const.] Holds by our interface for $\alpha$ from

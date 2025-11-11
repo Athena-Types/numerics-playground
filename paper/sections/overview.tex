@@ -13,8 +13,8 @@ form:
   x = (-1)^s \cdot m \cdot \beta^{e - p + 1}
 \end{equation}
 where $s$ controls the sign, $m$ is the mantissa, $e$ is the exponent, and $p$
-is the precision. A specific floating-point number system represents a subset of
-the reals and generally fix a particular precision $p$, for example
+is the precision. A specific floating-point number system fixes a particular
+precision $p$ and represents a subset of the reals, for example
 $\textsc{binary32}$ and $\textsc{binary64}$ which fix $p = 32$ and $p = 64$
 respectively. 
 Operations over the reals can be represented in a floating-point system as the
@@ -44,7 +44,7 @@ Relative precision forms a true metric and allows for compositional error
 reasoning. 
 In our case, we crucially rely on triangle inequality for the soundness of the
 error grades for our charateristic monadic bind rule.
-Importantly, triangle inequality does not hold for \textit{relative error}.
+% Importantly, triangle inequality does not hold for \textit{relative error}.
 
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
 Many real-world programs use subtraction or negative numbers. Unfortuantely,
@@ -52,13 +52,28 @@ subtraction over the reals is infinitely sensitive. This poses a significant
 challenge for reasoning about subtraction in prior type-based work. For this
 langauge feature, consider the minimum program containing subtraction as a
 running example: 
-$\lambda x \ . \ \textbf{let} \ z \ = \ \textbf{sub} \ x \ \textbf{in} \ \textbf{rnd} \ z$ 
+$\lambda x \ . \ \lambda y \ . \ \textbf{let-bind} \ z \ = \ \textbf{rnd} \ x \ \textbf{in} \ \textbf{sub} \ \langle z, y \rangle$ 
 under the restriction that $x \in [1, 100]$ and $y \in [1000, 10000]$. 
 We will then try to assign a type and demonstrate how to obtain a useful error
 bound from the program type.
 
-\paragraph{Paired representation.}
+\paragraph{Standard representation.}
 Our type system relies on bounding function senstivity. 
+We first attempt to assign a type to a subtraction primitive in
+Numerical Fuzz:
+$\textbf{sub} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
+Then, the type of our running example is 
+$!_{\infty} (\textbf{num} \times \textbf{num}) \multimap M_{\infty}~\textbf{num}$.
+Our type comes from two facts.
+Firstly, due to $\textbf{rnd}$, we know that there can be up to $u$ error
+introduced in the input $z$ to $sub$.
+Secondly, function sensitivity bounds the round-off error of the whole program
+at $\infty \cdot u = \infty$ where $u$ is our unit-roundoff constant.
+Therefore, we know that our example program is both infinitely-sensitive and
+has infintely-bounded error.
+This is not a useful error bound.
+
+\paragraph{Paired representation.}
 As subtraction over the reals is infinitely-sensitive, we first deal with the
 problem of infinite sensitivity.
 We develop a paired representation where subtraction and negative
@@ -86,7 +101,7 @@ operations over the paired components:
 In this manner, we can bound the sensitivity of each operation and soundly
 assign a type. 
 $\textbf{add}$ and $\textbf{mul}$ 
-have the same type as in Numerical Fuzz. Suprisingly, subtraction has type as
+have the same type as in Numerical Fuzz. Subtraction has type as
 addition: $\textbf{sub} : \textbf{num} \times \textbf{num} \multimap
 \textbf{num}$. 
 Returning to our running example, we can assign the type $\textbf{num} \times
@@ -97,17 +112,20 @@ where $u$ is the unit round-off constant.
 \paragraph{Bound polymorphism.}
 Unfortuantely, the error bounds obtained through the paired representation only
 bound the maximum error on the \textit{paired} components. 
-To be useful, we desire bounds on the actual program, e.g. $r$ the
-\textit{unpaired} component. We can obtain bounds on $r$ by extending the type
-system to be able to perform an interval-style analysis on the paired
-components. In our running example, we have that $x \in [1, 100]$ and $y \in
-[1000, 10000]$. For all inputs $x, y$ to
+To be useful, we wish to relate error on the paired components $a$, $b$ with the
+error on the \textit{unpaired} component $r$.
+We can obtain bounds on $r$ by utilizing the invariant that for a triple $(r, a,
+b)$ that $r = a - b$.
+If we know the intervals that $a$ and $b$ belong to, we can take advantage of
+our invariant.
+We can obtain bounds on $r$ by extending the type system to be able to perform
+an interval-style analysis on the paired components. In our running example, we
+have that $x \in [1, 100]$ and $y \in [1000, 10000]$. For all inputs $x, y$ to
 our input program, for an output value $(r, a, b), (\tilde{r}, \tilde{a},
-\tilde{b})$, we can deduce from our type that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq u$.
-Armed with more information, we can apply the results of the
-interval analysis to the invariant that for a triple $(r, a, b)$ that $r = a -
-b$.
-Accordingly, we obtain the following \textit{a priori} static bound from
+\tilde{b})$, we can deduce from our type that $max(d(a, \tilde{a}) d(b,
+\tilde{b})) \leq u$.
+Armed with this information, we can obtain the following \textit{a priori}
+static bound from
 Theorem~\ref{thm:paired-a-priori}:
 $d(r, \tilde{r}) 
 = max(|ln(e^u + \frac{100}{900}(e^{-u}-e^u))|, |ln(e^-u + \frac{100}{900}(e^u-e^{-u}))|) 
@@ -118,20 +136,25 @@ our output value is. For example, if we knew that $\tilde{r} = 1000$, then we
 can apply Theorem~\ref{thm:paired-a-posteriori} and obtain the following tighter
 \textit{a posterori} bound: TODO.
 
+% TODO: justin says "go slower here, connect to numfuzz type, space out, break
+% up paragraphs. this part is important to help readers understand how our
+% system works"
+
 We now consider how to compositionally introduce a precise interval bounds
 analysis to the type system. A naive approach to incorporating a bounds analysis
 in the type system would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
 subscript interval $\bnd{i}$. However, many programs we wish to type call the
-same function many times. To ensure that our interval analysis is scalable and
-that functions types can be reused, we support \textit{bound polymorphism},
-which allows us to specialize our function to have different concrete bounds
-$\bnd{i}$ for each function call site. We write types $\tau$ polymorphic in
-interval variable $\bnd{\epsilon}$ as $\bnd{\forall \epsilon.} \tau$.
-
+same function many times. 
 For example, if we have a function such as the identity function over numbers
 $id : \textbf{num}_{\bnd{i}} \multimap \textbf{num}_{\bnd{i}}$ called at two
-different call sites with intervals $j$ and $k$, the inferred bound for $i$
-would be $j \cup k$.
+different call sites with intervals $j$ and $k$, the tightest sound bound for
+$i$ would be $j \cup k$.
+
+To ensure that our interval analysis is scalable and that functions types can be
+reused, we support \textit{bound polymorphism}, which allows functions to be
+specialized with different concrete bounds $\bnd{i}$ at each call site. We write
+types $\tau$ polymorphic in interval variable $\bnd{\epsilon}$ as $\bnd{\forall
+\epsilon.} \tau$.
 By adding \textit{bound polymorphism}, we allow functions to be
 typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
 \multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
