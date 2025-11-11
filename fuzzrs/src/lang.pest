@@ -1,5 +1,7 @@
 program = { SOI ~ declaration+ ~ EOI }
-declaration = { include | function | name }
+declaration = { include | function | polyinst | name }
+polyinst = { name ~ (bound)* }
+bound = {"[" ~ float ~ "," ~ float ~ "]"}
 
 keywords = { "let" | "lcb" | "lb" | "case"| "in" | "of" | "=" }
 
@@ -46,11 +48,11 @@ letassign = {
   | (name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lcb = { 
-  ("lcb " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
+  ("lcb " ~ name ~ "=" ~ expr ~ "in" ~ expr) 
   | ("let" ~ "[" ~ name ~ "]" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lb = { 
-  ("lb " ~ name ~ "=" ~ expr ~ " in " ~ expr) 
+  ("lb " ~ name ~ "=" ~ expr ~ "in" ~ expr) 
   | ("let" ~ name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lp = { 

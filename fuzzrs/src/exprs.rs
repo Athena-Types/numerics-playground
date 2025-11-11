@@ -13,7 +13,7 @@ pub type Float = f64;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Interval {
     Eps(usize),
-    Const((Float, Float), (Float, Float)),
+    Const((Float, Float, Float), (Float, Float, Float)),
     IOp(Op, Vec<Interval>),
 }
 
@@ -42,8 +42,8 @@ pub enum Expr {
     Lam(Box<Expr>, Box<Ty>, Box<Expr>),
     App(Box<Expr>, Box<Expr>),
     PolyAbs(usize, Box<Expr>),
-    PolyInst(Box<Expr>, Box<Expr>),
-    Inst(Box<Expr>, Box<Expr>),
+    PolyInst(Box<Expr>, Box<Interval>),
+    //Inst(Box<Expr>, Box<Expr>),
     Proj(usize, Box<Expr>),
     Cart(Box<Expr>, Box<Expr>),
     Tens(Box<Expr>, Box<Expr>),

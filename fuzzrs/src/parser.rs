@@ -60,6 +60,9 @@ pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (Vec<(String, (Ex
                     Rule::name => {
                         body = parse_name(decl);
                     }
+                    Rule::polyinst => {
+                        body = parse_polyinst(decl);
+                    }
                     _ => unimplemented!("{:?}", inner_pair.clone()),
                 }
             }
@@ -78,6 +81,43 @@ pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> Vec<(String, (Expr
     // we throw away the body in files we import
     let (decls, _body) = parse_file(new_loc.to_path_buf());
     decls
+}
+
+pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
+    let mut iterator = input.into_inner();
+    let mut name = parse_name(iterator.next().unwrap());
+
+    let mut bounds = Vec::new();
+    for bound in iterator {
+        let mut bound_inner = bound.into_inner();
+        let lower_bound = bound_inner.next().unwrap()
+            .as_str().to_string().parse::<Float>().unwrap();
+        let upper_bound = bound_inner.next().unwrap()
+            .as_str().to_string().parse::<Float>().unwrap();
+        bounds.push((lower_bound.clone(), upper_bound.clone()));
+
+        let mut lb_pos = 0.0;
+        let mut lb_neg = 0.0;
+        if lower_bound >= 0.0 {
+            lb_pos = lower_bound;
+        } else {
+            lb_neg = -lower_bound;
+        }
+
+        let mut ub_pos = 0.0;
+        let mut ub_neg = 0.0;
+        if upper_bound >= 0.0 {
+            ub_pos = upper_bound;
+        } else {
+            ub_neg = -upper_bound;
+        }
+
+        name = Expr::PolyInst(
+            Box::new(name), 
+            Box::new(Interval::Const((lower_bound, lb_pos, lb_neg), (upper_bound, ub_pos, ub_neg)))
+        );
+    }
+    name
 }
 
 pub fn parse_eps(input: Pair<'_, Rule>) -> Float {

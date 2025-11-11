@@ -43,7 +43,7 @@ pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
 }
 
 pub fn subtype(sub : Ty, sup : Ty) -> bool {
-    //eprintln!("subtype op: {:?} {:?}", sub, sup);
+    eprintln!("subtype op: {:?} {:?}", sub, sup);
     sup == sub
 }
 
@@ -72,8 +72,12 @@ pub fn make_subs(v : Vec<Interval>, i : Vec<Interval>) -> Sub {
 }
 
 pub fn sub_eps(i : Interval, s : &Sub) -> Interval {
+    eprintln!("sub {:?} with interval {:?}", s, i);
     match i {
-        Eps(v) => s.get(&v).unwrap().clone(),
+        Eps(v) => match s.get(&v) {
+            Some(new_v) => new_v.clone(),
+            None => i
+        },
         Const(_, _) => i,
         IOp(o, intvs) => 
             IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect()),
@@ -113,7 +117,13 @@ pub fn sub_ty(t : Ty, s : &Sub) -> Ty {
             let tn = sub_ty(*t, s);
             Ty::Monad(g, Box::new(tn))
         },
-        Ty::Forall(g, t) => panic!("Should not see forall here!"),
+        Ty::Forall(eps, t) => {
+            let mut cap_avoiding = s.clone();
+            cap_avoiding.remove(&eps);
+            let tn = sub_ty(*t, &cap_avoiding);
+            Ty::Forall(eps, Box::new(tn))
+            //panic!("Should not see forall here!")
+        },
         Ty::Hole => panic!("Should not see hole here!"),
     }
 }
@@ -174,7 +184,7 @@ pub fn strip_foralls<'a>(t : Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>,
 }
 
 pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
-    //eprintln!("elim {:?} in vector {:?}", t, v);
+    eprintln!("elim {:?} in vector {:?}", t, v);
     match t {
         Ty::Unit => v,
         Ty::NumErased => panic!("We should not see erased terms!"),
@@ -245,7 +255,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let (sens, _) = theta.remove(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
-                //eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
+                eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
                 // TODO: generalize + assert that these are alpha-equiv
                 //assert_eq!(tau, *ty_i)
             }
@@ -253,7 +263,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*(sens)) + theta, ty)
         }
         Expr::LCB(box_x, e, f) => {
-            //eprintln!("expr {:?} in ctx {:?}", e, c);
+            eprintln!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -273,7 +283,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*t) + theta, tau)
         }
         Expr::LB(box_x, e, f) => {
-            //eprintln!("expr {:?} in ctx {:?}", e, c);
+            eprintln!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -296,7 +306,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*s) + theta, Ty::Monad(s*r + q, Box::new(*tau)))
         }
         Expr::Lam(box_x, ty_i, f) => {
-            //eprintln!("{:?}", f);
+            eprintln!("{:?}", f);
             assert!(*ty_i != Ty::Hole);
 
             let x = match *box_x {
@@ -319,7 +329,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 tau = Ty::Forall(*e, Box::new(tau));
             }
 
-            //eprintln!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
+            eprintln!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
             (gamma, tau)
         }
         Expr::App(e, f) => {
@@ -341,10 +351,12 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                     intervals = elim(tau_0.clone(), &mut intervals).to_vec();
                     let mut eps_v = Vec::new();
                     eps_v = elim(*tau_0_sup.clone(), &mut eps_v).to_vec();
-                    //eprintln!("e {:?}", e);
-                    //eprintln!("f {:?}", f);
-                    //eprintln!("eps_v {:?}", eps_v);
-                    //eprintln!("intervals {:?}", intervals);
+                    eprintln!("e {:?}", e);
+                    eprintln!("f {:?}", f);
+                    eprintln!("tau_0_sup {:?}", tau_0_sup);
+                    eprintln!("eps_v {:?}", eps_v);
+                    eprintln!("tau_0 {:?}", tau_0);
+                    eprintln!("intervals {:?}", intervals);
                     let subs = make_subs(eps_v.to_vec(), intervals);
                     // perform subs
                     let tau_0_sup_sub = sub_ty(*tau_0_sup, &subs);
@@ -360,7 +372,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 }
                 _ => panic!("{:?} is not a function type!", tau_fun)
             };
-            //eprintln!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
+            eprintln!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
             (gamma + delta, tau_1)
         }
         Expr::Op(o) => todo!("should be handled by the app case!"),
@@ -391,11 +403,38 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         Expr::Num(n) => {
             let mut ctx = zero_ctx(c);
             if n >= 0.0 {
-                (ctx, Ty::Num(Interval::Const((n,n), (0.0, 0.0))))
+                (ctx, Ty::Num(Interval::Const((n, n, 0.0), (n, n, 0.0))))
             } else {
-                (ctx, Ty::Num(Interval::Const((0.0,0.0), (-n,-n))))
+                (ctx, Ty::Num(Interval::Const((n, 0.0, -n), (n, 0.0,-n))))
             }
         }
+        Expr::PolyInst(e, i) => {
+            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
+            eprintln!("polyinst {:?}", e.clone());
+            eprintln!("tau {:?}", tau);
+            (gamma, rec_poly(tau, *i))
+            //match tau {
+            //    Ty::Forall(eps, ty) => {
+            //        let mut sub = HashMap::new();
+            //        sub.insert(eps, *i);
+            //        (gamma, sub_ty(*ty, &sub))
+            //    },
+            //    _ => panic!("Can't instantiate when there is no forall!"),
+            //}
+        }
         _ => todo!("{:?}", e),
+    }
+}
+
+pub fn rec_poly(tau: Ty, i : Interval) -> Ty {
+    match tau {
+        Ty::Forall(eps, ty) => {
+            let mut sub = HashMap::new();
+            sub.insert(eps, i);
+            sub_ty(*ty, &sub)
+        },
+        Ty::Fun(t0, t1) => 
+            Ty::Fun(t0, Box::new(rec_poly(*t1, i))),
+        _ => panic!("Can't instantiate when there is no forall!"),
     }
 }
