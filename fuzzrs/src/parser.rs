@@ -1,7 +1,7 @@
 use pest::Parser;
 // use pest::ParseResult;
 // use pest::error::Error;
-use crate::exprs::Expr::{Var, Rnd};
+use crate::exprs::Expr::{Var, Rnd, Ret};
 use crate::exprs::*;
 use crate::{RawLang, Rule};
 use pest::iterators::{Pair, Pairs};
@@ -336,6 +336,11 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             let size = components.next().unwrap().as_str().parse::<usize>().unwrap();
             let e = parse_expr(components.next().unwrap());
             Rnd(size, Box::new(e))
+        }
+        Rule::ret => {
+            let mut components = inner_expr.into_inner();
+            let e = parse_expr(components.next().unwrap());
+            Ret(Box::new(e))
         }
         _ => todo!("unimplemented rule for {:?}", inner_expr),
     };

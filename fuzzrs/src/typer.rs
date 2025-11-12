@@ -497,6 +497,10 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             };
             (gamma, Ty::Monad(g, Box::new(tau)))
         },
+        Expr::Ret(e) => {
+            let (gamma, tau) = infer(c.clone(), *e, eps_c);
+            (gamma, Ty::Monad(0.0, Box::new(tau)))
+        },
         Expr::Unit => {
             let mut ctx = zero_ctx(c);
             (ctx, Ty::Unit)
