@@ -23,29 +23,29 @@ pub fn min(f0 : Float, f1 : Float) -> Float {
     f1
 }
 
-pub fn a_priori_bound(t : Ty) -> Option<Float> {
+pub fn a_priori_bound_rel(t : Ty) -> Option<Float> {
     match t {
-        Ty::Fun(t0, t1) => a_priori_bound(*t1),
+        Ty::Fun(t0, t1) => a_priori_bound_rel(*t1),
         Ty::Monad(q, m_ty) => 
             match *m_ty {
-                Ty::Num(Interval::Const((rl, al, bl),(rh, ah, bh))) => {
-                    if (rl <= 0.0) && (rh >= 0.0) {
+                Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
+                    if r_down <= 0.0 {
                         return None;
                     }
-                    let e_u = q.exp();
-                    let e_neg_u = (-q).exp();
+                    let e_q = q.exp();
+                    let e_neg_q = (-q).exp();
 
-                    let b_1_1 = e_u + ah * (1.0 / rl) * (e_neg_u - e_u);
-                    let b_1_2 = e_neg_u + al * (1.0 / rh) * (e_u - e_neg_u);
+                    let b_1_1 = e_q + a_up * (1.0 / r_down) * (e_neg_q - e_q);
+                    let b_1_2 = e_neg_q + a_down * (1.0 / r_up) * (e_q - e_neg_q);
                     let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
-                    let b_2_1 = e_u + bh * (1.0 / rl) * (e_u - e_neg_u);
-                    let b_2_2 = e_u + bl * (1.0 / rh) * (e_neg_u - e_u);
+                    let b_2_1 = e_q + b_up * (1.0 / r_down) * (e_q - e_neg_q);
+                    let b_2_2 = e_q + b_down * (1.0 / r_up) * (e_neg_q - e_q);
                     let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
-                    eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
-                    eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
+                    //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
+                    //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
                     let bnd = min(b_1, b_2);
-                    eprintln!("{:?}", bnd);
+                    //eprintln!("{:?}", bnd);
                     Some(bnd)
                 }
                 _ => todo!("Not supported!"),
@@ -54,23 +54,64 @@ pub fn a_priori_bound(t : Ty) -> Option<Float> {
     }
 }
 
-pub fn a_posteriori_bound(t : Ty, r_actual : Float) -> Option<Float> {
+pub fn a_posteriori_bound_rel(t : Ty, r_actual : Float) -> Option<Float> {
     match t {
-        Ty::Fun(t0, t1) => a_posteriori_bound(*t1, r_actual),
+        Ty::Fun(t0, t1) => a_posteriori_bound_rel(*t1, r_actual),
         Ty::Monad(q, m_ty) => 
             match *m_ty {
-                Ty::Num(Interval::Const((_rl, al, bl),(_rh, ah, bh))) => {
-                    let e_u = q.exp();
-                    let e_neg_u = (-q).exp();
+                Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
+                    let e_q = (q).exp();
+                    let e_neg_q = (-q).exp();
+                    let e_2q = (2.0*q).exp();
+                    let e_neg_2q = (-2.0*q).exp();
+                    if 0.0 < r_actual {
+                        let b_1_1 = e_q + a_up * (1.0 / r_actual) * (1.0 - e_2q);
+                        let b_1_2 = e_neg_q + a_down * (1.0 / r_actual) * (1.0 - e_neg_2q);
+                        let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
-                    let b_1_1 = e_u + ah * (1.0 / r_actual) * (e_neg_u - e_u);
-                    let b_1_2 = e_neg_u + al * (1.0 / r_actual) * (e_u - e_neg_u);
-                    let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
+                        let b_2_1 = e_neg_q + b_up * (1.0 / r_actual) * (e_neg_2q - 1.0);
+                        let b_2_2 = e_q + b_down * (1.0 / r_actual) * (e_2q - 1.0);
+                        let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
+                        //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
+                        //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
+                        let bnd = min(b_1, b_2);
+                        //eprintln!("{:?}", bnd);
+                        return Some(bnd);
+                    } else {
+                        let b_1_1 = e_neg_q + a_up * (1.0 / r_actual) * (1.0 - e_neg_2q);
+                        let b_1_2 = e_q + a_down * (1.0 / r_actual) * (1.0 - e_2q);
+                        let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
-                    let b_2_1 = e_u + bh * (1.0 / r_actual) * (e_u - e_neg_u);
-                    let b_2_2 = e_u + bl * (1.0 / r_actual) * (e_neg_u - e_u);
-                    let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
-                    Some(min(b_1, b_2))
+                        let b_2_1 = e_q + b_up * (1.0 / r_actual) * (e_2q - 1.0);
+                        let b_2_2 = e_neg_q + b_down * (1.0 / r_actual) * (e_neg_2q - 1.0);
+                        let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
+                        //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
+                        //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
+                        let bnd = min(b_1, b_2);
+                        //eprintln!("{:?}", bnd);
+                        return Some(bnd);
+                    }
+                }
+                _ => todo!("Not supported!"),
+            }
+        _ => todo!("Not supported!"),
+    }
+}
+
+pub fn a_priori_bound_abs(t : Ty) -> Option<Float> {
+    match t {
+        Ty::Fun(t0, t1) => a_priori_bound_abs(*t1),
+        Ty::Monad(q, m_ty) => 
+            match *m_ty {
+                Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
+                    let e_q = (q).exp();
+                    let e_neg_q = (-q).exp();
+                    let b1 = a_up * (1.0 - e_neg_q) - b_down * (1.0 - e_q);
+                    let b2 = a_down * (1.0 - e_neg_q) - b_up * (1.0 - e_q);
+                    let b3 = a_up * (e_q - 1.0) - b_down * (e_neg_q - 1.0);
+                    let b4 = a_down * (e_q - 1.0) - b_up * (e_neg_q - 1.0);
+                    //eprintln!("a priori abs bounds: {:?} {:?} {:?} {:?}", b1, b2, b3, b4);
+                    return Some(max(max(b1, b2), max(b3, b4)));
                 }
                 _ => todo!("Not supported!"),
             }
