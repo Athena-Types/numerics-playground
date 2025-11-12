@@ -2,7 +2,11 @@ use crate::exprs::Expr::Var;
 use crate::exprs::Op;
 use crate::exprs::*;
 
+// todo: prevent zeros earlier, more principled way of doig this
 pub fn max(f0 : Float, f1 : Float) -> Float {
+    if f1 == 0.0 {
+        return f0;
+    }
     if (f1 > f0) && (! f1.is_nan()) {
         return f1;
     }
@@ -10,18 +14,24 @@ pub fn max(f0 : Float, f1 : Float) -> Float {
 }
 
 pub fn min(f0 : Float, f1 : Float) -> Float {
+    if f1 == 0.0 {
+        return f0;
+    }
     if f1 > f0 && (! f0.is_nan()) {
         return f0;
     }
     f1
 }
 
-pub fn a_priori_bound(t : Ty) -> Float {
+pub fn a_priori_bound(t : Ty) -> Option<Float> {
     match t {
         Ty::Fun(t0, t1) => a_priori_bound(*t1),
         Ty::Monad(q, m_ty) => 
             match *m_ty {
                 Ty::Num(Interval::Const((rl, al, bl),(rh, ah, bh))) => {
+                    if (rl <= 0.0) && (rh >= 0.0) {
+                        return None;
+                    }
                     let e_u = q.exp();
                     let e_neg_u = (-q).exp();
 
@@ -36,7 +46,7 @@ pub fn a_priori_bound(t : Ty) -> Float {
                     eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
                     let bnd = min(b_1, b_2);
                     eprintln!("{:?}", bnd);
-                    bnd
+                    Some(bnd)
                 }
                 _ => todo!("Not supported!"),
             }
@@ -44,7 +54,7 @@ pub fn a_priori_bound(t : Ty) -> Float {
     }
 }
 
-pub fn a_posteriori_bound(t : Ty, r_actual : Float) -> Float {
+pub fn a_posteriori_bound(t : Ty, r_actual : Float) -> Option<Float> {
     match t {
         Ty::Fun(t0, t1) => a_posteriori_bound(*t1, r_actual),
         Ty::Monad(q, m_ty) => 
@@ -60,7 +70,7 @@ pub fn a_posteriori_bound(t : Ty, r_actual : Float) -> Float {
                     let b_2_1 = e_u + bh * (1.0 / r_actual) * (e_u - e_neg_u);
                     let b_2_2 = e_u + bl * (1.0 / r_actual) * (e_neg_u - e_u);
                     let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
-                    min(b_1, b_2)
+                    Some(min(b_1, b_2))
                 }
                 _ => todo!("Not supported!"),
             }
