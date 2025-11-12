@@ -1,0 +1,135 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+// (* (* x1 x4) (+ (+ (- (+ (+ (- x1) x2) x3) x4) x5) x6))
+function delta_1
+   (x1' : ![2.0]num) (x2 : num) (x3 : num) (x4' : ![2.0]num) (x5 : num) (x6 : num)
+{
+  let [x1] = x1';
+  let [x4] = x4';
+
+  // (- x1)
+  s1 = minus(x1);
+
+  // (+ (- x1) x2)
+  s2 = addfp64(|s1, x2|);
+  let a2 = s2;
+  s3 = addfp64(|a2, x3|);
+  let a3 = s3;
+  s4 = subfp64(|a3, x4|);
+  let a4 = s4;
+  s5 = addfp64(|a4, x5|);
+  let a5 = s5;
+  s6 = addfp64(|a5, x6|);
+  let a6 = s6;
+  
+  // x1 * x4
+  x1_mul_x4 = mulfp64(x1,x4);
+  let ax1_mul_x4 = x1_mul_x4;
+
+  s6 = mulfp64(ax1_mul_x4, a6);
+  s6
+}
+
+// (* (* x2 x5) (+ (- (+ (+ (- x1 x2) x3) x4) x5) x6))
+function delta_2
+   (x1 : num) (x2' : ![2.0]num) (x3 : num) (x4 : num) (x5' : ![2.0]num) (x6 : num)
+{
+  let [x2] = x2';
+  let [x5] = x5';
+
+  s1 = subfp64(|x1, x2|);
+  let a1 = s1;
+  s2 = addfp64(|a1, x3|);
+  let a2 = s2;
+  s3 = subfp64(|a2, x4|);
+  let a3 = s3;
+  s4 = subfp64(|a3, x5|);
+  let a4 = s4;
+  s5 = addfp64(|a4, x6|);
+  let a5 = s5;
+  
+  // x2 * x5
+  x2_mul_x5 = mulfp64(x2,x5);
+  let ax2_mul_x5 = x2_mul_x5;
+
+  s6 = mulfp64(ax2_mul_x5, a5);
+  s6
+}
+
+// (* (* x3 x6) (- (+ (+ (- (+ x1 x2) x3) x4) x5) x6))
+function delta_3
+   (x1 : num) (x2 : num) (x3' : ![2.0]num) (x4 : num) (x5 : num) (x6' : ![2.0]num)
+{
+  let [x3] = x3';
+  let [x6] = x6';
+
+  s1 = addfp64(|x1, x2|);
+  let a1 = s1;
+  s2 = subfp64(|a1, x3|);
+  let a2 = s2;
+  s3 = addfp64(|a2, x4|);
+  let a3 = s3;
+  s4 = addfp64(|a3, x5|);
+  let a4 = s4;
+  s5 = subfp64(|a4, x6|);
+  let a5 = s5;
+  
+  // x3 * x6
+  x3_mul_x6 = mulfp64(x3,x6);
+  let ax3_mul_x6 = x3_mul_x6;
+
+  s6 = mulfp64(ax3_mul_x6, a5);
+  s6
+}
+
+// [expr] + (* (* (- arg1) arg2) arg3))
+function delta_4_hof
+  (expr' : ![1.0]num) (arg1' : ![1.0]num) (arg2' : ![1.0]num) (arg3' : ![1.0]num) 
+{
+  let [expr] = expr';
+  let [arg1] = arg1';
+  let [arg2] = arg2';
+  let [arg3] = arg3';
+
+  a1 = minus(arg1);
+  s2 = mulfp64(a1, arg2);
+  let a2 = s2;
+  s3 = mulfp64(a2, arg3);
+  let a3 = s3;
+  s4 = addfp64(|expr, a3|);
+  s4
+}
+
+function delta
+   (x1' : ![6.0]num) (x2' : ![6.0]num) (x3' : ![6.0]num) (x4' : ![6.0]num) (x5' : ![6.0]num) (x6' : ![6.0]num)
+{
+  lcb x1 = x1' in
+  lcb x2 = x2' in
+  lcb x3 = x3' in
+  lcb x4 = x4' in
+  lcb x5 = x5' in
+  lcb x6 = x6' in
+
+  lb a1 = delta_1([x1{2.0}])(x2)(x3)([x4{2.0}])(x5)(x6) in
+
+  lb a2 = delta_2(x1, x2{2.0}, x3, x4, x5{2.0}, x6) in
+
+  lb a3 = delta_3(x1, x2, [x3{2.0}], x4, x5, [x6{2.0}]) in
+
+  lb a4 = addfp64(|a1, a2|) in
+
+  lb a5 = addfp64(|a4, a3|) in
+
+  lb a6 = delta_4_hof([a5{1.0}])([x2{1.0}])([x3{1.0}])([x4{1.0}]) in
+
+  lb a7 = delta_4_hof([a6{1.0}])([x1{1.0}])([x3{1.0}])([x5{1.0}]) in
+
+  lb a8 = delta_4_hof([a7{1.0}])([x1{1.0}])([x2{1.0}])([x6{1.0}]) in
+
+  delta_4_hof([a8{1.0}])([x4{1.0}])([x5{1.0}])([x6{1.0}])
+}
+
+delta

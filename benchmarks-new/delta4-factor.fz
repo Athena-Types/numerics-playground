@@ -1,0 +1,50 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+#include "float_ops/minus.fz"
+
+function delta4
+  (x1' : ![2.0]num)
+  (x2 : num)
+  (x3 : num)
+  (x4 : num)
+  (x5' : ![2.0]num)
+  (x6' : ![2.0]num)
+{
+  let [x1] = x1';
+  let [x5] = x5';
+  let [x6] = x6';
+
+  lb fin_factor = factor|
+    lb a10_factor = factor|
+      lb a7_factor = factor|
+        lb a6_factor = factor|
+          lb a4_factor = factor|
+            a1 = minus (x2);
+            mulfp64(a1, x3),
+            mulfp64(x1, x4)
+          | in
+          subfp64(a4_factor),
+          mulfp64(x2, x5)
+        | in
+        addfp64(a6_factor),
+        mulfp64(x3, x6)
+      | in
+      addfp64(a7_factor),
+      mulfp64(x5, x6)
+    | in
+    // (- (+ (+ (- (* (- x2) x3) (* x1 x4)) (* x2 x5)) (* x3 x6)) (* x5 x6))
+    subfp64(a10_factor),
+    b1 = minus(x1);
+    lb c2 = addfp64(|b1, x2|) in
+    lb c3 = addfp64(|c2, x3|) in
+    lb c4 = subfp64(|c3, x4|) in
+    lb c5 = addfp64(|c4, x5|) in
+    lb c6 = addfp64(|c5, x6|) in
+    // (* x1 (+ (+ (- (+ (+ (- x1) x2) x3) x4) x5) x6))
+    mulfp64(x1, c6)
+  | in
+  addfp64(fin_factor)
+}
+
+delta4[4,6.3504][4,6.3504][4,6.3504][4,6.3504][4,6.3504][4,6.3504]
