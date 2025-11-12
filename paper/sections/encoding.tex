@@ -139,13 +139,22 @@ error between $e$ computed ideally over the reals versus the floating-point
 approximation. We now prove our paired error theorems
 (Theorem~\ref{thm:paired-a-priori-rel}, Theorem~\ref{thm:paired-a-posteriori-rel}, ),
 which for a triple $(r, a, b)$ relates error on the paired components $a, b$
-with error on $r$. By plugging in Theorem~\ref{thm:paired-a-posteriori-rel} and
-Theorem~\ref{thm:paired-a-priori-rel}, proved below, we are able to obtain multiple
-bounds for a given typed program.
+with error on $r$. By plugging in the theorems proved below, we are able to
+obtain multiple bounds for a given typed program.
+Recall that we assume that $r$ and $r'$ are non-zero and share the same sign.
+% todo: mention this earlier probably
 
 \begin{theorem}[Paired error theorem; a priori relative] \label{thm:paired-a-priori-rel}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
-  a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r^{\downarrow} \leq r \leq r^{\uparrow}$
+    \item $a^{\downarrow} \leq a \leq a^{\uparrow}$
+    \item $b^{\downarrow} \leq b \leq b^{\uparrow}$
+  \end{enumerate}
+  we have that $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
   following bounds: 
 \begin{enumerate}
   \item $max(|ln(e^{q} + \frac{a}{a-b}(e^{-q}- e^{q}))|, |ln(e^{-q} + \frac{a}{a-b}(e^{q}- e^{-q}))|)$
@@ -154,9 +163,8 @@ bounds for a given typed program.
 \end{theorem} 
 \begin{proof}
   Our error metric is symmetric so for this theorem we wish to prove a bound on
-  $d_{\mathbb{R}}(r', r)$. Similarly to Theorem~\ref{thm:paired-a-posteriori},
-  we prove each bound and, for each bound, split into two cases: $r \leq r'$ or
-  $r > r'$. In the first case, we have:
+  $d_{\mathbb{R}}(r', r)$. We prove each bound and, for each bound, split into
+  two cases: $r \leq r'$ or $r > r'$. In the first case, we have:
   \begin{equation} \label{eq:a-priori-bnd-a-pos}
   \begin{aligned}[c]
     |ln(\frac{r'}{r})| \leq 
@@ -184,26 +192,39 @@ bounds for a given typed program.
   (2) mirrors that of the first bound.
 \end{proof}
 
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
+  a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+  following bounds: 
+\begin{enumerate}
+  \item $max(|ln(e^{q} + \frac{a}{a-b}(e^{-q}- e^{q}))|, |ln(e^{-q} + \frac{a}{a-b}(e^{q}- e^{-q}))|)$
+  \item $max(|ln(e^q + \frac{b}{a-b}(e^q - e^{-q}))|,|ln(e^q + \frac{b}{a-b}(e^{-q} - e^{q}))|)$
+\end{enumerate} 
+\end{corollary} 
+\begin{proof}
+  TODO
+\end{proof}
+
 \begin{theorem}[Paired error theorem; a posteriori relative] \label{thm:paired-a-posteriori-rel}
-For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
-a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
-following bounds: 
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r^{\downarrow} \leq r \leq r^{\uparrow}$
+    \item $a^{\downarrow} \leq a \leq a^{\uparrow}$
+    \item $b^{\downarrow} \leq b \leq b^{\uparrow}$
+  \end{enumerate}
+  and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
+  to all of the following bounds: 
 \begin{enumerate}
   \item $max(|ln(e^q + \frac{a}{r'}(1-e^{2q}))|,|ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|)$
   \item $max(|ln(e^{-q} + \frac{b}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b}{r'}(e^{2q}-1))|)$
 \end{enumerate}
 \end{theorem} 
 \begin{proof}
-  By our logical relation and metric preservation theorem (Theorem
-  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
-  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
-  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Unfolding the
-  definition of $d_\mathbb{R}$, which uses relative error, we wish to bound
-  $|ln(\frac{r}{r'})| = |ln(\frac{a - b}{a' - b'})|$. We proceed to prove the
-  first bound:
-
-  There are two cases, $r \leq r'$ or $r > r'$. In the first case, we wish to
-  minimize $a-b$ and maximize $a' - b'$. So, 
+  Similarly to the previous theorem, there are two cases, $r \leq r'$ or $r >
+  r'$. In the first case, we wish to minimize $a-b$ and maximize $a' - b'$. So, 
   \begin{equation} \label{eq:a-priori-bnd-a-pos}
   \begin{aligned}[c]
     |ln(\frac{r}{r'})| \leq 
@@ -231,21 +252,125 @@ following bounds:
   (2) mirrors that of the first bound.
 \end{proof}
 
-\begin{theorem}[Paired error theorem; a priori absolute] \label{thm:paired-a-priori-abs}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
-  a', b'))$ where $|r - r'|$ is the maximum of the following
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
+  (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of
+  the following bounds: 
 \begin{enumerate}
+  \item $max(|ln(e^q + \frac{a}{r'}(1-e^{2q}))|,|ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|)$
+  \item $max(|ln(e^{-q} + \frac{b}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b}{r'}(e^{2q}-1))|)$
+\end{enumerate}
+\end{corollary} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
+  theorem proves the corollary.
+\end{proof}
+
+\begin{theorem}[Paired error theorem; a priori absolute] \label{thm:paired-a-priori-abs}
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r^{\downarrow} \leq r \leq r^{\uparrow}$
+    \item $a^{\downarrow} \leq a \leq a^{\uparrow}$
+    \item $b^{\downarrow} \leq b \leq b^{\uparrow}$
+  \end{enumerate}
+  we have that $|r - r'|$ is the maximum of the following:
+\begin{enumerate}
+  \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
 \end{enumerate} 
+\end{theorem} 
+\begin{proof}
+  We case into whether $r \geq r'$ (or not) and $r \geq 0$ (or not). This
+  produces four cases:
+  \begin{description}
+    \item [Case $r \geq r'$ and $r \geq 0$.] We have that:
+      \begin{equation}
+        \begin{aligned}
+          (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
+                              &\leq a^{\uparrow} - b^{\downarrow} - (a^{\uparrow}e^{-q} - a^{\downarrow}e^{q}) \\
+                              &= a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r \geq r'$ and $r < 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
+                              &\leq a^{\downarrow} - b^{\uparrow} - (a^{\downarrow}e^{-q} - a^{\uparrow}e^{q}) \\
+                              &= a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r < r'$ and $r \geq 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
+                              &\leq ((a^{\uparrow}e^q - b^{\downarrow}e^{-q}) - (a^{\uparrow}- b^{\downarrow}))\\
+                              &= a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r < r'$ and $r < 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
+                              &\leq ((a^{\downarrow}e^q - b^{\uparrow}e^{-q}) - (a^{\downarrow}- b^{\uparrow}))\\
+                              &= a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)
+        \end{aligned}
+      \end{equation}
+  \end{description}
+  By taking the maximum of all possible cases, we can obtain a sound a priori
+  absolute error bound.
+\end{proof}
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{(r^{\downarrow}, a^{\downarrow}, b^{\downarrow}), (r^{\uparrow}, a^{\uparrow}, b^{\uparrow})}$, 
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ 
+  where $|r - r'|$ is the maximum of the following:
+\begin{enumerate}
+  \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+\end{enumerate} 
+\end{corollary} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
+  theorem proves the corollary.
+\end{proof}
+
+\begin{theorem}[Paired error theorem; a posterori absolute] \label{thm:paired-a-priori-abs}
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
+  and the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r^{\downarrow} \leq r \leq r^{\uparrow}$
+    \item $a^{\downarrow} \leq a \leq a^{\uparrow}$
+    \item $b^{\downarrow} \leq b \leq b^{\uparrow}$
+  \end{enumerate}
+  and we know $r'$, we have that $|r - r'|$ is the maximum of the following:
+% \begin{enumerate}
+% \end{enumerate} 
 \end{theorem} 
 \begin{proof}
 \end{proof}
 
-\begin{theorem}[Paired error theorem; a posterori absolute] \label{thm:paired-a-priori-abs}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
-  a', b'))$ where $|r - r'|$ is the maximum of the following
-\begin{enumerate}
-\end{enumerate} 
-\end{theorem} 
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{(r^{\downarrow}, a^{\downarrow}, b^{\downarrow}), (r^{\uparrow}, a^{\uparrow}, b^{\uparrow})}$, 
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ 
+  where $|r - r'|$ is the maximum of the following:
+% \begin{enumerate}
+% \end{enumerate} 
+\end{corollary} 
 \begin{proof}
 \end{proof}
 
