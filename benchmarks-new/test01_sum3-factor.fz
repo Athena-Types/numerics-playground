@@ -1,0 +1,27 @@
+#include "float_ops/addfp32.fz"
+#include "float_ops/subfp32.fz"
+
+function test01_sum3
+  (x0' : ![3.0]num)
+  (x1' : ![3.0]num)
+  (x2' : ![3.0]num)
+{
+  let [x0] = x0';
+  let [x1] = x1';
+  let [x2] = x2';
+
+  lb fin_factor = factor|
+    lb fin1_factor = factor|
+      lb a1 = addfp32(|x0, x1|) in
+      subfp32(|a1, x2|),
+      lb a3 = addfp32(|x1, x2|) in
+      subfp32(|a3, x0|)
+    | in
+    addfp32(fin1_factor),
+    lb a5 = addfp32(|x2, x0|) in
+    subfp32(|a5, x1|)
+  | in
+  addfp32(fin_factor)
+}
+
+test01_sum3[1,2][1,2][1,2]
