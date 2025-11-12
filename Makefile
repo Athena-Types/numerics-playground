@@ -3,44 +3,49 @@
 src/_build/default/bin/paired.exe: src/bin/paired.ml
 	cd src && opam exec -- dune build
 
-benchmarks/%-paired.fpcore: src/_build/default/bin/paired.exe
-	racket deps/FPBench/transform.rkt --precondition-ranges benchmarks/$*.fpcore benchmarks/$*.simple.fpcore
-	./src/_build/default/bin/paired.exe benchmarks/$*.simple.fpcore > benchmarks/$*-paired.fpcore
+./fuzzrs/target/release/fuzzrs: # ./fuzzrs/src/%.rs
+	cd fuzzrs && cargo build --release
 
+# benchmarks-new/%-paired.fpcore: src/_build/default/bin/paired.exe
+# 	racket deps/FPBench/transform.rkt --precondition-ranges benchmarks-new/$*.fpcore benchmarks-new/$*.simple.fpcore
+# 	./src/_build/default/bin/paired.exe benchmarks-new/$*.simple.fpcore > benchmarks-new/$*-paired.fpcore
+#
 ### FPCore -> Gappa
-benchmarks/%.g: fpcore benchmarks/%.fpcore
-	racket deps/FPBench/export.rkt --lang g benchmarks/$*.fpcore benchmarks/$*.g 
-	python src/compute_bound.py benchmarks/$*.g 
+benchmarks-new/%.g: fpcore benchmarks-new/%.fpcore
+	racket deps/FPBench/export.rkt --lang g benchmarks-new/$*.fpcore benchmarks-new/$*.g 
+	python src/compute_bound.py benchmarks-new/$*.g 
 
-benchmarks/%-relative.g: fpcore benchmarks/%.fpcore
-	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks/$*.fpcore benchmarks/$*-relative.g 
-	python src/compute_bound.py benchmarks/$*-relative.g 
+benchmarks-new/%-relative.g: fpcore benchmarks-new/%.fpcore
+	racket deps/FPBench/export.rkt --rel-error --lang g benchmarks-new/$*.fpcore benchmarks-new/$*-relative.g 
+	python src/compute_bound.py benchmarks-new/$*-relative.g 
 
 ### Running Gappa
-benchmarks/%.g.out: benchmarks/%.g
-	gappa benchmarks/$*.g &> benchmarks/$*.g.out
+benchmarks-new/%.g.out: benchmarks-new/%.g
+	gappa benchmarks-new/$*.g &> benchmarks-new/$*.g.out
 
 ### Running NumFuzz
 ./deps/NumFuzz/_build/install/default/bin/nfuzz: 
 	cd deps/NumFuzz && opam exec -- dune build
  
-benchmarks/%.fz: benchmarks/%.g.out ./deps/NumFuzz/_build/install/default/bin/nfuzz
-	cp benchmarks/$*.fz deps/NumFuzz/examples/NumFuzz/
-	cd deps/NumFuzz && ./_build/install/default/bin/nfuzz examples/NumFuzz/$*.fz &> ../../benchmarks/$*.fz.out
+benchmarks-new/%.fz: benchmarks-new/%.g.out # ./deps/NumFuzz/_build/install/default/bin/nfuzz
+	cd fuzzrs && cargo build --release && ./target/release/fuzzrs --input ../benchmarks-new/$*.fz &> ../benchmarks-new/$*.fz.out
+	cd fuzzrs && cargo build --release && ./target/release/fuzzrs --input ../benchmarks-new/$*-factor.fz &> ../benchmarks-new/$*-factor.fz.out
+	# cp benchmarks-new/$*.fz deps/NumFuzz/examples/NumFuzz/
+	# cd deps/NumFuzz && ./_build/install/default/bin/nfuzz examples/NumFuzz/$*.fz &> ../../benchmarks-new/$*.fz.out
 
 
 ### Defining phony stages
-UNPAIRED_FPCORE_FILES = $(filter-out $(wildcard benchmarks/*-paired.fpcore), $(wildcard benchmarks/*.fpcore))
-FPCORE_FILES=$(wildcard benchmarks/*.fpcore)
+# UNPAIRED_FPCORE_FILES = $(filter-out $(wildcard benchmarks-new/*-paired.fpcore), $(wildcard benchmarks-new/*.fpcore))
+FPCORE_FILES=$(wildcard benchmarks-new/*.fpcore)
 
-PAIRED_FILES=$(patsubst %.fpcore, %-paired.fpcore, $(UNPAIRED_FPCORE_FILES))
+# PAIRED_FILES=$(patsubst %.fpcore, %-paired.fpcore, $(UNPAIRED_FPCORE_FILES))
 
 ################################################################################
 ### Abstract Testing
-benchmarks/%.scala: fpcore benchmarks/%.fpcore
-	racket deps/FPBench/export.rkt --lang scala benchmarks/$*.fpcore benchmarks/$*.scala
+benchmarks-new/%.scala: fpcore benchmarks-new/%.fpcore
+	racket deps/FPBench/export.rkt --lang scala benchmarks-new/$*.fpcore benchmarks-new/$*.scala
 
-SCALA =$(patsubst benchmarks/%.fpcore, benchmarks/%.scala, $(UNPAIRED_FPCORE_FILES))
+SCALA =$(patsubst benchmarks-new/%.fpcore, benchmarks-new/%.scala, $(UNPAIRED_FPCORE_FILES))
 
 scala: $(SCALA)
 
@@ -49,25 +54,26 @@ scala: $(SCALA)
 ## NumFuzz (extended) analysis
 
 # Stage 1: Generate FPCore
-BENCHMARK_NAMES_STAGE_1 =$(patsubst benchmarks/%.fpcore, %-fpcore, $(UNPAIRED_FPCORE_FILES))
+BENCHMARK_NAMES_STAGE_1 =$(patsubst benchmarks-new/%.fpcore, %-fpcore, $(UNPAIRED_FPCORE_FILES))
 
-$(BENCHMARK_NAMES_STAGE_1): %-fpcore: benchmarks/%-paired.fpcore 
+# $(BENCHMARK_NAMES_STAGE_1): %-fpcore: benchmarks-new/%-paired.fpcore 
+$(BENCHMARK_NAMES_STAGE_1): %-fpcore: benchmarks-new/%.fpcore 
 
 fpcore: $(BENCHMARK_NAMES_STAGE_1)
 
 # Stage 2: Generate Gappa
-BENCHMARK_NAMES_STAGE_2 =$(patsubst benchmarks/%.fpcore, %-gappa, $(UNPAIRED_FPCORE_FILES))
+BENCHMARK_NAMES_STAGE_2 =$(patsubst benchmarks-new/%.fpcore, %-gappa, $(UNPAIRED_FPCORE_FILES))
 
-$(BENCHMARK_NAMES_STAGE_2): %-gappa: benchmarks/%.g benchmarks/%-relative.g benchmarks/%-paired.g benchmarks/%-paired-relative.g 
+$(BENCHMARK_NAMES_STAGE_2): %-gappa: benchmarks-new/%.g benchmarks-new/%-relative.g 
 
 gappa: $(BENCHMARK_NAMES_STAGE_2)
 
 # Stage 3: Run Gappa
-BENCHMARK_NAMES_STAGE_3 = $(patsubst %, %.out, $(wildcard benchmarks/*.g))
+BENCHMARK_NAMES_STAGE_3 = $(patsubst %, %.out, $(wildcard benchmarks-new/*.g))
 gappa-run: $(BENCHMARK_NAMES_STAGE_3)
 
 # Stage 4: Run NumFuzz
-BENCHMARK_NAMES_STAGE_4 = $(wildcard benchmarks/*.fz)
+BENCHMARK_NAMES_STAGE_4 = $(wildcard benchmarks-new/*.fz) 
 
 ################################################################################
 ## Paper stuff
@@ -84,10 +90,10 @@ build:
 	cd src && opam exec -- dune build
 
 clean:
-	rm -f benchmarks/*-paired.fpcore
-	rm -f benchmarks/*.simple.fpcore
-	rm -f benchmarks/*.g
-	rm -f benchmarks/*.out
+	rm -f benchmarks-new/*-paired.fpcore
+	rm -f benchmarks-new/*.simple.fpcore
+	rm -f benchmarks-new/*.g
+	rm -f benchmarks-new/*.out
 	cd src && opam exec dune clean
 
 numfuzz: $(BENCHMARK_NAMES_STAGE_4)
@@ -97,4 +103,4 @@ paper: paper/main.pdf
 abstest: scala
 
 .PHONY: scala abstest build fpcore gappa gappa-run all clean $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2)
-.NOTINTERMEDIATE: $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2) $(PAIRED_FILES) benchmarks/%-paired.fpcore benchmarks/%.g benchmarks/%.out
+.NOTINTERMEDIATE: $(BENCHMARK_NAMES_STAGE_1) $(BENCHMARK_NAMES_STAGE_2) benchmarks-new/%.g benchmarks-new/%.out
