@@ -1,0 +1,57 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+function matrixDeterminant
+  (a' : ![2.0]num) 
+  (b' : ![2.0]num) 
+  (c' : ![1.0]num) 
+  (d' : ![1.0]num) 
+  (e' : ![2.0]num) 
+  (f' : ![2.0]num) 
+  (g' : ![2.0]num) 
+  (h' : ![1.0]num) 
+  (i' : ![2.0]num)
+{
+  let [a] = a';
+  let [b] = b';
+  let [c] = c';
+  let [d] = d';
+  let [e] = e';
+  let [f] = f';
+  let [g] = g';
+  let [h] = h';
+  let [i] = i';
+  
+  lb fin_factor = factor |
+    lb add_1_2_factor = factor |
+      lb add_1_1_factor = factor |
+        lb s1 = mulfp64(a, e) in
+        mulfp64(s1, i),
+        lb s2 = mulfp64(b, f) in
+        mulfp64(s2, g)
+      | in
+      addfp64(add_1_1_factor),
+      lb s3 = mulfp64(c, d) in
+      mulfp64(s3, h)
+    | in
+    addfp64(add_1_2_factor),
+    //
+    lb add_2_2_factor = factor |
+      lb add_2_1_factor = factor |
+        lb s4 = mulfp64(c, e) in
+        mulfp64(s4, g),
+        lb s5 = mulfp64(b, d) in
+        mulfp64(s5, i)
+      | in
+      addfp64(add_2_1_factor),
+      lb s6 = mulfp64(a, f) in
+      mulfp64(s6, h)
+    | in
+    addfp64(add_2_2_factor)
+  | in
+  // final sub
+  subfp64(fin_factor)
+}
+
+matrixDeterminant[-10,10][-10,10][-10,10][-10,10][-10,10][-10,10][-10,10][-10,10][-10,10]
