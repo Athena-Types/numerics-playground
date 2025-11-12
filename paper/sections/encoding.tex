@@ -47,15 +47,17 @@ $\Sigma_\textbf{num} = \{+, -, \cdot \}$, defined as follows:
       ((r_l + r'_l, a_l + a'_l, b_l + b'_l), (r_h + r'_h, a_h + a'_h, b_h + b'_h)) \\
     ((r_l, a_l, b_l),(r_h, a_h, b_h)) - 
       ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
-      ((r_l - r'_h, a_l + b'_l, b_l + a'_l), (r_h - r'_l, a_h + b'_h, b_h + a'_h)) \\
+    ((r_{min}^{sub} - r'_h, a_l + b'_l, b_l + a'_l), (r_{max}^{sub} - r'_l, a_h + b'_h, b_h + a'_h)) \\
     ((r_l, a_l, b_l),(r_h, a_h, b_h)) \cdot
       ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
-      ((r''_l, a_l a'_l + b_l b'_l, a_l b'_l + a_l b'_l), \\ 
-      & \quad \quad (r''_h, a_h a'_h + b_h b'_h, a_h b'_h + a_h b'_h)) \\
+    ((r_{min}^{mul}, a_l a'_l + b_l b'_l, a_l b'_l + b_l a'_l), \\ 
+    & \quad \quad (r_{max}^{mul}, a_h a'_h + b_h b'_h, a_h b'_h + b_h a'_h)) \\
   \end{aligned}
 \end{equation}
-where $r''_l = min(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
-and $r''_h = max(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+where $r_{min}^{sub} = min(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+and $r_{max}^{sub} = max(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+and $r_{min}^{mul} = min(\{x \cdot y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+and $r_{max}^{mul} = max(\{x \cdot y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
 and term-level operations 
 $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul} \}$
 are given as follows:
@@ -133,58 +135,21 @@ By stapling together the proceeding lemmas, the interface ($\mathbb{P}, d_{\math
 
 \subsection{Application} \label{sec:application}
 For a given $. \vdash e : M_q \textbf{num}_{(k_0, k_1)}$, we wish to bound the
-error between $e$ computed ideally over the reals versus the floating-point approximation. We now prove our paired error theorems (Theorem~\ref{thm:paired-a-posteriori}, Theorem~\ref{thm:paired-a-priori}), which for a triple $(r, a, b)$ relates error on the paired components $a, b$ with error on $r$.
-By plugging in Theorem~\ref{thm:paired-a-posteriori} and
-Theorem~\ref{thm:paired-a-priori}, proved below, we are able to obtain multiple
+error between $e$ computed ideally over the reals versus the floating-point
+approximation. We now prove our paired error theorems
+(Theorem~\ref{thm:paired-a-priori-rel}, Theorem~\ref{thm:paired-a-posteriori-rel}, ),
+which for a triple $(r, a, b)$ relates error on the paired components $a, b$
+with error on $r$. By plugging in Theorem~\ref{thm:paired-a-posteriori-rel} and
+Theorem~\ref{thm:paired-a-priori-rel}, proved below, we are able to obtain multiple
 bounds for a given typed program.
 
-\begin{theorem}[Paired error theorem; a posteriori] \label{thm:paired-a-posteriori}
-For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the following bounds: 
+\begin{theorem}[Paired error theorem; a priori relative] \label{thm:paired-a-priori-rel}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
+  a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+  following bounds: 
 \begin{enumerate}
-  \item $max(|ln(e^u + \frac{a}{r'}(1-e^{2u}))|,|ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|)$
-  \item $max(|ln(e^{-u} + \frac{b}{r'}(e^{-2u}- 1))|,|ln(e^u + \frac{b}{r'}(e^{2u}-1))|)$
-\end{enumerate}
-\end{theorem} 
-\begin{proof}
-  By our logical relation and metric preservation theorem (Theorem
-  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a', b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$.
-  Therefore, $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$.
-  Unfolding the definition of $d_\mathbb{R}$, which uses relative error, we wish
-  to bound $|ln(\frac{r}{r'})| = |ln(\frac{a - b}{a' - b'})|$.
-  We proceed to prove the first bound:
-
-  There are two cases, $r \leq r'$ or $r > r'$. In the first case, we wish to
-  minimize $a-b$ and maximize $a' - b'$. So, 
-  \begin{equation} \label{eq:a-priori-bnd-a-pos}
-  \begin{aligned}[c]
-    |ln(\frac{r}{r'})| \leq 
-    |ln(\frac{a - b'e^u}{a' - b'})| =
-    |ln(\frac{a - b' e^u + a'e^u - a'e^u}{a' - b'})| \\ =
-    |ln(e^u + \frac{a - a'e^u}{a' - b'})| \leq
-    |ln(e^u + \frac{a - ae^{2u}}{a' - b'})| =
-    |ln(e^u + \frac{a}{r'}(1-e^{2u}))|
-  \end{aligned}
-  \end{equation}
-  Similarly, for the other case, we have:
-  \begin{equation} \label{eq:a-priori-bnd-a-neg}
-  \begin{aligned}[c]
-    |ln(\frac{r}{r'})| \leq 
-    |ln(\frac{a - b'e^{-u}}{a' - b'})| =
-    |ln(\frac{a - b'e^{-u} + a'e^{-u} - a'e^{-u}}{a' - b'})| \\ =
-    |ln(e^{-u} + \frac{a - a'e^{-u}}{a' - b'})| \leq
-    |ln(e^{-u} + \frac{a - ae^{-2u}}{a' - b'})| =
-    |ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|
-  \end{aligned}[c]
-  \end{equation}
-  A sound bound for both cases is the maximum of Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg}, which is exactly our first bound (1).
-  The proof strategy for the second bound (2) mirrors that of the first bound.
-\end{proof}
-
-\begin{theorem}[Paired error theorem; a priori] \label{thm:paired-a-priori}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the following bounds: 
-\begin{enumerate}
-  \item $max(|ln(e^{u} + \frac{a}{a-b}(e^{-u}- e^{u}))|, |ln(e^{-u} + \frac{a}{a-b}(e^{u}- e^{-u}))|)$
-  \item $max(|ln(e^u + \frac{b}{a-b}(e^u - b e^{-u}))|,|ln(e^u + \frac{b}{a-b}(e^u - e^{-u}))|)$
+  \item $max(|ln(e^{q} + \frac{a}{a-b}(e^{-q}- e^{q}))|, |ln(e^{-q} + \frac{a}{a-b}(e^{q}- e^{-q}))|)$
+  \item $max(|ln(e^q + \frac{b}{a-b}(e^q - e^{-q}))|,|ln(e^q + \frac{b}{a-b}(e^{-q} - e^{q}))|)$
 \end{enumerate} 
 \end{theorem} 
 \begin{proof}
@@ -195,26 +160,93 @@ For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r', a'
   \begin{equation} \label{eq:a-priori-bnd-a-pos}
   \begin{aligned}[c]
     |ln(\frac{r'}{r})| \leq 
-    |ln(\frac{a' - be^u}{a - b})| =
-    |ln(\frac{a' - be^u + ae^u - ae^u}{a - b})| \\ =
-    |ln(e^u + \frac{a' - ae^u}{a - b})| \leq
-    |ln(e^u + \frac{ae^{-u} - ae^u}{a - b})| =
-    |ln(e^u + \frac{a}{a - b}(e^{-u} - e^u))|
+    |ln(\frac{a' - be^q}{a - b})| =
+    |ln(\frac{a' - be^q + ae^q - ae^q}{a - b})| \\ =
+    |ln(e^q + \frac{a' - ae^q}{a - b})| \leq
+    |ln(e^q + \frac{ae^{-q} - ae^q}{a - b})| =
+    |ln(e^q + \frac{a}{a - b}(e^{-q} - e^q))|
   \end{aligned}
   \end{equation}
   In the second case, we have:
   \begin{equation} \label{eq:a-priori-bnd-a-neg}
   \begin{aligned}[c]
     |ln(\frac{r'}{r})| \leq 
-    |ln(\frac{a' - be^{-u}}{a - b})| =
-    |ln(\frac{a' - be^{-u} + ae^{-u} - ae^{-u}}{a - b})| \\ =
-    |ln(e^{-u} + \frac{a' - ae^{-u}}{a - b})| \leq
-    |ln(e^{-u} + \frac{ae^{u} - ae^{-u}}{a - b})| =
-    |ln(e^{-u} + \frac{a}{a - b}(e^{u} - e^{-u}))|
+    |ln(\frac{a' - be^{-q}}{a - b})| =
+    |ln(\frac{a' - be^{-q} + ae^{-q} - ae^{-q}}{a - b})| \\ =
+    |ln(e^{-q} + \frac{a' - ae^{-q}}{a - b})| \leq
+    |ln(e^{-q} + \frac{ae^{q} - ae^{-q}}{a - b})| =
+    |ln(e^{-q} + \frac{a}{a - b}(e^{q} - e^{-q}))|
   \end{aligned}
   \end{equation}
-  A sound bound for both cases is the maximum of Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg}, which is exactly our first bound (1).
-  The proof strategy for the second bound (2) mirrors that of the first bound.
+  A sound bound for both cases is the maximum of
+  Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg},
+  which is exactly our first bound (1). The proof strategy for the second bound
+  (2) mirrors that of the first bound.
+\end{proof}
+
+\begin{theorem}[Paired error theorem; a posteriori relative] \label{thm:paired-a-posteriori-rel}
+For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
+a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+following bounds: 
+\begin{enumerate}
+  \item $max(|ln(e^q + \frac{a}{r'}(1-e^{2q}))|,|ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|)$
+  \item $max(|ln(e^{-q} + \frac{b}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b}{r'}(e^{2q}-1))|)$
+\end{enumerate}
+\end{theorem} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Unfolding the
+  definition of $d_\mathbb{R}$, which uses relative error, we wish to bound
+  $|ln(\frac{r}{r'})| = |ln(\frac{a - b}{a' - b'})|$. We proceed to prove the
+  first bound:
+
+  There are two cases, $r \leq r'$ or $r > r'$. In the first case, we wish to
+  minimize $a-b$ and maximize $a' - b'$. So, 
+  \begin{equation} \label{eq:a-priori-bnd-a-pos}
+  \begin{aligned}[c]
+    |ln(\frac{r}{r'})| \leq 
+    |ln(\frac{a - b'e^q}{a' - b'})| =
+    |ln(\frac{a - b' e^q + a'e^q - a'e^q}{a' - b'})| \\ =
+    |ln(e^q + \frac{a - a'e^q}{a' - b'})| \leq
+    |ln(e^q + \frac{a - ae^{2q}}{a' - b'})| =
+    |ln(e^q + \frac{a}{r'}(1-e^{2q}))|
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation} \label{eq:a-priori-bnd-a-neg}
+  \begin{aligned}[c]
+    |ln(\frac{r}{r'})| \leq 
+    |ln(\frac{a - b'e^{-q}}{a' - b'})| =
+    |ln(\frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'})| \\ =
+    |ln(e^{-q} + \frac{a - a'e^{-q}}{a' - b'})| \leq
+    |ln(e^{-q} + \frac{a - ae^{-2q}}{a' - b'})| =
+    |ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|
+  \end{aligned}[c]
+  \end{equation}
+  A sound bound for both cases is the maximum of
+  Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg},
+  which is exactly our first bound (1). The proof strategy for the second bound
+  (2) mirrors that of the first bound.
+\end{proof}
+
+\begin{theorem}[Paired error theorem; a priori absolute] \label{thm:paired-a-priori-abs}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
+  a', b'))$ where $|r - r'|$ is the maximum of the following
+\begin{enumerate}
+\end{enumerate} 
+\end{theorem} 
+\begin{proof}
+\end{proof}
+
+\begin{theorem}[Paired error theorem; a posterori absolute] \label{thm:paired-a-priori-abs}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
+  a', b'))$ where $|r - r'|$ is the maximum of the following
+\begin{enumerate}
+\end{enumerate} 
+\end{theorem} 
+\begin{proof}
 \end{proof}
 
 % TODO: detail how to plug in?
