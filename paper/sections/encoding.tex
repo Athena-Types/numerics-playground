@@ -142,12 +142,14 @@ which for a triple $(r, a, b)$ relates error on the paired components $a, b$
 with error on $r$. By plugging in the theorems proved below, we are able to
 obtain multiple bounds for a given typed program.
 
-% Note that we have the condition $0 < r^{\downarrow}$. This can be generalized
-% to $r^{\downarrow}$ and $r^{\uparrow}$ having the same sign.
+Note that we have the condition $0 < r^{\downarrow}$. This can be generalized
+to $r^{\downarrow}$ and $r^{\uparrow}$ having the same sign. In practice, it is
+rare for a program to have $r^{\downarrow}$ and $r^{\uparrow}$ negative so we
+ignore that case here.
 \begin{theorem}[Paired error theorem; a priori relative] \label{thm:paired-a-priori-rel}
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
-  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
-  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
+  the following bounds
   \begin{enumerate}
     \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
     \item $r \in [r^{\downarrow}, r^{\uparrow}]$ and $0 < r^{\downarrow}$
@@ -157,8 +159,8 @@ obtain multiple bounds for a given typed program.
   we have that $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
   following bounds: 
 \begin{enumerate}
-  \item $max(|ln(e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q}))|)$
-  \item $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^q + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^q + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
 \end{enumerate} 
 \end{theorem}
 \begin{proof}
@@ -207,8 +209,8 @@ obtain multiple bounds for a given typed program.
 
   A sound bound for both cases is the maximum of the absolute value of
   Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg},
-  which is exactly our first bound (1). The proof strategy for the second bound
-  (2) mirrors that of the first bound.
+  which is exactly our first bound (a). The proof strategy for the second bound
+  (b) mirrors that of the first bound.
 \end{proof}
 
 \begin{corollary}
@@ -239,40 +241,113 @@ obtain multiple bounds for a given typed program.
     \item $b \in [b^{\downarrow}, b^{\uparrow}]$
   \end{enumerate}
   and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
-  to all of the following bounds: 
-\begin{enumerate}
-  \item $max(|ln(e^q + \frac{a}{r'}(1-e^{2q}))|,|ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|)$
-  \item $max(|ln(e^{-q} + \frac{b}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b}{r'}(e^{2q}-1))|)$
-\end{enumerate}
+  to all of the following bounds if $0 < r'$: 
+  \begin{enumerate}
+    \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|)$
+    \item[(b)] $max(|ln(e^{-q} + \frac{b^{\uparrow}}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{2q}-1))|)$
+  \end{enumerate}
+  and the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q})), ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q})))$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
 \end{theorem} 
 \begin{proof}
+  We first examine the scenario where $0 < r'$.
   Similarly to the previous theorem, there are two cases, $r \leq r'$ or $r >
   r'$. In the first case, we wish to minimize $a-b$ and maximize $a' - b'$. So, 
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \leq
+    \frac{r'}{r} \leq
+    \frac{a - b'e^q}{a' - b'} =
+    \frac{a - b' e^q + a'e^q - a'e^q}{a' - b'} \\ =
+    e^q + \frac{a - a'e^q}{a' - b'} \leq
+    e^q + \frac{a - ae^{2q}}{a' - b'} =
+    e^q + \frac{a}{r'}(1-e^{2q}) \\ \leq
+    e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q})
+  \end{aligned}
+  \end{equation}
+  Therefore,
   \begin{equation} \label{eq:a-posterori-bnd-a-pos}
   \begin{aligned}[c]
-    |ln(\frac{r}{r'})| \leq 
-    |ln(\frac{a - b'e^q}{a' - b'})| =
-    |ln(\frac{a - b' e^q + a'e^q - a'e^q}{a' - b'})| \\ =
-    |ln(e^q + \frac{a - a'e^q}{a' - b'})| \leq
-    |ln(e^q + \frac{a - ae^{2q}}{a' - b'})| =
-    |ln(e^q + \frac{a}{r'}(1-e^{2q}))|
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))
   \end{aligned}
   \end{equation}
   Similarly, for the other case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r}{r'} \geq
+    \frac{a - b'e^{-q}}{a' - b'} =
+    \frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
+    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \geq
+    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
+    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \geq
+    e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
   \begin{equation} \label{eq:a-posterori-bnd-a-neg}
   \begin{aligned}[c]
-    |ln(\frac{r}{r'})| \leq 
-    |ln(\frac{a - b'e^{-q}}{a' - b'})| =
-    |ln(\frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'})| \\ =
-    |ln(e^{-q} + \frac{a - a'e^{-q}}{a' - b'})| \leq
-    |ln(e^{-q} + \frac{a - ae^{-2q}}{a' - b'})| =
-    |ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|
-  \end{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))
+  \end{aligned}
   \end{equation}
-  A sound bound for both cases is the maximum of
+  A sound bound for both cases is absolute value of the the maximum of
   Equation~\ref{eq:a-posterori-bnd-a-pos} and Equation~\ref{eq:a-posterori-bnd-a-neg},
-  which is exactly our first bound (1). The proof strategy for the second bound
-  (2) mirrors that of the first bound.
+  which is exactly our first bound (a). The proof strategy for the second bound
+  (b) mirrors that of the first bound.
+
+  We now examine the scenario where $r' < 0$. This scenario largely mirrors the
+  first one, except some directions are flipped.
+  Similarly to the previous theorem, there are two cases, $r \leq r'$ or $r >
+  r'$. In the first case, we wish to minimize $a-b$ and maximize $a' - b'$. So, 
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \leq
+    \frac{r'}{r} \leq
+    \frac{a - b'e^{-q}}{a' - b'} =
+    \frac{a - b' e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
+    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \leq
+    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
+    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \leq
+    e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q})
+  \end{aligned}
+  \end{equation}
+  Therefore,
+  \begin{equation} \label{eq:a-posterori-bnd-a-pos-neg}
+  \begin{aligned}[c]
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r}{r'} \geq
+    \frac{a - b'e^{q}}{a' - b'} =
+    \frac{a - b'e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
+    e^{q} + \frac{a - a'e^{q}}{a' - b'} \geq
+    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
+    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \geq
+    e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-posterori-bnd-a-neg-neg}
+  \begin{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))
+  \end{aligned}
+  \end{equation}
+  A sound bound for both cases is absolute value of the the maximum of
+  Equation~\ref{eq:a-posterori-bnd-a-pos-neg} and
+  Equation~\ref{eq:a-posterori-bnd-a-neg-neg}, which is exactly our first bound
+  (c). The proof strategy for the second bound (d) mirrors that of the first
+  bound.
 \end{proof}
 
 \begin{corollary}
@@ -304,10 +379,10 @@ obtain multiple bounds for a given typed program.
   \end{enumerate}
   we have that $|r - r'|$ is the maximum of the following:
 \begin{enumerate}
-  \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
-  \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
-  \item $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
-  \item $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+  \item[(a)] $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item[(b)] $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item[(c)] $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item[(d)] $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
 \end{enumerate} 
 \end{theorem} 
 \begin{proof}
