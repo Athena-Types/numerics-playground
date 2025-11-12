@@ -1,0 +1,23 @@
+#include "float_ops/mulfp64.fz"
+#include "float_ops/addfp64.fz"
+#include "float_ops/subfp64.fz"
+
+
+function sineOrder3_factor
+   (x' : ![4.0]num)
+{
+  let [x] = x';
+
+  lb fin = factor|
+    lb c1 = rnd64(0.9549296) in
+    mulfp64(c1, x),
+    lb c2 = rnd64(0.1290061) in
+    lb a4 = mulfp64(x, x) in
+    lb a5 = mulfp64(a4, x) in
+    mulfp64(c2, a5)
+  | in
+
+  subfp64(fin)
+}
+
+sineOrder3_factor[-2,2]
