@@ -3,14 +3,14 @@ use crate::exprs::Op;
 use crate::exprs::*;
 
 pub fn max(f0 : Float, f1 : Float) -> Float {
-    if (f1 > f0) || (f0.is_nan()) {
+    if (f1 > f0) && (! f1.is_nan()) {
         return f1;
     }
     f0
 }
 
 pub fn min(f0 : Float, f1 : Float) -> Float {
-    if f1 > f0 || (! f1.is_nan()) {
+    if f1 > f0 && (! f0.is_nan()) {
         return f0;
     }
     f1

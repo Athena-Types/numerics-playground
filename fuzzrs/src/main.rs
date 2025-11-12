@@ -28,7 +28,7 @@ fn main() {
 
     let prog = fuzzrs::parser::start(opt.input);
 
-    //println!("program: {:?}", prog);
+    println!("program: {:?}", prog);
     let mut eps_c = AtomicUsize::new(0);
     let (ctx, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
     //println!("final ctx: {:?}", ctx);

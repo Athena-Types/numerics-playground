@@ -547,6 +547,10 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 _ => panic!("Bad type passed to factor!"),
             }
         }
+        Expr::Scale(s, e) => {
+            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
+            (gamma * s, Ty::Bang(s, Box::new(tau)))
+        }
         _ => todo!("{:?}", e),
     }
 }
