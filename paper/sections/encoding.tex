@@ -6,7 +6,7 @@ In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the
 modular interface defined in Definition~\ref{def:numfuzz-interface} using a
 $\textit{paired representation}$ introduced below. Then, in
 Section~\ref{sec:application} we demonstrate how to read out the
-$\textit{paired-representation}$ as concrete bounds for standard, unpaired,
+$\textit{paired representation}$ as concrete bounds for standard, unpaired,
 floating-point arithmetic.
 
 \subsection{Instantiation} \label{sec:instantiation}
@@ -42,22 +42,28 @@ We instantiate the modular interface with the interval operations
 $\Sigma_\textbf{num} = \{+, -, \cdot \}$, defined as follows:
 \begin{equation}
   \begin{aligned}[c]
-    ((r_l, a_l, b_l),(r_h, a_h, b_h)) + 
-      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
-      ((r_l + r'_l, a_l + a'_l, b_l + b'_l), (r_h + r'_h, a_h + a'_h, b_h + b'_h)) \\
-    ((r_l, a_l, b_l),(r_h, a_h, b_h)) - 
-      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
-    ((r_{min}^{sub} - r'_h, a_l + b'_l, b_l + a'_l), (r_{max}^{sub} - r'_l, a_h + b'_h, b_h + a'_h)) \\
-    ((r_l, a_l, b_l),(r_h, a_h, b_h)) \cdot
-      ((r'_l, a'_l, b'_l),(r'_h, a'_h, b'_h)) &=
-    ((r_{min}^{mul}, a_l a'_l + b_l b'_l, a_l b'_l + b_l a'_l), \\ 
-    & \quad \quad (r_{max}^{mul}, a_h a'_h + b_h b'_h, a_h b'_h + b_h a'_h)) \\
+    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) + 
+    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
+    ((r^{\downarrow} + r'^{\downarrow}, a^{\downarrow} + a'^{\downarrow}, b^{\downarrow} + b'^{\downarrow}), \\
+      & \quad \quad
+      (r^{\uparrow} + r'^{\uparrow}, a^{\uparrow} + a'^{\uparrow}, b^{\uparrow} + b'^{\uparrow})) \\
+    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) - 
+    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
+    ((r^{\downarrow}_{sub} - r'^{\uparrow}, a^{\downarrow} + b'^{\downarrow}, b^{\downarrow} + a'^{\downarrow}), \\
+      & \quad \quad
+      (r^{\uparrow}_{sub} - r'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}, b^{\uparrow} + a'^{\uparrow})) \\
+    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
+    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
+    ((r^{\downarrow}_{mul}, a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}), \\ 
+      & \quad \quad
+      (r^{\uparrow}_{mul}, a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow}, a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow})) \\
   \end{aligned}
 \end{equation}
-where $r_{min}^{sub} = min(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
-and $r_{max}^{sub} = max(\{x - y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
-and $r_{min}^{mul} = min(\{x \cdot y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
-and $r_{max}^{mul} = max(\{x \cdot y \ | \ \forall x \in [r_l, r_h] \ \forall y \in [r'_l, r'_h]\})$
+where 
+$$r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+$$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+$$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+$$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 and term-level operations 
 $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul} \}$
 are given as follows:
@@ -112,6 +118,14 @@ d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
 $.
 \end{proof}
 
+Our interval operations are closed over intervals ($\mathbb{P}^2$).
+\begin{lemma}[Interval operations closure.]
+Each interval operation is closed over our intervals $\mathbb{P}^2$.
+\end{lemma}
+\begin{proof}
+Holds by inspection of our interval operations.
+\end{proof}
+
 Our operations satisfy metric preservation.
 % todo: these are closed over something other than num?
 
@@ -119,16 +133,8 @@ Our operations satisfy metric preservation.
 Each $\textbf{op} : \tau \in \Sigma$ satisfies metric preservation.
 \end{lemma}
 \begin{proof}
-Holds by unfolding.
-\end{proof}
-
-
-Moreover, our interval operations are closed over intervals ($\mathbb{P}^2$).
-\begin{lemma}[Interval operations closure.]
-Each interval operation is closed over our intervals $\mathbb{P}^2$.
-\end{lemma}
-\begin{proof}
-Holds by inspection.
+Holds by a case analysis for each operation in $\Sigma$ and unfolding the
+definition of metric.
 \end{proof}
 
 By stapling together the proceeding lemmas, the interface ($\mathbb{P}, d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) satisfy the interface for instantiating Numerical Fuzz specified in Definition~\ref{def:numfuzz-interface}.

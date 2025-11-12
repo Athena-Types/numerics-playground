@@ -587,7 +587,18 @@ soundness theorems to follow.
   \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Property of $\mathbf{op}$: metric preservation.] 
+  \item[c) Property of $\mathbf{iop}$: closure over intervals ($\textit{num}^2$).] We further need to
+    assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
+    have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
+    corresponding metalevel function will actually map concrete bounds to concrete bounds
+    where 
+    $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
+    holds.
+  \item[d) Property of $\mathbf{op}$: metric preservation.] 
+    \footnote{Note that we could make this portion of the interface more general
+    by definining it in terms of the logical relation in
+    Section~\ref{sec:logical-relation}. We have opted to
+  keep the interface minimal for presentational purposes.}
     We can view $\textit{op}$ as a (possibly constant) metalevel function.
     We also assume that for every operation has the following two shapes
     $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . (\textbf{num}_{\epsilon_0}
@@ -596,15 +607,13 @@ soundness theorems to follow.
     $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . (\textbf{num}_{\epsilon_0}
     \otimes \textbf{num}_{\epsilon_1}) \multimap \textbf{num}_i \in \ \Sigma$ 
     where for the corresponding $\textit{op} \ \bnd{\{i_0\}} \ \bnd{\{i_1\}} \
-    v$ we have a corresponding function $op$ mapping bounds and syntactic values
-    in
+    v$ for all $\bnd{i_0}, \bnd{i_1} \in \mathbb{P}^2$ 
+    and for all v mapping bounds and syntactic values in
     $(\textbf{num}_{\epsilon_0} \otimes \textbf{num}_{\epsilon_1})$
     and
     $(\textbf{num}_{\epsilon_0} \times \textbf{num}_{\epsilon_1})$
-    to $\textit{num}_i$ in a 1-sensitive manner as measured by $\mathcal{SD}$.
-    Note that we could make this portion of the interface more general by
-    definining it in terms of the logical relation below. We have opted to keep
-    the interface minimal for presentational purposes.
+    to $\textbf{num}_i$ is 1-sensitive as measured by $\mathcal{SD}$.
+
     % $\mathcal{VR}_{\tau}$ where 
     % metric preservation holds: For all $\sigma
     % \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
@@ -622,13 +631,6 @@ soundness theorems to follow.
     %     we have that
     %     $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
     % \end{description} 
-    \item[d) Property of $\mathbf{iop}$: closure over intervals ($\textit{num}^2$).] We further need to
-      assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
-      have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
-      corresponding metalevel function will actually map concrete bounds to concrete bounds
-      where 
-      $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
-      holds.
   % \item[c) Property of $\mathbf{op}$: metric preservation.] 
   %   We can view $\textit{op}$ as a (possibly constant) metalevel function.
   %   We also assume that for every operation
