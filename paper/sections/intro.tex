@@ -33,7 +33,7 @@ Formally, function sensitivity is defined below.
 In this paper, for every symbol $\phi$, $\tilde{\phi}$ represents the
 floating-point approximation of $\phi$.
 
-\begin{definition}[Lipschitz function senstivity]
+\begin{definition}[Lipschitz function sensitivity]
   For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
   $s$-sensitive if $\forall x, \tilde{x} \in X, d_Y(f(x), f(\tilde{x})) \leq s
   \cdot d_X(x, \tilde{x})$.
@@ -116,7 +116,7 @@ negative numbers in a finite-sensitive manner.
 We wish to turn our relative bounds on the paired components $a$ and $b$, into a
 useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce a useful
 bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
-\tilde{a} - \tilde{b}$. We detail two approaches towards covert relative bounds
+\tilde{a} - \tilde{b}$. We detail two approaches towards convert relative bounds
 on the paired components (e.g. $d(a, \tilde{a}), d(b, \tilde{b}) \leq q$) to
 relative bounds on $r$ and $\tilde{r}$ (e.g. bounds on $d(r, \tilde{r})$):
 \begin{description}
