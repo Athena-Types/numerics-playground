@@ -628,17 +628,20 @@ is non-structural below:
 A natural question to ask is whether the paired representation introduced in the
 proceeding section leads to looser error bounds on programs that could have been
 typed using the standard, unpaired representation. In the following section, we
-demonstrate that for the programs obtained using the unpaired representation,
-our bounds inferred through type inference and obtained through the paired
-representation are no looser than ????. % TODO
+demonstrate that for the programs obtained using the unpaired representation in
+Numerical Fuzz, our bounds inferred through type inference and obtained through
+our paired representation are no looser.
 
 To demonstrate this, we instantiate our language with the following interface
 $(\mathbb{P}^{+}, d, \rho_{\mathbb{P}}, u, \Sigma = \{ \mathbf{add},
-\mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where $\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ and $d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
-Let us write programs derivable in this type system using the $\vdash_{\mathbb{R}}$ judgement.
-We observe that programs step the same in both instantiations of the language
-and also that programs derivable in $\vdash_{\mathbb{R}}$ have the same type
-with $\vdash$.
+\mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where 
+$\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ 
+and 
+$d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
+Let us write programs derivable in this type system using the
+$\vdash_{\mathbb{R}}$ judgement. We observe that programs step the same in both
+instantiations of the language and also that programs derivable in
+$\vdash_{\mathbb{R}}$ have the same type with $\vdash$.
 \begin{lemma}[Derivablity]
 If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
 then
