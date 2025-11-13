@@ -102,11 +102,11 @@ programs will have the same type.}
 We now look for ways to avoid unnecessarily sequencing our computation so that
 the numerical analysis performed in the type system aligns better with the
 corresponding computation tree.
-We observe that the type $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
-\multimap M_q (\tau_0 \times \tau_1)$ is neither derivable nor admissible (but
-is proved sound in Theorem~\ref{thm:metric-preservation}). 
-Adding \textbf{factor} as a primitive would allow for balanced computation
-trees. 
+We observe that the primitive $\textbf{factor}: (M_q \tau_0) \times (M_q \tau_1)
+\multimap M_q (\tau_0 \times \tau_1)$ is sound 
+(proved in Theorem~\ref{thm:metric-preservation}) and also allows for balanced
+computation trees. 
+% todo: is it admissible or derivable?
 % It would also allow monadic types $M_q ~ \tau_0$ and $M_q \tau_1$ that
 % would ordinarily need to be sequenced in a manner that would prohibit the
 % sharing of contexts to be constructed with a shared $\Gamma$ and combined to
