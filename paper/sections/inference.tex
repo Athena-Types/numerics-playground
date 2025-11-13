@@ -624,66 +624,59 @@ is non-structural below:
 \end{description}
 \end{proof}
 
-\subsection{Tightness} \label{sec:tightness}
-A natural question to ask is whether the paired representation introduced in the
-proceeding section leads to looser error bounds on programs that could have been
-typed using the standard, unpaired representation. In the following section, we
-demonstrate that for the programs obtained using the unpaired representation in
-Numerical Fuzz, our bounds inferred through type inference and obtained through
-our paired representation are no looser.
-
-To demonstrate this, we instantiate our language with the following interface
-$(\mathbb{P}^{+}, d, \rho_{\mathbb{P}}, u, \Sigma = \{ \mathbf{add},
-\mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where 
-$\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ 
-and 
-$d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
-Let us write programs derivable in this type system using the
-$\vdash_{\mathbb{R}}$ judgement. We observe that programs step the same in both
-instantiations of the language and also that programs derivable in
-$\vdash_{\mathbb{R}}$ have the same type with $\vdash$.
-\begin{lemma}[Derivablity]
-If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
-then
-$\Delta \ | \ \Gamma \vdash e : \tau$ 
-\end{lemma}
-\begin{proof}
-  $\vdash_{\mathbb{R}}$ has strictly less operations and the associated rounding
-  functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
-\end{proof}
-
-We also observe that for a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, $q$ suffices to bound the
-maximum permitted round-off error.
-
-\begin{theorem}[Unpaired error theorem]
-For a program $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we have that $ e \mapsto^{*} ((r, a,
-b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
-\end{theorem}
-\begin{proof}
-  Holds by our logical relation and error metric.
-\end{proof}
-
-We further observe that for a program with non-negative numbers and only-growing
-functions (e.g. $\mathbf{add}, \mathbf{mul}$), our type inference algo 
-
-TODO: state type inference algo theorem. A bit out of order tho.
-
-We are now ready to state our tightness theorem which guarantees that the paired
-representation produced error bounds no looser than the unpaired representation.
-
-\begin{theorem}[Tightness]
-For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e :  M_q \mathbf{num}_i$ and $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where the following bounds are equivalent:
-\begin{itemize}
-  \item $q$
-  % \item $max(|ln(e^u + \frac{a}{r'}(1-e^{2u}))|,|ln(e^{-u} + \frac{a}{r'}(1-e^{-2u}))|)$
-  \item $max(|ln(e^{-u} + \frac{b}{r'}(e^{-2u}- 1))|,|ln(e^u + \frac{b}{r'}(e^{2u}-1))|)$ (a posteriori)
-  % \item $max(|ln(e^{u} + \frac{a}{a-b}(e^{-u}- e^{u}))|, |ln(e^{-u} + \frac{a}{a-b}(e^{u}- e^{-u}))|)$
-  \item $max(|ln(e^u + \frac{b}{a-b}(e^u - b e^{-u}))|,|ln(e^u + \frac{b}{a-b}(e^u - e^{-u}))|)$ (a priori)
-\end{itemize}
-\end{theorem}
-\begin{proof}
-Observe that $b$ is zero by construction of the unpaired instantiation of our
-language. TODO.
-\end{proof}
+% \subsection{Tightness} \label{sec:tightness}
+% A natural question to ask is whether the paired representation introduced in the
+% proceeding section leads to looser error bounds on programs that could have been
+% typed using the standard, unpaired representation. In the following section, we
+% demonstrate that for the programs obtained using the unpaired representation in
+% Numerical Fuzz, our bounds inferred through type inference and obtained through
+% our paired representation are no looser.
+%
+% To demonstrate this, we instantiate our language with the following interface
+% $(\mathbb{P}^{+}, d, \rho_{\mathbb{P}}, u, \Sigma = \{ \mathbf{add},
+% \mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where 
+% $\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ 
+% and 
+% $d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
+% Let us write programs derivable in this type system using the
+% $\vdash_{\mathbb{R}}$ judgement. We observe that programs step the same in both
+% instantiations of the language and also that programs derivable in
+% $\vdash_{\mathbb{R}}$ have the same type with $\vdash$.
+% \begin{lemma}[Derivablity]
+% If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
+% then
+% $\Delta \ | \ \Gamma \vdash e : \tau$ 
+% \end{lemma}
+% \begin{proof}
+%   $\vdash_{\mathbb{R}}$ has strictly less operations and the associated rounding
+%   functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
+% \end{proof}
+%
+% We also observe that for a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, $q$ suffices to bound the
+% maximum permitted round-off error.
+%
+% \begin{theorem}[Unpaired error theorem]
+% For a program $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we have that $ e \mapsto^{*} ((r, a,
+% b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
+% \end{theorem}
+% \begin{proof}
+%   Holds by our logical relation and error metric.
+% \end{proof}
+%
+% We are now ready to state our tightness theorem which guarantees that the paired
+% representation produced error bounds no looser than the unpaired representation.
+%
+% \begin{theorem}[Tightness]
+% For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e
+% :  M_q \mathbf{num}_i$ and $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where 
+% $d_{\mathbb{R}}(r, r') \leq q$.
+% \end{theorem}
+% \begin{proof}
+%   Unfold our logical relation and error metric. Note that our underlying carrier
+%   set of $\mathbb{P}$ is zeroed out in the last component. Therefore, $b = b' =
+%   b^{\uparrow} = b^{\downarrow} = 0$. By applying our a priori error theorem
+%   (Theorem~\ref{thm:paired-a-priori-rel}), we have our terms neatly zero out and
+%   simplify such that $d_{\mathbb{R}}(r, r') = ln(e^q) = q$.
+% \end{proof}
 
 % TODO: clarify how to start / use interval analysis, stitch together theorems
