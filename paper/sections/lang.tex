@@ -46,38 +46,40 @@ soundness.
 % We present the full syntax for types, terms, and evaluation contexts in
 % Figure~\ref{fig:syntax}. 
 
-Like many lambda calculi for linear type systems, we have variables, lambda
-abstraction and application, $\pi_i$ for projection, $in_i$ for injection, and
-two different types of products.
-Our term syntax has explicit terms to represent our effects (rounding to the
-nearest float: $\textbf{rnd}~e$) and coeffects (scaling sensitivity: $[e]$). For
-sequencing and structuring
-computation, we have $\textbf{let-bind}$ for sequencing monadic computation,
+Like many lambda calculi for linear type systems, our language supports
+variables, function abstraction and application, $\pi_i$ for projection, $in_i$
+for injection, and two different types of products.
+Our term syntax has explicit terms to represent our effectful computation
+(rounding to the nearest float: $\textbf{rnd}~e$) and coeffects (scaling
+sensitivity: $[e]$). We have several terms for sequencing and structuring
+computation. We have $\textbf{let-bind}$ for sequencing monadic computation,
 $\textbf{let-cobind}$ for sequencing comonadic computation, $\textbf{let-pair}$
 for unpacking tensors, and \textbf{case \ldots of \ldots} for unpacking sum
-types, and \textbf{let} for sequencing ordinary computation.
-Note that our term language is more expressive than Numerical Fuzz as we can
-bind and sequence expressions. 
+types, and \textbf{let} for sequencing variable assignment.
+Note that our term language is more expressive than Numerical Fuzz as we do not
+restrict the bound term in our let expressions to be values.
 
-Most exotically, we introduce a language for intervals (shown in
-Figure~\ref{fig:syntax}) as well as explicit terms to represent polymorphic
-abstraction $\bnd{(\Lambda \epsilon. e)}$ and instantiation $\bnd{(e \{i\})}$.
-This is useful for incorporating a interval analysis into the type system, which
-we detail in the following section.
+Our term language extends Numerical Fuzz's term language. We introduce a
+language for intervals (shown in Figure~\ref{fig:syntax}) as well as explicit
+terms to represent polymorphic abstraction $\bnd{(\Lambda \epsilon. e)}$ and
+instantiation $\bnd{(e \{i\})}$. This is useful for incorporating a interval
+analysis into the type system, which we detail in the following section.
 
 \input{sections/01-syntax.tex}
 
 \subsection{Types and static semantics}  \label{sec:static-semantics}
-Following Numerical Fuzz, our type system has monad types $M_u \tau$ for
-tracking the round-off error in $\tau$ and bounding it by a real, non-negative
-grade $u$, scaled metric types $!_s \tau$, and linear function types $\tau_0
-\multimap \tau$ for 1-sensitive functions.
+Following Numerical Fuzz, our type system has graded monad types $M_q \tau$ for
+bounding the round-off error in $\tau$ by a real, non-negative grade $q$, scaled
+metric types. We also have graded comonadic types $!_s \tau$ for bounding the
+sensitivity of a type $\tau$ by a real, non-negative grade $s$.
+Our language also supports linear function types $\tau_0 \multimap \tau$
+corresponding to 1-sensitive functions.
 
 Our typing judgements incorporate a graded effect and co-effect type system to
 simulatenously track round-off error and function sensitivity. For example, the
 following term with typing context and judgement indicates that the variable $x$
-is $s$-sensitive in the expression $e$ and has round-off error upper-bounded by
-$q$.
+is $s$-sensitive in the expression $e$ and has worst-case round-off error
+upper-bounded by $q$.
 \begin{equation}
   x :_s \tau_0 \vdash e : M_q \tau_1
 \end{equation}
@@ -88,7 +90,7 @@ Typing contexts have the following grammar: $\Gamma, \Delta ::= . | \Gamma, x :s
 variables $x$ to pairs of sensitivities and types $(s, \tau)$. Similarly to
 Numerical Fuzz, we can sum and scale typing contexts. We represent context
 scaling as $\Gamma + \Delta$ and scaling by a real $s$ as $s \cdot \Gamma$. We
-define pair and context summing and scaling below.
+define pair and context summing and scaling formally below.
 
 \begin{definition}[Pair summing]
   We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +
@@ -96,14 +98,14 @@ define pair and context summing and scaling below.
   equivalent.
 \end{definition}
 
-\begin{definition}[Pair scaling]
-  We can scale a pair of sensitivities and types $s' \cdot (s, \tau) (s' \cdot s
-  s', \tau)$. 
-\end{definition}
-
 \begin{definition}[Context summing]
   A context $\Theta = \Gamma + \Gamma'$ if and only if $\forall x, \theta(x) =
   \Gamma(x) + \Gamma'(x)$ and is well defined.
+\end{definition}
+
+\begin{definition}[Pair scaling]
+  We can scale a pair of sensitivities and types $s' \cdot (s, \tau) (s' \cdot s
+  s', \tau)$. 
 \end{definition}
 
 \begin{definition}[Context scaling]
@@ -115,20 +117,20 @@ define pair and context summing and scaling below.
 The introduction and elimaination rules for $\otimes$, $\times$, and $\multimap$
 mirror Numerical Fuzz and correspond to the standard introduction and
 elimination rules in linear logic.
-We are also able to scale typing contexts through the (! I) rule to instantiate
-functions with finitely scaled senstivity.
+We are also able to scale typing contexts through the (! I) rule. This is useful
+for instantiating functions with finitely scaled senstivity.
 
 The monadic grade upper-bounds the maximum possible round-off error possible.
 Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E),
 (Subsumption) are taken from Numerical Fuzz and are our core reasoning
-principles for reasoning about round-off error. Note that $M_u E$ is the
-characteristic rule that incorporates senstivity and round-off information.
-
-A helpful perspective to view error grades on a type $M_q \tau$ is as a linear
-resource; we describe this perspective in greater depth in
-Section~\ref{sec:structure} and remark on how we can use the new (Factor) rule
-to more richly structure and sequencing of arithmetic operations than prior
-work. We use the richer structure to obtain tighet error analyses.
+principles for reasoning about round-off error. Intuitively, (Ret) introduces no
+round-off error and (Rnd) introduces round-off error $u$ corresponding to the
+unit round-off constant. Note that $M_u E$ is the characteristic rule for
+\textbf{let-cobind} that incorporates senstivity and round-off information.
+Our language also introduces a new (Factor) rule for reasoning about monadic
+computations with round-off error, which allows for tighter error analyses. We
+detail the (Factor) rule and walk through an example in
+Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
 polymorphism. 
@@ -138,11 +140,10 @@ analysis by annotating $\textbf{num}_{\bnd{i}}$ types with a subscript bound
 with the grammar $\bnd{i}$ shown in Figure~\ref{fig:syntax}. 
 We also extend Numerical Fuzz by adding expressions in more places
 (e.g. the application rule) and a $\textbf{factor}$ primitive to enable tighter
-error bounds.
-
-We additionally modify our (Op) typing rule from Numerical Fuzz to support bound
-polymorphism. For presentational purposes, we present a restricted form of the
-typing rule to make the modular interface easier to follow.
+error bounds. To support operations that have polymorphic bounds, we
+additionally modify our (Op) typing rule from Numerical Fuzz.
+% For presentational purposes, we present a restricted form of the
+% typing rule to make the modular interface easier to follow.
 
 \begin{figure}
 %% ROW1
