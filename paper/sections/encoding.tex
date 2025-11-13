@@ -5,9 +5,9 @@ numbers.
 In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the
 modular interface defined in Definition~\ref{def:numfuzz-interface} using a
 $\textit{paired representation}$ introduced below. Then, in
-Section~\ref{sec:application} we demonstrate how to read out the
-$\textit{paired representation}$ as concrete bounds for standard, unpaired,
-floating-point arithmetic.
+Section~\ref{sec:application} we demonstrate how to read out the paired
+representation as concrete bounds for standard, unpaired, floating-point
+arithmetic.
 
 \subsection{Instantiation} \label{sec:instantiation}
 Our forwards error analysis relies on bounding Lipschitz function sensitivity.
@@ -20,15 +20,19 @@ To avoid this problem, we encode our semantics through a \textit{paired
 representation} where we associate for each real $r \in \mathbb{R}$ a class of
 triples
 $(r, a, b) \in \mathbb{P} = \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ 
-such that $r = a - b$. To soundly use our encoding, we must show it satisfies
-the correctness properties demanded by the modular interface defined in
+such that $r = a - b$. We equip our set with 
+a distance functionn $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b}))$
+forming a metric space.
+To soundly use our encoding, we must show it satisfies the correctness
+properties demanded by the modular interface defined in
 Section~\ref{sec:lang}.
 
-\begin{lemma}[$\mathbb{P}$ forms a metric space.]
+\begin{lemma}[Metric space]
+  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
 \end{lemma}
 \begin{proof}
-Symmetry and reflexivity hold trivially. Triangle inequality holds from triangle
-inequality on $d_{\mathbb{R}}$.
+Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
+and appliation of triangle inequality with respect to $d_{\mathbb{R}}$.
 \end{proof}
 
 % To avoid this problem, we encode our semantics through a \textit{paired

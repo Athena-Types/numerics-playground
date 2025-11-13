@@ -26,10 +26,10 @@ convergence, saturate rewrites, or bit-blast.
 \paragraph{Prior type-based work and limitations.} 
 In this paper, we extend Numerical Fuzz, an affine call-by-value graded type
 system for bounding round-off error. The core idea of Numerical Fuzz is to track
-two key properties of each function: the function sensitivity $s$ and the
-maximum error $q$ introduced by the function. Intuitively, $s$ upper-bounds the
-amount by which perturbations in a function's input affect its output. Formally,
-function sensitivity is defined below.
+two key properties of each function: (1) the function sensitivity $s$ and (2)
+the maximum error $q$ introduced by the function. Intuitively, $s$ upper-bounds
+the amount by which perturbations in a function's input affect its output.
+Formally, function sensitivity is defined below.
 In this paper, for every symbol $\phi$, $\tilde{\phi}$ represents the
 floating-point approximation of $\phi$.
 
