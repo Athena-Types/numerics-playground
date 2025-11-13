@@ -90,7 +90,7 @@ Typing contexts have the following grammar: $\Gamma, \Delta ::= . | \Gamma, x :s
 variables $x$ to pairs of sensitivities and types $(s, \tau)$. Similarly to
 Numerical Fuzz, we can sum and scale typing contexts. We represent context
 scaling as $\Gamma + \Delta$ and scaling by a real $s$ as $s \cdot \Gamma$. We
-define pair and context summing and scaling formally below.
+define pair context and scaling and then context summing and scaling below.
 
 \begin{definition}[Pair summing]
   We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +

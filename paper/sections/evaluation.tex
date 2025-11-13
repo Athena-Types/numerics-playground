@@ -6,8 +6,9 @@ We evaluate our implementation on speed and precision of the analysis against
 competiting tools on benchmarks in the FPBench benchmark suite \cite{fpbench}.
 For our comparison, we use the precision specified in the corresponding FPBench
 benchmark spec (e.g. \textsc{binary32}, \textsc{binary64}) and set the rounding
-mode to round towards zero. \footnote{The add-assoc benchmark is not from
-FPBench and is instead taken from our running example.}
+mode to round towards zero. 
+% \footnote{The add-assoc benchmark is not from FPBench and is instead taken
+% from our running example.}
 
 \paragraph{Supported operations.}
 Compared to Numerical Fuzz, our instantiation supports subtraction,
@@ -45,7 +46,7 @@ rigidBody2 & 2.035E-10 & 1.018E-10 & 7.213E-11 & 4.543E-11 &  &  &  &  \\
 matrixDeterminant & 2.265E-11 & 6.661E-12 & 7.006E-12 & 3.126E-12 &  &  &  &  \\
 test01\_sum3 & 1.431E-05 & 7.153E-06 & 3.576E-06 & 2.384E-06 &  &  &  &  \\
 kepler1 & 5.944E-12 & 2.843E-12 & 7.456E-13 & 3.918E-13 &  &  &  &  \\
-add-assoc* & 2.665E-12 & 1.776E-12 & 1.364E-12 & 9.095E-13 &  &  &  &  \\
+% add-assoc* & 2.665E-12 & 1.776E-12 & 1.364E-12 & 9.095E-13 &  &  &  &  \\
 \bottomrule
 \end{tabular}
 \caption{Comparison of the precision of PairFuzz (with and without
@@ -63,9 +64,11 @@ determine if a program can output zero, which would make relative error
 undefined.
 In Table~\ref{tab:bounds-rel}, we compare the precision of our relative error
 bounds against two alternative approaches.
-In the add-assoc and sqroot benchmark, all tools manage to bound away from zero.
-PairFuzz (with factor) produces the tightest error bound in add-assoc and
-produces competitive results in the sqroot benchmark. 
+In the sqroot benchmark, all tools manage to successfully bound away from zero
+and obtain competitive error bounds.
+% In the add-assoc and sqroot benchmark, all tools manage to bound away from zero.
+% PairFuzz (with factor) produces the tightest error bound in add-assoc and
+% produces competitive results in the sqroot benchmark. 
 
 \begin{footnotesize}
 \begin{table}[htbp]
@@ -79,7 +82,7 @@ kepler0 &  &  &  & 2.434E-15 &  &  &  &  \\
 sqroot & 3.775E-15 & 1.332E-15 & 1.202E-15 & 8.883E-16 &  &  &  &  \\
 test01\_sum3 &  &  &  & 5.427E-07 &  &  &  &  \\
 kepler1 &  &  &  & 7.654E-15 &  &  &  &  \\
-add-assoc & 6.661E-16 & 4.441E-16 & 6.661E-16 & 2.22E-15 &  &  &  &  \\
+% add-assoc & 6.661E-16 & 4.441E-16 & 6.661E-16 & 2.22E-15 &  &  &  &  \\
 \bottomrule
 \end{tabular}
 \caption{Comparison of the precision of PairFuzz (with and without
@@ -105,26 +108,26 @@ priori absolute error bounds.
 
 \begin{figure}[h]
   \centering
-  \begin{subfigure}{0.32\columnwidth}
+  \begin{subfigure}{0.48\columnwidth}
     \centering
     \includegraphics[width=\textwidth]{../plots/rigidBody1.pdf}
     % \caption{First diagram}
     \label{fig:sub1}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.32\columnwidth}
+  \begin{subfigure}{0.48\columnwidth}
     \centering
     \includegraphics[width=\textwidth]{../plots/rigidBody2.pdf}
     % \caption{Second diagram}
     \label{fig:sub2}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.32\columnwidth}
-    \centering
-    \includegraphics[width=\textwidth]{../plots/add-assoc.pdf}
-    % \caption{Second diagram}
-    \label{fig:sub2}
-  \end{subfigure}
+  % \begin{subfigure}{0.32\columnwidth}
+  %   \centering
+  %   \includegraphics[width=\textwidth]{../plots/add-assoc.pdf}
+  %   % \caption{Second diagram}
+  %   \label{fig:sub2}
+  % \end{subfigure}
   \caption{Plots of specific benchmarks where PairFuzz's posterori error bounds
     can sometimes be tighter than Gappa and FPTaylor. Each blue dot represents
     one input-output pair uniformly sampled from the input domain. The large
@@ -174,7 +177,7 @@ rigidBody2 & 0.02908 & FAIL & 0.008406 & \textbf{0.005789} & FAIL & 0.2029 \\
 matrixDeterminant & 0.08021 & FAIL & 0.01281 & \textbf{0.005085} & FAIL & 13.9 \\
 test01\_sum3 & 0.03723 & FAIL & 0.005074 & \textbf{0.004452} & 1.074 & 0.4695 \\
 kepler1 & 0.1617 & FAIL & \textbf{0.01291} & 0.0153 & 0.2746 & 14.1 \\
-add-assoc* & 0.01283 & 0.01406 & 0.002355 & \textbf{0.002266} & 0.2179 & 6.139 \\
+% add-assoc* & 0.01283 & 0.01406 & 0.002355 & \textbf{0.002266} & 0.2179 & 6.139 \\
 \bottomrule
 \end{tabular}
 \caption{End to end timings of each tool run on each benchmark in seconds. Each

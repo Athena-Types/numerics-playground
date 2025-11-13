@@ -363,11 +363,16 @@ ignore that case here.
 \begin{corollary}
   For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
   (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of
-  the following bounds: 
-\begin{enumerate}
-  \item $max(|ln(e^q + \frac{a}{r'}(1-e^{2q}))|,|ln(e^{-q} + \frac{a}{r'}(1-e^{-2q}))|)$
-  \item $max(|ln(e^{-q} + \frac{b}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b}{r'}(e^{2q}-1))|)$
-\end{enumerate}
+  the following bounds if $0 < r'$:
+  \begin{enumerate}
+    \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|)$
+    \item[(b)] $max(|ln(e^{-q} + \frac{b^{\uparrow}}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{2q}-1))|)$
+  \end{enumerate}
+  and the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
 \end{corollary} 
 \begin{proof}
   By our logical relation and metric preservation theorem (Theorem
