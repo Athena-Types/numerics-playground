@@ -1,0 +1,7 @@
+{
+Variables
+	float64 x in [-2, 2];
+
+Expressions
+	sineOrder3 = rnd64_0(rnd64_0(rnd64_0(954929658551372e-15) * x) - rnd64_0(rnd64_0(12900613773279798e-17) * rnd64_0(rnd64_0(x * x) * x)));
+}

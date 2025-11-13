@@ -1,0 +1,15 @@
+{
+Variables
+	float64 a in [-10, 10];
+	float64 b in [-10, 10];
+	float64 c in [-10, 10];
+	float64 d in [-10, 10];
+	float64 e in [-10, 10];
+	float64 f in [-10, 10];
+	float64 g in [-10, 10];
+	float64 h in [-10, 10];
+	float64 i in [-10, 10];
+
+Expressions
+	matrixDeterminant2 = rnd64_0(rnd64_0(rnd64_0(a * rnd64_0(e * i)) + rnd64_0(rnd64_0(g * rnd64_0(b * f)) + rnd64_0(c * rnd64_0(d * h)))) - rnd64_0(rnd64_0(e * rnd64_0(c * g)) + rnd64_0(rnd64_0(i * rnd64_0(b * d)) + rnd64_0(a * rnd64_0(f * h)))));
+}

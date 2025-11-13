@@ -1,0 +1,12 @@
+{
+Variables
+	float64 x1 in [-5, 5];
+	float64 x2 in [-5, 5];
+
+Definitions
+	a = rnd64_0(rnd64_0(rnd64_0(x1 * x1) + x2) - rnd64_0(11));
+	b = rnd64_0(rnd64_0(x1 + rnd64_0(x2 * x2)) - rnd64_0(7));
+
+Expressions
+	himmilbeau = rnd64_0(rnd64_0(a * a) + rnd64_0(b * b));
+}
