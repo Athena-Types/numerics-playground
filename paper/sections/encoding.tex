@@ -169,8 +169,8 @@ ignore that case here.
   we have that $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
   following bounds: 
 \begin{enumerate}
-  \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q}))|)$
-  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^q + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
 \end{enumerate} 
 \end{theorem}
 \begin{proof}
@@ -181,19 +181,19 @@ ignore that case here.
   \begin{aligned}[c]
   1 \leq 
   \frac{r'}{r} \leq
-  \frac{a' - be^q}{a - b} =
-  \frac{a' - be^q + ae^q - ae^q}{a - b} \\ =
-  e^q + \frac{a' - ae^q}{a - b} \leq
-  e^q + \frac{ae^{-q} - ae^q}{a - b} =
-  e^q + \frac{a}{a - b}(e^{-q} - e^q) \\ \leq
-  e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q) 
+  \frac{a' - be^{-q}}{a - b} =
+  \frac{a' - be^{-q} + ae^{-q} - ae^{-q}}{a - b} \\ =
+  e^{-q} + \frac{a' - ae^{-q}}{a - b} \leq
+  e^{-q} + \frac{ae^{q} - ae^{-q}}{a - b} =
+  e^{-q} + \frac{a}{a - b}(e^{q} - e^{-q}) \\ \leq
+  e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}) 
   \end{aligned}
   \end{equation}
   Therefore, 
   \begin{equation} \label{eq:a-priori-bnd-a-pos}
   \begin{aligned}[c]
   0 \leq ln(\frac{r'}{r}) \leq 
-  ln(e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q))
+  ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))
   \end{aligned}
   \end{equation}
   In the second case, we have:
@@ -201,19 +201,19 @@ ignore that case here.
   \begin{aligned}[c]
     1 \geq
     \frac{r'}{r} \geq
-    \frac{a' - be^{-q}}{a - b} = 
-    \frac{a' - be^{-q} + ae^{-q} - ae^{-q}}{a - b} \\ =
-    e^{-q} + \frac{a' - ae^{-q}}{a - b} \geq
-    e^{-q} + \frac{ae^{q} - ae^{-q}}{a - b} = 
-    e^{-q} + \frac{a}{a-b}(e^{q} - e^{-q}) \\ \geq
-    e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q})
+    \frac{a' - be^{q}}{a - b} = 
+    \frac{a' - be^{q} + ae^{q} - ae^{q}}{a - b} \\ =
+    e^{q} + \frac{a' - ae^{q}}{a - b} \geq
+    e^{q} + \frac{ae^{-q} - ae^{q}}{a - b} = 
+    e^{q} + \frac{a}{a-b}(e^{-q} - e^{q}) \\ \geq
+    e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q})
   \end{aligned}
   \end{equation}
   Therefore, 
   \begin{equation} \label{eq:a-priori-bnd-a-neg}
   \begin{aligned}[c]
     0 \geq ln(\frac{r'}{r}) \geq
-    ln(e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q}))
+    ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))
   \end{aligned}
   \end{equation}
 
@@ -228,8 +228,8 @@ ignore that case here.
   a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
   following bounds: 
 \begin{enumerate}
-  \item $max(|ln(e^q + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{-q} - e^q))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{q} - e^{-q}))|)$
-  \item $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^q + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
 \end{enumerate} 
 \end{corollary} 
 \begin{proof}
@@ -408,7 +408,7 @@ ignore that case here.
       \begin{equation}
         \begin{aligned}
           (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
-                              &\leq a^{\uparrow} - b^{\downarrow} - (a^{\uparrow}e^{-q} - a^{\downarrow}e^{q}) \\
+                              &= a(1-e^{-q}) - b(1 - e^q)
                               &= a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)
         \end{aligned}
       \end{equation}
@@ -416,7 +416,7 @@ ignore that case here.
       \begin{equation}
         \begin{aligned}
           (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
-                              &\leq a^{\downarrow} - b^{\uparrow} - (a^{\downarrow}e^{-q} - a^{\uparrow}e^{q}) \\
+                              &= a(1-e^{-q}) - b(1 - e^q)
                               &= a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)
         \end{aligned}
       \end{equation}
@@ -424,7 +424,7 @@ ignore that case here.
       \begin{equation}
         \begin{aligned}
           (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
-                              &\leq ((a^{\uparrow}e^q - b^{\downarrow}e^{-q}) - (a^{\uparrow}- b^{\downarrow}))\\
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
                               &= a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)
         \end{aligned}
       \end{equation}
@@ -432,8 +432,8 @@ ignore that case here.
       \begin{equation}
         \begin{aligned}
           (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
-                              &\leq ((a^{\downarrow}e^q - b^{\uparrow}e^{-q}) - (a^{\downarrow}- b^{\uparrow}))\\
-                              &= a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
         \end{aligned}
       \end{equation}
   \end{description}
