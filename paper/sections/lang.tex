@@ -134,7 +134,7 @@ Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
 polymorphism. 
-In the (Widen), (\bnd{\textbf{bvar}}), (\bnd{\textbf{bop}}), ($\forall-I$), and
+In the (\bnd{Widen}), (\bnd{Bvar}), (\bnd{Bop}), ($\forall-I$), and
 ($\forall-E$) rules, we further extend Numerical Fuzz with an interval-style
 analysis by annotating $\textbf{num}_{\bnd{i}}$ types with a subscript bound
 with the grammar $\bnd{i}$ shown in Figure~\ref{fig:syntax}. 
@@ -278,7 +278,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 %% widen
 \AXC{$(k_0, k_1) \sqsubseteq (k'_0, k'_1)$}
 \AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{(k_0, k_1)}}$}
-\RightLabel{(Widen)}
+\RightLabel{(\bnd{Widen})}
 \BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{(k'_0, k'_1)}}$}
 \bottomAlignProof
 \DisplayProof
@@ -338,7 +338,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 % bvar
 \AXC{}
-\RightLabel{($\bnd{\textbf{bvar}}$)}
+\RightLabel{($\bnd{\text{Bvar}}$)}
 \UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
@@ -347,7 +347,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \AXC{$\ldots$}
 \AXC{$\Delta \vdash b_c : \textbf{bnd}$}
 \AXC{$\textbf{iop}_c \in \Sigma_{\textbf{bnd}}$}
-\RightLabel{(\bnd{$\textbf{b}$\textbf{op}})}
+\RightLabel{(\bnd{\text{Bop}})}
 \QIC{$\Delta \vdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
