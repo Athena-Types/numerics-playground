@@ -20,9 +20,9 @@ future direction in future work.
 \paragraph{Precision on absolute error.}
 We compare the precision of our absolute error bounds against two alternative
 approaches: FPTaylor \cite{fptaylor} and Gappa \cite{gappa}. In all of the
-examples in Table~\ref{tab:bounds-abs}, we can see that PairFuzz's bounds are
+examples in Table~\ref{tab:bounds-abs}, we can see that NegFuzz's bounds are
 tighter when \textbf{factor} is used.
-We also observe that PairFuzz (with factor) obtains competitive bounds within an
+We also observe that NegFuzz (with factor) obtains competitive bounds within an
 order of magnitude with Gappa and FPTaylor, and occasionally produces tighter
 bounds than Gappa.
 
@@ -31,25 +31,25 @@ bounds than Gappa.
 \centering
 \begin{tabular}{lllllllll}
 \toprule
-Benchmark & PairFuzz (no factor) & PairFuzz (with factor) & Gappa & FPTaylor &  &  &  &  \\
+Benchmark & NegFuzz (no factor) & NegFuzz (with factor) & Gappa & FPTaylor &  &  &  &  \\
 \midrule
 sum & 2.665E-14 & 1.332E-14 & 6.661E-15 & 4.441E-15 &  &  &  &  \\
 kepler0 & 9.534E-13 & 6.810E-13 & 1.982E-13 & 1.171E-13 &  &  &  &  \\
 % shoelace-formula & 3.997E-09 & \textbf{1.998E-09} &  &  &  &  &  &  \\
 himmilbeau & 4.746E-11 & 2.531E-12 & 2.000E-12 & 1.180E-12 &  &  &  &  \\
 sineOrder3 & 9.385E-15 & 6.704E-15 & 2.069E-15 & 9.206E-16 &  &  &  &  \\
-matrixDeterminant2 & 9.059E-11 & 2.665E-12 & 7.006E-12 & 3.126E-12 &  &  &  &  \\
-rigidBody1 & 1.839E-13 & 1.532E-13 & 5.898E-13 & 4.263E-13 &  &  &  &  \\
+matrixDeterminant2 & 9.059E-11 & 2.665E-11 & 7.006E-12 & 3.126E-12 &  &  &  &  \\
+rigidBody1 & 1.839E-12 & 1.532E-12 & 5.898E-13 & 4.263E-13 &  &  &  &  \\
 delta4 & 1.144E-12 & 5.004E-13 & 1.768E-13 & 1.154E-13 &  &  &  &  \\
 sqroot & 4.857E-15 & 1.332E-15 & 1.041E-15 & 9.714E-16 &  &  &  &  \\
 rigidBody2 & 1.351E-09 & 6.757E-10 & 7.213E-11 & 4.543E-11 &  &  &  &  \\
-matrixDeterminant & 9.059E-11 & 2.665E-12 & 7.006E-12 & 3.126E-12 &  &  &  &  \\
+matrixDeterminant & 9.059E-11 & 2.665E-11 & 7.006E-12 & 3.126E-12 &  &  &  &  \\
 test01\_sum3 & 1.431E-05 & 7.153E-06 & 3.576E-06 & 2.384E-06 &  &  &  &  \\
 kepler1 & 5.944E-12 & 2.843E-12 & 7.456E-13 & 3.918E-13 &  &  &  &  \\
 % add-assoc* & 2.665E-12 & 1.776E-12 & 1.364E-12 & 9.095E-13 &  &  &  &  \\
 \bottomrule
 \end{tabular}
-\caption{Comparison of the precision of PairFuzz (with and without
+\caption{Comparison of the precision of NegFuzz (with and without
 \textbf{factor}) against Gappa and FPTaylor. All bounds are absolute error
 bounds.}
 \label{tab:bounds-abs}
@@ -67,7 +67,7 @@ bounds against two alternative approaches.
 In the sqroot benchmark, all tools manage to successfully bound away from zero
 and obtain competitive error bounds.
 % In the add-assoc and sqroot benchmark, all tools manage to bound away from zero.
-% PairFuzz (with factor) produces the tightest error bound in add-assoc and
+% NegFuzz (with factor) produces the tightest error bound in add-assoc and
 % produces competitive results in the sqroot benchmark. 
 
 \begin{footnotesize}
@@ -75,7 +75,7 @@ and obtain competitive error bounds.
 \centering
 \begin{tabular}{lllllllll}
 \toprule
-Benchmark & PairFuzz (no factor) & PairFuzz (with factor) & Gappa & FPTaylor &  &  &  &  \\
+Benchmark & NegFuzz (no factor) & NegFuzz (with factor) & Gappa & FPTaylor &  &  &  &  \\
 \midrule
 sum &  &  &  & 1.011E-15 &  &  &  &  \\
 kepler0 &  &  &  & 2.434E-15 &  &  &  &  \\
@@ -85,7 +85,7 @@ kepler1 &  &  &  & 7.654E-15 &  &  &  &  \\
 % add-assoc & 6.661E-16 & 4.441E-16 & 6.661E-16 & 2.22E-15 &  &  &  &  \\
 \bottomrule
 \end{tabular}
-\caption{Comparison of the precision of PairFuzz (with and without
+\caption{Comparison of the precision of NegFuzz (with and without
   \textbf{factor}) against Gappa and FPTaylor. All bounds are relative error
   bounds. Blank entries indicate where the tools had trouble bounding the result
   away from zero due to the presence of subtraction or negative numbers. On 8 of
@@ -101,7 +101,7 @@ potential utility of a posterori absolute error bounds against the more standard
 a priori error bounds given by Gappa and FPTaylor, we uniformly sample from the
 input range of each benchmark and scatter-plot the corresponding bound. For the
 benchmarks in Figure~\ref{fig:mixed-story} , we can see a mixed story: there are
-program inputs under which PairFuzz will sometimes provide tighter absolute
+program inputs under which NegFuzz will sometimes provide tighter absolute
 error error bounds. For the other 11 benchmarks, the advantages of an a
 posteriori error bound is less clear; Gappa and FPTaylor will produce tighter a
 priori absolute error bounds.
@@ -128,7 +128,7 @@ priori absolute error bounds.
   %   % \caption{Second diagram}
   %   \label{fig:sub2}
   % \end{subfigure}
-  \caption{Plots of specific benchmarks where PairFuzz's posterori error bounds
+  \caption{Plots of specific benchmarks where NegFuzz's posterori error bounds
     can sometimes be tighter than Gappa and FPTaylor. Each blue dot represents
     one input-output pair uniformly sampled from the input domain. The large
     dashed red lines represent the a priori absolute error bound given by Gappa
@@ -138,14 +138,14 @@ priori absolute error bounds.
 \end{figure}
 
 \paragraph{Performance.}
-We now compare the performance of our PairFuzz implementation. Both FPTaylor and
+We now compare the performance of our NegFuzz implementation. Both FPTaylor and
 Gappa take different time based on whether absolute or relative error is being
-calculuated. As PairFuzz's error analysis relies only on the type information,
+calculuated. As NegFuzz's error analysis relies only on the type information,
 computing both the relative and absolute error bounds incurrs minimal overhead
 compared to only computing one error bound. Accordingly, our implementation
 reports both the relative and abslute error bounds simultaneously.
 
-Several of the benchmarks take on the order of milliseconds for PairFuzz and
+Several of the benchmarks take on the order of milliseconds for NegFuzz and
 Gappa to compute. To minimize system noise due to disk reading and caches, we
 measure each benchmark by running the benchmark 5 times to warmup the disk
 caches and take the median wall-clock time of 50 benchmark runs. All
@@ -163,7 +163,7 @@ factor in all but one of our benchmarks.
 \centering
 \begin{tabular}{llllllllll}
 \toprule
-Benchmark & Gappa (abs.) & Gappa (rel.) & PairFuzz (no factor) & PairFuzz (with factor) & FPTaylor (rel.) & FPTaylor (abs.) \\
+Benchmark & Gappa (abs.) & Gappa (rel.) & NegFuzz (no factor) & NegFuzz (with factor) & FPTaylor (rel.) & FPTaylor (abs.) \\
 \midrule
 sum & 0.02253 & FAIL & 0.005026 & \textbf{0.00447} & 0.781 & 0.3981 \\
 kepler0 & 0.04553 & FAIL & 0.007683 & \textbf{0.008623} & 2.28 & 14.85 \\
