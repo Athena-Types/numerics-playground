@@ -251,73 +251,21 @@ ignore that case here.
     \item $b \in [b^{\downarrow}, b^{\uparrow}]$
   \end{enumerate}
   and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
-  to all of the following bounds if $0 < r'$: 
+  to all of the following bounds: 
   \begin{enumerate}
-    \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|)$
-    \item[(b)] $max(|ln(e^{-q} + \frac{b^{\uparrow}}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{2q}-1))|)$
-  \end{enumerate}
-  and the following bounds if $r' < 0$:
-  \begin{enumerate}
-    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
-    \item[(d)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
   \end{enumerate}
 \end{theorem} 
 \begin{proof}
   We first examine the scenario where $0 < r'$.
-  Similarly to the previous theorem, there are two cases, $r \leq r'$ or $r >
-  r'$. In the first case, we wish to minimize $a-b$ and maximize $a' - b'$. So, 
+  Similarly to the previous theorem, there are two subcases, $r' \leq r$ or $r' >
+  r$. In the first case, we wish to maximize the numerator and minimize the
+  denominator. So, 
   \begin{equation}
   \begin{aligned}[c]
     1 \leq
-    \frac{r'}{r} \leq
-    \frac{a - b'e^q}{a' - b'} =
-    \frac{a - b' e^q + a'e^q - a'e^q}{a' - b'} \\ =
-    e^q + \frac{a - a'e^q}{a' - b'} \leq
-    e^q + \frac{a - ae^{2q}}{a' - b'} =
-    e^q + \frac{a}{r'}(1-e^{2q}) \\ \leq
-    e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q})
-  \end{aligned}
-  \end{equation}
-  Therefore,
-  \begin{equation} \label{eq:a-posterori-bnd-a-pos}
-  \begin{aligned}[c]
-  0 \leq ln(\frac{r'}{r}) \leq 
-  ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))
-  \end{aligned}
-  \end{equation}
-  Similarly, for the other case, we have:
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \geq
-    \frac{r}{r'} \geq
-    \frac{a - b'e^{-q}}{a' - b'} =
-    \frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
-    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \geq
-    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
-    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \geq
-    e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q})
-  \end{aligned}
-  \end{equation}
-  Therefore, 
-  \begin{equation} \label{eq:a-posterori-bnd-a-neg}
-  \begin{aligned}[c]
-    0 \geq ln(\frac{r'}{r}) \geq
-    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))
-  \end{aligned}
-  \end{equation}
-  A sound bound for both cases is absolute value of the the maximum of
-  Equation~\ref{eq:a-posterori-bnd-a-pos} and Equation~\ref{eq:a-posterori-bnd-a-neg},
-  which is exactly our first bound (a). The proof strategy for the second bound
-  (b) mirrors that of the first bound.
-
-  We now examine the scenario where $r' < 0$. This scenario largely mirrors the
-  first one, except some directions are flipped.
-  Similarly to the previous theorem, there are two cases, $r \leq r'$ or $r >
-  r'$. In the first case, we wish to minimize $a-b$ and maximize $a' - b'$. So, 
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \leq
-    \frac{r'}{r} \leq
+    \frac{r}{r'} \leq
     \frac{a - b'e^{-q}}{a' - b'} =
     \frac{a - b' e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
     e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \leq
@@ -327,7 +275,7 @@ ignore that case here.
   \end{aligned}
   \end{equation}
   Therefore,
-  \begin{equation} \label{eq:a-posterori-bnd-a-pos-neg}
+  \begin{equation} \label{eq:a-posterori-bnd-a-pos}
   \begin{aligned}[c]
   0 \leq ln(\frac{r'}{r}) \leq 
   ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))
@@ -347,10 +295,61 @@ ignore that case here.
   \end{aligned}
   \end{equation}
   Therefore, 
-  \begin{equation} \label{eq:a-posterori-bnd-a-neg-neg}
+  \begin{equation} \label{eq:a-posterori-bnd-a-neg}
   \begin{aligned}[c]
     0 \geq ln(\frac{r'}{r}) \geq
-    ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))
+    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))
+  \end{aligned}
+  \end{equation}
+  A sound bound for both cases is absolute value of the the maximum of
+  Equation~\ref{eq:a-posterori-bnd-a-pos} and Equation~\ref{eq:a-posterori-bnd-a-neg},
+  which is exactly our first bound (a). The proof strategy for the second bound
+  (b) mirrors that of the first bound.
+
+  We now examine the scenario where $r' < 0$. Recall that we assume that $r$ and
+  $r'$ have the same sign.
+  This scenario largely mirrors the first one, except some directions are
+  flipped. Similarly to the previous case, there are two subcases, $r' \leq r$
+  or $r' > r$. In the first case, we wish to maximize our numerator and minimize
+  our denominator. 
+  So, 
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r}{r'} \geq
+    \frac{a - b'e^{-q}}{a' - b'} =
+    \frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
+    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \geq
+    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
+    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \geq
+    e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-posterori-bnd-a-pos-neg}
+  \begin{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \leq
+    \frac{r}{r'} \leq
+    \frac{a - b'e^{q}}{a' - b'} =
+    \frac{a - b' e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
+    e^{q} + \frac{a - a'e^{q}}{a' - b'} \leq
+    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
+    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \leq
+    e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q})
+  \end{aligned}
+  \end{equation}
+  Therefore,
+  \begin{equation} \label{eq:a-posterori-bnd-a-neg-neg}
+  \begin{aligned}[c]
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))
   \end{aligned}
   \end{equation}
   A sound bound for both cases is absolute value of the the maximum of
@@ -358,20 +357,21 @@ ignore that case here.
   Equation~\ref{eq:a-posterori-bnd-a-neg-neg}, which is exactly our first bound
   (c). The proof strategy for the second bound (d) mirrors that of the first
   bound.
+  We finally observe the bounds if $r' < 0$ and $r' > 0$ produce the same
+  bounds.
+  \begin{enumerate}
+    \item[(1)] $max(|ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(2)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
 \end{proof}
 
 \begin{corollary}
   For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
   (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of
-  the following bounds if $0 < r'$:
+  the following bounds:
   \begin{enumerate}
-    \item[(a)] $max(|ln(e^q + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|)$
-    \item[(b)] $max(|ln(e^{-q} + \frac{b^{\uparrow}}{r'}(e^{-2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{2q}-1))|)$
-  \end{enumerate}
-  and the following bounds if $r' < 0$:
-  \begin{enumerate}
-    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
-    \item[(d)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+    \item[(a)] $max(|ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
   \end{enumerate}
 \end{corollary} 
 \begin{proof}
