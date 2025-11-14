@@ -32,7 +32,7 @@ fn main() {
     let mut eps_c = AtomicUsize::new(0);
     let (ctx, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
     //eprintln!("final ctx: {:?}", ctx);
-    //eprintln!("final ty: {:#?}", ty);
+    eprintln!("final ty: {:#?}", ty);
     let bound_a_priori_rel = fuzzrs::analysis::a_priori_bound_rel(ty.clone());
     println!("final bound (pre, rel): {:?}", bound_a_priori_rel);
     let bound_a_priori_abs = fuzzrs::analysis::a_priori_bound_abs(ty.clone());

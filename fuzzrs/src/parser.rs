@@ -83,6 +83,32 @@ pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> Vec<(String, (Expr
     decls
 }
 
+pub fn interval_translate(lower_bound : Float, upper_bound : Float) -> ((Float, Float, Float),
+(Float, Float, Float)) 
+{
+    let mut lb_pos = 0.0;
+    let mut lb_neg = 0.0;
+    let mut ub_pos = 0.0;
+    let mut ub_neg = 0.0;
+
+    if lower_bound >= 0.0 {
+        lb_pos = lower_bound;
+        ub_pos = upper_bound
+        //lb_neg = 0.0;
+        //ub_neg = 0.0;
+    } else {
+        if upper_bound >= 0.0 {
+            ub_pos = upper_bound;
+            ub_neg = -lower_bound;
+        } else {
+            ub_neg = -upper_bound;
+            lb_neg = -lower_bound;
+        }
+    }
+
+    return ((lower_bound, lb_pos, lb_neg), (upper_bound, ub_pos, ub_neg))
+}
+
 pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
     let mut iterator = input.into_inner();
     let mut name = parse_name(iterator.next().unwrap());
@@ -96,25 +122,11 @@ pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
             .as_str().to_string().parse::<Float>().unwrap();
         bounds.push((lower_bound.clone(), upper_bound.clone()));
 
-        let mut lb_pos = 0.0;
-        let mut lb_neg = 0.0;
-        if lower_bound >= 0.0 {
-            lb_pos = lower_bound;
-        } else {
-            lb_neg = -lower_bound;
-        }
-
-        let mut ub_pos = 0.0;
-        let mut ub_neg = 0.0;
-        if upper_bound >= 0.0 {
-            ub_pos = upper_bound;
-        } else {
-            ub_neg = -upper_bound;
-        }
+        let (lower_triple, upper_triple) = interval_translate(lower_bound, upper_bound);
 
         name = Expr::PolyInst(
             Box::new(name), 
-            Box::new(Interval::Const((lower_bound, lb_pos, lb_neg), (upper_bound, ub_pos, ub_neg)))
+            Box::new(Interval::Const(lower_triple, upper_triple))
         );
     }
     name

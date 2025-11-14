@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 
 use fuzzrs::{RawLang, Rule};
+use fuzzrs::parser;
 use pest::Parser;
 
 #[test]
@@ -79,4 +80,15 @@ fn test_parse_programs_load_into_one_expr() {
         }
     }
     assert_eq!(counter, 33);
+}
+
+#[test]
+fn test_interval_translate() {
+    let r = fuzzrs::parser::interval_translate(-5.0, 5.0);
+    assert_eq!(r, ((-5.0, 0.0, 0.0), (5.0, 5.0, 5.0)));
+
+    let r = fuzzrs::parser::interval_translate(0.0, 5.0);
+    assert_eq!(r, ((0.0, 0.0, 0.0), (5.0, 5.0, 0.0)));
+    let r = fuzzrs::parser::interval_translate(-3.0, 1.0);
+    assert_eq!(r, ((-3.0, 0.0, 0.0), (1.0, 1.0, 3.0)));
 }
