@@ -12,6 +12,8 @@ use crate::exprs::*;
 use crate::typer::Interval::*;
 use crate::typer::Interval;
 
+// TODO: add sanity check that bounds maintain the interval invariant
+
 pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
     let e1 = eps_c.fetch_add(1, Ordering::SeqCst);
     let e2 = eps_c.fetch_add(1, Ordering::SeqCst);

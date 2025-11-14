@@ -35,12 +35,12 @@ pub fn a_priori_bound_rel(t : Ty) -> Option<Float> {
                     let e_q = q.exp();
                     let e_neg_q = (-q).exp();
 
-                    let b_1_1 = e_q + a_up * (1.0 / r_down) * (e_neg_q - e_q);
-                    let b_1_2 = e_neg_q + a_down * (1.0 / r_up) * (e_q - e_neg_q);
+                    let b_1_1 = e_neg_q + a_up * (1.0 / r_down) * (e_q - e_neg_q);
+                    let b_1_2 = e_q + a_down * (1.0 / r_up) * (e_neg_q - e_q);
                     let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
                     let b_2_1 = e_q + b_up * (1.0 / r_down) * (e_q - e_neg_q);
-                    let b_2_2 = e_q + b_down * (1.0 / r_up) * (e_neg_q - e_q);
+                    let b_2_2 = e_neg_q + b_down * (1.0 / r_up) * (e_neg_q - e_q);
                     let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
                     //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
                     //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
@@ -65,12 +65,12 @@ pub fn a_posteriori_bound_rel(t : Ty, r_actual : Float) -> Option<Float> {
                     let e_2q = (2.0*q).exp();
                     let e_neg_2q = (-2.0*q).exp();
                     if 0.0 < r_actual {
-                        let b_1_1 = e_q + a_up * (1.0 / r_actual) * (1.0 - e_2q);
-                        let b_1_2 = e_neg_q + a_down * (1.0 / r_actual) * (1.0 - e_neg_2q);
+                        let b_1_1 = e_neg_q + a_up * (1.0 / r_actual) * (1.0 - e_neg_2q);
+                        let b_1_2 = e_neg_q + a_down * (1.0 / r_actual) * (1.0 - e_2q);
                         let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
-                        let b_2_1 = e_neg_q + b_up * (1.0 / r_actual) * (e_neg_2q - 1.0);
-                        let b_2_2 = e_q + b_down * (1.0 / r_actual) * (e_2q - 1.0);
+                        let b_2_1 = e_q + b_up * (1.0 / r_actual) * (e_2q - 1.0);
+                        let b_2_2 = e_q + b_down * (1.0 / r_actual) * (e_neg_2q - 1.0);
                         let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
                         //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
                         //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
@@ -78,12 +78,12 @@ pub fn a_posteriori_bound_rel(t : Ty, r_actual : Float) -> Option<Float> {
                         //eprintln!("{:?}", bnd);
                         return Some(bnd);
                     } else {
-                        let b_1_1 = e_neg_q + a_up * (1.0 / r_actual) * (1.0 - e_neg_2q);
-                        let b_1_2 = e_q + a_down * (1.0 / r_actual) * (1.0 - e_2q);
+                        let b_1_1 = e_neg_q + a_down * (1.0 / r_actual) * (1.0 - e_neg_2q);
+                        let b_1_2 = e_neg_q + a_up * (1.0 / r_actual) * (1.0 - e_2q);
                         let b_1 = max(b_1_1.ln().abs(), b_1_2.ln().abs());
 
-                        let b_2_1 = e_q + b_up * (1.0 / r_actual) * (e_2q - 1.0);
-                        let b_2_2 = e_neg_q + b_down * (1.0 / r_actual) * (e_neg_2q - 1.0);
+                        let b_2_1 = e_q + b_down * (1.0 / r_actual) * (e_2q - 1.0);
+                        let b_2_2 = e_q + b_up * (1.0 / r_actual) * (e_neg_2q - 1.0);
                         let b_2 = max(b_2_1.ln().abs(), b_2_2.ln().abs());
                         //eprintln!("b_1: {:?} {:?}", b_1_1.ln().abs(), b_1_2.ln().abs());
                         //eprintln!("b_2: {:?} {:?}", b_2_1.ln().abs(), b_2_2.ln().abs());
