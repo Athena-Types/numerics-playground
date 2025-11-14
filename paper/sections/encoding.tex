@@ -251,10 +251,15 @@ ignore that case here.
     \item $b \in [b^{\downarrow}, b^{\uparrow}]$
   \end{enumerate}
   and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
-  to all of the following bounds: 
+  to the following bounds if $0 < r'$: 
   \begin{enumerate}
     \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
     \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+  and to the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
   \end{enumerate}
 \end{theorem} 
 \begin{proof}
@@ -357,21 +362,20 @@ ignore that case here.
   Equation~\ref{eq:a-posterori-bnd-a-neg-neg}, which is exactly our first bound
   (c). The proof strategy for the second bound (d) mirrors that of the first
   bound.
-  We finally observe the bounds if $r' < 0$ and $r' > 0$ produce the same
-  bounds.
-  \begin{enumerate}
-    \item[(1)] $max(|ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
-    \item[(2)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
-  \end{enumerate}
 \end{proof}
 
 \begin{corollary}
   For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
-  (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of
-  the following bounds:
+  (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to the
+  following bounds if $0 < r'$: 
   \begin{enumerate}
-    \item[(a)] $max(|ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
     \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+  and to the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
   \end{enumerate}
 \end{corollary} 
 \begin{proof}
