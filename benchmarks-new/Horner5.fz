@@ -1,0 +1,22 @@
+#include "float_ops/fma64.fz"
+
+function Horner5 
+  (a0 : num)
+  (a1 : num)
+  (a2 : num)
+  (a3 : num)
+  (a4 : num)
+  (a5 : num)
+  (x : ![5.0]num) 
+{
+  lcb x' = x in
+  lb z0 = (((FMA64 a5) x') a4) in
+
+  lb z1 = (((FMA64 z0) x') a3) in
+  lb z2 = (((FMA64 z1) x') a2) in
+  lb z3 = (((FMA64 z2) x') a1) in
+
+  (((FMA64 z3) x') a0)
+}
+
+Horner5[0.1,1000][0.1,1000][0.1,1000][0.1,1000][0.1,1000][0.1,1000][0.1,1000]
