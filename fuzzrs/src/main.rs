@@ -1,8 +1,10 @@
 use std::fs;
+use log::{trace, debug, info, warn, error};
 use std::path::PathBuf;
 use structopt::StructOpt;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicUsize;
+use env_logger::Env;
 
 use fuzzrs::parser::*;
 use fuzzrs::exprs::Float;
@@ -23,16 +25,18 @@ struct Opt {
     input: PathBuf,
 }
 
+
 fn main() {
+    env_logger::init();
     let opt = Opt::from_args();
 
     let prog = fuzzrs::parser::start(opt.input);
 
-    //println!("program: {:?}", prog);
+    debug!("program: {:?}", prog);
     let mut eps_c = AtomicUsize::new(0);
     let (ctx, ty) = fuzzrs::typer::infer(HashMap::new(), prog.clone(), &eps_c);
-    //eprintln!("final ctx: {:?}", ctx);
-    eprintln!("final ty: {:#?}", ty);
+    debug!("final ctx: {:?}", ctx);
+    info!("final ty: {:#?}", ty);
     let bound_a_priori_rel = fuzzrs::analysis::a_priori_bound_rel(ty.clone());
     println!("final bound (pre, rel): {:?}", bound_a_priori_rel);
     let bound_a_priori_abs = fuzzrs::analysis::a_priori_bound_abs(ty.clone());

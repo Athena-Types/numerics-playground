@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::atomic::*;
+use log::{info, warn, debug};
 use std::iter::zip;
 //use std::cmp::max;
 use crate::analysis::min;
@@ -49,7 +50,7 @@ pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
 }
 
 pub fn subtype(sub : Ty, sup : Ty) -> bool {
-    //eprintln!("subtype op: {:?} {:?}", sub, sup);
+    debug!("subtype op: {:?} {:?}", sub, sup);
     sup == sub
 }
 
@@ -78,7 +79,7 @@ pub fn make_subs(v : Vec<Interval>, i : Vec<Interval>) -> Sub {
 }
 
 pub fn sub_eps(i : Interval, s : &Sub) -> Interval {
-    //eprintln!("sub {:?} with interval {:?}", s, i);
+    debug!("sub {:?} with interval {:?}", s, i);
     match i {
         Eps(v) => match s.get(&v) {
             Some(new_v) => new_v.clone(),
@@ -187,7 +188,7 @@ pub fn step_interval(i : Interval) -> Interval {
         Const(_, _) => i.clone(),
         Eps(_) => i.clone(),
     };
-    //eprintln!("stepping {:?} to {:?}", i, res);
+    debug!("stepping {:?} to {:?}", i, res);
     res
 }
 
@@ -234,7 +235,7 @@ pub fn step_ty_one(t : Ty) -> Ty {
 }
 
 pub fn step_ty(t : Ty) -> Ty {
-    //eprintln!("stepping ty: {:?}", t);
+    debug!("stepping ty: {:?}", t);
     let mut prev_ty = t.clone();
     let mut new_ty = step_ty_one(t.clone());
 
@@ -297,7 +298,7 @@ pub fn strip_foralls<'a>(t : Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>,
 }
 
 pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
-    //eprintln!("elim {:?} in vector {:?}", t, v);
+    debug!("elim {:?} in vector {:?}", t, v);
     match t {
         Ty::Unit => v,
         Ty::NumErased => panic!("We should not see erased terms!"),
@@ -368,7 +369,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let (sens, _) = theta.remove(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
-                //eprintln!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
+                //debug!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
                 // TODO: generalize + assert that these are alpha-equiv
                 //assert_eq!(tau, *ty_i)
             }
@@ -376,7 +377,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*(sens)) + theta, ty)
         }
         Expr::LCB(box_x, e, f) => {
-            //eprintln!("expr {:?} in ctx {:?}", e, c);
+            //debug!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -396,7 +397,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*t) + theta, tau)
         }
         Expr::LB(box_x, e, f) => {
-            //eprintln!("expr {:?} in ctx {:?}", e, c);
+            //debug!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -419,7 +420,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             ((gamma*s) + theta, Ty::Monad(s*r + q, Box::new(*tau)))
         }
         Expr::Lam(box_x, ty_i, f) => {
-            //eprintln!("{:?}", f);
+            //debug!("{:?}", f);
             assert!(*ty_i != Ty::Hole);
 
             let x = match *box_x {
@@ -442,7 +443,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 tau = Ty::Forall(*e, Box::new(tau));
             }
 
-            //eprintln!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
+            //debug!("Inferred ctx (lam): {:?} \n Ty: {:?}", gamma, tau);
             (gamma, tau)
         }
         Expr::App(e, f) => {
@@ -450,13 +451,14 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 Expr::Op(o) => (Ctx::new(), lookup_op(o, eps_c)),
                 fun => infer(c.clone(), fun, eps_c),
             };
-            let (delta, mut tau_0) = infer(c.clone(), *f.clone(), eps_c);
+            let (delta, tau_0) = infer(c.clone(), *f.clone(), eps_c);
 
             // gather subs
             let mut forall_v = Vec::new();
             let (_, tau_fun_stripped) = strip_foralls(tau_fun.clone(), &mut forall_v);
 
-
+            debug!("e {:?} with type {:?}", e, tau_fun_stripped);
+            debug!("f {:?} with type {:?}", f, tau_0);
             let tau_1 = match tau_fun_stripped {
                 Ty::Fun(tau_0_sup, tau_1) => {
                     // find subs
@@ -464,12 +466,10 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                     intervals = elim(tau_0.clone(), &mut intervals).to_vec();
                     let mut eps_v = Vec::new();
                     eps_v = elim(*tau_0_sup.clone(), &mut eps_v).to_vec();
-                    //eprintln!("e {:?}", e);
-                    //eprintln!("f {:?}", f);
-                    //eprintln!("tau_0_sup {:?}", tau_0_sup);
-                    //eprintln!("eps_v {:?}", eps_v);
-                    //eprintln!("tau_0 {:?}", tau_0);
-                    //eprintln!("intervals {:?}", intervals);
+                    debug!("tau_0_sup {:?}", tau_0_sup);
+                    debug!("eps_v {:?}", eps_v);
+                    debug!("tau_0 {:?}", tau_0);
+                    debug!("intervals {:?}", intervals);
                     let subs = make_subs(eps_v.to_vec(), intervals);
                     // perform subs
                     let tau_0_sup_sub = sub_ty(*tau_0_sup, &subs);
@@ -485,7 +485,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 }
                 _ => panic!("{:?} is not a function type!", tau_fun)
             };
-            //eprintln!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
+            debug!("Inferred ctx (app): {:?} \n Ty: {:?}", gamma.clone() + delta.clone(), tau_1.clone());
             (gamma + delta, tau_1)
         }
         Expr::Op(o) => todo!("should be handled by the app case!"),
@@ -527,13 +527,13 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         }
         Expr::PolyInst(e, i) => {
             let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
-            //eprintln!("polyinst {:?}", e.clone());
-            //eprintln!("tau {:?}", tau);
+            debug!("polyinst {:?}", e.clone());
+            debug!("tau {:?}", tau);
             (gamma, step_ty(rec_poly(tau, *i)))
         }
         Expr::Factor(e) => {
             let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
-            //eprintln!("factor ty: {:?}", tau);
+            debug!("factor ty: {:?}", tau);
             match tau {
                 Ty::Cart(m0, m1) =>
                 {
