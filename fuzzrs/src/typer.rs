@@ -54,7 +54,7 @@ pub fn subtype(sub : Ty, sup : Ty) -> bool {
     sup == sub
 }
 
-pub fn zero_ctx(c : CtxSkeleton) -> Ctx {
+pub fn zero_ctx(c : &CtxSkeleton) -> Ctx {
     let mut ctx = Ctx::new();
     for (y, ty_l) in c.iter() {
         ctx.insert(y.to_string(), (0.0, ty_l.clone()));
@@ -246,41 +246,41 @@ pub fn step_ty(t : Ty) -> Ty {
     new_ty
 }
 
-pub fn inst<'a>(t : Ty, v : &'a mut Vec<usize>, eps_c : &AtomicUsize) -> (Ty, &'a mut Vec<usize>) {
+pub fn inst<'a>(t : &'a Ty, v : &'a mut Vec<usize>, eps_c : &AtomicUsize) -> (Ty, &'a mut Vec<usize>) {
     match t {
-        Ty::Unit => (t, v),
+        Ty::Unit => (Ty::Unit, v),
         Ty::NumErased => {
             let eps = eps_c.fetch_add(1, Ordering::SeqCst);
             v.push(eps);
             (Ty::Num(Interval::Eps(eps)), v)
         },
         Ty::Tens(t0, t1) => {
-            let (t0n, v) = inst(*t0, v, eps_c);
-            let (t1n, v) = inst(*t1, v, eps_c);
+            let (t0n, v) = inst(t0, v, eps_c);
+            let (t1n, v) = inst(t1, v, eps_c);
             (Ty::Tens(Box::new(t0n), Box::new(t1n)), v)
         }
         Ty::Cart(t0, t1) => {
-            let (t0n, v) = inst(*t0, v, eps_c);
-            let (t1n, v) = inst(*t1, v, eps_c);
+            let (t0n, v) = inst(t0, v, eps_c);
+            let (t1n, v) = inst(t1, v, eps_c);
             (Ty::Cart(Box::new(t0n), Box::new(t1n)), v)
         }
         Ty::Sum(t0, t1) => {
-            let (t0n, v) = inst(*t0, v, eps_c);
-            let (t1n, v) = inst(*t1, v, eps_c);
+            let (t0n, v) = inst(t0, v, eps_c);
+            let (t1n, v) = inst(t1, v, eps_c);
             (Ty::Sum(Box::new(t0n), Box::new(t1n)), v)
         }
         Ty::Fun(t0, t1) => {
-            let (t0n, v) = inst(*t0, v, eps_c);
-            let (t1n, v) = inst(*t1, v, eps_c);
+            let (t0n, v) = inst(t0, v, eps_c);
+            let (t1n, v) = inst(t1, v, eps_c);
             (Ty::Fun(Box::new(t0n), Box::new(t1n)), v)
         }
         Ty::Bang(s, t) => {
-            let (tn, v) = inst(*t, v, eps_c);
-            (Ty::Bang(s, Box::new(tn)), v)
+            let (tn, v) = inst(t, v, eps_c);
+            (Ty::Bang(*s, Box::new(tn)), v)
         }
         Ty::Monad(g, t) => {
-            let (tn, v) = inst(*t, v, eps_c);
-            (Ty::Monad(g, Box::new(tn)), v)
+            let (tn, v) = inst(t, v, eps_c);
+            (Ty::Monad(*g, Box::new(tn)), v)
         }
         Ty::Forall(eps, t) => panic!("Not supposed to be encountering foralls!"),
         _ => panic!("Unhandled case!")
@@ -297,41 +297,41 @@ pub fn strip_foralls<'a>(t : Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>,
     }
 }
 
-pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
+pub fn elim<'a>(t : &Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
     debug!("elim {:?} in vector {:?}", t, v);
     match t {
         Ty::Unit => v,
         Ty::NumErased => panic!("We should not see erased terms!"),
         Ty::Num(i) => {
-            v.push(i);
+            v.push(i.clone());
             v
         } 
         Ty::Tens(t0, t1) => {
-            elim(*t0, v);
-            elim(*t1, v);
+            elim(t0, v);
+            elim(t1, v);
             v
         }
         Ty::Cart(t0, t1) => {
-            elim(*t0, v);
-            elim(*t1, v);
+            elim(t0, v);
+            elim(t1, v);
             v
         }
         Ty::Sum(t0, t1) => {
-            elim(*t0, v);
-            elim(*t1, v);
+            elim(t0, v);
+            elim(t1, v);
             v
         }
         Ty::Fun(t0, t1) => {
-            elim(*t0, v);
-            elim(*t1, v);
+            elim(t0, v);
+            elim(t1, v);
             v
         }
         Ty::Bang(_, t) => {
-            elim(*t, v);
+            elim(t, v);
             v
         }
         Ty::Monad(_, t) => {
-            elim(*t, v);
+            elim(t, v);
             v
         }
         Ty::Forall(eps, t) => panic!("Not supposed to be encountering foralls!"),
@@ -340,7 +340,7 @@ pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
 }
 
 // todo: make c.clone() not shared -- is this needed to enforce env senstivity?
-pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
+pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
     match e {
         Expr::Var(x) => {
             let mut ty = Ty::Hole;
@@ -358,7 +358,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         }
         Expr::Let(box_x, ty_i, e, f) => {
             debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, tau) = infer(c.clone(), *e, eps_c);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -366,7 +366,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
 
             let mut new_c = c.clone();
             new_c.insert(x.clone(), tau.clone());
-            let (mut theta, ty) = infer(new_c, *f, eps_c);
+            let (mut theta, ty) = infer(&new_c, *f, eps_c);
             let (sens, _) = theta.get(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
@@ -379,7 +379,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         }
         Expr::LCB(box_x, e, f) => {
             debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
+            let (gamma, mtau_0) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -391,7 +391,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
 
             let mut new_c = c.clone();
             new_c.insert(x.clone(), tau_0);
-            let (mut theta, tau) = infer(new_c, *f, eps_c);
+            let (mut theta, tau) = infer(&new_c, *f, eps_c);
 
             let (ts, _) = theta.get(&x).expect("Var not found in env").clone();
             let t = ts / s;
@@ -399,7 +399,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         }
         Expr::LB(box_x, e, f) => {
             //debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
+            let (gamma, mtau_0) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -411,7 +411,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
 
             let mut new_c = c.clone();
             new_c.insert(x.clone(), tau_0);
-            let (mut theta, mtau) = infer(new_c, *f, eps_c);
+            let (mut theta, mtau) = infer(&new_c, *f, eps_c);
             let (q, tau) = match mtau {
                 Ty::Monad(q, tau) => (q, tau),
                 _ => panic!("Expected a monad type!")
@@ -430,12 +430,12 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             };
 
             let mut eps_v = Vec::new();
-            let (ty_with_eps, eps_v) = inst(*ty_i.clone(), &mut eps_v, eps_c);
+            let (ty_with_eps, eps_v) = inst(&ty_i, &mut eps_v, eps_c);
 
             let mut c_ext= c.clone();
             c_ext.insert(x.clone(), ty_with_eps.clone());
 
-            let (mut gamma, mut tau) = infer(c_ext, *f, eps_c);
+            let (mut gamma, mut tau) = infer(&c_ext, *f, eps_c);
             gamma.remove(&x).unwrap();
 
             tau = Ty::Fun(Box::new(ty_with_eps), Box::new(tau));
@@ -450,9 +450,9 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         Expr::App(e, f) => {
             let (gamma, tau_fun) = match *e.clone() {
                 Expr::Op(o) => (Ctx::new(), lookup_op(o, eps_c)),
-                fun => infer(c.clone(), fun, eps_c),
+                fun => infer(&c, fun, eps_c),
             };
-            let (delta, tau_0) = infer(c.clone(), *f.clone(), eps_c);
+            let (delta, tau_0) = infer(&c, *f.clone(), eps_c);
 
             // gather subs
             let mut forall_v = Vec::new();
@@ -464,9 +464,9 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 Ty::Fun(tau_0_sup, tau_1) => {
                     // find subs
                     let mut intervals = Vec::new();
-                    intervals = elim(tau_0.clone(), &mut intervals).to_vec();
+                    intervals = elim(&tau_0, &mut intervals).to_vec();
                     let mut eps_v = Vec::new();
-                    eps_v = elim(*tau_0_sup.clone(), &mut eps_v).to_vec();
+                    eps_v = elim(&tau_0_sup, &mut eps_v).to_vec();
                     debug!("tau_0_sup {:?}", tau_0_sup);
                     debug!("eps_v {:?}", eps_v);
                     debug!("tau_0 {:?}", tau_0);
@@ -491,7 +491,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         }
         Expr::Op(o) => todo!("should be handled by the app case!"),
         Expr::Rnd(m, e) => {
-            let (gamma, tau) = infer(c.clone(), *e, eps_c);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             let g = match m {
                 16 => 0.0009765625,
                 32 => 1.192092895507812e-7,
@@ -501,25 +501,25 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             (gamma, Ty::Monad(g, Box::new(tau)))
         },
         Expr::Ret(e) => {
-            let (gamma, tau) = infer(c.clone(), *e, eps_c);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             (gamma, Ty::Monad(0.0, Box::new(tau)))
         },
         Expr::Unit => {
-            let mut ctx = zero_ctx(c);
+            let mut ctx = zero_ctx(&c);
             (ctx, Ty::Unit)
         },
         Expr::Tens(e1, e2) => {
-            let (gamma_0, tau_0) = infer(c.clone(), *e1, eps_c);
-            let (gamma_1, tau_1) = infer(c.clone(), *e2, eps_c);
+            let (gamma_0, tau_0) = infer(&c, *e1, eps_c);
+            let (gamma_1, tau_1) = infer(&c, *e2, eps_c);
             (gamma_0 + gamma_1, Ty::Tens(Box::new(tau_0), Box::new(tau_1)))
         },
         Expr::Cart(e1, e2) => {
-            let (gamma_0, tau_0) = infer(c.clone(), *e1, eps_c);
-            let (gamma_1, tau_1) = infer(c.clone(), *e2, eps_c);
+            let (gamma_0, tau_0) = infer(&c, *e1, eps_c);
+            let (gamma_1, tau_1) = infer(&c, *e2, eps_c);
             (gamma_0 | gamma_1, Ty::Cart(Box::new(tau_0), Box::new(tau_1)))
         },
         Expr::Num(n) => {
-            let mut ctx = zero_ctx(c);
+            let mut ctx = zero_ctx(&c);
             if n >= 0.0 {
                 (ctx, Ty::Num(Interval::Const((n, n, 0.0), (n, n, 0.0))))
             } else {
@@ -527,13 +527,13 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             }
         }
         Expr::PolyInst(e, i) => {
-            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
-            debug!("polyinst {:?}", e.clone());
+            debug!("polyinst {:?}", e);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             debug!("tau {:?}", tau);
             (gamma, step_ty(rec_poly(tau, *i)))
         }
         Expr::Factor(e) => {
-            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             debug!("factor ty: {:?}", tau);
             match tau {
                 Ty::Cart(m0, m1) =>
@@ -555,7 +555,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             }
         }
         Expr::Scale(s, e) => {
-            let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
+            let (gamma, tau) = infer(&c, *e, eps_c);
             (gamma * s, Ty::Bang(s, Box::new(tau)))
         }
         Expr::LP(box_x, box_y, e, f) => {
@@ -568,13 +568,13 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 Var(y) => y,
                 _ => todo!(),
             };
-            let (gamma, paired_ty) = infer(c.clone(), *e.clone(), eps_c);
+            let (gamma, paired_ty) = infer(&c, *e, eps_c);
             match paired_ty {
                 Ty::Tens(tau_0, tau_1) => {
                     let mut new_c = c.clone();
                     new_c.insert((*x).to_string(), *tau_0);
                     new_c.insert((*y).to_string(), *tau_1);
-                    let (mut theta, tau_fin) = infer(new_c, *f.clone(), eps_c);
+                    let (mut theta, tau_fin) = infer(&new_c, *f, eps_c);
                     let (s0, _) = theta.get(&x).expect("Var not found in env").clone();
                     let (s1, _) = theta.get(&y).expect("Var not found in env").clone();
                     (gamma * max(s0, s1) + theta, tau_fin)
