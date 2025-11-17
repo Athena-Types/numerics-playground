@@ -339,8 +339,8 @@ pub fn elim<'a>(t : Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
     }
 }
 
+// todo: make c.clone() not shared -- is this needed to enforce env senstivity?
 pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
-    let e_debug = e.clone();
     match e {
         Expr::Var(x) => {
             let mut ty = Ty::Hole;
@@ -357,6 +357,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             (ctx, ty)
         }
         Expr::Let(box_x, ty_i, e, f) => {
+            debug!("expr {:?} in ctx {:?}", e, c);
             let (gamma, tau) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -366,7 +367,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             let mut new_c = c.clone();
             new_c.insert(x.clone(), tau.clone());
             let (mut theta, ty) = infer(new_c, *f, eps_c);
-            let (sens, _) = theta.remove(&x).expect("Var not found in env");
+            let (sens, _) = theta.get(&x).expect("Var not found in env");
 
             if *ty_i != Ty::Hole {
                 //debug!("Checking if {:?} == {:?}:\n  {:?}", tau, *ty_i, e_debug);
@@ -374,10 +375,10 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 //assert_eq!(tau, *ty_i)
             }
 
-            ((gamma*(sens)) + theta, ty)
+            ((gamma*(*sens)) + theta, ty)
         }
         Expr::LCB(box_x, e, f) => {
-            //debug!("expr {:?} in ctx {:?}", e, c);
+            debug!("expr {:?} in ctx {:?}", e, c);
             let (gamma, mtau_0) = infer(c.clone(), *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
@@ -392,7 +393,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             new_c.insert(x.clone(), tau_0);
             let (mut theta, tau) = infer(new_c, *f, eps_c);
 
-            let (ts, _) = theta.remove(&x).expect("Var not found in env").clone();
+            let (ts, _) = theta.get(&x).expect("Var not found in env").clone();
             let t = ts / s;
             ((gamma*t) + theta, tau)
         }
@@ -416,7 +417,7 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 _ => panic!("Expected a monad type!")
             };
 
-            let (s, _) = theta.remove(&x).expect("Var not found in env").clone();
+            let (s, _) = theta.get(&x).expect("Var not found in env").clone();
             ((gamma*s) + theta, Ty::Monad(s*r + q, Box::new(*tau)))
         }
         Expr::Lam(box_x, ty_i, f) => {
@@ -556,6 +557,30 @@ pub fn infer(c : CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
         Expr::Scale(s, e) => {
             let (gamma, tau) = infer(c.clone(), *e.clone(), eps_c);
             (gamma * s, Ty::Bang(s, Box::new(tau)))
+        }
+        Expr::LP(box_x, box_y, e, f) => {
+            // TODO: really shouldn't be c .clone()
+            let x = match *box_x {
+                Var(x) => x,
+                _ => todo!(),
+            };
+            let y = match *box_y {
+                Var(y) => y,
+                _ => todo!(),
+            };
+            let (gamma, paired_ty) = infer(c.clone(), *e.clone(), eps_c);
+            match paired_ty {
+                Ty::Tens(tau_0, tau_1) => {
+                    let mut new_c = c.clone();
+                    new_c.insert((*x).to_string(), *tau_0);
+                    new_c.insert((*y).to_string(), *tau_1);
+                    let (mut theta, tau_fin) = infer(new_c, *f.clone(), eps_c);
+                    let (s0, _) = theta.get(&x).expect("Var not found in env").clone();
+                    let (s1, _) = theta.get(&y).expect("Var not found in env").clone();
+                    (gamma * max(s0, s1) + theta, tau_fin)
+                }
+                _ => panic!("Bad type passed to let-pair!"),
+            }
         }
         _ => todo!("{:?}", e),
     }
