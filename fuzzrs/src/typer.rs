@@ -91,44 +91,44 @@ pub fn sub_eps(i : Interval, s : &Sub) -> Interval {
     }
 }
 
-pub fn sub_ty(t : Ty, s : &Sub) -> Ty {
+pub fn sub_ty<'a>(t : &Ty, s : &Sub) -> Ty {
     match t {
-        Ty::Unit => t,
+        Ty::Unit => Ty::Unit,
         Ty::NumErased => panic!("Should not see an erased type!"),
-        Ty::Num(interval) => Ty::Num(sub_eps(interval, s)),
+        Ty::Num(interval) => Ty::Num(sub_eps(interval.clone(), s)),
         Ty::Tens(t0, t1) => {
-            let t0n = sub_ty(*t0, s);
-            let t1n = sub_ty(*t1, s);
+            let t0n = sub_ty(t0, s);
+            let t1n = sub_ty(t1, s);
             Ty::Tens(Box::new(t0n), Box::new(t1n))
         },
         Ty::Cart(t0, t1) => {
-            let t0n = sub_ty(*t0, s);
-            let t1n = sub_ty(*t1, s);
+            let t0n = sub_ty(t0, s);
+            let t1n = sub_ty(t1, s);
             Ty::Cart(Box::new(t0n), Box::new(t1n))
         },
         Ty::Sum(t0, t1) => {
-            let t0n = sub_ty(*t0, s);
-            let t1n = sub_ty(*t1, s);
+            let t0n = sub_ty(t0, s);
+            let t1n = sub_ty(t1, s);
             Ty::Sum(Box::new(t0n), Box::new(t1n))
         },
         Ty::Fun(t0, t1) => {
-            let t0n = sub_ty(*t0, s);
-            let t1n = sub_ty(*t1, s);
+            let t0n = sub_ty(t0, s);
+            let t1n = sub_ty(t1, s);
             Ty::Fun(Box::new(t0n), Box::new(t1n))
         },
         Ty::Bang(sens, t) => {
-            let tn = sub_ty(*t, s);
-            Ty::Bang(sens, Box::new(tn))
+            let tn = sub_ty(t, s);
+            Ty::Bang(*sens, Box::new(tn))
         },
         Ty::Monad(g, t) => {
-            let tn = sub_ty(*t, s);
-            Ty::Monad(g, Box::new(tn))
+            let tn = sub_ty(t, s);
+            Ty::Monad(*g, Box::new(tn))
         },
         Ty::Forall(eps, t) => {
             let mut cap_avoiding = s.clone();
             cap_avoiding.remove(&eps);
-            let tn = sub_ty(*t, &cap_avoiding);
-            Ty::Forall(eps, Box::new(tn))
+            let tn = sub_ty(t, &cap_avoiding);
+            Ty::Forall(*eps, Box::new(tn))
             //panic!("Should not see forall here!")
         },
         Ty::Hole => panic!("Should not see hole here!"),
@@ -287,17 +287,17 @@ pub fn inst<'a>(t : &'a Ty, v : &'a mut Vec<usize>, eps_c : &AtomicUsize) -> (Ty
     }
 }
 
-pub fn strip_foralls<'a>(t : Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>, Ty) {
+pub fn strip_foralls<'a>(t : &'a Ty, v : &'a mut Vec<usize>) -> (&'a mut Vec<usize>, &'a Ty) {
     match t {
-        Ty::Forall(eps, t) => {
-            v.push(eps);
-            strip_foralls(*t, v)
+        Ty::Forall(eps, ty) => {
+            v.push(*eps);
+            strip_foralls(&ty, v)
         }
         _ => (v, t)
     }
 }
 
-pub fn elim<'a>(t : &Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
+pub fn elim(t : &Ty, mut v : Vec<Interval>) -> Vec<Interval> {
     debug!("elim {:?} in vector {:?}", t, v);
     match t {
         Ty::Unit => v,
@@ -307,32 +307,30 @@ pub fn elim<'a>(t : &Ty, v : &'a mut Vec<Interval>) -> &'a mut Vec<Interval> {
             v
         } 
         Ty::Tens(t0, t1) => {
-            elim(t0, v);
-            elim(t1, v);
+            v = elim(t0, v);
+            v = elim(t1, v);
             v
         }
         Ty::Cart(t0, t1) => {
-            elim(t0, v);
-            elim(t1, v);
+            v = elim(t0, v);
+            v = elim(t1, v);
             v
         }
         Ty::Sum(t0, t1) => {
-            elim(t0, v);
-            elim(t1, v);
+            v = elim(t0, v);
+            v = elim(t1, v);
             v
         }
         Ty::Fun(t0, t1) => {
-            elim(t0, v);
-            elim(t1, v);
+            v = elim(t0, v);
+            v = elim(t1, v);
             v
         }
         Ty::Bang(_, t) => {
-            elim(t, v);
-            v
+            elim(t, v)
         }
         Ty::Monad(_, t) => {
-            elim(t, v);
-            v
+            elim(t, v)
         }
         Ty::Forall(eps, t) => panic!("Not supposed to be encountering foralls!"),
         _ => panic!("Unhandled case!")
@@ -448,7 +446,7 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             (gamma, tau)
         }
         Expr::App(e, f) => {
-            let (gamma, tau_fun) = match *e.clone() {
+            let (gamma, mut tau_fun) = match *e.clone() {
                 Expr::Op(o) => (Ctx::new(), lookup_op(o, eps_c)),
                 fun => infer(&c, fun, eps_c),
             };
@@ -456,7 +454,7 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
 
             // gather subs
             let mut forall_v = Vec::new();
-            let (_, tau_fun_stripped) = strip_foralls(tau_fun.clone(), &mut forall_v);
+            let (_, tau_fun_stripped) = strip_foralls(&tau_fun, &mut forall_v);
 
             debug!("e {:?} with type {:?}", e, tau_fun_stripped);
             debug!("f {:?} with type {:?}", f, tau_0);
@@ -464,17 +462,17 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                 Ty::Fun(tau_0_sup, tau_1) => {
                     // find subs
                     let mut intervals = Vec::new();
-                    intervals = elim(&tau_0, &mut intervals).to_vec();
+                    intervals = elim(&tau_0, intervals);
                     let mut eps_v = Vec::new();
-                    eps_v = elim(&tau_0_sup, &mut eps_v).to_vec();
+                    eps_v = elim(&*tau_0_sup, eps_v);
                     debug!("tau_0_sup {:?}", tau_0_sup);
                     debug!("eps_v {:?}", eps_v);
                     debug!("tau_0 {:?}", tau_0);
                     debug!("intervals {:?}", intervals);
-                    let subs = make_subs(eps_v.to_vec(), intervals);
+                    let subs = make_subs(eps_v, intervals);
                     // perform subs
-                    let tau_0_sup_sub = sub_ty(*tau_0_sup, &subs);
-                    let tau_1_sub = sub_ty(*tau_1, &subs);
+                    let tau_0_sup_sub = sub_ty(&tau_0_sup, &subs);
+                    let tau_1_sub = sub_ty(&tau_1, &subs);
                     // make sure contravariant
                     assert!(
                         subtype(tau_0.clone(), tau_0_sup_sub.clone()), 
@@ -591,7 +589,7 @@ pub fn rec_poly(tau: Ty, i : Interval) -> Ty {
         Ty::Forall(eps, ty) => {
             let mut sub = HashMap::new();
             sub.insert(eps, i);
-            sub_ty(*ty, &sub)
+            sub_ty(&*ty, &sub)
         },
         Ty::Fun(t0, t1) => 
             Ty::Fun(t0, Box::new(rec_poly(*t1, i))),
