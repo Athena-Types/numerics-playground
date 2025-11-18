@@ -87,7 +87,7 @@ pub fn sub_eps(i : Interval, s : &Sub) -> Interval {
         },
         Const(_, _) => i,
         IOp(o, intvs) => 
-            IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect()),
+            step_interval_incremental(IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect())),
     }
 }
 
@@ -95,6 +95,7 @@ pub fn sub_ty<'a>(t : &Ty, s : &Sub) -> Ty {
     match t {
         Ty::Unit => Ty::Unit,
         Ty::NumErased => panic!("Should not see an erased type!"),
+        //Ty::Num(interval) => Ty::Num(step_interval(sub_eps(interval.clone(), s)),
         Ty::Num(interval) => Ty::Num(sub_eps(interval.clone(), s)),
         Ty::Tens(t0, t1) => {
             let t0n = sub_ty(t0, s);
@@ -185,10 +186,65 @@ pub fn step_interval(i : Interval) -> Interval {
                 _ => IOp(Op::Mul, stepped_v)
             }
         },
-        Const(_, _) => i.clone(),
-        Eps(_) => i.clone(),
+        Const(cl, ch) => Const(cl, ch),
+        Eps(x) => Eps(x),
     };
     debug!("stepping {:?} to {:?}", i, res);
+    res
+}
+
+pub fn step_interval_incremental(i : Interval) -> Interval {
+    debug!("stepping {:?}", i);
+    let res = match i {
+        IOp(Add, v) => {
+            let larg = &v[0];
+            let rarg = &v[1];
+            match (larg, rarg) {
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) 
+                    => Const((r_l + r_l_a, a_l + a_l_a, b_l + b_l_a), (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a)),
+                _ => IOp(Op::Add, v)
+            }
+        },
+        IOp(Sub, v) => {
+            let larg = &v[0];
+            let rarg = &v[1];
+            match (larg, rarg) {
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
+                    {
+                        // do the stupid thing instead of casing
+                        let r_min = min(min(r_l - r_h_a, r_h - r_h_a), min(r_l - r_l_a, r_h - r_l_a));
+                        let r_max = max(max(r_l - r_h_a, r_h - r_h_a), max(r_l - r_l_a, r_h - r_l_a));
+                        Const((r_min, a_l + b_l_a, b_l + a_l_a), (r_max, a_h + b_h_a, b_h + a_h_a))
+                    },
+                _ => IOp(Op::Sub, v)
+            }
+        }
+        IOp(Mul, v) => {
+            let larg = &v[0];
+            let rarg = &v[1];
+            match (larg, rarg) {
+
+                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
+                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
+                    {
+                        // do the stupid thing instead of casing
+                        let r_min = min(min(r_l * r_h_a, r_h * r_h_a), min(r_l * r_l_a, r_h * r_l_a));
+                        let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
+
+                        Const(
+                            (r_min, (a_l * a_l_a) + (b_l * b_l_a), (a_l * b_l_a) + (b_l * a_l_a)), 
+                            (r_max, (a_h * a_h_a) + (b_h * b_h_a), (a_h * b_h_a) + (b_h * a_h_a))
+                        )
+                    },
+                _ => IOp(Op::Mul, v)
+            }
+        },
+        Const(cl, ch) => Const(cl, ch),
+        Eps(x) => Eps(x),
+    };
+    debug!("step to {:?}", res);
     res
 }
 
@@ -480,7 +536,8 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                         tau_0, 
                         tau_0_sup_sub
                     );
-                    step_ty(tau_1_sub)
+                    tau_1_sub
+                    //step_ty(tau_1_sub)
                 }
                 _ => panic!("{:?} is not a function type!", tau_fun)
             };
