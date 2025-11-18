@@ -13,6 +13,8 @@ use crate::exprs::*;
 use crate::typer::Interval::*;
 use crate::typer::Interval;
 
+use crate::exprs::tmul;
+
 // TODO: add sanity check that bounds maintain the interval invariant
 
 pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
@@ -136,62 +138,6 @@ pub fn sub_ty<'a>(t : &Ty, s : &Sub) -> Ty {
     }
 }
 
-pub fn step_interval(i : Interval) -> Interval {
-    let res = match i.clone() {
-        IOp(Add, v) => {
-            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
-            let larg = stepped_v[0].clone();
-            let rarg = stepped_v[1].clone();
-            match (larg, rarg) {
-                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
-                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) 
-                    => Const((r_l + r_l_a, a_l + a_l_a, b_l + b_l_a), (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a)),
-                _ => IOp(Op::Add, stepped_v)
-            }
-        },
-        IOp(Sub, v) => {
-            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
-            let larg = stepped_v[0].clone();
-            let rarg = stepped_v[1].clone();
-            match (larg, rarg) {
-                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
-                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
-                    {
-                        // do the stupid thing instead of casing
-                        let r_min = min(min(r_l - r_h_a, r_h - r_h_a), min(r_l - r_l_a, r_h - r_l_a));
-                        let r_max = max(max(r_l - r_h_a, r_h - r_h_a), max(r_l - r_l_a, r_h - r_l_a));
-                        Const((r_min, a_l + b_l_a, b_l + a_l_a), (r_max, a_h + b_h_a, b_h + a_h_a))
-                    },
-                _ => IOp(Op::Sub, stepped_v)
-            }
-        }
-        IOp(Mul, v) => {
-            let stepped_v : Vec<Interval> = v.into_iter().map(step_interval).collect();
-            let larg = stepped_v[0].clone();
-            let rarg = stepped_v[1].clone();
-            match (larg, rarg) {
-
-                (Const((r_l, a_l, b_l), (r_h, a_h, b_h)), 
-                 Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a))) => 
-                    {
-                        // do the stupid thing instead of casing
-                        let r_min = min(min(r_l * r_h_a, r_h * r_h_a), min(r_l * r_l_a, r_h * r_l_a));
-                        let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
-
-                        Const(
-                            (r_min, (a_l * a_l_a) + (b_l * b_l_a), (a_l * b_l_a) + (b_l * a_l_a)), 
-                            (r_max, (a_h * a_h_a) + (b_h * b_h_a), (a_h * b_h_a) + (b_h * a_h_a))
-                        )
-                    },
-                _ => IOp(Op::Mul, stepped_v)
-            }
-        },
-        Const(cl, ch) => Const(cl, ch),
-        Eps(x) => Eps(x),
-    };
-    debug!("stepping {:?} to {:?}", i, res);
-    res
-}
 
 pub fn step_interval_incremental(i : Interval) -> Interval {
     debug!("stepping {:?}", i);
@@ -234,8 +180,8 @@ pub fn step_interval_incremental(i : Interval) -> Interval {
                         let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
 
                         Const(
-                            (r_min, (a_l * a_l_a) + (b_l * b_l_a), (a_l * b_l_a) + (b_l * a_l_a)), 
-                            (r_max, (a_h * a_h_a) + (b_h * b_h_a), (a_h * b_h_a) + (b_h * a_h_a))
+                            (r_min, (tmul(a_l, a_l_a)) + (tmul(b_l, b_l_a)), (tmul(a_l, b_l_a)) + (tmul(b_l, a_l_a))), 
+                            (r_max, (tmul(a_h, a_h_a)) + (tmul(b_h, b_h_a)), (tmul(a_h, b_h_a)) + (tmul(b_h, a_h_a)))
                         )
                     },
                 _ => IOp(Op::Mul, v)
@@ -246,60 +192,6 @@ pub fn step_interval_incremental(i : Interval) -> Interval {
     };
     debug!("step to {:?}", res);
     res
-}
-
-pub fn step_ty_one(t : Ty) -> Ty {
-    match t {
-        Ty::Unit => t,
-        Ty::NumErased => t,
-        Ty::Num(interval) => Ty::Num(step_interval(interval)),
-        Ty::Tens(t0, t1) => {
-            let t0n = step_ty_one(*t0);
-            let t1n = step_ty_one(*t1);
-            Ty::Tens(Box::new(t0n), Box::new(t1n))
-        },
-        Ty::Cart(t0, t1) => {
-            let t0n = step_ty_one(*t0);
-            let t1n = step_ty_one(*t1);
-            Ty::Cart(Box::new(t0n), Box::new(t1n))
-        },
-        Ty::Sum(t0, t1) => {
-            let t0n = step_ty_one(*t0);
-            let t1n = step_ty_one(*t1);
-            Ty::Sum(Box::new(t0n), Box::new(t1n))
-        },
-        Ty::Fun(t0, t1) => {
-            let t0n = step_ty_one(*t0);
-            let t1n = step_ty_one(*t1);
-            Ty::Fun(Box::new(t0n), Box::new(t1n))
-        },
-        Ty::Bang(sens, t) => {
-            let tn = step_ty_one(*t);
-            Ty::Bang(sens, Box::new(tn))
-        },
-        Ty::Monad(g, t) => {
-            let tn = step_ty_one(*t);
-            Ty::Monad(g, Box::new(tn))
-        },
-        Ty::Forall(eps, t) => {
-            let tn = step_ty_one(*t);
-            Ty::Forall(eps, Box::new(tn))
-            //panic!("Should not see forall here!")
-        },
-        Ty::Hole => panic!("Should not see hole here!"),
-    }
-}
-
-pub fn step_ty(t : Ty) -> Ty {
-    debug!("stepping ty: {:?}", t);
-    let mut prev_ty = t.clone();
-    let mut new_ty = step_ty_one(t.clone());
-
-    while prev_ty.ne(&new_ty) {
-        prev_ty = new_ty;
-        new_ty = step_ty_one(t.clone());
-    }
-    new_ty
 }
 
 pub fn inst<'a>(t : &'a Ty, v : &'a mut Vec<usize>, eps_c : &AtomicUsize) -> (Ty, &'a mut Vec<usize>) {

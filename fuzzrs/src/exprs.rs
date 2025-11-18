@@ -10,6 +10,14 @@ pub enum Op {
 
 pub type Float = f64;
 
+/// Trapped multiplication.
+pub fn tmul(a : &Float, b : &Float) -> Float{
+    if *a == 0.0 || *b == 0.0 {
+        return 0.0;
+    }
+    return a * b;
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Interval {
     Eps(usize),
