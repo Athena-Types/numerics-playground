@@ -49,7 +49,7 @@ pub fn lookup_op(o : Op, eps_c : &AtomicUsize) -> Ty {
     }
 }
 
-pub fn subtype(sub : Ty, sup : Ty) -> bool {
+pub fn subtype(sub : &Ty, sup : &Ty) -> bool {
     debug!("subtype op: {:?} {:?}", sub, sup);
     sup == sub
 }
@@ -502,18 +502,18 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             (gamma, tau)
         }
         Expr::App(e, f) => {
-            let (gamma, mut tau_fun) = match *e.clone() {
+            let (gamma, mut tau_fun) = match *e {
                 Expr::Op(o) => (Ctx::new(), lookup_op(o, eps_c)),
                 fun => infer(&c, fun, eps_c),
             };
-            let (delta, tau_0) = infer(&c, *f.clone(), eps_c);
+            let (delta, tau_0) = infer(&c, *f, eps_c);
 
             // gather subs
             let mut forall_v = Vec::new();
             let (_, tau_fun_stripped) = strip_foralls(&tau_fun, &mut forall_v);
 
-            debug!("e {:?} with type {:?}", e, tau_fun_stripped);
-            debug!("f {:?} with type {:?}", f, tau_0);
+            //debug!("e {:?} with type {:?}", e, tau_fun_stripped);
+            //debug!("f {:?} with type {:?}", f, tau_0);
             let tau_1 = match tau_fun_stripped {
                 Ty::Fun(tau_0_sup, tau_1) => {
                     // find subs
@@ -531,7 +531,7 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
                     let tau_1_sub = sub_ty(&tau_1, &subs);
                     // make sure contravariant
                     assert!(
-                        subtype(tau_0.clone(), tau_0_sup_sub.clone()), 
+                        subtype(&tau_0, &tau_0_sup_sub), 
                         "{:?} is not subtype of {:?}", 
                         tau_0, 
                         tau_0_sup_sub
