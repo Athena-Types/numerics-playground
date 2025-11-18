@@ -585,7 +585,8 @@ pub fn infer(c : &CtxSkeleton, e : Expr, eps_c : &AtomicUsize) -> (Ctx, Ty) {
             debug!("polyinst {:?}", e);
             let (gamma, tau) = infer(&c, *e, eps_c);
             debug!("tau {:?}", tau);
-            (gamma, step_ty(rec_poly(tau, *i)))
+            //(gamma, step_ty(rec_poly(tau, *i)))
+            (gamma, rec_poly(tau, *i))
         }
         Expr::Factor(e) => {
             let (gamma, tau) = infer(&c, *e, eps_c);
