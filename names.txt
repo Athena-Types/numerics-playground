@@ -1,0 +1,14 @@
+add-assoc
+delta4
+himmilbeau
+kepler0
+kepler1
+matrixDeterminant2
+matrixDeterminant
+rigidBody1
+rigidBody2
+shoelace-formula
+sineOrder3
+sqroot
+sum
+test01_sum3
