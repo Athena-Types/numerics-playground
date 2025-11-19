@@ -15,11 +15,11 @@ Variables
 Definitions
   z1 =rnd64_up(a10 * x + a9);
   z2 =rnd64_up(z1 * x + a8);
-  z3 =rnd64_up(z2 * x + a7); 
+  z3 =rnd64_up(z2 * x + a7);
   z4 =rnd64_up(z3 * x + a6);
   z5 =rnd64_up(z4 * x + a5);
   z6 =rnd64_up(z5 * x + a4);
-  z7 =rnd64_up(z6 * x + a3); 
+  z7 =rnd64_up(z6 * x + a3);
   z8 =rnd64_up(z7 * x + a2);
   z9 =rnd64_up(z8 * x + a1);
 
