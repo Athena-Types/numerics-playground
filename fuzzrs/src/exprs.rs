@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::ops;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -18,7 +20,7 @@ pub fn tmul(a : &Float, b : &Float) -> Float{
     return a * b;
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Interval {
     Eps(usize),
     Const((Float, Float, Float), (Float, Float, Float)),
@@ -31,13 +33,13 @@ pub enum Ty {
     Unit,
     NumErased,
     Num(Interval),
-    Tens(Box<Ty>, Box<Ty>),
-    Cart(Box<Ty>, Box<Ty>),
-    Sum(Box<Ty>, Box<Ty>),
-    Fun(Box<Ty>, Box<Ty>),
-    Bang(Float, Box<Ty>),
-    Monad(Float, Box<Ty>),
-    Forall(usize, Box<Ty>),
+    Tens(Rc<RefCell<Ty>>, Rc<RefCell<Ty>>),
+    Cart(Rc<RefCell<Ty>>, Rc<RefCell<Ty>>),
+    Sum(Rc<RefCell<Ty>>, Rc<RefCell<Ty>>),
+    Fun(Rc<RefCell<Ty>>, Rc<RefCell<Ty>>),
+    Bang(Float, Rc<RefCell<Ty>>),
+    Monad(Float, Rc<RefCell<Ty>>),
+    Forall(usize, Rc<RefCell<Ty>>),
 }
 
 //impl PartialEq for Ty {
@@ -74,7 +76,7 @@ pub enum Expr {
     Var(String),
     Num(Float),
     Op(Op),
-    Lam(Box<Expr>, Box<Ty>, Box<Expr>),
+    Lam(Box<Expr>, Rc<RefCell<Ty>>, Box<Expr>),
     App(Box<Expr>, Box<Expr>),
     PolyAbs(usize, Box<Expr>),
     PolyInst(Box<Expr>, Box<Interval>),
@@ -84,7 +86,7 @@ pub enum Expr {
     Tens(Box<Expr>, Box<Expr>),
 
     // the ty here is optional (will usually be a hole)
-    Let(Box<Expr>, Box<Ty>, Box<Expr>, Box<Expr>),
+    Let(Box<Expr>, Rc<RefCell<Ty>>, Box<Expr>, Box<Expr>),
     LB(Box<Expr>, Box<Expr>, Box<Expr>),
     LCB(Box<Expr>, Box<Expr>, Box<Expr>),
     LP(Box<Expr>, Box<Expr>, Box<Expr>, Box<Expr>),
@@ -96,23 +98,23 @@ pub enum Expr {
     Factor(Box<Expr>),
 }
 
-pub type CtxSkeleton = HashMap<String, Ty>;
+pub type CtxSkeleton = HashMap<String, Rc<RefCell<Ty>>>;
 
 //pub type Ctx = HashMap<String, (Float, Ty)>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ctx {
-    lookup : HashMap<String, (Float, Ty)>,
+    lookup : HashMap<String, (Float, Rc<RefCell<Ty>>)>,
 }
 
 impl Ctx {
-    pub fn insert(&mut self, k: String, v: (Float, Ty)) -> Option<(Float, Ty)> {
+    pub fn insert(&mut self, k: String, v: (Float, Rc<RefCell<Ty>>)) -> Option<(Float, Rc<RefCell<Ty>>)> {
         self.lookup.insert(k, v)
     }
-    pub fn get(&mut self, k: &String) -> Option<&(Float, Ty)> {
+    pub fn get(&mut self, k: &String) -> Option<&(Float, Rc<RefCell<Ty>>)> {
         self.lookup.get(k)
     }
-    pub fn remove(&mut self, k: &String) -> Option<(Float, Ty)> {
+    pub fn remove(&mut self, k: &String) -> Option<(Float, Rc<RefCell<Ty>>)> {
         self.lookup.remove(k)
     }
     pub fn new() -> Ctx {

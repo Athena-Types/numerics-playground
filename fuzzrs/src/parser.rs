@@ -15,7 +15,7 @@ pub fn start(filename: PathBuf) -> Expr {
     combine_decls(decls, prog)
 }
 
-pub fn combine_decls(decls: Vec<(String, (Expr, Ty))>, e: Expr) -> Expr {
+pub fn combine_decls(decls: Vec<(String, (Expr, Rc<RefCell<Ty>>))>, e: Expr) -> Expr {
     let mut body = e;
 
     //println!("{:?}", decls);
@@ -26,7 +26,7 @@ pub fn combine_decls(decls: Vec<(String, (Expr, Ty))>, e: Expr) -> Expr {
     for (name, (exp, ty)) in &bindings {
         body = Expr::Let(
             Box::new(Expr::Var(name.to_string())), 
-            Box::new(ty.clone()), 
+            ty.clone(), 
             Box::new(exp.clone()), 
             Box::new(body)
         );
@@ -161,43 +161,43 @@ pub fn parse_ty(input: Pair<'_, Rule>) -> Ty {
         },
         Rule::tensor => {
             let mut components = inner_ty.into_inner();
-            let l = Box::new(parse_ty(components.next().unwrap()));
-            let r = Box::new(parse_ty(components.next().unwrap()));
+            let l = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let r = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
             Ty::Tens(l, r)
         }
         Rule::cartesian => {
             let mut components = inner_ty.into_inner();
-            let l = Box::new(parse_ty(components.next().unwrap()));
-            let r = Box::new(parse_ty(components.next().unwrap()));
+            let l = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let r = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
             Ty::Cart(l, r)
         }
         Rule::monad => {
             let mut components = inner_ty.into_inner();
             let grade = parse_eps(components.next().unwrap());
-            let ty = Box::new(parse_ty(components.next().unwrap()));
+            let ty = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
             Ty::Monad(grade, ty)
         }
         Rule::bang => {
             let mut components = inner_ty.into_inner();
             let scale = parse_eps(components.next().expect("Scale not working!"));
-            let ty = Box::new(parse_ty(components.next().unwrap()));
+            let ty = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
             Ty::Bang(scale, ty)
         }
         Rule::fun => {
             let mut components = inner_ty.into_inner();
-            let ty1 = Box::new(parse_ty(components.next().unwrap()));
-            let ty2 = Box::new(parse_ty(components.next().unwrap()));
+            let ty1 = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let ty2 = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
             Ty::Fun(ty1, ty2)
         }
         _ => unimplemented!("parse ty rule matching {:?}", inner_ty),
     }
 }
 
-pub fn parse_arg(input: Pair<'_, Rule>) -> (String, Ty) {
+pub fn parse_arg(input: Pair<'_, Rule>) -> (String, Rc<RefCell<Ty>>) {
     let mut components = input.clone().into_inner();
     let name = components.next().unwrap().as_str();
     let ty = parse_ty(components.next().unwrap());
-    (name.to_string(), ty)
+    (name.to_string(), Rc::new(RefCell::new(ty)))
 }
 
 pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Ty) {
@@ -249,7 +249,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         Rule::letassign => {
             let mut components = inner_expr.into_inner();
             let v = Box::new(parse_expr(components.next().unwrap()));
-            let ty = Box::new(Ty::Hole);
+            let ty = Rc::new(RefCell::new(Ty::Hole));
             let e = Box::new(parse_expr(components.next().unwrap()));
             let f = Box::new(parse_expr(components.next().unwrap()));
             Expr::Let(v, ty, e, f)
@@ -315,7 +315,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         }
         Rule::abs => {
             let mut innards = inner_expr.into_inner();
-            let mut args: Vec<(String, Ty)> = innards
+            let mut args: Vec<(String, Rc<RefCell<Ty>>)> = innards
                 .next()
                 .expect("Args have no types!")
                 .into_inner()
@@ -334,7 +334,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
                 for (var, typ) in &args {
                     fun = Expr::Lam(
                         Box::new(Var(var.to_string())),
-                        Box::new(typ.clone()),
+                        typ.clone(),
                         Box::new(fun),
                     );
                 }

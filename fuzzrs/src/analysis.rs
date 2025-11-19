@@ -1,4 +1,6 @@
 use crate::exprs::Expr::Var;
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::exprs::Op;
 use crate::exprs::*;
 use log::debug;
@@ -24,11 +26,11 @@ pub fn min(f0 : Float, f1 : Float) -> Float {
     f1
 }
 
-pub fn a_priori_bound_rel(t : Ty) -> Option<Float> {
-    match t {
-        Ty::Fun(t0, t1) => a_priori_bound_rel(*t1),
-        Ty::Monad(q, m_ty) => 
-            match *m_ty {
+pub fn a_priori_bound_rel(t : Rc<RefCell<Ty>>) -> Option<Float> {
+    match *t.borrow() {
+        Ty::Fun(ref t0, ref t1) => a_priori_bound_rel(t1.clone()),
+        Ty::Monad(q, ref m_ty) => 
+            match *m_ty.borrow() {
                 Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
                     if r_down <= 0.0 {
                         return None;
@@ -69,11 +71,11 @@ pub fn a_priori_bound_rel(t : Ty) -> Option<Float> {
     }
 }
 
-pub fn a_posteriori_bound_rel(t : Ty, r_actual : Float) -> Option<Float> {
-    match t {
-        Ty::Fun(t0, t1) => a_posteriori_bound_rel(*t1, r_actual),
-        Ty::Monad(q, m_ty) => 
-            match *m_ty {
+pub fn a_posteriori_bound_rel(t : Rc<RefCell<Ty>>, r_actual : Float) -> Option<Float> {
+    match *t.borrow() {
+        Ty::Fun(ref t0, ref t1) => a_posteriori_bound_rel(t1.clone(), r_actual),
+        Ty::Monad(q, ref m_ty) => 
+            match *m_ty.borrow() {
                 Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
                     let e_q = (q).exp();
                     let e_neg_q = (-q).exp();
@@ -113,11 +115,11 @@ pub fn a_posteriori_bound_rel(t : Ty, r_actual : Float) -> Option<Float> {
     }
 }
 
-pub fn a_priori_bound_abs(t : Ty) -> Option<Float> {
-    match t {
-        Ty::Fun(t0, t1) => a_priori_bound_abs(*t1),
-        Ty::Monad(q, m_ty) => 
-            match *m_ty {
+pub fn a_priori_bound_abs(t : Rc<RefCell<Ty>>) -> Option<Float> {
+    match *t.borrow() {
+        Ty::Fun(ref t0, ref t1) => a_priori_bound_abs(t1.clone()),
+        Ty::Monad(q, ref m_ty) => 
+            match *m_ty.borrow() {
                 Ty::Num(Interval::Const((r_down, a_down, b_down),(r_up, a_up, b_up))) => {
                     let e_q = (q).exp();
                     let e_neg_q = (-q).exp();
