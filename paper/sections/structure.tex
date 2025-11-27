@@ -185,3 +185,78 @@ reverse direction:
 
 
 We now explore the interaction between $\textbf{factor}$ and subtraction. TODO??
+
+\subsection{Automatic inference of factor}
+We now describe an automatic program transformation $\textsc{transform}$ that
+can insert $\textbf{factor}$ in a program that is strictly sequenced without
+$\textbf{factor}$. We assume that each variable is unique (no shadowing).
+
+We first recusively transform the program so that every application is of a
+variable to an expression (e.g. $e \ x$) or operation (e.g. $\textbf{op} \ y$). 
+The non-structural cases of the transformation are provided below:
+
+\begin{equation}
+  \begin{aligned}[c]
+    \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
+    \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
+  \end{aligned}
+\end{equation}
+
+$\textsc{transform}$ syntatically operates on pairs of well-typed programs and
+\textit{monadic maps} $\sigma$, which maps variables to expressions of monadic
+type. It returns the transformed program fragment and sets of variables that
+have not been used by factor. It has type:
+% max: hmm this last part doesn't quite make sense wrt sets of vars
+$$
+\textsc{transform} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
+(\text{program} \times \text{sets of variables})
+$$
+
+% By default, for all variables $x$, $\sigma[x] = x$ if $x$ is not
+% otherwise defined in $\sigma$.
+
+% \begin{equation}
+%   \textsc{transform}(e) = \textsc{sequence}(\textsc{transform-rec}(e, \emptyset))
+% \end{equation}
+
+We use $V$ as a metavariable to represent a set of variables. We first detail
+the interesting cases for our program transformation:
+
+\begin{equation}
+\begin{aligned}[c]
+  \textsc{transform}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
+  \begin{aligned}
+    \text{let} \ (g, V) \ = (\textsc{transform}(f, \sigma;[x \mapsto \text{fst} \ \textsc{transform}(e, \sigma)])) \ \text{in} \\
+    \text{if} \ x \in V \\
+    \text{then} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V - \{x\})\\
+    \text{else} \ (g, V)
+\\
+  \text{(if x only occurs once in f)}
+  \end{aligned}
+  \\
+  \\
+  \textsc{transform}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
+  \begin{aligned}[c]
+    \text{let} \ (g, V) = \textsc{transform}(f, \sigma) \ \text{in}\\
+    \text{if} \ x, y \in DOM(\sigma) \\
+    \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V - \{x, y\})\\
+    \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
+    V) \\
+  \end{aligned} \\
+  \\
+  \textsc{transform}(e \ f, \sigma) &= 
+  \begin{aligned}[c]
+    \text{let} \ (g, V_0) = \textsc{transform}(e, \sigma) \ \text{in}\\
+    \text{let} \ (h, V_1) = \textsc{transform}(f, \sigma) \ \text{in}\\
+    (g \ h, V_0 \cap V_1)
+  \end{aligned} \\
+\end{aligned}
+\end{equation}
+Now, we detail our base case:
+\begin{equation}
+  \begin{aligned}
+    \textsc{transform}(x, \sigma) &= (x, DOM(\sigma))
+  \end{aligned}
+\end{equation}
+The remainder of the rules are recursive and structural.
+
