@@ -235,7 +235,7 @@ the interesting cases for our program transformation:
   \\
   \\
   \textsc{transform}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
-  \begin{aligned}[c]
+  \begin{aligned}
     \text{let} \ (g, V) = \textsc{transform}(f, \sigma) \ \text{in}\\
     \text{if} \ x, y \in DOM(\sigma) \\
     \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
@@ -244,18 +244,23 @@ the interesting cases for our program transformation:
   \end{aligned} \\
   \\
   \textsc{transform}(e \ f, \sigma) &= 
-  \begin{aligned}[c]
+  \begin{aligned}
     \text{let} \ (g, V_0) = \textsc{transform}(e, \sigma) \ \text{in}\\
     \text{let} \ (h, V_1) = \textsc{transform}(f, \sigma) \ \text{in}\\
     (g \ h, V_0 \cup V_1)
   \end{aligned} \\
 \end{aligned}
 \end{equation}
-Now, we detail our base case:
+Now, we detail our base case for variables:
 \begin{equation}
   \begin{aligned}
     \textsc{transform}(x, \sigma) &= (x, \{\})
   \end{aligned}
 \end{equation}
+and our base case for constants:
+\begin{equation}
+  \begin{aligned}
+    \textsc{transform}(k, \sigma) &= (k, \{\})
+  \end{aligned}
+\end{equation}
 The remainder of the rules are recursive and structural.
-
