@@ -205,7 +205,7 @@ The non-structural cases of the transformation are provided below:
 $\textsc{transform}$ syntatically operates on pairs of well-typed programs and
 \textit{monadic maps} $\sigma$, which maps variables to expressions of monadic
 type. It returns the transformed program fragment and sets of variables that
-have not been used by factor. It has type:
+have been used by factor. It has type:
 % max: hmm this last part doesn't quite make sense wrt sets of vars
 $$
 \textsc{transform} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
@@ -228,9 +228,8 @@ the interesting cases for our program transformation:
   \begin{aligned}
     \text{let} \ (g, V) \ = (\textsc{transform}(f, \sigma;[x \mapsto \text{fst} \ \textsc{transform}(e, \sigma)])) \ \text{in} \\
     \text{if} \ x \in V \\
-    \text{then} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V - \{x\})\\
-    \text{else} \ (g, V)
-\\
+    \text{then} \ (g, V) \\
+    \text{else} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V \cup \{x\})\\
   \text{(if x only occurs once in f)}
   \end{aligned}
   \\
@@ -239,7 +238,7 @@ the interesting cases for our program transformation:
   \begin{aligned}[c]
     \text{let} \ (g, V) = \textsc{transform}(f, \sigma) \ \text{in}\\
     \text{if} \ x, y \in DOM(\sigma) \\
-    \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V - \{x, y\})\\
+    \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
     \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
     V) \\
   \end{aligned} \\
@@ -248,14 +247,14 @@ the interesting cases for our program transformation:
   \begin{aligned}[c]
     \text{let} \ (g, V_0) = \textsc{transform}(e, \sigma) \ \text{in}\\
     \text{let} \ (h, V_1) = \textsc{transform}(f, \sigma) \ \text{in}\\
-    (g \ h, V_0 \cap V_1)
+    (g \ h, V_0 \cup V_1)
   \end{aligned} \\
 \end{aligned}
 \end{equation}
 Now, we detail our base case:
 \begin{equation}
   \begin{aligned}
-    \textsc{transform}(x, \sigma) &= (x, DOM(\sigma))
+    \textsc{transform}(x, \sigma) &= (x, \{\})
   \end{aligned}
 \end{equation}
 The remainder of the rules are recursive and structural.
