@@ -7,4 +7,7 @@
 	branch = paired-lite
 [submodule "deps/daisy"]
 	path = deps/daisy
-	url = git@github.com:malyzajko/daisy.git
+	url = https://github.com/malyzajko/daisy.git
+[submodule "deps/Satire"]
+	path = deps/Satire
+	url = https://github.com/arnabd88/Satire.git
