@@ -11,3 +11,9 @@
 [submodule "deps/Satire"]
 	path = deps/Satire
 	url = https://github.com/arnabd88/Satire.git
+[submodule "deps/gelpia"]
+	path = deps/gelpia
+	url = https://github.com/soarlab/gelpia.git
+[submodule "deps/sly"]
+	path = deps/sly
+	url = https://github.com/dabeaz/sly.git
