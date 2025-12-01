@@ -29,3 +29,6 @@
 [submodule "deps/mathlib"]
 	path = deps/mathlib
 	url = https://github.com/dreal-deps/mathlib.git
+[submodule "deps/crlibm"]
+	path = deps/crlibm
+	url = https://github.com/taschini/crlibm.git
