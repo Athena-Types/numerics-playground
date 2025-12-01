@@ -13,7 +13,19 @@
 	url = https://github.com/arnabd88/Satire.git
 [submodule "deps/gelpia"]
 	path = deps/gelpia
-	url = https://github.com/soarlab/gelpia.git
+	url = git@github.com:InnovativeInventor/gelpia.git
 [submodule "deps/sly"]
 	path = deps/sly
 	url = https://github.com/dabeaz/sly.git
+[submodule "deps/symengine"]
+	path = deps/symengine
+	url = https://github.com/symengine/symengine.git
+[submodule "deps/bigfloat"]
+	path = deps/bigfloat
+	url = https://github.com/kalray/bigfloat.git
+[submodule "deps/GAOL"]
+	path = deps/GAOL
+	url = https://github.com/goualard-f/GAOL.git
+[submodule "deps/mathlib"]
+	path = deps/mathlib
+	url = https://github.com/dreal-deps/mathlib.git
