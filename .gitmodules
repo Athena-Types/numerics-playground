@@ -32,3 +32,6 @@
 [submodule "deps/crlibm"]
 	path = deps/crlibm
 	url = https://github.com/taschini/crlibm.git
+[submodule "deps/gdtoa"]
+	path = deps/gdtoa
+	url = https://github.com/jwiegley/gdtoa.git
