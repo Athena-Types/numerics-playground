@@ -35,3 +35,6 @@
 [submodule "deps/gdtoa"]
 	path = deps/gdtoa
 	url = https://github.com/jwiegley/gdtoa.git
+[submodule "deps/symengine.py"]
+	path = deps/symengine.py
+	url = https://github.com/symengine/symengine.py.git
