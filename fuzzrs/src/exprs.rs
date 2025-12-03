@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::collections::HashMap;
 use std::ops;
+use std::rc::Rc;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Op {
     Add,
     Mul,
@@ -13,14 +13,14 @@ pub enum Op {
 pub type Float = f64;
 
 /// Trapped multiplication.
-pub fn tmul(a : &Float, b : &Float) -> Float{
+pub fn tmul(a: &Float, b: &Float) -> Float {
     if *a == 0.0 || *b == 0.0 {
         return 0.0;
     }
     return a * b;
 }
 
-#[derive(Debug, Clone, PartialEq, Copy)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Interval {
     Eps(usize),
     Const((Float, Float, Float), (Float, Float, Float)),
@@ -50,19 +50,19 @@ pub enum Ty {
 //            (Ty::Unit, Ty::Unit) => true,
 //            (Ty::NumErased, Ty::NumErased) => true,
 //            (Ty::Num(i0), Ty::Num(i1)) => i0==i1,
-//            (Ty::Tens(t0l, t0r), Ty::Tens(t1l, t1r)) => 
+//            (Ty::Tens(t0l, t0r), Ty::Tens(t1l, t1r)) =>
 //                (*t0l == *t1l) && (*t0r == *t1r),
-//            (Ty::Cart(t0l, t0r), Ty::Cart(t1l, t1r)) => 
+//            (Ty::Cart(t0l, t0r), Ty::Cart(t1l, t1r)) =>
 //                (*t0l == *t1l) && (*t0r == *t1r),
-//            (Ty::Sum(t0l, t0r), Ty::Sum(t1l, t1r)) => 
+//            (Ty::Sum(t0l, t0r), Ty::Sum(t1l, t1r)) =>
 //                (*t0l == *t1l) && (*t0r == *t1r),
-//            (Ty::Fun(t0l, t0r), Ty::Fun(t1l, t1r)) => 
+//            (Ty::Fun(t0l, t0r), Ty::Fun(t1l, t1r)) =>
 //                (*t0l == *t1l) && (*t0r == *t1r),
 //            (Ty::Bang(s0, t0), Ty::Bang(s1, t1)) =>
 //                (s0 == s1) && (*t0==*t1),
-//            (Ty::Monad(g0, t0), Ty::Monad(g1, t1)) => 
+//            (Ty::Monad(g0, t0), Ty::Monad(g1, t1)) =>
 //                (g0 == g1) && (*t0==*t1),
-//            (Ty::Forall(eps_0, t0), Ty::Forall(eps_1, t1)) => 
+//            (Ty::Forall(eps_0, t0), Ty::Forall(eps_1, t1)) =>
 //                (eps_0 == eps_1) && (*t0==*t1),
 //            _ => false,
 //        }
@@ -104,11 +104,15 @@ pub type CtxSkeleton = HashMap<String, Rc<RefCell<Ty>>>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ctx {
-    lookup : HashMap<String, (Float, Rc<RefCell<Ty>>)>,
+    lookup: HashMap<String, (Float, Rc<RefCell<Ty>>)>,
 }
 
 impl Ctx {
-    pub fn insert(&mut self, k: String, v: (Float, Rc<RefCell<Ty>>)) -> Option<(Float, Rc<RefCell<Ty>>)> {
+    pub fn insert(
+        &mut self,
+        k: String,
+        v: (Float, Rc<RefCell<Ty>>),
+    ) -> Option<(Float, Rc<RefCell<Ty>>)> {
         self.lookup.insert(k, v)
     }
     pub fn get(&mut self, k: &String) -> Option<&(Float, Rc<RefCell<Ty>>)> {
@@ -119,10 +123,9 @@ impl Ctx {
     }
     pub fn new() -> Ctx {
         Ctx {
-            lookup : HashMap::new()
+            lookup: HashMap::new(),
         }
     }
-
 }
 
 impl ops::Mul<Float> for Ctx {
@@ -130,7 +133,11 @@ impl ops::Mul<Float> for Ctx {
 
     fn mul(self, s: Float) -> Ctx {
         Ctx {
-            lookup: self.lookup.iter().map(|(x, (sen, ty))| (x.clone(), (s * sen, ty.clone()))).collect()
+            lookup: self
+                .lookup
+                .iter()
+                .map(|(x, (sen, ty))| (x.clone(), (s * sen, ty.clone())))
+                .collect(),
         }
     }
 }
@@ -147,9 +154,7 @@ impl ops::Add<Ctx> for Ctx {
                 new_ctx.insert(x.to_string(), (sens, ty));
             }
         }
-        Ctx {
-            lookup: new_ctx
-        }
+        Ctx { lookup: new_ctx }
     }
 }
 
@@ -165,8 +170,6 @@ impl ops::BitOr<Ctx> for Ctx {
                 new_ctx.insert(x.to_string(), (sens, ty));
             }
         }
-        Ctx {
-            lookup: new_ctx
-        }
+        Ctx { lookup: new_ctx }
     }
 }

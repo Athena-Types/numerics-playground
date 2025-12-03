@@ -1,13 +1,13 @@
-use std::fs;
-use log::{trace, debug, info, warn, error};
-use std::path::PathBuf;
-use structopt::StructOpt;
-use std::collections::HashMap;
-use std::sync::atomic::AtomicUsize;
 use env_logger::Env;
+use log::{debug, error, info, trace, warn};
+use std::collections::HashMap;
+use std::fs;
+use std::path::PathBuf;
+use std::sync::atomic::AtomicUsize;
+use structopt::StructOpt;
 
-use fuzzrs::parser::*;
 use fuzzrs::exprs::Float;
+use fuzzrs::parser::*;
 use fuzzrs::{RawLang, Rule};
 use pest::Parser;
 
@@ -19,12 +19,10 @@ struct Opt {
 
     //#[structopt(short, long, parse(from_occurrences))]
     //verbose: u8,
-
     /// Output file
     #[structopt(short, long, parse(from_os_str))]
     input: PathBuf,
 }
-
 
 fn main() {
     env_logger::init();

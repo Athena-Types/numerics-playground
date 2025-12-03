@@ -1,13 +1,15 @@
 use pest::Parser;
 // use pest::ParseResult;
 // use pest::error::Error;
-use crate::exprs::Expr::{Var, Rnd, Ret};
+use crate::exprs::Expr::{Ret, Rnd, Var};
 use crate::exprs::*;
 use crate::{RawLang, Rule};
 use pest::iterators::{Pair, Pairs};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::rc::Rc;
 use std::vec;
 
 pub fn start(filename: PathBuf) -> Expr {
@@ -25,24 +27,27 @@ pub fn combine_decls(decls: Vec<(String, (Expr, Rc<RefCell<Ty>>))>, e: Expr) -> 
 
     for (name, (exp, ty)) in &bindings {
         body = Expr::Let(
-            Box::new(Expr::Var(name.to_string())), 
-            ty.clone(), 
-            Box::new(exp.clone()), 
-            Box::new(body)
+            Box::new(Expr::Var(name.to_string())),
+            ty.clone(),
+            Box::new(exp.clone()),
+            Box::new(body),
         );
     }
     body
 }
 
-pub fn parse_file(filename: PathBuf) -> (Vec<(String, (Expr, Ty))>, Expr) {
+pub fn parse_file(filename: PathBuf) -> (Vec<(String, (Expr, Rc<RefCell<Ty>>))>, Expr) {
     let file = fs::read_to_string(&filename)
         .expect(&format!("File not found at {:?}!", filename).to_string());
     let pairs = RawLang::parse(Rule::program, &file).unwrap();
     parse_program(pairs, &filename)
 }
 
-pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (Vec<(String, (Expr, Ty))>, Expr) {
-    let mut decl_pairs: Vec<(String, (Expr, Ty))> = Vec::new();
+pub fn parse_program(
+    input: Pairs<'_, Rule>,
+    loc: &PathBuf,
+) -> (Vec<(String, (Expr, Rc<RefCell<Ty>>))>, Expr) {
+    let mut decl_pairs: Vec<(String, (Expr, Rc<RefCell<Ty>>))> = Vec::new();
     let mut body = Expr::Unit;
 
     for pair in input {
@@ -72,7 +77,10 @@ pub fn parse_program(input: Pairs<'_, Rule>, loc: &PathBuf) -> (Vec<(String, (Ex
     (decl_pairs, body)
 }
 
-pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> Vec<(String, (Expr, Ty))> {
+pub fn parse_include(
+    input: Pair<'_, Rule>,
+    loc: &PathBuf,
+) -> Vec<(String, (Expr, Rc<RefCell<Ty>>))> {
     let import = input.into_inner().next().unwrap();
     let mut new_loc = loc.parent().unwrap().to_path_buf().clone();
     let filename = import.as_span().as_str();
@@ -83,9 +91,10 @@ pub fn parse_include(input: Pair<'_, Rule>, loc: &PathBuf) -> Vec<(String, (Expr
     decls
 }
 
-pub fn interval_translate(lower_bound : Float, upper_bound : Float) -> ((Float, Float, Float),
-(Float, Float, Float)) 
-{
+pub fn interval_translate(
+    lower_bound: Float,
+    upper_bound: Float,
+) -> ((Float, Float, Float), (Float, Float, Float)) {
     let mut lb_pos = 0.0;
     let mut lb_neg = 0.0;
     let mut ub_pos = 0.0;
@@ -106,7 +115,7 @@ pub fn interval_translate(lower_bound : Float, upper_bound : Float) -> ((Float, 
         }
     }
 
-    return ((lower_bound, lb_pos, lb_neg), (upper_bound, ub_pos, ub_neg))
+    return ((lower_bound, lb_pos, lb_neg), (upper_bound, ub_pos, ub_neg));
 }
 
 pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
@@ -116,17 +125,27 @@ pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
     let mut bounds = Vec::new();
     for bound in iterator {
         let mut bound_inner = bound.into_inner();
-        let lower_bound = bound_inner.next().unwrap()
-            .as_str().to_string().parse::<Float>().unwrap();
-        let upper_bound = bound_inner.next().unwrap()
-            .as_str().to_string().parse::<Float>().unwrap();
+        let lower_bound = bound_inner
+            .next()
+            .unwrap()
+            .as_str()
+            .to_string()
+            .parse::<Float>()
+            .unwrap();
+        let upper_bound = bound_inner
+            .next()
+            .unwrap()
+            .as_str()
+            .to_string()
+            .parse::<Float>()
+            .unwrap();
         bounds.push((lower_bound.clone(), upper_bound.clone()));
 
         let (lower_triple, upper_triple) = interval_translate(lower_bound, upper_bound);
 
         name = Expr::PolyInst(
-            Box::new(name), 
-            Box::new(Interval::Const(lower_triple, upper_triple))
+            Box::new(name),
+            Box::new(Interval::Const(lower_triple, upper_triple)),
         );
     }
     name
@@ -145,15 +164,15 @@ pub fn parse_iop(input: Pair<'_, Rule>) -> Ty {
     unimplemented!("iop parse {:?}", input);
 }
 
-pub fn parse_ty(input: Pair<'_, Rule>) -> Ty {
+pub fn parse_ty(input: Pair<'_, Rule>) -> Rc<RefCell<Ty>> {
     let mut inner_ty = input.into_inner().next().unwrap();
     if (inner_ty.as_rule() == Rule::r#type) || (inner_ty.as_rule() == Rule::atom_ty) {
         inner_ty = inner_ty.into_inner().next().unwrap();
     }
- 
+
     // eprintln!("parse ty: {:?}", inner_ty);
 
-    match inner_ty.as_rule() {
+    let res = match inner_ty.as_rule() {
         Rule::unit => Ty::Unit,
         Rule::num => match inner_ty.into_inner().next() {
             Some(iop) => parse_iop(iop),
@@ -161,60 +180,61 @@ pub fn parse_ty(input: Pair<'_, Rule>) -> Ty {
         },
         Rule::tensor => {
             let mut components = inner_ty.into_inner();
-            let l = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
-            let r = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let l = parse_ty(components.next().unwrap());
+            let r = parse_ty(components.next().unwrap());
             Ty::Tens(l, r)
         }
         Rule::cartesian => {
             let mut components = inner_ty.into_inner();
-            let l = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
-            let r = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let l = parse_ty(components.next().unwrap());
+            let r = parse_ty(components.next().unwrap());
             Ty::Cart(l, r)
         }
         Rule::monad => {
             let mut components = inner_ty.into_inner();
             let grade = parse_eps(components.next().unwrap());
-            let ty = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let ty = parse_ty(components.next().unwrap());
             Ty::Monad(grade, ty)
         }
         Rule::bang => {
             let mut components = inner_ty.into_inner();
             let scale = parse_eps(components.next().expect("Scale not working!"));
-            let ty = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let ty = parse_ty(components.next().unwrap());
             Ty::Bang(scale, ty)
         }
         Rule::fun => {
             let mut components = inner_ty.into_inner();
-            let ty1 = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
-            let ty2 = Rc::new(RefCell::new(parse_ty(components.next().unwrap())));
+            let ty1 = parse_ty(components.next().unwrap());
+            let ty2 = parse_ty(components.next().unwrap());
             Ty::Fun(ty1, ty2)
         }
         _ => unimplemented!("parse ty rule matching {:?}", inner_ty),
-    }
+    };
+    Rc::new(RefCell::new(res))
 }
 
 pub fn parse_arg(input: Pair<'_, Rule>) -> (String, Rc<RefCell<Ty>>) {
     let mut components = input.clone().into_inner();
     let name = components.next().unwrap().as_str();
     let ty = parse_ty(components.next().unwrap());
-    (name.to_string(), Rc::new(RefCell::new(ty)))
+    (name.to_string(), ty)
 }
 
-pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Ty) {
+pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Rc<RefCell<Ty>>) {
     let mut innards = input.into_inner();
     let fname = match innards.next() {
         Some(name) => name.as_str(),
         _ => panic!("No name for function found!"),
     };
 
-    let mut args: Vec<(String, Ty)> = innards
+    let mut args: Vec<(String, Rc<RefCell<Ty>>)> = innards
         .next()
         .expect("Args have no types!")
         .into_inner()
         .map(|x| parse_arg(x))
         .collect();
 
-    let mut ty = Ty::Hole;
+    let mut ty = Rc::new(RefCell::new(Ty::Hole));
     if innards.len() == 2 {
         ty = parse_ty(innards.next().unwrap());
     }
@@ -224,12 +244,8 @@ pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Ty) {
     if args.len() >= 1 {
         args.reverse();
         for (var, typ) in &args {
-            fun = Expr::Lam(
-                Box::new(Var(var.to_string())),
-                Box::new(typ.clone()),
-                Box::new(fun),
-            );
-            ty = Ty::Fun(Box::new(typ.clone()), Box::new(ty));
+            fun = Expr::Lam(Box::new(Var(var.to_string())), typ.clone(), Box::new(fun));
+            ty = Rc::new(RefCell::new(Ty::Fun(typ.clone(), ty.clone())));
         }
     }
 
@@ -293,7 +309,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
                 x => Expr::Var(x.to_string()),
             }
             //parse_name(input.into_inner().next().unwrap())
-        },
+        }
         Rule::tens => {
             let mut components = inner_expr.into_inner();
             let e1 = Box::new(parse_atom(components.next().unwrap()));
@@ -322,7 +338,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
                 .map(|x| parse_arg(x))
                 .collect();
 
-            let mut return_ty = Ty::Hole;
+            let mut return_ty = Rc::new(RefCell::new(Ty::Hole));
             if innards.len() == 2 {
                 return_ty = parse_ty(innards.next().unwrap());
             }
@@ -332,11 +348,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             if args.len() >= 1 {
                 args.reverse();
                 for (var, typ) in &args {
-                    fun = Expr::Lam(
-                        Box::new(Var(var.to_string())),
-                        typ.clone(),
-                        Box::new(fun),
-                    );
+                    fun = Expr::Lam(Box::new(Var(var.to_string())), typ.clone(), Box::new(fun));
                 }
             }
             fun
@@ -345,7 +357,12 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
         Rule::factor => parse_factor(inner_expr),
         Rule::rnd => {
             let mut components = inner_expr.into_inner();
-            let size = components.next().unwrap().as_str().parse::<usize>().unwrap();
+            let size = components
+                .next()
+                .unwrap()
+                .as_str()
+                .parse::<usize>()
+                .unwrap();
             let e = parse_expr(components.next().unwrap());
             Rnd(size, Box::new(e))
         }
@@ -370,7 +387,7 @@ pub fn parse_op(input: Pair<'_, Rule>) -> Expr {
         "mul " => Expr::Op(Op::Mul),
         "add " => Expr::Op(Op::Add),
         "sub " => Expr::Op(Op::Sub),
-        _ => todo!("unhandled op {:?}", op)
+        _ => todo!("unhandled op {:?}", op),
     }
 }
 
