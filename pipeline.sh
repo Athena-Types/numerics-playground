@@ -6,4 +6,7 @@ cd fuzzrs
 cargo build --release
 cd ..
 
-cat names.txt | parallel -j 8 /usr/bin/bash bench.sh {}
+BASH=$(which bash)
+
+# cat small.txt | parallel -j 1 $BASH bench.sh {}
+cat large.txt | parallel -j 1 $BASH bench.sh {}
