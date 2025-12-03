@@ -38,3 +38,6 @@
 [submodule "deps/symengine.py"]
 	path = deps/symengine.py
 	url = https://github.com/symengine/symengine.py.git
+[submodule "deps/gappa"]
+	path = deps/gappa
+	url = https://gitlab.inria.fr/gappa/gappa.git
