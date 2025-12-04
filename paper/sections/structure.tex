@@ -291,16 +291,24 @@ can be done by calling: $\textsc{factorize} ~ e ~ \emptyset$.
 We now wish to prove that our program transformation is sound and never results
 in looser error bounds.
 \begin{theorem}[Factorization soundness]
-  For any program $. \vdash e : \tau$ and $e' = \textsc{factorize} \ e \
+  For any program $. \vdash e : \tau$ and $(e', \sigma) = \textsc{factorize} \ e \
   \emptyset$, we have that $. \vdash e' : \tau'$ where $\tau' \subseteq \tau$.
 \end{theorem}
 \begin{proof}
   We first generalize the hypothesis to be over all typing contexts $\Gamma$.
   We induct over the typing derivation. 
-  We strengthen the inductive hypothesis with the assumption that: $\sigma:
-  \text{var} \rightharpoonup \text{program}$ only maps variables $x_0, x_1, x_n$
-  defined in the typing context $\Gamma$ such that $\Gamma \vdash \sigma[x] :
-  M_u \ \Gamma[x]$ is well-typed and TODO.
+  We strengthen the inductive hypothesis with the assumption that our map
+  $\sigma: \text{var} \rightharpoonup \text{program}$ only maps variables $x_0,
+  x_1, x_n$ defined in the typing context $\Gamma$ such that $\Gamma \vdash
+  \sigma[x] : M_u \ \Gamma[x]$ is well-typed and a output guarantee that for all
+  $x \in DOM(\sigma)$:
+  \begin{enumerate}
+    \item If $x \in \sigma$, $\Gamma \vdash e' : \tau'$ for $\tau' \subseteq
+      \tau$ (substitution occured with \textbf{factor}).
+    \item If $x \not\in \sigma$, $\Gamma, x : \tau \vdash e' : \tau'$ for $\tau' \subseteq
+      \tau$ (substitution did not occur, revert).
+  \end{enumerate}
+  We proceed with our induction: 
   \begin{description}
     \item[Base cases (variables, constants, etc.).] Holds trivially as the
       transformation does nothing.
