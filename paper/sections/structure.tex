@@ -220,11 +220,12 @@ $\textbf{op} \ y$).
 %   \end{aligned}
 % \end{equation}
 
-Now, we we can define $\textsc{factorize}$, which
-syntatically operates on pairs of well-typed programs in adminstrative normal
-form and \textit{monadic maps} $\sigma$, which maps variables to expressions of
-monadic type. $\textsc{transform}$ returns the transformed program fragment and
-sets of variables that have been used by factor. It has type:
+Now, we we can define $\textsc{factorize}$, which syntatically operates on pairs
+of well-typed programs in adminstrative normal form and \textit{monadic maps}
+$\sigma$, which maps variables to expressions of monadic type. These maps behave
+similarly to substutiton maps. $\textsc{transform}$ returns the transformed
+program fragment and sets of variables that have been used by factor. It has
+type:
 % max: hmm this last part doesn't quite make sense wrt sets of vars
 $$
 \textsc{factorize} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
@@ -282,4 +283,28 @@ and our base case for constants:
     \textsc{factorize}(k, \sigma) &= (k, \{\})
   \end{aligned}
 \end{equation}
-The remainder of the rules are recursive and structural.
+The remainder of the rules are recursive and structural. Invoking the program
+transformation on a well-typed program transformation $. \vdash e : \tau$
+can be done by calling: $\textsc{factorize} ~ e ~ \emptyset$.
+
+\subsubsection{Program transformation properties}
+We now wish to prove that our program transformation is sound and never results
+in looser error bounds.
+\begin{theorem}[Factorization soundness]
+  For any program $. \vdash e : \tau$ and $e' = \textsc{factorize} \ e \
+  \emptyset$, we have that $. \vdash e' : \tau'$ where $\tau' \subseteq \tau$.
+\end{theorem}
+\begin{proof}
+  We first generalize the hypothesis to be over all typing contexts $\Gamma$.
+  We induct over the typing derivation. 
+  We strengthen the inductive hypothesis with the assumption that: $\sigma:
+  \text{var} \rightharpoonup \text{program}$ only maps variables $x_0, x_1, x_n$
+  defined in the typing context $\Gamma$ such that $\Gamma \vdash \sigma[x] :
+  M_u \ \Gamma[x]$ is well-typed and TODO.
+  \begin{description}
+    \item[Base cases (variables, constants, etc.).] Holds trivially as the
+      transformation does nothing.
+    \item[Let.] TODO.
+    \item[Let-bind ($M_u E$).] TODO.
+  \end{description}
+\end{proof}
