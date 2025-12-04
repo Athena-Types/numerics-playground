@@ -174,6 +174,22 @@ reverse direction:
    \rangle
 \end{aligned}
 \end{equation*}
+Further, the comonadic sequencing rule does not have such a corresponding
+restriction as both
+\begin{equation}
+  \begin{aligned}[c]
+  \textbf{cofactor} &: (!_s \tau_0) \times (!_s \tau_1) \multimap !_s (\tau_0 \times \tau_1) \\
+  \textbf{cofactor} &\triangleq \lambda e. [\langle \textbf{let-cobind} \ x \ = \ \pi_0 \ e \ \textbf{in} \ x , \textbf{let-cobind} \ y \ = \ \pi_1 \ e \ \textbf{in} \ y \rangle]\\
+  \end{aligned}
+\end{equation}
+and
+\begin{equation}
+  \begin{aligned}[c]
+    \textbf{codistribute} &: !_s (\tau_0 \times \tau_1) \multimap (!_s \tau_0) \times (!_s \tau_1) \\
+    \textbf{codistribute} &\triangleq \lambda e. \textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ \langle [\pi_0 ~ x], [\pi_1 ~ x] \rangle \\
+  \end{aligned}
+\end{equation}
+are derivable.
 
 % In particular, the ability for a producer to share resources interacts poorly with our
 % sequenced $\textbf{let-bind}$ and call-by-value evaluation strategy, which
@@ -187,28 +203,31 @@ reverse direction:
 We now explore the interaction between $\textbf{factor}$ and subtraction. TODO??
 
 \subsection{Automatic inference of factor}
-We now describe an automatic program transformation $\textsc{transform}$ that
+We now describe an automatic program transformation $\textsc{factorize}$ that
 can insert $\textbf{factor}$ in a program that is strictly sequenced without
 $\textbf{factor}$. We assume that each variable is unique (no shadowing).
 
-We first recusively transform the program so that every application is of a
-variable to an expression (e.g. $e \ x$) or operation (e.g. $\textbf{op} \ y$). 
-The non-structural cases of the transformation are provided below:
+We first recusively transform the program so that it is in administrative normal
+form. In particular, we desire that every application is of an
+expression to a variable (e.g. $e \ x$) or operation to a variable (e.g.
+$\textbf{op} \ y$). 
+% The non-structural cases of the transformation are provided below:
+%
+% \begin{equation}
+%   \begin{aligned}[c]
+%     \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
+%     \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
+%   \end{aligned}
+% \end{equation}
 
-\begin{equation}
-  \begin{aligned}[c]
-    \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
-    \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
-  \end{aligned}
-\end{equation}
-
-$\textsc{transform}$ syntatically operates on pairs of well-typed programs and
-\textit{monadic maps} $\sigma$, which maps variables to expressions of monadic
-type. It returns the transformed program fragment and sets of variables that
-have been used by factor. It has type:
+Now, we we can define $\textsc{factorize}$, which
+syntatically operates on pairs of well-typed programs in adminstrative normal
+form and \textit{monadic maps} $\sigma$, which maps variables to expressions of
+monadic type. $\textsc{transform}$ returns the transformed program fragment and
+sets of variables that have been used by factor. It has type:
 % max: hmm this last part doesn't quite make sense wrt sets of vars
 $$
-\textsc{transform} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
+\textsc{factorize} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
 (\text{program} \times \text{sets of variables})
 $$
 
@@ -216,7 +235,7 @@ $$
 % otherwise defined in $\sigma$.
 
 % \begin{equation}
-%   \textsc{transform}(e) = \textsc{sequence}(\textsc{transform-rec}(e, \emptyset))
+%   \textsc{factorize}(e) = \textsc{sequence}(\textsc{factorize-rec}(e, \emptyset))
 % \end{equation}
 
 We use $V$ as a metavariable to represent a set of variables. We first detail
@@ -224,9 +243,9 @@ the interesting cases for our program transformation:
 
 \begin{equation}
 \begin{aligned}[c]
-  \textsc{transform}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
+  \textsc{factorize}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
   \begin{aligned}
-    \text{let} \ (g, V) \ = (\textsc{transform}(f, \sigma;[x \mapsto \text{fst} \ \textsc{transform}(e, \sigma)])) \ \text{in} \\
+    \text{let} \ (g, V) \ = (\textsc{factorize}(f, \sigma;[x \mapsto \text{fst} \ \textsc{factorize}(e, \sigma)])) \ \text{in} \\
     \text{if} \ x \in V \\
     \text{then} \ (g, V) \\
     \text{else} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V \cup \{x\})\\
@@ -234,19 +253,19 @@ the interesting cases for our program transformation:
   \end{aligned}
   \\
   \\
-  \textsc{transform}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
+  \textsc{factorize}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
   \begin{aligned}
-    \text{let} \ (g, V) = \textsc{transform}(f, \sigma) \ \text{in}\\
+    \text{let} \ (g, V) = \textsc{factorize}(f, \sigma) \ \text{in}\\
     \text{if} \ x, y \in DOM(\sigma) \\
     \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
     \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
     V) \\
   \end{aligned} \\
   \\
-  \textsc{transform}(e \ f, \sigma) &= 
+  \textsc{factorize}(e \ f, \sigma) &= 
   \begin{aligned}
-    \text{let} \ (g, V_0) = \textsc{transform}(e, \sigma) \ \text{in}\\
-    \text{let} \ (h, V_1) = \textsc{transform}(f, \sigma) \ \text{in}\\
+    \text{let} \ (g, V_0) = \textsc{factorize}(e, \sigma) \ \text{in}\\
+    \text{let} \ (h, V_1) = \textsc{factorize}(f, \sigma) \ \text{in}\\
     (g \ h, V_0 \cup V_1)
   \end{aligned} \\
 \end{aligned}
@@ -254,13 +273,13 @@ the interesting cases for our program transformation:
 Now, we detail our base case for variables:
 \begin{equation}
   \begin{aligned}
-    \textsc{transform}(x, \sigma) &= (x, \{\})
+    \textsc{factorize}(x, \sigma) &= (x, \{\})
   \end{aligned}
 \end{equation}
 and our base case for constants:
 \begin{equation}
   \begin{aligned}
-    \textsc{transform}(k, \sigma) &= (k, \{\})
+    \textsc{factorize}(k, \sigma) &= (k, \{\})
   \end{aligned}
 \end{equation}
 The remainder of the rules are recursive and structural.
