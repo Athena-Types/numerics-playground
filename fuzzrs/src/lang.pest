@@ -90,7 +90,7 @@ modes = { "16" | "32" | "64" }
 
 include = { "#include" ~ "\"" ~ filename ~ "\"" ~ (";")? }
 filename = { path ~ ".fz" }
-path = @{ (".." | "."  | name ) ~ ("/" ~ name)* }
+path = @{ (".." | "." | name ) ~ ("/" ~ (".." | name))* }
 
 // Numbers, taken from the pest docs
 integer = { ("+" | "-")? ~ int }
