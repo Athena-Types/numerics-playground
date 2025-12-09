@@ -117,44 +117,44 @@ pub fn sub_eps(i: Interval, s: &Sub) -> Interval {
     }
 }
 
-pub fn sub_ty<'a>(t: Rc<RefCell<Ty>>, s: &Sub) -> Rc<RefCell<Ty>> {
+pub fn sub_ty<'a>(t: &Rc<RefCell<Ty>>, s: &Sub) -> Rc<RefCell<Ty>> {
     let res = match *t.borrow() {
         Ty::Unit => Ty::Unit,
         Ty::NumErased => panic!("Should not see an erased type!"),
         //Ty::Num(interval) => Ty::Num(step_interval(sub_eps(interval.clone(), s)),
         Ty::Num(ref interval) => Ty::Num(sub_eps(interval.clone(), s)),
         Ty::Tens(ref t0, ref t1) => {
-            let t0n = sub_ty(t0.clone(), s);
-            let t1n = sub_ty(t1.clone(), s);
+            let t0n = sub_ty(&t0, s);
+            let t1n = sub_ty(&t1, s);
             Ty::Tens(t0n, t1n)
         }
         Ty::Cart(ref t0, ref t1) => {
-            let t0n = sub_ty(t0.clone(), s);
-            let t1n = sub_ty(t1.clone(), s);
+            let t0n = sub_ty(&t0, s);
+            let t1n = sub_ty(&t1, s);
             Ty::Cart(t0n, t1n)
         }
         Ty::Sum(ref t0, ref t1) => {
-            let t0n = sub_ty(t0.clone(), s);
-            let t1n = sub_ty(t1.clone(), s);
+            let t0n = sub_ty(&t0, s);
+            let t1n = sub_ty(&t1, s);
             Ty::Sum(t0n, t1n)
         }
         Ty::Fun(ref t0, ref t1) => {
-            let t0n = sub_ty(t0.clone(), s);
-            let t1n = sub_ty(t1.clone(), s);
+            let t0n = sub_ty(&t0, s);
+            let t1n = sub_ty(&t1, s);
             Ty::Fun(t0n, t1n)
         }
         Ty::Bang(sens, ref t) => {
-            let tn = sub_ty(t.clone(), s);
+            let tn = sub_ty(&t, s);
             Ty::Bang(sens, tn)
         }
         Ty::Monad(g, ref t) => {
-            let tn = sub_ty(t.clone(), s);
+            let tn = sub_ty(&t, s);
             Ty::Monad(g, tn)
         }
         Ty::Forall(eps, ref t) => {
             let mut cap_avoiding = s.clone();
             cap_avoiding.remove(&eps);
-            let tn = sub_ty(t.clone(), &cap_avoiding);
+            let tn = sub_ty(&t, &cap_avoiding);
             Ty::Forall(eps, tn)
             //panic!("Should not see forall here!")
         }
@@ -479,8 +479,8 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                     debug!("intervals {:?}", intervals);
                     let subs = make_subs(eps_v, intervals);
                     // perform subs
-                    let tau_0_sup_sub = sub_ty(tau_0_sup.clone(), &subs);
-                    let tau_1_sub = sub_ty(tau_1.clone(), &subs);
+                    let tau_0_sup_sub = sub_ty(&tau_0_sup, &subs);
+                    let tau_1_sub = sub_ty(&tau_1, &subs);
                     // make sure contravariant
                     assert!(
                         subtype(tau_0.clone(), tau_0_sup_sub.clone()),
@@ -628,7 +628,7 @@ pub fn rec_poly(tau: Rc<RefCell<Ty>>, i: Interval) -> Rc<RefCell<Ty>> {
         Ty::Forall(eps, ref ty) => {
             let mut sub = HashMap::new();
             sub.insert(eps, i);
-            sub_ty(ty.clone(), &sub)
+            sub_ty(&ty, &sub)
         }
         Ty::Fun(ref t0, ref t1) => {
             Rc::new(RefCell::new(Ty::Fun(t0.clone(), rec_poly(t1.clone(), i))))
