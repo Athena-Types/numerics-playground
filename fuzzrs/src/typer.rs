@@ -354,7 +354,7 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
         }
         Expr::Let(box_x, ty_i, e, f) => {
             debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, tau) = infer(&c, *e, eps_c);
+            let (mut gamma, tau) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -371,11 +371,13 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                 //assert_eq!(tau, *ty_i)
             }
 
-            ((gamma * (*sens)) + theta, ty)
+            gamma *= *sens;
+            gamma += theta;
+            (gamma, ty)
         }
         Expr::LCB(box_x, e, f) => {
             debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, mtau_0) = infer(&c, *e, eps_c);
+            let (mut gamma, mtau_0) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -391,11 +393,14 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
 
             let (ts, _) = theta.get(&x).expect("Var not found in env").clone();
             let t = ts / s;
-            ((gamma * t) + theta, tau)
+
+            gamma *= t;
+            gamma += theta;
+            (gamma, tau)
         }
         Expr::LB(box_x, e, f) => {
             //debug!("expr {:?} in ctx {:?}", e, c);
-            let (gamma, mtau_0) = infer(&c, *e, eps_c);
+            let (mut gamma, mtau_0) = infer(&c, *e, eps_c);
             let x = match *box_x {
                 Var(x) => x,
                 _ => todo!(),
@@ -414,8 +419,10 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             };
 
             let (s, _) = theta.get(&x).expect("Var not found in env").clone();
+            gamma *= s;
+            gamma += theta;
             (
-                (gamma * s) + theta,
+                gamma,
                 Rc::new(RefCell::new(Ty::Monad(s * r + q, tau.clone()))),
             )
         }
@@ -447,7 +454,7 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             (gamma, tau)
         }
         Expr::App(e, f) => {
-            let (gamma, mut tau_fun) = match *e {
+            let (mut gamma, mut tau_fun) = match *e {
                 Expr::Op(o) => (Ctx::new(), Rc::new(RefCell::new(lookup_op(o, eps_c)))),
                 fun => infer(&c, fun, eps_c),
             };
@@ -486,12 +493,13 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                 }
                 _ => panic!("{:?} is not a function type!", tau_fun),
             };
+            gamma += delta;
             debug!(
                 "Inferred ctx (app): {:?} \n Ty: {:?}",
-                gamma.clone() + delta.clone(),
+                gamma,
                 tau_1.clone()
             );
-            (gamma + delta, tau_1)
+            (gamma, tau_1)
         }
         Expr::Op(o) => todo!("should be handled by the app case!"),
         Expr::Rnd(m, e) => {
@@ -513,18 +521,20 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             (ctx, Rc::new(RefCell::new(Ty::Unit)))
         }
         Expr::Tens(e1, e2) => {
-            let (gamma_0, tau_0) = infer(&c, *e1, eps_c);
+            let (mut gamma_0, tau_0) = infer(&c, *e1, eps_c);
             let (gamma_1, tau_1) = infer(&c, *e2, eps_c);
+            gamma_0 += gamma_1;
             (
-                gamma_0 + gamma_1,
+                gamma_0,
                 Rc::new(RefCell::new(Ty::Tens(tau_0, tau_1))),
             )
         }
         Expr::Cart(e1, e2) => {
-            let (gamma_0, tau_0) = infer(&c, *e1, eps_c);
+            let (mut gamma_0, tau_0) = infer(&c, *e1, eps_c);
             let (gamma_1, tau_1) = infer(&c, *e2, eps_c);
+            gamma_0 |= gamma_1;
             (
-                gamma_0 | gamma_1,
+                gamma_0,
                 Rc::new(RefCell::new(Ty::Cart(tau_0, tau_1))),
             )
         }
@@ -579,8 +589,9 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             }
         }
         Expr::Scale(s, e) => {
-            let (gamma, tau) = infer(&c, *e, eps_c);
-            (gamma * s, Rc::new(RefCell::new(Ty::Bang(s, tau))))
+            let (mut gamma, tau) = infer(&c, *e, eps_c);
+            gamma *= s;
+            (gamma, Rc::new(RefCell::new(Ty::Bang(s, tau))))
         }
         Expr::LP(box_x, box_y, e, f) => {
             // TODO: really shouldn't be c .clone()
@@ -592,7 +603,7 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                 Var(y) => y,
                 _ => todo!(),
             };
-            let (gamma, paired_ty) = infer(&c, *e, eps_c);
+            let (mut gamma, paired_ty) = infer(&c, *e, eps_c);
             match *paired_ty.borrow() {
                 Ty::Tens(ref tau_0, ref tau_1) => {
                     let mut new_c = c.clone();
@@ -601,7 +612,9 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                     let (mut theta, tau_fin) = infer(&new_c, *f, eps_c);
                     let (s0, _) = theta.get(&x).expect("Var not found in env").clone();
                     let (s1, _) = theta.get(&y).expect("Var not found in env").clone();
-                    (gamma * max(s0, s1) + theta, tau_fin)
+                    gamma *= max(s0, s1);
+                    gamma += theta;
+                    (gamma, tau_fin)
                 }
                 _ => panic!("Bad type passed to let-pair!"),
             }

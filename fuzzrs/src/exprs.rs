@@ -128,48 +128,77 @@ impl Ctx {
     }
 }
 
-impl ops::Mul<Float> for Ctx {
-    type Output = Ctx;
+//impl ops::Mul<Float> for Ctx {
+//    type Output = Ctx;
+//
+//    fn mul(self, s: Float) -> Ctx {
+//        Ctx {
+//            lookup: self
+//                .lookup
+//                .iter()
+//                .map(|(x, (sen, ty))| (x.clone(), (s * sen, ty.clone())))
+//                .collect(),
+//        }
+//    }
+//}
 
-    fn mul(self, s: Float) -> Ctx {
-        Ctx {
-            lookup: self
-                .lookup
-                .iter()
-                .map(|(x, (sen, ty))| (x.clone(), (s * sen, ty.clone())))
-                .collect(),
+//impl ops::Add<Ctx> for Ctx {
+//    type Output = Ctx;
+//
+//    fn add(self, c: Ctx) -> Ctx {
+//        let mut new_ctx = c.clone().lookup;
+//        for (x, (sens, ty)) in self.lookup {
+//            if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
+//                new_ctx.insert(x.to_string(), (o_sens + sens, ty));
+//            } else {
+//                new_ctx.insert(x.to_string(), (sens, ty));
+//            }
+//        }
+//        Ctx { lookup: new_ctx }
+//    }
+//}
+
+//impl ops::BitOr<Ctx> for Ctx {
+//    type Output = Ctx;
+//
+//    fn bitor(self, c: Ctx) -> Ctx {
+//        let mut new_ctx = c.clone().lookup;
+//        for (x, (sens, ty)) in self.lookup {
+//            if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
+//                new_ctx.insert(x.to_string(), (o_sens.max(sens), ty));
+//            } else {
+//                new_ctx.insert(x.to_string(), (sens, ty));
+//            }
+//        }
+//        Ctx { lookup: new_ctx }
+//    }
+//}
+
+impl ops::MulAssign<Float> for Ctx {
+    fn mul_assign(&mut self, rhs: Float) {
+        for (s, ty) in self.lookup.values_mut() {
+            *s *= rhs;
         }
     }
 }
 
-impl ops::Add<Ctx> for Ctx {
-    type Output = Ctx;
-
-    fn add(self, c: Ctx) -> Ctx {
-        let mut new_ctx = c.clone().lookup;
-        for (x, (sens, ty)) in self.lookup {
-            if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
-                new_ctx.insert(x.to_string(), (o_sens + sens, ty));
-            } else {
-                new_ctx.insert(x.to_string(), (sens, ty));
+impl ops::AddAssign<Ctx> for Ctx {
+    fn add_assign(&mut self, c: Ctx) {
+        for (x, (s_right, ty)) in c.lookup {
+            match self.lookup.get_mut(&x) {
+                Some((s_left, ty)) => *s_left += s_right,
+                None => {self.insert(x.to_string(), (s_right, ty));}
             }
         }
-        Ctx { lookup: new_ctx }
     }
 }
-
-impl ops::BitOr<Ctx> for Ctx {
-    type Output = Ctx;
-
-    fn bitor(self, c: Ctx) -> Ctx {
-        let mut new_ctx = c.clone().lookup;
-        for (x, (sens, ty)) in self.lookup {
-            if let Some((o_sens, o_ty)) = new_ctx.get(&x) {
-                new_ctx.insert(x.to_string(), (o_sens.max(sens), ty));
-            } else {
-                new_ctx.insert(x.to_string(), (sens, ty));
+impl ops::BitOrAssign<Ctx> for Ctx {
+    fn bitor_assign(&mut self, c: Ctx) {
+        for (x, (s_right, ty)) in c.lookup {
+            match self.lookup.get_mut(&x) {
+                Some((s_left, ty)) => *s_left = s_left.max(s_right),
+                None => {self.insert(x.to_string(), (s_right, ty));}
             }
         }
-        Ctx { lookup: new_ctx }
     }
 }
