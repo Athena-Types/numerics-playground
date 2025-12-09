@@ -66,6 +66,11 @@ pub fn a_priori_bound_rel(t: Rc<RefCell<Ty>>) -> Option<Float> {
             }
             _ => todo!("Not supported!"),
         },
+        Ty::Tens(ref t0, ref t1) => {
+            let f0 = a_priori_bound_rel(t0.clone()).expect("Not supported (tens)!");
+            let f1 = a_priori_bound_rel(t1.clone()).expect("Not supported (tens)!");
+            Some(f0 + f1)
+        }
         _ => todo!("Not supported!"),
     }
 }
@@ -109,6 +114,11 @@ pub fn a_posteriori_bound_rel(t: Rc<RefCell<Ty>>, r_actual: Float) -> Option<Flo
             }
             _ => todo!("Not supported!"),
         },
+        Ty::Tens(ref t0, ref t1) => {
+            let f0 = a_posteriori_bound_rel(t0.clone(), r_actual).expect("Not supported (tens)!");
+            let f1 = a_posteriori_bound_rel(t1.clone(), r_actual).expect("Not supported (tens)!");
+            Some(f0 + f1)
+        }
         _ => todo!("Not supported!"),
     }
 }
@@ -129,6 +139,11 @@ pub fn a_priori_bound_abs(t: Rc<RefCell<Ty>>) -> Option<Float> {
             }
             _ => todo!("Not supported!"),
         },
+        Ty::Tens(ref t0, ref t1) => {
+            let f0 = a_priori_bound_abs(t0.clone()).expect("Not supported (tens)!");
+            let f1 = a_priori_bound_abs(t1.clone()).expect("Not supported (tens)!");
+            Some(f0 + f1)
+        }
         _ => todo!("Not supported!"),
     }
 }

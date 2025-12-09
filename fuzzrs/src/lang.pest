@@ -56,7 +56,7 @@ lb = {
   | ("let" ~ name ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 lp = { 
-  ("lp " ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ " in " ~ expr) 
+  ("lp " ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ "in" ~ expr) 
   | ("let" ~ "(" ~ name ~ "," ~ name ~ ")" ~ "=" ~ expr ~ ";" ~ expr) // old syntax
 }
 op = { "add " | "sub " | "mul " }
