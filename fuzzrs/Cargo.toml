@@ -9,3 +9,7 @@ log = { version = "0.4.28", features = ["kv"] }
 pest = "2.8.3"
 pest_derive = "2.8.3"
 structopt = "0.3.26"
+
+[profile.release-with-debug]
+inherits = "release"
+debug = true
