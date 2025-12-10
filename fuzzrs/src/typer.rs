@@ -82,7 +82,7 @@ pub fn subtype(sub: Rc<RefCell<Ty>>, sup: Rc<RefCell<Ty>>) -> bool {
 pub fn zero_ctx(c: &CtxSkeleton) -> Ctx {
     let mut ctx = Ctx::new();
     for (y, ty_l) in c.iter() {
-        ctx.insert(y.to_string(), (0.0, ty_l.clone()));
+        ctx.insert(y.clone(), (0.0, ty_l.clone()));
     }
     ctx
 }
@@ -337,11 +337,11 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             let mut ctx = Ctx::new();
             for (y, ty_l) in c.iter() {
                 if x == *y {
-                    ctx.insert(y.to_string(), (1.0, ty_l.clone()));
+                    ctx.insert(y.clone(), (1.0, ty_l.clone()));
                     drop(ty);
                     ty = ty_l.clone();
                 } else {
-                    ctx.insert(y.to_string(), (0.0, ty_l.clone()));
+                    ctx.insert(y.clone(), (0.0, ty_l.clone()));
                 }
             }
             assert!(
@@ -607,8 +607,8 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
             match *paired_ty.borrow() {
                 Ty::Tens(ref tau_0, ref tau_1) => {
                     let mut new_c = c.clone();
-                    new_c.insert((*x).to_string(), tau_0.clone());
-                    new_c.insert((*y).to_string(), tau_1.clone());
+                    new_c.insert(x.clone(), tau_0.clone());
+                    new_c.insert(y.clone(), tau_1.clone());
                     let (mut theta, tau_fin) = infer(&new_c, *f, eps_c);
                     let (s0, _) = theta.get(&x).expect("Var not found in env").clone();
                     let (s1, _) = theta.get(&y).expect("Var not found in env").clone();

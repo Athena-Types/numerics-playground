@@ -73,7 +73,7 @@ pub enum Ty {
 pub enum Expr {
     // ExpHole,
     Unit,
-    Var(String),
+    Var(Rc<str>),
     Num(Float),
     Op(Op),
     Lam(Box<Expr>, Rc<RefCell<Ty>>, Box<Expr>),
@@ -98,27 +98,27 @@ pub enum Expr {
     Factor(Box<Expr>),
 }
 
-pub type CtxSkeleton = HashMap<String, Rc<RefCell<Ty>>>;
+pub type CtxSkeleton = HashMap<Rc<str>, Rc<RefCell<Ty>>>;
 
 //pub type Ctx = HashMap<String, (Float, Ty)>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ctx {
-    lookup: HashMap<String, (Float, Rc<RefCell<Ty>>)>,
+    lookup: HashMap<Rc<str>, (Float, Rc<RefCell<Ty>>)>,
 }
 
 impl Ctx {
     pub fn insert(
         &mut self,
-        k: String,
+        k: Rc<str>,
         v: (Float, Rc<RefCell<Ty>>),
     ) -> Option<(Float, Rc<RefCell<Ty>>)> {
         self.lookup.insert(k, v)
     }
-    pub fn get(&mut self, k: &String) -> Option<&(Float, Rc<RefCell<Ty>>)> {
+    pub fn get(&mut self, k: &Rc<str>) -> Option<&(Float, Rc<RefCell<Ty>>)> {
         self.lookup.get(k)
     }
-    pub fn remove(&mut self, k: &String) -> Option<(Float, Rc<RefCell<Ty>>)> {
+    pub fn remove(&mut self, k: &Rc<str>) -> Option<(Float, Rc<RefCell<Ty>>)> {
         self.lookup.remove(k)
     }
     pub fn new() -> Ctx {
@@ -187,7 +187,7 @@ impl ops::AddAssign<Ctx> for Ctx {
         for (x, (s_right, ty)) in c.lookup {
             match self.lookup.get_mut(&x) {
                 Some((s_left, ty)) => *s_left += s_right,
-                None => {self.insert(x.to_string(), (s_right, ty));}
+                None => {self.insert(x, (s_right, ty));}
             }
         }
     }
@@ -197,7 +197,7 @@ impl ops::BitOrAssign<Ctx> for Ctx {
         for (x, (s_right, ty)) in c.lookup {
             match self.lookup.get_mut(&x) {
                 Some((s_left, ty)) => *s_left = s_left.max(s_right),
-                None => {self.insert(x.to_string(), (s_right, ty));}
+                None => {self.insert(x, (s_right, ty));}
             }
         }
     }

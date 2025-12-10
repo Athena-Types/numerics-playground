@@ -27,7 +27,7 @@ pub fn combine_decls(decls: Vec<(String, (Expr, Rc<RefCell<Ty>>))>, e: Expr) -> 
 
     for (name, (exp, ty)) in &bindings {
         body = Expr::Let(
-            Box::new(Expr::Var(name.to_string())),
+            Box::new(Expr::Var(name.to_string().into())),
             ty.clone(),
             Box::new(exp.clone()),
             Box::new(body),
@@ -244,7 +244,7 @@ pub fn parse_function(input: Pair<'_, Rule>) -> (String, Expr, Rc<RefCell<Ty>>) 
     if args.len() >= 1 {
         args.reverse();
         for (var, typ) in &args {
-            fun = Expr::Lam(Box::new(Var(var.to_string())), typ.clone(), Box::new(fun));
+            fun = Expr::Lam(Box::new(Var(var.to_string().into())), typ.clone(), Box::new(fun));
             ty = Rc::new(RefCell::new(Ty::Fun(typ.clone(), ty.clone())));
         }
     }
@@ -306,7 +306,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
                 "mul" => Expr::Op(Op::Mul),
                 "add" => Expr::Op(Op::Add),
                 "sub" => Expr::Op(Op::Sub),
-                x => Expr::Var(x.to_string()),
+                x => Expr::Var(x.to_string().into()),
             }
             //parse_name(input.into_inner().next().unwrap())
         }
@@ -348,7 +348,7 @@ pub fn parse_expr(input: Pair<'_, Rule>) -> Expr {
             if args.len() >= 1 {
                 args.reverse();
                 for (var, typ) in &args {
-                    fun = Expr::Lam(Box::new(Var(var.to_string())), typ.clone(), Box::new(fun));
+                    fun = Expr::Lam(Box::new(Var(var.to_string().into())), typ.clone(), Box::new(fun));
                 }
             }
             fun
@@ -409,5 +409,5 @@ pub fn parse_atom(input: Pair<'_, Rule>) -> Expr {
 
 pub fn parse_name(input: Pair<'_, Rule>) -> Expr {
     // eprintln!("parse name {:?}", input);
-    Expr::Var(input.as_str().to_string())
+    Expr::Var(input.as_str().into())
 }
