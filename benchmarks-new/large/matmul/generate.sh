@@ -9,3 +9,4 @@ generate 16
 generate 32
 generate 64
 generate 128
+generate 256
