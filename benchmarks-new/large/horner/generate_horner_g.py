@@ -39,11 +39,11 @@ def generate_horner_gappa(n):
     lines.append('# the logical formula that Gappa will try (and succeed) to prove')
 
     # Logical formula
-    lines.append('{ x in [0.1,1000]')
+    lines.append('{ x in [-1,1]')
 
     # Constraints for a0 to aN
     for i in range(n + 1):
-        lines.append(f'  /\\ a{i} in [0.1,1000]')
+        lines.append(f'  /\\ a{i} in [-1,1]')
 
     # Final line
     lines.append('  -> |(z - r) / r| in ? }')

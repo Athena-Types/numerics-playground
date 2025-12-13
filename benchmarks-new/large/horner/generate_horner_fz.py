@@ -6,7 +6,7 @@ def generate_horner_fz(n):
     lines = []
 
     # Header
-    lines.append('#include "float_ops/fma64.fz"')
+    lines.append('#include "../../float_ops/fma64.fz"')
     lines.append('')
 
     # Function signature
@@ -44,7 +44,7 @@ def generate_horner_fz(n):
     # Function call
     call_line = f'Horner{n}'
     for _ in range(n + 2):
-        call_line += '[0.1,1000]'
+        call_line += '[-1,1]'
     lines.append(call_line)
 
     return '\n'.join(lines)

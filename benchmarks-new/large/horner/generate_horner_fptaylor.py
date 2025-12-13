@@ -9,11 +9,11 @@ def generate_horner_fptaylor(n):
     lines.append('Variables')
 
     # Add x variable
-    lines.append('  float64 x  in [0.1, 1000];')
+    lines.append('  float64 x  in [-1, 1];')
 
     # Add a0 to aN variables
     for i in range(n + 1):
-        lines.append(f'  float64 a{i} in [0.1, 1000];')
+        lines.append(f'  float64 a{i} in [-1, 1];')
 
     # Blank line
     lines.append('')
