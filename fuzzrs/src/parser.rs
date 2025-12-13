@@ -145,7 +145,7 @@ pub fn parse_polyinst(input: Pair<'_, Rule>) -> Expr {
 
         name = Expr::PolyInst(
             Box::new(name),
-            Box::new(Interval::Const(lower_triple, upper_triple)),
+            Box::new(Interval::Const(lower_triple, upper_triple, true)),
         );
     }
     name

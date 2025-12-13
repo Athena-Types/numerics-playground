@@ -30,7 +30,7 @@ pub fn a_priori_bound_rel(t: Rc<RefCell<Ty>>) -> Option<Float> {
     match *t.borrow() {
         Ty::Fun(ref t0, ref t1) => a_priori_bound_rel(t1.clone()),
         Ty::Monad(q, ref m_ty) => match *m_ty.borrow() {
-            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up))) => {
+            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up), _)) => {
                 if r_down <= 0.0 {
                     return None;
                 }
@@ -79,7 +79,7 @@ pub fn a_posteriori_bound_rel(t: Rc<RefCell<Ty>>, r_actual: Float) -> Option<Flo
     match *t.borrow() {
         Ty::Fun(ref t0, ref t1) => a_posteriori_bound_rel(t1.clone(), r_actual),
         Ty::Monad(q, ref m_ty) => match *m_ty.borrow() {
-            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up))) => {
+            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up), _)) => {
                 let e_q = (q).exp();
                 let e_neg_q = (-q).exp();
                 let e_2q = (2.0 * q).exp();
@@ -127,7 +127,7 @@ pub fn a_priori_bound_abs(t: Rc<RefCell<Ty>>) -> Option<Float> {
     match *t.borrow() {
         Ty::Fun(ref t0, ref t1) => a_priori_bound_abs(t1.clone()),
         Ty::Monad(q, ref m_ty) => match *m_ty.borrow() {
-            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up))) => {
+            Ty::Num(Interval::Const((r_down, a_down, b_down), (r_up, a_up, b_up), _)) => {
                 let e_q = (q).exp();
                 let e_neg_q = (-q).exp();
                 let b1 = a_up * (1.0 - e_neg_q) - b_down * (1.0 - e_q);

@@ -110,7 +110,7 @@ pub fn sub_eps(i: Interval, s: &Sub) -> Interval {
             Some(new_v) => new_v.clone(),
             None => i,
         },
-        Const(_, _) => i,
+        Const(_, _, _) => i,
         IOp(o, intvs) => {
             step_interval_incremental(IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect()))
         }
@@ -171,12 +171,16 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
             let rarg = &v[1];
             match (larg, rarg) {
                 (
-                    Const((r_l, a_l, b_l), (r_h, a_h, b_h)),
-                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a)),
-                ) => Const(
-                    (r_l + r_l_a, a_l + a_l_a, b_l + b_l_a),
-                    (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a),
-                ),
+                    Const((r_l, a_l, b_l), (r_h, a_h, b_h), deg_l),
+                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a), deg_r),
+                ) =>{ 
+                    // degenerate case
+                    Const(
+                        (r_l + r_l_a, a_l + a_l_a, b_l + b_l_a),
+                        (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a),
+                        *deg_l && *deg_r
+                    )
+                }
                 _ => IOp(Op::Add, v),
             }
         }
@@ -185,15 +189,20 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
             let rarg = &v[1];
             match (larg, rarg) {
                 (
-                    Const((r_l, a_l, b_l), (r_h, a_h, b_h)),
-                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a)),
+                    Const((r_l, a_l, b_l), (r_h, a_h, b_h), deg_l),
+                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a), deg_r),
                 ) => {
                     // do the stupid thing instead of casing
                     let r_min = min(min(r_l - r_h_a, r_h - r_h_a), min(r_l - r_l_a, r_h - r_l_a));
                     let r_max = max(max(r_l - r_h_a, r_h - r_h_a), max(r_l - r_l_a, r_h - r_l_a));
+
+                    // this is a crude overapproximation; could be improved
+                    let intervals_overlap = ((r_l <= r_l_a) && (r_l_a <= r_h)) || ((r_l <= r_h_a) && (r_h_a <= r_h));
+
                     Const(
                         (r_min, a_l + b_l_a, b_l + a_l_a),
                         (r_max, a_h + b_h_a, b_h + a_h_a),
+                        *deg_l && *deg_r && (! intervals_overlap)
                     )
                 }
                 _ => IOp(Op::Sub, v),
@@ -204,30 +213,48 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
             let rarg = &v[1];
             match (larg, rarg) {
                 (
-                    Const((r_l, a_l, b_l), (r_h, a_h, b_h)),
-                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a)),
+                    Const((r_l, a_l, b_l), (r_h, a_h, b_h), deg_l),
+                    Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a), deg_r),
                 ) => {
                     // do the stupid thing instead of casing
                     let r_min = min(min(r_l * r_h_a, r_h * r_h_a), min(r_l * r_l_a, r_h * r_l_a));
                     let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
 
-                    Const(
-                        (
-                            r_min,
-                            (tmul(a_l, a_l_a)) + (tmul(b_l, b_l_a)),
-                            (tmul(a_l, b_l_a)) + (tmul(b_l, a_l_a)),
-                        ),
-                        (
-                            r_max,
-                            (tmul(a_h, a_h_a)) + (tmul(b_h, b_h_a)),
-                            (tmul(a_h, b_h_a)) + (tmul(b_h, a_h_a)),
-                        ),
-                    )
+                    // degenerate case should make multiplication bounds tighter
+                    if (*deg_l && *deg_r) {
+                        Const(
+                            (
+                                r_min,
+                                max((tmul(a_l, a_l_a)), (tmul(b_l, b_l_a))),
+                                max((tmul(a_l, b_l_a)), (tmul(b_l, a_l_a))),
+                            ),
+                            (
+                                r_max,
+                                max((tmul(a_h, a_h_a)), (tmul(b_h, b_h_a))),
+                                max((tmul(a_h, b_h_a)), (tmul(b_h, a_h_a))),
+                            ),
+                            *deg_l && *deg_r
+                        )
+                    } else {
+                        Const(
+                            (
+                                r_min,
+                                (tmul(a_l, a_l_a)) + (tmul(b_l, b_l_a)),
+                                (tmul(a_l, b_l_a)) + (tmul(b_l, a_l_a)),
+                            ),
+                            (
+                                r_max,
+                                (tmul(a_h, a_h_a)) + (tmul(b_h, b_h_a)),
+                                (tmul(a_h, b_h_a)) + (tmul(b_h, a_h_a)),
+                            ),
+                            *deg_l && *deg_r
+                        )
+                    }
                 }
                 _ => IOp(Op::Mul, v),
             }
         }
-        Const(cl, ch) => Const(cl, ch),
+        Const(cl, ch, deg) => Const(cl, ch, deg),
         Eps(x) => Eps(x),
     };
     debug!("step to {:?}", res);
@@ -546,6 +573,7 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                     Rc::new(RefCell::new(Ty::Num(Interval::Const(
                         (n, n, 0.0),
                         (n, n, 0.0),
+                        true
                     )))),
                 )
             } else {
@@ -554,6 +582,7 @@ pub fn infer(c: &CtxSkeleton, e: Expr, eps_c: &AtomicUsize) -> (Ctx, Rc<RefCell<
                     Rc::new(RefCell::new(Ty::Num(Interval::Const(
                         (n, 0.0, -n),
                         (n, 0.0, -n),
+                        true
                     )))),
                 )
             }
