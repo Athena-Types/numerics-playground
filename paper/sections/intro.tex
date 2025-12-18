@@ -170,7 +170,8 @@ Concretely, our contributions are as follows:
     in a finitely-sensitive manner (Section~\ref{sec:instantiation}). We prove
     that error types can be used to provide both \textit{a priori} and \textit{a
     posterori} compositional error bounds in the presence of subtraction and
-    negative numbers (Section~\ref{sec:application}). 
+    negative numbers (Section~\ref{sec:application}). We provide an abstract
+    domain to statically reason about our paired represenation.
 
     % todo: some claim about novelty is needed to put this contribution in context
     % to develop the first type-based approach to forwards error analysis that
@@ -179,24 +180,32 @@ Concretely, our contributions are as follows:
     % To our knowledge, our approach is the first automatic general-purpose
     % numerical analysis that can produce usable \textit{a posteori} error bounds.
 
-  \item We enable the precise structuring and seqeuncing of arithmetic by
-    allowing error and sensitivities in rounded terms to be shared. We
+  \item We improve the expressiveness of Numerical Fuzz by allowing allowing
+    error grades and sensitivities in rounded terms to be shared. This enables
+    our error analysis to distinguish between reassociated floating-point
+    computation with different error bounds, for example, the following two
+    addition computations: \lstinline{((a + b) + c) + d = (a + b) + (c + d)}. We
     accomplish this through the addition of a previously-untypable primitive
-    inspired by the resource interpretation of linear logic
-    (Section~\ref{sec:structure}). 
+    (Section~\ref{sec:structure}).
+
+  % \item We enable the precise structuring and seqeuncing of arithmetic by
+  %   allowing error and sensitivities in rounded terms to be shared. We
+  %   accomplish this through the addition of a previously-untypable primitive
+  %   inspired by the resource interpretation of linear logic
+  %   (Section~\ref{sec:structure}). 
 
   \item We develop a type inference algorithm for our type system that can
     automatically infer bound polymorphism in many useful programs; the user can
     provide an program without bound annotations for inference. We prove the
     soundness of our type inference algorithm. 
-    % We further prove that our
-    % approach leads to forwards error bounds no looser than prior type-based work
-    % for forwards analysis (Section~\ref{sec:tightness}). 
+    We further prove that our approach leads to forwards error bounds no looser
+    than Numerical Fuzz for all programs that can be typed by Numerical Fuzz
+    (Section~\ref{sec:tightness}). 
 
   \item We implement our type-based approach for forwards error analysis. We
-    evaluate our implementation against FPTaylor and Gappa on a suite of
-    benchmarks translated into our core language and demonstrate that we obtain
-    useful and competitive error bounds with often faster performance
-    (Section~\ref{sec:eval}).
+    evaluate our implementation against FPTaylor and Gappa and Satire on a suite
+    of benchmarks translated into our core language and demonstrate that we
+    obtain useful and competitive error bounds with faster and more scalable
+    performance (Section~\ref{sec:eval}).
     % todo: put in hard numbers
 \end{itemize}
