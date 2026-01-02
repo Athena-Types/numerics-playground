@@ -174,11 +174,11 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
                     Const((r_l, a_l, b_l), (r_h, a_h, b_h), deg_l),
                     Const((r_l_a, a_l_a, b_l_a), (r_h_a, a_h_a, b_h_a), deg_r),
                 ) =>{ 
-                    // degenerate case
+                    let completely_same_sign = (0.0 <= *r_l && 0.0 <= *r_l_a) || (*r_h <= 0.0 && *r_h_a <= 0.0);
                     Const(
                         (r_l + r_l_a, a_l + a_l_a, b_l + b_l_a),
                         (r_h + r_h_a, a_h + a_h_a, b_h + b_h_a),
-                        *deg_l && *deg_r
+                        *deg_l && *deg_r && completely_same_sign
                     )
                 }
                 _ => IOp(Op::Add, v),
@@ -197,12 +197,12 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
                     let r_max = max(max(r_l - r_h_a, r_h - r_h_a), max(r_l - r_l_a, r_h - r_l_a));
 
                     // this is a crude overapproximation; could be improved
-                    let intervals_overlap = ((r_l <= r_l_a) && (r_l_a <= r_h)) || ((r_l <= r_h_a) && (r_h_a <= r_h));
+                    let completely_different_sign = (0.0 <= *r_l && 0.0 <= *r_h_a) || (*r_h <= 0.0 && 0.0 <= *r_l_a);
 
                     Const(
                         (r_min, a_l + b_l_a, b_l + a_l_a),
                         (r_max, a_h + b_h_a, b_h + a_h_a),
-                        *deg_l && *deg_r && (! intervals_overlap)
+                        *deg_l && *deg_r && (completely_different_sign)
                     )
                 }
                 _ => IOp(Op::Sub, v),
