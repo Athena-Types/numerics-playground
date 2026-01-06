@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 
-def generate_horner_satire(n):
+def generate_horner_satire(n, interval_min=-1.0, interval_max=1.0):
     """Generate Horner polynomial file in the text format for degree n"""
     lines = []
 
     # INPUTS section
     lines.append('INPUTS {')
-    lines.append('         x fl64 : (-1.0, 1.0) ;')
+    lines.append(f'         x fl64 : ({interval_min}, {interval_max}) ;')
 
     # Add a0 to aN
     for i in range(n + 1):
-        lines.append(f'         a{i} fl64 : (-1.0, 1.0) ;')
+        lines.append(f'         a{i} fl64 : ({interval_min}, {interval_max}) ;')
 
     lines.append('}')
 
@@ -38,29 +39,34 @@ def generate_horner_satire(n):
 
     return '\n'.join(lines)
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Generate Satire file for Horner polynomial of degree n'
+    )
+    parser.add_argument('n', type=int,
+                       help='Polynomial degree')
+    parser.add_argument('output', nargs='?', type=str, default=None,
+                       help='Output file (default: print to stdout)')
+    parser.add_argument('--interval-min', type=float, default=-1.0,
+                       help='Minimum interval bound (default: -1.0)')
+    parser.add_argument('--interval-max', type=float, default=1.0,
+                       help='Maximum interval bound (default: 1.0)')
+    return parser.parse_args()
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python generate_horner_satire.py <n> [output_file]")
-        print("Example: python generate_horner_satire.py 2 horner2.txt")
-        sys.exit(1)
+    args = parse_args()
 
-    n = int(sys.argv[1])
-
-    if n < 2:
+    if args.n < 2:
         print("Error: n must be at least 2")
         sys.exit(1)
 
-    content = generate_horner_satire(n)
+    content = generate_horner_satire(args.n, args.interval_min, args.interval_max)
 
-    if len(sys.argv) >= 3:
-        # Write to specified file
-        output_file = sys.argv[2]
-        with open(output_file, 'w') as f:
+    if args.output:
+        with open(args.output, 'w') as f:
             f.write(content)
-            f.write('\n')
-        print(f"Generated {output_file}")
+        print(f"Generated {args.output}")
     else:
-        # Print to stdout
         print(content)
 
 if __name__ == '__main__':
