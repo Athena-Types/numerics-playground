@@ -2,7 +2,7 @@
 import sys
 import argparse
 
-def generate_horner_fz(n):
+def generate_horner_fz(n, interval_min=-1, interval_max=1):
     """Generate Horner polynomial file for degree n"""
     lines = []
 
@@ -45,7 +45,7 @@ def generate_horner_fz(n):
     # Function call
     call_line = f'Horner{n}'
     for _ in range(n + 2):
-        call_line += '[-1,1]'
+        call_line += f'[{interval_min},{interval_max}]'
     lines.append(call_line)
 
     return '\n'.join(lines)
@@ -58,11 +58,15 @@ def parse_args():
                        help='Polynomial degree')
     parser.add_argument('output', nargs='?', type=str, default=None,
                        help='Output file (default: print to stdout)')
+    parser.add_argument('--interval-min', type=float, default=-1,
+                       help='Minimum interval bound (default: -1)')
+    parser.add_argument('--interval-max', type=float, default=1,
+                       help='Maximum interval bound (default: 1)')
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    content = generate_horner_fz(args.n)
+    content = generate_horner_fz(args.n, args.interval_min, args.interval_max)
 
     if args.output:
         with open(args.output, 'w') as f:
