@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 from fpcodgen import generate_tuple_type, generate_unpacking_statements
 
 def generate_computation_tree(n, start_idx=0, var_counter=[0], is_top_level=True):
@@ -75,29 +76,31 @@ def generate_dotprod(n):
 
     return '\n'.join(lines)
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Generate .fz file for dot product of n elements'
+    )
+    parser.add_argument('n', type=int,
+                       help='Vector dimension (must be at least 1)')
+    parser.add_argument('output', nargs='?', type=str, default=None,
+                       help='Output file (default: print to stdout)')
+    return parser.parse_args()
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python generate_dotprod.py <n> [output_file]")
-        print("Example: python generate_dotprod.py 4 dotprod4.fz")
-        sys.exit(1)
+    args = parse_args()
 
-    n = int(sys.argv[1])
-
-    if n < 1:
+    if args.n < 1:
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_dotprod(n)
+    content = generate_dotprod(args.n)
 
-    if len(sys.argv) >= 3:
-        # Write to specified file
-        output_file = sys.argv[2]
-        with open(output_file, 'w') as f:
+    if args.output:
+        with open(args.output, 'w') as f:
             f.write(content)
             f.write('\n')
-        print(f"Generated {output_file}")
+        print(f"Generated {args.output}")
     else:
-        # Print to stdout
         print(content)
 
 if __name__ == '__main__':

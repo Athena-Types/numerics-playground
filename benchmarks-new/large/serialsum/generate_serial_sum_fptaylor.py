@@ -2,52 +2,40 @@
 import sys
 import argparse
 
-def generate_horner_fptaylor(n, interval_min=-1, interval_max=1):
-    """Generate FPTaylor file for Horner polynomial of degree n"""
+def generate_serial_sum_fptaylor(n, interval_min=-1, interval_max=1):
+    """Generate FPTaylor file for serial sum of n elements"""
     lines = []
 
-    # Variables section header
+    # Variables section
     lines.append('Variables')
-
-    # Add x variable
-    lines.append(f'  float64 x  in [{interval_min}, {interval_max}];')
-
-    # Add a0 to aN variables
-    for i in range(n + 1):
+    for i in range(n):
         lines.append(f'  float64 a{i} in [{interval_min}, {interval_max}];')
-
-    # Blank line
     lines.append('')
 
-    # Definitions section header
+    # Definitions section (intermediate sums)
     lines.append('Definitions')
-
-    # Add z1 to z(n-1) definitions
-    for i in range(1, n):
+    for i in range(1, n-1):
         if i == 1:
-            # First definition: z1 = rnd64_up(aN * x + a(N-1))
-            lines.append(f'  z{i} =rnd64_up(a{n} * x + a{n-1});')
+            lines.append(f'  s{i} = rnd64_up(a0 + a1);')
         else:
-            # Subsequent definitions: zi = rnd64_up(z(i-1) * x + a(N-i))
-            lines.append(f'  z{i} =rnd64_up(z{i-1} * x + a{n-i});')
-
-    # Blank line
+            lines.append(f'  s{i} = rnd64_up(s{i-1} + a{i});')
     lines.append('')
 
-    # Expressions section header
+    # Expressions section (final sum)
     lines.append('Expressions')
-
-    # Final expression: HornerN = rnd64_up(z(N-1) * x + a0)
-    lines.append(f'  Horner{n} =rnd64_up (z{n-1} * x + a0);')
+    if n == 2:
+        lines.append(f'  serial_sum{n} = rnd64_up(a0 + a1);')
+    else:
+        lines.append(f'  serial_sum{n} = rnd64_up(s{n-2} + a{n-1});')
 
     return '\n'.join(lines)
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Generate .fptaylor file for Horner polynomial of degree n'
+        description='Generate .fptaylor file for serial sum of n elements'
     )
     parser.add_argument('n', type=int,
-                       help='Polynomial degree')
+                       help='Number of elements to sum')
     parser.add_argument('output', nargs='?', type=str, default=None,
                        help='Output file (default: print to stdout)')
     parser.add_argument('--interval-min', type=float, default=-1,
@@ -59,7 +47,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    content = generate_horner_fptaylor(args.n, args.interval_min, args.interval_max)
+    content = generate_serial_sum_fptaylor(args.n, args.interval_min, args.interval_max)
 
     if args.output:
         with open(args.output, 'w') as f:
@@ -70,4 +58,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

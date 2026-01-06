@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 
 def generate_horner_fz(n):
     """Generate Horner polynomial file for degree n"""
@@ -49,23 +50,25 @@ def generate_horner_fz(n):
 
     return '\n'.join(lines)
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Generate .fz file for Horner polynomial of degree n'
+    )
+    parser.add_argument('n', type=int,
+                       help='Polynomial degree')
+    parser.add_argument('output', nargs='?', type=str, default=None,
+                       help='Output file (default: print to stdout)')
+    return parser.parse_args()
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python generate_horner_fz.py <n> [output_file]")
-        print("Example: python generate_horner_fz.py 5 horner5.fz")
-        sys.exit(1)
+    args = parse_args()
+    content = generate_horner_fz(args.n)
 
-    n = int(sys.argv[1])
-    content = generate_horner_fz(n)
-
-    if len(sys.argv) >= 3:
-        # Write to specified file
-        output_file = sys.argv[2]
-        with open(output_file, 'w') as f:
+    if args.output:
+        with open(args.output, 'w') as f:
             f.write(content)
-        print(f"Generated {output_file}")
+        print(f"Generated {args.output}")
     else:
-        # Print to stdout
         print(content)
 
 if __name__ == '__main__':

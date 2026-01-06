@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 from fpcodgen import generate_tuple_type, generate_matrix_unpacking_statements, generate_right_nested_structure
 
 def generate_matrix_type(n):
@@ -81,29 +82,31 @@ def generate_mat_mul(n):
 
     return '\n'.join(lines)
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Generate .fz file for matrix multiplication of nxn matrices'
+    )
+    parser.add_argument('n', type=int,
+                       help='Matrix dimension (must be at least 1)')
+    parser.add_argument('output', nargs='?', type=str, default=None,
+                       help='Output file (default: print to stdout)')
+    return parser.parse_args()
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python generate_mat_mul.py <n> [output_file]")
-        print("Example: python generate_mat_mul.py 4 mat_mul4.fz")
-        sys.exit(1)
+    args = parse_args()
 
-    n = int(sys.argv[1])
-
-    if n < 1:
+    if args.n < 1:
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_mat_mul(n)
+    content = generate_mat_mul(args.n)
 
-    if len(sys.argv) >= 3:
-        # Write to specified file
-        output_file = sys.argv[2]
-        with open(output_file, 'w') as f:
+    if args.output:
+        with open(args.output, 'w') as f:
             f.write(content)
             f.write('\n')
-        print(f"Generated {output_file}")
+        print(f"Generated {args.output}")
     else:
-        # Print to stdout
         print(content)
 
 if __name__ == '__main__':
