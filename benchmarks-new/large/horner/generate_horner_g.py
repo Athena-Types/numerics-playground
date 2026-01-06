@@ -2,7 +2,7 @@
 import sys
 import argparse
 
-def generate_horner_gappa(n):
+def generate_horner_gappa(n, interval_min=-1, interval_max=1):
     """Generate Gappa file for Horner polynomial of degree n"""
     lines = []
 
@@ -40,11 +40,11 @@ def generate_horner_gappa(n):
     lines.append('# the logical formula that Gappa will try (and succeed) to prove')
 
     # Logical formula
-    lines.append('{ x in [-1,1]')
+    lines.append(f'{{ x in [{interval_min},{interval_max}]')
 
     # Constraints for a0 to aN
     for i in range(n + 1):
-        lines.append(f'  /\\ a{i} in [-1,1]')
+        lines.append(f'  /\\ a{i} in [{interval_min},{interval_max}]')
 
     # Final line
     lines.append('  -> |(z - r) / r| in ? }')
@@ -59,11 +59,15 @@ def parse_args():
                        help='Polynomial degree')
     parser.add_argument('output', nargs='?', type=str, default=None,
                        help='Output file (default: print to stdout)')
+    parser.add_argument('--interval-min', type=float, default=-1,
+                       help='Minimum interval bound (default: -1)')
+    parser.add_argument('--interval-max', type=float, default=1,
+                       help='Maximum interval bound (default: 1)')
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    content = generate_horner_gappa(args.n)
+    content = generate_horner_gappa(args.n, args.interval_min, args.interval_max)
 
     if args.output:
         with open(args.output, 'w') as f:
