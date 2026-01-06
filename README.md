@@ -37,6 +37,8 @@ NumFuzz in various ways; in particular,
 - `benchmarks/` contains the fpcore and NumFuzz benchmarks that are being
 evaluated against;
 
+- `fpcodgen/` contains helpful code generation utilities for generating benchmarks;
+
 - `run.sh` contains a script to run everything; and
 
 - `error.v` contains a self-contained mechanized proof of *error simulation*; in
