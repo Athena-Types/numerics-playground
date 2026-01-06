@@ -1,32 +1,6 @@
 #!/usr/bin/env python3
 import sys
-
-def generate_tuple_type(n):
-    """Generate nested tuple type for n elements: (num,(num,(num,num)))"""
-    if n == 1:
-        return "num"
-    elif n == 2:
-        return "(num,num)"
-    else:
-        result = "num"
-        for i in range(n - 2):
-            result = f"(num,{result})"
-        result = f"(num,{result})"
-        return result
-
-def generate_unpacking(var_name, n):
-    """Generate unpacking statements for nested tuples"""
-    lines = []
-    if n == 1:
-        return []
-
-    for i in range(n - 1):
-        if i < n - 2:
-            lines.append(f"lp ({var_name}{i}, {var_name}s{i+1}) = {var_name if i == 0 else var_name + 's' + str(i)} in")
-        else:
-            lines.append(f"lp ({var_name}{i}, {var_name}{i+1}) = {var_name}s{i} in")
-
-    return lines
+from fpcodgen import generate_tuple_type, generate_unpacking_statements
 
 def generate_computation_tree(n, start_idx=0, var_counter=[0], is_top_level=True):
     """Generate the nested factor/addfp64 computation tree
@@ -79,11 +53,11 @@ def generate_dotprod(n):
     lines.append('{')
 
     # Unpacking for a
-    for line in generate_unpacking('a', n):
+    for line in generate_unpacking_statements('a', n):
         lines.append(line)
 
     # Unpacking for b
-    for line in generate_unpacking('b', n):
+    for line in generate_unpacking_statements('b', n):
         lines.append(line)
 
     # Blank line

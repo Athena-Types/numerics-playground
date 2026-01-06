@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 
-def generate_horner_fptaylor(n):
+def generate_horner_fptaylor(n, interval_min=-1, interval_max=1):
     """Generate FPTaylor file for Horner polynomial of degree n"""
     lines = []
 
@@ -9,11 +9,11 @@ def generate_horner_fptaylor(n):
     lines.append('Variables')
 
     # Add x variable
-    lines.append('  float64 x  in [-1, 1];')
+    lines.append(f'  float64 x  in [{interval_min}, {interval_max}];')
 
     # Add a0 to aN variables
     for i in range(n + 1):
-        lines.append(f'  float64 a{i} in [-1, 1];')
+        lines.append(f'  float64 a{i} in [{interval_min}, {interval_max}];')
 
     # Blank line
     lines.append('')
@@ -43,12 +43,21 @@ def generate_horner_fptaylor(n):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python generate_horner_fptaylor.py <n> [output_file]")
+        print("Usage: python generate_horner_fptaylor.py <n> [output_file] [interval_min interval_max]")
         print("Example: python generate_horner_fptaylor.py 5 horner5_fptaylor.txt")
+        print("Example: python generate_horner_fptaylor.py 5 horner5_fptaylor.txt 0.1 1000")
         sys.exit(1)
 
     n = int(sys.argv[1])
-    content = generate_horner_fptaylor(n)
+
+    # Parse interval parameters if provided
+    interval_min = -1
+    interval_max = 1
+    if len(sys.argv) >= 5:
+        interval_min = float(sys.argv[3])
+        interval_max = float(sys.argv[4])
+
+    content = generate_horner_fptaylor(n, interval_min, interval_max)
 
     if len(sys.argv) >= 3:
         # Write to specified file
