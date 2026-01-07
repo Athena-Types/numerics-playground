@@ -7,7 +7,6 @@ matrixDeterminant2
 matrixDeterminant
 rigidBody1
 rigidBody2
-shoelace-formula
 sineOrder3
 sqroot
 sum
