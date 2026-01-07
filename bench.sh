@@ -7,7 +7,7 @@ echo "Running for benchmark: $1"
 # Setup
 racket deps/FPBench/export.rkt --lang g benchmarks-new/$1.fpcore benchmarks-new/$1.g
 racket deps/FPBench/export.rkt --lang fptaylor benchmarks-new/$1.fpcore benchmarks-new/$1.fptaylor
-racket deps/FPBench/export.rkt --lang py benchmarks-new/$1.fpcore benchmarks-new/$1.py
+# racket deps/FPBench/export.rkt --lang py benchmarks-new/$1.fpcore benchmarks-new/$1.py
 
 # Generate gappa files / questions
 python src/compute_bound.py benchmarks-new/$1.g
