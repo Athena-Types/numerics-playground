@@ -23,17 +23,20 @@ case "$BENCHMARK" in
         python3 generate_horner_fptaylor.py "$SIZE" "Horner${SIZE}.fptaylor"
         python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}.fz"
         python3 generate_horner_g.py "$SIZE" "Horner${SIZE}.g"
+        python3 generate_horner_satire.py "$SIZE" "Horner${SIZE}.txt"
         BASE_NAME="large/horner/Horner${SIZE}"
         ;;
     matmul)
         python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}.fz"
         python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}.fz"
+        python3 generate_mat_mul_satire.py "$SIZE" "matmul${SIZE}.txt"
         BASE_NAME="large/matmul/matmul${SIZE}"
         ;;
     serialsum)
         python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
         python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}.fz"
         python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
+        python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
         BASE_NAME="large/serialsum/serial_sum_${SIZE}"
         ;;
     *)
