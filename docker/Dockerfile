@@ -1,3 +1,17 @@
+# Stage 1: Cloner (temporary, discarded after build)
+FROM debian:trixie-20251117-slim AS cloner
+
+RUN apt-get update && apt-get install -y git
+
+# Copy local repository into Docker build context
+COPY . /tmp/numerics-playground-source
+
+# Clone shallowly from local repository (pretending local is a remote)
+RUN git clone --depth 1 file:///tmp/numerics-playground-source /numerics-playground && \
+    cd /numerics-playground && \
+    git submodule update --init --depth 1
+
+# Stage 2: Final stage
 FROM debian:trixie-20251117-slim
 
 RUN apt-get update && \
@@ -14,8 +28,9 @@ RUN apt install -y tmux mosh vim
 ENV PYVERSION=3.9.25
 RUN curl -L https://www.python.org/ftp/python/${PYVERSION}/Python-${PYVERSION}.tgz -o Python-${PYVERSION}.tgz && tar -xvf Python-${PYVERSION}.tgz && cd Python-${PYVERSION} && ./configure && make && make install
 
-# TODO: pin a commit
-RUN git clone --recursive https://github.com/Athena-Types/numerics-playground.git /numerics-playground
+# Copy ONLY the cloned repository from the cloner stage
+COPY --from=cloner /numerics-playground /numerics-playground
+
 WORKDIR /numerics-playground
 
 ############################
@@ -38,7 +53,6 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup default nightly-2024-11-30
-# RUN rustup default nightly
 
 # crlibm
 RUN cd deps/crlibm && ./prepare --enable-mpfr && ./configure CXXFLAGS="-std=c++14" --enable-sse2 CFLAGS="-fPIC" LDFLAGS="-fPIC" && \
