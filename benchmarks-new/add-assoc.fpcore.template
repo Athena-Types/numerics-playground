@@ -1,0 +1,11 @@
+(FPCore
+ (x0 x1 x2 x3)
+ :name
+ "test06_sums4, sum2"
+ :precision
+ binary64
+:round
+${ROUNDING_MODE}
+ :pre
+ (and (< 1 x0 1000) (< 1 x1 1000) (< 1 x2 1000) (< 1 x3 1000))
+ (+ (+ x0 x1) (+ x2 x3)))
