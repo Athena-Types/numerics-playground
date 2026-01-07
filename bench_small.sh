@@ -29,4 +29,5 @@ envsubst < "benchmarks-new/${BENCHMARK}.fpcore.template" > "$FPCORE_FILE"
 echo "Generated ${FPCORE_FILE}"
 
 # Run the benchmark pipeline
-source bench.sh "$BASE_NAME"
+PHASE=${4:-all}  # default to "all" if not provided
+source bench.sh "$BASE_NAME" "$PHASE"
