@@ -1,6 +1,8 @@
 # Ignore ephemeral intermeddiate and output files
 *.json
 benchmarks-new/**/*.fpcore
+benchmarks-new/**/*.g
+benchmarks-new/**/*.fptaylor
 benchmarks-new/large/**/*.fz
 benchmarks-new/large/**/*.fptaylor
 benchmarks-new/large/**/*.g
