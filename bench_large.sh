@@ -29,6 +29,8 @@ case "$BENCHMARK" in
     matmul)
         python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}.fz"
         python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}.fz"
+        python3 generate_matmul_fptaylor.py "$SIZE" "matmul${SIZE}.fptaylor"
+        python3 generate_matmul_g.py "$SIZE" "matmul${SIZE}.g"
         python3 generate_mat_mul_satire.py "$SIZE" "matmul${SIZE}.txt"
         BASE_NAME="large/matmul/matmul${SIZE}"
         ;;
