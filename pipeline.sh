@@ -6,7 +6,7 @@ set -euxo pipefail
 # - analyze: only run analysis tools (Gappa, FPTaylor, FuzzRS)
 # - time: only run hyperfine benchmarks
 # - all: run all phases (generate + analyze + time)
-BENCH_PHASE=${BENCH_PHASE:-all}  # default to "all" if not set
+BENCH_PHASE=${BENCH_PHASE:-all} # default to "all" if not set
 
 # build everything
 cd fuzzrs
@@ -16,5 +16,6 @@ cd ..
 BASH=$(which bash)
 PARALLEL_JOBS=1
 
+# TODO: Note that we exclude the shoelace formula from the small benchmarks for now.
 parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} $BENCH_PHASE ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
 parallel -j $PARALLEL_JOBS $BASH bench.sh {1} $BENCH_PHASE ::: $(cat large.txt)
