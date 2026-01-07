@@ -1,10 +1,14 @@
 # Ignore ephemeral intermeddiate and output files
 *.json
+benchmarks-new/**/*.fpcore
 benchmarks-new/large/**/*.fz
 benchmarks-new/large/**/*.fptaylor
 benchmarks-new/large/**/*.g
 benchmarks-new/large/**/*.pylog
 tmp/
+
+# macOS system files
+.DS_Store
 
 # Profiling
 dhat.out.*
