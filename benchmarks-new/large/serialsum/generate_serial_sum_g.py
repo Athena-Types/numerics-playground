@@ -26,6 +26,11 @@ def generate_serial_sum_gappa(n, interval_min=-1, interval_max=1):
             lines.append(f'z{i} = rnd(z{i-1} + a{i});')
     lines.append('')
 
+    # Define ex0 (rounded) and Mex0 (exact) for compute_bound.py
+    lines.append(f'ex0 = z{n-1};')
+    lines.append(f'Mex0 = r{n-1};')
+    lines.append('')
+
     # Logical formula (proof goal)
     lines.append('# the logical formula that Gappa will try (and succeed) to prove')
     lines.append('{')

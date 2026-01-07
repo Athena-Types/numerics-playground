@@ -35,6 +35,11 @@ def generate_horner_gappa(n, interval_min=-1, interval_max=1):
 
         lines.append('z   = rnd(z1 * x + a0);')
 
+    # Define ex0 (rounded) and Mex0 (exact) for compute_bound.py
+    lines.append('')
+    lines.append('ex0 = z;')
+    lines.append('Mex0 = r;')
+
     # Blank line and comment
     lines.append('')
     lines.append('# the logical formula that Gappa will try (and succeed) to prove')
