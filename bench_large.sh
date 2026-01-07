@@ -72,25 +72,26 @@ SATIRE_FILE="benchmarks-new/$BASE_NAME.txt"
 
 # No abstraction - with dynamic LD_LIBRARY_PATH
 docker run --rm \
-  -v "$SCRIPT_DIR:/numerics-playground" \
-  -w /numerics-playground \
+  -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
+  -w /numerics-playground/deps/Satire \
   negfuzz \
   bash -c 'RUST_SYSROOT=$(rustc --print sysroot); \
     export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
-    python3 deps/Satire/src/satire.py --std --file '"$SATIRE_FILE"' \
-    --logfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.pylog \
-    --outfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.out'
+    python3 src/satire.py --std --file ../../'"$SATIRE_FILE"' \
+    --logfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.pylog \
+    --outfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.out'
 
 # Abstraction windows: (10,20), (15,25), (20,40)
-for mindepth maxdepth in "10 20" "15 25" "20 40"; do
+for config in "10 20" "15 25" "20 40"; do
+  read -r mindepth maxdepth <<< "$config"
   docker run --rm \
-    -v "$SCRIPT_DIR:/numerics-playground" \
-    -w /numerics-playground \
+    -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
+    -w /numerics-playground/deps/Satire \
     negfuzz \
     bash -c 'RUST_SYSROOT=$(rustc --print sysroot); \
       export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
-      python3 deps/Satire/src/satire.py --std --file '"$SATIRE_FILE"' \
+      python3 src/satire.py --std --file ../../'"$SATIRE_FILE"' \
       --enable-abstraction --mindepth '"$mindepth"' --maxdepth '"$maxdepth"' \
-      --logfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.pylog \
-      --outfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.out'
+      --logfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.pylog \
+      --outfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.out'
 done
