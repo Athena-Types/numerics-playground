@@ -62,6 +62,12 @@ def generate_matmul_gappa(n, interval_min=-1, interval_max=1):
                 # Final entry: z{i}{j} = last sum
                 lines.append(f'z{i}{j} = zs{i}{j}_{n-1};')
 
+    # Define ex0 (rounded) and Mex0 (exact) for compute_bound.py
+    # Using z00 and r00 as they are the analyzed output
+    lines.append('')
+    lines.append('ex0 = z00;')
+    lines.append('Mex0 = r00;')
+
     # Blank line and comment
     lines.append('')
     lines.append('# the logical formula that Gappa will try (and succeed) to prove')

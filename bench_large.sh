@@ -21,14 +21,14 @@ cd "benchmarks-new/large/$BENCHMARK"
 case "$BENCHMARK" in
     horner)
         python3 generate_horner_fptaylor.py "$SIZE" "Horner${SIZE}.fptaylor"
-        python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}.fz"
+        python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}-factor.fz"
         python3 generate_horner_g.py "$SIZE" "Horner${SIZE}.g"
         python3 generate_horner_satire.py "$SIZE" "Horner${SIZE}.txt"
         BASE_NAME="large/horner/Horner${SIZE}"
         ;;
     matmul)
         python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}.fz"
-        python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}.fz"
+        python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}-factor.fz"
         python3 generate_matmul_fptaylor.py "$SIZE" "matmul${SIZE}.fptaylor"
         python3 generate_matmul_g.py "$SIZE" "matmul${SIZE}.g"
         python3 generate_mat_mul_satire.py "$SIZE" "matmul${SIZE}.txt"
@@ -36,7 +36,7 @@ case "$BENCHMARK" in
         ;;
     serialsum)
         python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
-        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}.fz"
+        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}-factor.fz"
         python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
         python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
         BASE_NAME="large/serialsum/serial_sum_${SIZE}"
@@ -51,6 +51,9 @@ esac
 # Return to project root
 cd "$SCRIPT_DIR"
 
+# Generate all Gappa questions
+python src/compute_bound.py "benchmarks-new/${BASE_NAME}.g"
+
 # Run the benchmark pipeline
 PHASE=${3:-all}
 
@@ -59,4 +62,35 @@ if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
+echo "Running non-Satire (fptaylor, gappa, NegFuzz) tools"
 source bench.sh "$BASE_NAME" "$PHASE"
+
+echo "Now running Satire tools"
+
+# Satire input file path
+SATIRE_FILE="benchmarks-new/$BASE_NAME.txt"
+
+# No abstraction - with dynamic LD_LIBRARY_PATH
+docker run --rm \
+  -v "$SCRIPT_DIR:/numerics-playground" \
+  -w /numerics-playground \
+  negfuzz \
+  bash -c 'RUST_SYSROOT=$(rustc --print sysroot); \
+    export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
+    python3 deps/Satire/src/satire.py --std --file '"$SATIRE_FILE"' \
+    --logfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.pylog \
+    --outfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.out'
+
+# Abstraction windows: (10,20), (15,25), (20,40)
+for mindepth maxdepth in "10 20" "15 25" "20 40"; do
+  docker run --rm \
+    -v "$SCRIPT_DIR:/numerics-playground" \
+    -w /numerics-playground \
+    negfuzz \
+    bash -c 'RUST_SYSROOT=$(rustc --print sysroot); \
+      export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
+      python3 deps/Satire/src/satire.py --std --file '"$SATIRE_FILE"' \
+      --enable-abstraction --mindepth '"$mindepth"' --maxdepth '"$maxdepth"' \
+      --logfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.pylog \
+      --outfile benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.out'
+done
