@@ -83,8 +83,8 @@ def generate_matmul_gappa(n, interval_min=-1, interval_max=1):
         for j in range(n):
             lines.append(f'  /\\ b{i}{j} in [{interval_min},{interval_max}]')
 
-    # Final line: only analyze error on c[0][0]
-    lines.append(f'  -> |(z00 - r00) / r00| in ?')
+    # Final line: only analyze absolute error on c[0][0]
+    lines.append(f'  -> |z00 - r00| in ?')
     lines.append('}')
 
     return '\n'.join(lines)
