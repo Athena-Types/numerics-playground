@@ -2,22 +2,31 @@
 source ~/.shell
 
 BENCHMARK=$1
-ROUNDING_MODE=$2
+PRECISION=$2
+ROUNDING_MODE=$3
 
-if [ -z "$BENCHMARK" ] || [ -z "$ROUNDING_MODE" ]; then
-    echo "Usage: $0 <benchmark> <rounding_mode>"
+if [ -z "$BENCHMARK" ] || [ -z "$PRECISION" ] || [ -z "$ROUNDING_MODE" ]; then
+    echo "Usage: $0 <benchmark> <precision> <rounding_mode>"
+    echo "Precisions: binary32, binary64"
     echo "Rounding modes: nearestEven, toZero, toPositive, toNegative"
     exit 1
 fi
 
-echo "Running for benchmark: $BENCHMARK with rounding mode: $ROUNDING_MODE"
+if [ "$PRECISION" != "binary32" ] && [ "$PRECISION" != "binary64" ]; then
+    echo "Error: Invalid precision '$PRECISION'"
+    echo "Precisions must be: binary32 or binary64"
+    exit 1
+fi
+
+echo "Running for benchmark: $BENCHMARK with precision: $PRECISION and rounding mode: $ROUNDING_MODE"
 
 # Generate FPCore from template
-FPCORE_FILE="benchmarks-new/${BENCHMARK}-${ROUNDING_MODE}.fpcore"
+BASE_NAME="${BENCHMARK}-${PRECISION}-${ROUNDING_MODE}"
+FPCORE_FILE="benchmarks-new/${BASE_NAME}.fpcore"
+export PRECISION
 export ROUNDING_MODE
 envsubst < "benchmarks-new/${BENCHMARK}.fpcore.template" > "$FPCORE_FILE"
 echo "Generated ${FPCORE_FILE}"
-BASE_NAME="${BENCHMARK}-${ROUNDING_MODE}"
 
-# Source common functionality
-source bench.sh
+# Run the benchmark pipeline
+source bench.sh "$BASE_NAME"

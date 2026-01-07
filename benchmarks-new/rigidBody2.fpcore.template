@@ -7,7 +7,7 @@
  :fpbench-domain
  science
  :precision
- binary64
+ ${PRECISION}
 :round
 ${ROUNDING_MODE}
  :pre

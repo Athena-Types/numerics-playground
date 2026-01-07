@@ -5,7 +5,7 @@
  :description
  "Introduced in 'polygon-area'"
  :precision
- binary64
+ ${PRECISION}
 :round
 ${ROUNDING_MODE}
  (let ((s1 (- (* x1 y2) (* y1 x2)))

@@ -7,7 +7,7 @@
  :fpbench-domain
  mathematics
  :precision
- binary64
+ ${PRECISION}
 :round
 ${ROUNDING_MODE}
  :pre

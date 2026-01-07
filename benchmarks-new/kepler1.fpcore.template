@@ -3,7 +3,7 @@
  :name
  "kepler1"
  :precision
- binary64
+ ${PRECISION}
 :round
 ${ROUNDING_MODE}
  :pre

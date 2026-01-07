@@ -9,5 +9,5 @@ cd ..
 BASH=$(which bash)
 PARALLEL_JOBS=1
 
-parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} ::: $(cat small.txt) ::: nearestEven toZero toPositive toNegative
+parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
 parallel -j $PARALLEL_JOBS $BASH bench.sh {1} ::: $(cat large.txt)
