@@ -2,6 +2,7 @@ generate() {
     python3 generate_serial_sum_fptaylor.py $1 serial_sum_$1.fptaylor
     python3 generate_serial_sum_fz.py $1 serial_sum_$1.fz
     python3 generate_serial_sum_g.py $1 serial_sum_$1.g
+    python3 generate_serial_sum_satire.py $1 serial_sum_$1.txt
 }
 
 # Generate for various sizes
