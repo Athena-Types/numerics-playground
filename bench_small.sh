@@ -28,6 +28,20 @@ export ROUNDING_MODE
 envsubst < "benchmarks-new/${BENCHMARK}.fpcore.template" > "$FPCORE_FILE"
 echo "Generated ${FPCORE_FILE}"
 
+# Export generated artifacts from FPCore
+# - Generate .g and .fptaylor using FPBench
+racket deps/FPBench/export.rkt --lang g "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.g"
+racket deps/FPBench/export.rkt --lang fptaylor "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.fptaylor"
+
+# Generate gappa question files from the .g file
+python src/compute_bound.py "benchmarks-new/${BASE_NAME}.g"
+
 # Run the benchmark pipeline
 PHASE=${4:-all}  # default to "all" if not provided
+
+# If only generation is requested, stop here; otherwise continue to analysis/timing
+if [ "$PHASE" = "generate" ]; then
+  exit 0
+fi
+
 source bench.sh "$BASE_NAME" "$PHASE"

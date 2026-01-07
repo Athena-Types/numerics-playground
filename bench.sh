@@ -7,26 +7,16 @@ PHASE=${2:-all} # default to "all"
 RUNS=50
 WARMUP=5
 
-# Validate phase argument
-if [ "$PHASE" != "generate" ] && [ "$PHASE" != "analyze" ] && [ "$PHASE" != "time" ] && [ "$PHASE" != "all" ]; then
+# Validate phase argument (generation happens upstream)
+if [ "$PHASE" != "analyze" ] && [ "$PHASE" != "time" ] && [ "$PHASE" != "all" ]; then
   echo "Error: Invalid phase '$PHASE'"
-  echo "Phase must be: generate, analyze, time, or all"
+  echo "Phase must be: analyze, time, or all"
   exit 1
 fi
 
 echo "Running for benchmark: $BENCHMARK (phase: $PHASE)"
 
-# Generate phase
-if [ "$PHASE" = "generate" ] || [ "$PHASE" = "all" ]; then
-  ## do not uncomment the below
-  # Setup
-  racket deps/FPBench/export.rkt --lang g benchmarks-new/$BENCHMARK.fpcore benchmarks-new/$BENCHMARK.g
-  racket deps/FPBench/export.rkt --lang fptaylor benchmarks-new/$BENCHMARK.fpcore benchmarks-new/$BENCHMARK.fptaylor
-  # racket deps/FPBench/export.rkt --lang py benchmarks-new/$BENCHMARK.fpcore benchmarks-new/$BENCHMARK.py
-
-  # Generate gappa files / questions
-  python src/compute_bound.py benchmarks-new/$BENCHMARK.g
-fi
+# Note: Generation is performed prior to calling this script (small via bench_small.sh, large via Python generators)
 
 # Analyze phase
 if [ "$PHASE" = "analyze" ] || [ "$PHASE" = "all" ]; then
