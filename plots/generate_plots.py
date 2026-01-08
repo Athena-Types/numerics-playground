@@ -84,6 +84,38 @@ def parse_fptaylor_out(filename: str):
         return None
 
 
+def parse_satire_out(filename: str):
+    """
+    Parse Satire output files and return (abs_error, None) tuple or None.
+    
+    Satire only provides absolute error bounds, not relative error.
+    
+    Examples of Satire output format:
+        INPUT_FILE : <path>
+        
+        //-------------------------------------
+        VAR : <variable_name>
+        ABSOLUTE_ERROR : 1.4432899320127035e-15
+        REAL_INTERVAL : [-4, 4.0]
+        FP_INTERVAL : [-4.000000000000002, 4.000000000000002]
+        //-------------------------------------
+    """
+    try:
+        with open(filename, "r") as f:
+            file = f.read()
+            abs_error = None
+            for line in file.split("\n"):
+                if "ABSOLUTE_ERROR" in line:
+                    try:
+                        # Extract value after "ABSOLUTE_ERROR : "
+                        abs_error = float(line.split(":")[1].strip())
+                    except (ValueError, IndexError):
+                        print(f"Warning: Could not parse absolute error from: {line}")
+        return (abs_error, None) if abs_error is not None else None
+    except (FileNotFoundError, ValueError) as e:
+        return None
+
+
 def timing_out(timing_file: str):
     """
     Extract timing data from JSON files.
@@ -146,7 +178,7 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     Process a single benchmark and return results and timing dictionaries.
     
     Args:
-        base_name: Base benchmark name (e.g., 'kepler0') used for .fz files
+        base_name: Base benchmark name (e.g., 'kepler0' or 'large/horner/Horner4') used for .fz files
         precision: Precision string (e.g., 'binary64')
         rounding_mode: Rounding mode string (e.g., 'toPositive')
         benchmarks_dir: Directory containing benchmark files
@@ -156,8 +188,15 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     result = {"benchmark": base_name}
     timing = {"benchmark": base_name}
 
+    # Check if this is a large benchmark (has path prefix)
+    is_large_benchmark = "large" in base_name
+    
     # Construct full name from components for FPTaylor and Gappa files
-    full_name = f"{base_name}-{precision}-{rounding_mode}"
+    # Large benchmarks don't use precision/rounding mode in filenames
+    if is_large_benchmark:
+        full_name = base_name
+    else:
+        full_name = f"{base_name}-{precision}-{rounding_mode}"
 
     # Parse fz output files (use base_name since .fz files don't include rounding mode in filename)
     # TODO: NegFuzz currently ignores precision and rounding_mode parameters - propagate these to NegFuzz processing
@@ -199,9 +238,23 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     result["gappa-rel"] = g_rel
 
     # Parse FPTaylor outputs (use full_name constructed from precision and rounding_mode)
-    fptaylor_abs, fptaylor_rel = parse_fptaylor_out(f"{benchmarks_dir}/{full_name}.fptaylor.out")
+    fptaylor_result = parse_fptaylor_out(f"{benchmarks_dir}/{full_name}.fptaylor.out")
+    if fptaylor_result:
+        fptaylor_abs, fptaylor_rel = fptaylor_result
+    else:
+        fptaylor_abs, fptaylor_rel = None, None
     result["fptaylor-abs"] = fptaylor_abs
     result["fptaylor-rel"] = fptaylor_rel
+
+    # Parse Satire outputs (for large benchmarks)
+    satire_configs = ["noAbs", "10_20", "15_25", "20_40"]
+    for config in satire_configs:
+        satire_filename = f"{benchmarks_dir}/{base_name}_sat_abs-serial_{config}.out"
+        satire_result = parse_satire_out(satire_filename)
+        if satire_result:
+            result[f"satire-abs-{config}"] = satire_result[0]  # abs_error
+        else:
+            result[f"satire-abs-{config}"] = None
 
     # Parse timing files
     timing["gappa-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.g.json")
@@ -291,9 +344,26 @@ def main():
     else:
         date_str = datetime.now().strftime("%Y-%m-%d")
 
-    # Find benchmarks
-    benchmarks = glob.glob(f"{args.benchmarks_dir}/*.fz")
-    base_names = [x.split(".")[2].split("/")[-1] for x in benchmarks if "factor" not in x and "shoelace" not in x]
+    # Find small benchmarks (in root directory)
+    small_benchmarks = glob.glob(f"{args.benchmarks_dir}/*.fz")
+    small_base_names = [os.path.basename(x).replace(".fz", "") for x in small_benchmarks if "factor" not in x and "shoelace" not in x]
+    
+    # Find large benchmarks (in subdirectories: large/horner/, large/matmul/, large/serialsum/)
+    large_benchmark_types = ["horner", "matmul", "serialsum"]
+    large_base_names = []
+    for bench_type in large_benchmark_types:
+        large_benchmarks = glob.glob(f"{args.benchmarks_dir}/large/{bench_type}/*.fz")
+        for bench_path in large_benchmarks:
+            # Filter out -factor.fz files and dotprod*.fz files
+            filename = os.path.basename(bench_path)
+            if "factor" not in filename and "dotprod" not in filename:
+                # Extract base name with path prefix (e.g., "large/horner/Horner4")
+                rel_path = os.path.relpath(bench_path, args.benchmarks_dir)
+                base_name = rel_path.replace(".fz", "")
+                large_base_names.append(base_name)
+    
+    # Combine and sort all benchmarks
+    base_names = small_base_names + large_base_names
     base_names.sort()
 
     print(f"Found {len(base_names)} benchmarks")
@@ -348,7 +418,11 @@ def main():
 
     # Format results CSV
     cols = ["pre-rel", "pre-abs", "pre-rel-factor", "pre-abs-factor",
-            "gappa-abs", "gappa-rel", "fptaylor-abs", "fptaylor-rel"]
+            "gappa-abs", "gappa-rel", "fptaylor-abs", "fptaylor-rel",
+            "satire-abs-noAbs", "satire-abs-10_20", "satire-abs-15_25", "satire-abs-20_40"]
+    
+    # Filter to only include columns that exist in the dataframe
+    cols = [col for col in cols if col in results_df.columns]
     
     # Replace "None" strings with np.nan and convert to float64
     results_df[cols] = results_df[cols].replace({"None": np.nan}).astype("float64")
