@@ -4,13 +4,17 @@ source ~/.shell
 BENCHMARK=$1
 PRECISION=$2
 ROUNDING_MODE=$3
+PHASE=${4:-all}
+TIMEOUT=${5:-3600}
 
 if [ -z "$BENCHMARK" ] || [ -z "$PRECISION" ] || [ -z "$ROUNDING_MODE" ]; then
-    echo "Usage: $0 <benchmark> <precision> <rounding_mode>"
+    echo "Usage: $0 <benchmark> <precision> <rounding_mode> [phase] [timeout_seconds]"
     echo "Precisions: binary32, binary64"
     echo "Rounding modes: nearestEven, toZero, toPositive, toNegative"
     exit 1
 fi
+
+source "$(dirname "${BASH_SOURCE[0]}")/timeout.sh"
 
 if [ "$PRECISION" != "binary32" ] && [ "$PRECISION" != "binary64" ]; then
     echo "Error: Invalid precision '$PRECISION'"
@@ -30,18 +34,17 @@ echo "Generated ${FPCORE_FILE}"
 
 # Export generated artifacts from FPCore
 # - Generate .g and .fptaylor using FPBench
-racket deps/FPBench/export.rkt --lang g "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.g"
-racket deps/FPBench/export.rkt --lang fptaylor "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.fptaylor"
+run_with_timeout racket deps/FPBench/export.rkt --lang g "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.g"
+run_with_timeout racket deps/FPBench/export.rkt --lang fptaylor "$FPCORE_FILE" "benchmarks-new/${BASE_NAME}.fptaylor"
 
 # Generate gappa question files from the .g file
-python src/compute_bound.py "benchmarks-new/${BASE_NAME}.g"
+run_with_timeout python src/compute_bound.py "benchmarks-new/${BASE_NAME}.g"
 
 # Run the benchmark pipeline
-PHASE=${4:-all}  # default to "all" if not provided
 
 # If only generation is requested, stop here; otherwise continue to analysis/timing
 if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
-source bench.sh "$BASE_NAME" "$PHASE"
+source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT"
