@@ -10,7 +10,7 @@ TIMEOUT=${4:-3600}
 
 if [ -z "$BENCHMARK" ] || [ -z "$SIZE" ]; then
     echo "Usage: $0 <benchmark> <size> [phase] [timeout_seconds]"
-    echo "Benchmarks: horner, matmul, serialsum"
+    echo "Benchmarks: horner, matmul, serialsum, poly"
     echo "Size: integer (e.g., 5, 10, 64, 128)"
     exit 1
 fi
@@ -45,9 +45,16 @@ case "$BENCHMARK" in
         python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
         BASE_NAME="large/serialsum/serial_sum_${SIZE}"
         ;;
+    poly)
+        python3 generate_poly_fptaylor.py "$SIZE" "Poly${SIZE}.fptaylor"
+        python3 generate_poly_fz.py "$SIZE" "Poly${SIZE}-factor.fz"
+        python3 generate_poly_g.py "$SIZE" "Poly${SIZE}.g"
+        python3 generate_poly_satire.py "$SIZE" "Poly${SIZE}.txt"
+        BASE_NAME="large/poly/Poly${SIZE}"
+        ;;
     *)
         echo "Error: Invalid benchmark '$BENCHMARK'"
-        echo "Benchmarks must be: horner, matmul, or serialsum"
+        echo "Benchmarks must be: horner, matmul, serialsum, or poly"
         exit 1
         ;;
 esac
