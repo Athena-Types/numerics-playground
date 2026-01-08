@@ -14,15 +14,14 @@ RUN git clone --depth 1 file:///tmp/numerics-playground-source /numerics-playgro
 # Stage 2: Final stage
 FROM debian:trixie-20251117-slim
 
-RUN apt-get update && \
-    apt-get install -y curl wget git clang tar cmake make && \
-    apt install -y make build-essential libssl-dev zlib1g-dev \
-    libbz2-dev libreadline-dev libsqlite3-dev curl git \
-    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-
-RUN apt install -y libmpfr-dev libmpfr6 libmpfrc++-dev libgmp-dev
-RUN apt install -y flex bison autotools-dev automake libtool
-RUN apt install -y tmux mosh vim
+RUN apt-get update && apt-get install -y \
+    curl wget git clang tar cmake make build-essential \
+    libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    libmpfr-dev libmpfr6 libmpfrc++-dev libgmp-dev \
+    flex bison autoconf autotools-dev automake libtool \
+    tmux mosh vim \
+    ocaml libnum-ocaml-dev libboost-dev
 
 ## Install Python
 ENV PYVERSION=3.9.25
@@ -73,3 +72,14 @@ ENV PATH="/numerics-playground/deps/gelpia/bin:${PATH}"
 RUN apt install -y libxt6 libxrender1 libxext6 libqt6widgets6
 RUN cd && curl -L https://gr-framework.org/downloads/gr-latest-Debian-x86_64.tar.gz -o gr.tar.gz && tar -xvf gr.tar.gz
 RUN echo 'export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:/root/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/lib:${LD_LIBRARY}' >> /root/.bashrc
+
+###### gappa ######
+RUN cd deps/gappa && ./autogen.sh && ./configure && ./remake
+ENV PATH="/numerics-playground/deps/gappa/src:${PATH}"
+
+###### fptaylor ######
+# Patch FPTaylor for modern OCaml (Pervasives -> Stdlib)
+RUN cd deps/FPTaylor && \
+    make all
+ENV PATH="/numerics-playground/deps/FPTaylor:${PATH}"
+ENV FPTAYLOR_BASE="/numerics-playground/deps/FPTaylor"
