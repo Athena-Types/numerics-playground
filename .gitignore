@@ -4,6 +4,7 @@ benchmarks-new/**/*.fpcore
 benchmarks-new/**/*.g
 benchmarks-new/**/*.fptaylor
 benchmarks-new/large/**/*.fz
+benchmarks-new/large/**/*.txt
 benchmarks-new/large/**/*.fptaylor
 benchmarks-new/large/**/*.g
 benchmarks-new/large/**/*.pylog
