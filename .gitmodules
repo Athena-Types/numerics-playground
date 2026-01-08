@@ -43,4 +43,4 @@
 	url = https://gitlab.inria.fr/gappa/gappa.git
 [submodule "deps/FPTaylor"]
 	path = deps/FPTaylor
-	url = https://github.com/soarlab/FPTaylor.git
+	url = https://github.com/InnovativeInventor/FPTaylor.git
