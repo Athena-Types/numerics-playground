@@ -21,4 +21,4 @@ PARALLEL_JOBS=1
 parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} $BENCH_PHASE $TIMEOUT ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
 
 # Large benchmarks (note that each benchmark is generated a little differently)
-parallel -j $PARALLEL_JOBS $BASH bench_large.sh {1} {2} $BENCH_PHASE $TIMEOUT ::: horner matmul serialsum ::: 4 8 16 32 64 128 256 512 1024 2048
+parallel -j $PARALLEL_JOBS $BASH bench_large.sh {1} {2} $BENCH_PHASE $TIMEOUT ::: horner matmul serialsum poly ::: 4 8 16 32 64 128 256 512 1024 2048

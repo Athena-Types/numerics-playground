@@ -348,8 +348,8 @@ def main():
     small_benchmarks = glob.glob(f"{args.benchmarks_dir}/*.fz")
     small_base_names = [os.path.basename(x).replace(".fz", "") for x in small_benchmarks if "factor" not in x and "shoelace" not in x]
     
-    # Find large benchmarks (in subdirectories: large/horner/, large/matmul/, large/serialsum/)
-    large_benchmark_types = ["horner", "matmul", "serialsum"]
+    # Find large benchmarks (in subdirectories: large/horner/, large/matmul/, large/serialsum/, large/poly/)
+    large_benchmark_types = ["horner", "matmul", "serialsum", "poly"]
     large_base_names = []
     for bench_type in large_benchmark_types:
         large_benchmarks = glob.glob(f"{args.benchmarks_dir}/large/{bench_type}/*.fz")
