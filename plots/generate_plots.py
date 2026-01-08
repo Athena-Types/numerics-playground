@@ -141,18 +141,28 @@ def sample_post(fname: str):
         return None
 
 
-def process_benchmark(fname: str, benchmarks_dir: str = "../benchmarks-new"):
+def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchmarks_dir: str = "../benchmarks-new"):
     """
     Process a single benchmark and return results and timing dictionaries.
     
+    Args:
+        base_name: Base benchmark name (e.g., 'kepler0') used for .fz files
+        precision: Precision string (e.g., 'binary64')
+        rounding_mode: Rounding mode string (e.g., 'toPositive')
+        benchmarks_dir: Directory containing benchmark files
+    
     Returns (result_dict, timing_dict, post_samples_list)
     """
-    result = {"benchmark": fname}
-    timing = {"benchmark": fname}
+    result = {"benchmark": base_name}
+    timing = {"benchmark": base_name}
 
-    # Parse fz output files
+    # Construct full name from components for FPTaylor and Gappa files
+    full_name = f"{base_name}-{precision}-{rounding_mode}"
+
+    # Parse fz output files (use base_name since .fz files don't include rounding mode in filename)
+    # TODO: NegFuzz currently ignores precision and rounding_mode parameters - propagate these to NegFuzz processing
     try:
-        with open(f"{benchmarks_dir}/{fname}.fz.out") as f:
+        with open(f"{benchmarks_dir}/{base_name}.fz.out") as f:
             lines = str(f.read()).split("\n")
             pre_rel = lines[0].split(":")[1].strip().replace("Some", "").replace("(", "").replace(")", "")
             pre_abs = lines[1].split(":")[1].strip()
@@ -163,7 +173,7 @@ def process_benchmark(fname: str, benchmarks_dir: str = "../benchmarks-new"):
         result["pre-abs"] = None
 
     try:
-        with open(f"{benchmarks_dir}/{fname}-factor.fz.out") as f:
+        with open(f"{benchmarks_dir}/{base_name}-factor.fz.out") as f:
             lines = str(f.read()).split("\n")
             pre_rel_factor = lines[0].split(":")[1].strip().replace("Some", "").replace("(", "").replace(")", "")
             pre_abs_factor = lines[1].split(":")[1].strip()
@@ -173,33 +183,33 @@ def process_benchmark(fname: str, benchmarks_dir: str = "../benchmarks-new"):
         result["pre-rel-factor"] = None
         result["pre-abs-factor"] = None
 
-    # Parse gappa outputs
-    g_abs = parse_gappa_out(f"{benchmarks_dir}/{fname}-abs.g.out")
+    # Parse gappa outputs (use full_name constructed from precision and rounding_mode)
+    g_abs = parse_gappa_out(f"{benchmarks_dir}/{full_name}-abs.g.out")
     if g_abs:
         g_abs = max(*g_abs)
     else:
         g_abs = None
     result["gappa-abs"] = g_abs
 
-    g_rel = parse_gappa_out(f"{benchmarks_dir}/{fname}-rel.g.out")
+    g_rel = parse_gappa_out(f"{benchmarks_dir}/{full_name}-rel.g.out")
     if g_rel:
         g_rel = max(*g_rel)
     else:
         g_rel = None
     result["gappa-rel"] = g_rel
 
-    # Parse FPTaylor outputs
-    fptaylor_abs, fptaylor_rel = parse_fptaylor_out(f"{benchmarks_dir}/{fname}.fptaylor.out")
+    # Parse FPTaylor outputs (use full_name constructed from precision and rounding_mode)
+    fptaylor_abs, fptaylor_rel = parse_fptaylor_out(f"{benchmarks_dir}/{full_name}.fptaylor.out")
     result["fptaylor-abs"] = fptaylor_abs
     result["fptaylor-rel"] = fptaylor_rel
 
     # Parse timing files
-    timing["gappa-abs"] = timing_out(f"{benchmarks_dir}/{fname}-abs.g.json")
-    timing["gappa-rel"] = timing_out(f"{benchmarks_dir}/{fname}-rel.g.json")
-    timing["numfuzz"] = timing_out(f"{benchmarks_dir}/{fname}.fz.json")
-    timing["numfuzz-factor"] = timing_out(f"{benchmarks_dir}/{fname}-factor.fz.json")
-    timing["fptaylor-rel"] = timing_out(f"{benchmarks_dir}/{fname}-rel.fptaylor.json")
-    timing["fptaylor-abs"] = timing_out(f"{benchmarks_dir}/{fname}-abs.fptaylor.json")
+    timing["gappa-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.g.json")
+    timing["gappa-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.g.json")
+    timing["numfuzz"] = timing_out(f"{benchmarks_dir}/{base_name}.fz.json")
+    timing["numfuzz-factor"] = timing_out(f"{benchmarks_dir}/{base_name}-factor.fz.json")
+    timing["fptaylor-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.fptaylor.json")
+    timing["fptaylor-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.fptaylor.json")
 
     return result, timing
 
@@ -283,12 +293,18 @@ def main():
 
     # Find benchmarks
     benchmarks = glob.glob(f"{args.benchmarks_dir}/*.fz")
-    names = [x.split(".")[2].split("/")[-1] for x in benchmarks if "factor" not in x]
-    names.sort()
+    base_names = [x.split(".")[2].split("/")[-1] for x in benchmarks if "factor" not in x and "shoelace" not in x]
+    base_names.sort()
 
-    print(f"Found {len(names)} benchmarks")
+    print(f"Found {len(base_names)} benchmarks")
     print(f"Output date: {date_str}")
     print(f"Output directory: {args.output_dir}")
+    
+    # Configuration for FPTaylor and Gappa comparisons
+    precision = "binary64"
+    rounding_mode = "toPositive"
+    print(f"Note: Comparing NegFuzz (toPositive) against FPTaylor/Gappa with {precision} precision and {rounding_mode} rounding mode")
+    print(f"Warning: NegFuzz currently ignores/skips precision and rounding mode settings (TODO: propagate precision/rounding_mode to NegFuzz processing)")
 
     # Process benchmarks
     results = []
@@ -296,23 +312,24 @@ def main():
     post_samples = {}
 
     print("\nProcessing benchmarks...")
-    for fname in tqdm.tqdm(names):
-        print(f"Processing: {fname}")
-        result, timing = process_benchmark(fname, args.benchmarks_dir)
+    for base_name in tqdm.tqdm(base_names):
+        full_name = f"{base_name}-{precision}-{rounding_mode}"
+        print(f"Processing: {base_name} (using {full_name} for FPTaylor/Gappa files)")
+        result, timing = process_benchmark(base_name, precision, rounding_mode, args.benchmarks_dir)
         results.append(result)
         timings.append(timing)
 
-        # Sample post-hoc bounds
+        # Sample post-hoc bounds (use base_name for .fz files)
         if not args.skip_sampling:
-            print(f"  Sampling {args.samples} post-hoc bounds for {fname}...")
+            print(f"  Sampling {args.samples} post-hoc bounds for {base_name}...")
             samples = []
             for _ in range(args.samples):
-                sample = sample_post(fname)
+                sample = sample_post(base_name)
                 if sample is not None:
                     samples.append(sample)
-            post_samples[fname] = samples
+            post_samples[base_name] = samples
         else:
-            print(f"  Skipping sampling for {fname}")
+            print(f"  Skipping sampling for {base_name}")
 
     # Create dataframes
     results_df = pd.DataFrame(results)
