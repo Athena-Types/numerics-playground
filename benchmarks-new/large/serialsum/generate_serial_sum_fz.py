@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-from fpcodgen import generate_tuple_type
+from fpcodegen import generate_tuple_type
 
 def generate_serial_sum_fz(n, interval_min=-1, interval_max=1, precision=64):
     """Generate Fuzzi serial sum for n elements"""

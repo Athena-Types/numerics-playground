@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-from fpcodgen import generate_tuple_type, generate_matrix_unpacking_statements, generate_right_nested_structure
+from fpcodegen import generate_tuple_type, generate_matrix_unpacking_statements, generate_right_nested_structure
 
 def generate_matrix_type(n):
     """Generate nested tuple type for nxn matrix"""

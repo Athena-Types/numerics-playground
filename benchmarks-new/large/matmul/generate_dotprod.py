@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-from fpcodgen import generate_tuple_type, generate_unpacking_statements
+from fpcodegen import generate_tuple_type, generate_unpacking_statements
 
 def generate_computation_tree(n, start_idx=0, var_counter=[0], is_top_level=True):
     """Generate the nested factor/addfp64 computation tree
