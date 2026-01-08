@@ -5,13 +5,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 BENCHMARK=$1
 SIZE=$2
+PHASE=${3:-all}
+TIMEOUT=${4:-3600}
 
 if [ -z "$BENCHMARK" ] || [ -z "$SIZE" ]; then
-    echo "Usage: $0 <benchmark> <size> [phase]"
+    echo "Usage: $0 <benchmark> <size> [phase] [timeout_seconds]"
     echo "Benchmarks: horner, matmul, serialsum"
     echo "Size: integer (e.g., 5, 10, 64, 128)"
     exit 1
 fi
+
+source "$SCRIPT_DIR/timeout.sh"
 
 echo "Generating large benchmark: $BENCHMARK with size: $SIZE"
 
@@ -54,16 +58,13 @@ cd "$SCRIPT_DIR"
 # Generate all Gappa questions
 python src/compute_bound.py "benchmarks-new/${BASE_NAME}.g"
 
-# Run the benchmark pipeline
-PHASE=${3:-all}
-
 # If only generation is requested, stop here; otherwise continue to analysis/timing
 if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
 echo "Running non-Satire (fptaylor, gappa, NegFuzz) tools"
-source bench.sh "$BASE_NAME" "$PHASE"
+source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT"
 
 echo "Now running Satire tools"
 
@@ -71,7 +72,7 @@ echo "Now running Satire tools"
 SATIRE_FILE="benchmarks-new/$BASE_NAME.txt"
 
 # No abstraction - with dynamic LD_LIBRARY_PATH
-docker run --rm \
+run_with_timeout docker run --rm \
   -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
   -w /numerics-playground/deps/Satire \
   negfuzz \
@@ -84,7 +85,7 @@ docker run --rm \
 # Abstraction windows: (10,20), (15,25), (20,40)
 for config in "10 20" "15 25" "20 40"; do
   read -r mindepth maxdepth <<< "$config"
-  docker run --rm \
+  run_with_timeout docker run --rm \
     -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
     -w /numerics-playground/deps/Satire \
     negfuzz \

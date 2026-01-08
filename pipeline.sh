@@ -7,6 +7,7 @@ set -euxo pipefail
 # - time: only run hyperfine benchmarks
 # - all: run all phases (generate + analyze + time)
 BENCH_PHASE=${BENCH_PHASE:-generate} # default to "all" if not set
+TIMEOUT=${TIMEOUT:-3600} # default to 3600 seconds if not set
 
 # build everything
 cd fuzzrs
@@ -14,10 +15,10 @@ cd fuzzrs
 cd ..
 
 BASH=$(which bash)
-PARALLEL_JOBS=8
+PARALLEL_JOBS=1
 
 # TODO: Note that we exclude the shoelace formula from the small benchmarks for now.
-parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} $BENCH_PHASE ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
+parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} $BENCH_PHASE $TIMEOUT ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
 
 # Large benchmarks (note that each benchmark is generated a little differently)
-parallel -j $PARALLEL_JOBS $BASH bench_large.sh {1} {2} $BENCH_PHASE ::: horner matmul serialsum ::: 4 8 16 32 64 128 256 512 1024 2048
+parallel -j $PARALLEL_JOBS $BASH bench_large.sh {1} {2} $BENCH_PHASE $TIMEOUT ::: horner matmul serialsum ::: 4 8 16 32 64 128 256 512 1024 2048
