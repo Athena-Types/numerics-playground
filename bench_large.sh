@@ -6,14 +6,17 @@ BENCHMARK=$1
 SIZE=$2
 PHASE=${3:-all}
 TIMEOUT=${4:-3600}
+MEMORY_LIMIT=${5:-10g}
+CPU_LIMIT=${6:-1}
 
 if [ -z "$BENCHMARK" ] || [ -z "$SIZE" ]; then
-    echo "Usage: $0 <benchmark> <size> [phase] [timeout_seconds]"
+    echo "Usage: $0 <benchmark> <size> [phase] [timeout] [memory_limit] [cpu_limit]"
     echo "Benchmarks: horner, matmul, serialsum, poly"
     echo "Size: integer (e.g., 5, 10, 64, 128)"
     exit 1
 fi
 
+export TIMEOUT MEMORY_LIMIT CPU_LIMIT
 source "$SCRIPT_DIR/docker/run.sh"
 
 echo "Generating large benchmark: $BENCHMARK with size: $SIZE"
@@ -70,7 +73,7 @@ if [ "$PHASE" = "generate" ]; then
 fi
 
 echo "Running non-Satire (fptaylor, gappa, NegFuzz) tools"
-source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT"
+source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT" "$MEMORY_LIMIT" "$CPU_LIMIT"
 
 echo "Now running Satire tools"
 

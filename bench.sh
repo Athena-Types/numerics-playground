@@ -1,12 +1,15 @@
 # set -euxo pipefail
 
 BENCHMARK=$1
-PHASE=${2:-all} # default to running all phases
-TIMEOUT=${3:-3600} # default to 3600 seconds
+PHASE=${2:-all}
+TIMEOUT=${3:-3600}
+MEMORY_LIMIT=${4:-10g}
+CPU_LIMIT=${5:-1}
 
 RUNS=50
 WARMUP=5
 
+export TIMEOUT MEMORY_LIMIT CPU_LIMIT
 source "$(dirname "${BASH_SOURCE[0]}")/docker/run.sh"
 
 # Validate phase argument (generation happens upstream)
@@ -16,7 +19,7 @@ if [ "$PHASE" != "analyze" ] && [ "$PHASE" != "time" ] && [ "$PHASE" != "all" ];
   exit 1
 fi
 
-echo "Running for benchmark: $BENCHMARK (phase: $PHASE)"
+echo "Running for benchmark: $BENCHMARK (phase: $PHASE, memory: $MEMORY_LIMIT, cpus: $CPU_LIMIT)"
 
 # Note: Generation is performed prior to calling this script (small via bench_small.sh, large via bench_large.sh)
 
