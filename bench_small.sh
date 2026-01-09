@@ -1,5 +1,4 @@
 # set -euxo pipefail
-source ~/.shell
 
 BENCHMARK=$1
 PRECISION=$2
