@@ -84,4 +84,6 @@ ENV FPTAYLOR_BASE="/numerics-playground/deps/FPTaylor"
 
 ###### negfuzz ######
 RUN cd fuzzrs && cargo build --release
-RUN cargo install hyperfine
+
+###### benchmark tools ######
+RUN cargo install --locked hyperfine@1.19.0
