@@ -1,0 +1,31 @@
+# Ignore ephemeral intermeddiate and output files
+*.json
+benchmarks-new/**/*.fpcore
+benchmarks-new/**/*.g
+benchmarks-new/**/*.fptaylor
+benchmarks-new/large/**/*.fz
+benchmarks-new/large/**/*.txt
+benchmarks-new/large/**/*.fptaylor
+benchmarks-new/large/**/*.g
+benchmarks-new/large/**/*.pylog
+tmp/
+log/
+gelpia_*.txt
+
+paper/
+plots/
+
+# Build Artifacts
+fuzzrs/target/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Development Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+.env*
