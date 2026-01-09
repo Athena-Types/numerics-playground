@@ -5,9 +5,11 @@ PRECISION=$2
 ROUNDING_MODE=$3
 PHASE=${4:-all}
 TIMEOUT=${5:-3600}
+MEMORY_LIMIT=${6:-10g}
+CPU_LIMIT=${7:-1}
 
 if [ -z "$BENCHMARK" ] || [ -z "$PRECISION" ] || [ -z "$ROUNDING_MODE" ]; then
-    echo "Usage: $0 <benchmark> <precision> <rounding_mode> [phase] [timeout_seconds]"
+    echo "Usage: $0 <benchmark> <precision> <rounding_mode> [phase] [timeout] [memory_limit] [cpu_limit]"
     echo "Precisions: binary32, binary64"
     echo "Rounding modes: nearestEven, toZero, toPositive, toNegative"
     exit 1
@@ -46,4 +48,4 @@ if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
-source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT"
+source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT" "$MEMORY_LIMIT" "$CPU_LIMIT"
