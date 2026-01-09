@@ -78,8 +78,10 @@ RUN cd deps/gappa && ./autogen.sh && ./configure && ./remake
 ENV PATH="/numerics-playground/deps/gappa/src:${PATH}"
 
 ###### fptaylor ######
-# Patch FPTaylor for modern OCaml (Pervasives -> Stdlib)
-RUN cd deps/FPTaylor && \
-    make all
+RUN cd deps/FPTaylor && make all
 ENV PATH="/numerics-playground/deps/FPTaylor:${PATH}"
 ENV FPTAYLOR_BASE="/numerics-playground/deps/FPTaylor"
+
+###### negfuzz ######
+RUN cd fuzzrs && cargo build --release
+RUN cargo install hyperfine
