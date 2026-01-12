@@ -15,7 +15,7 @@ run_in_docker() {
         -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
         -w /numerics-playground \
         negfuzz \
-        bash -c "source ~/.bashrc && $cmd" || {
+        bash -c "source ~/.bashrc && /usr/bin/time -v $cmd" || {
             exit_code=$?
             timestamp=$(date '+%Y-%m-%d %H:%M:%S')
             if [ $exit_code -eq 124 ]; then

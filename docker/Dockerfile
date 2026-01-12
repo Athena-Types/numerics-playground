@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
     libmpfr-dev libmpfr6 libmpfrc++-dev libgmp-dev \
     flex bison autoconf autotools-dev automake libtool \
-    tmux mosh vim \
+    tmux mosh vim time \
     ocaml libnum-ocaml-dev libboost-dev
 
 ## Install Python
