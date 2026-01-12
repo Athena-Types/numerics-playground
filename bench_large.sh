@@ -81,21 +81,17 @@ echo "Now running Satire tools"
 SATIRE_FILE="benchmarks-new/$BASE_NAME.txt"
 
 # No abstraction - with dynamic LD_LIBRARY_PATH
-run_in_docker 'RUST_SYSROOT=$(rustc --print sysroot); \
-  export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
-  cd /numerics-playground/deps/Satire && \
-  python3 src/satire.py --std --file ../../'"$SATIRE_FILE"' \
-  --logfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.pylog \
-  --outfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_noAbs.out'
+run_in_docker "bash -c 'cd /numerics-playground/deps/Satire && \
+  python3 src/satire.py --std --file ../../$SATIRE_FILE \
+  --logfile ../../benchmarks-new/$BASE_NAME_sat_abs-serial_noAbs.pylog \
+  --outfile ../../benchmarks-new/$BASE_NAME_sat_abs-serial_noAbs.out'"
 
 # Abstraction windows: (10,20), (15,25), (20,40)
 for config in "10 20" "15 25" "20 40"; do
   read -r mindepth maxdepth <<< "$config"
-  run_in_docker 'RUST_SYSROOT=$(rustc --print sysroot); \
-    export LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$RUST_SYSROOT/lib/rustlib/x86_64-unknown-linux-gnu/lib; \
-    cd /numerics-playground/deps/Satire && \
-    python3 src/satire.py --std --file ../../'"$SATIRE_FILE"' \
-    --enable-abstraction --mindepth '"$mindepth"' --maxdepth '"$maxdepth"' \
-    --logfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.pylog \
-    --outfile ../../benchmarks-new/'"$BASE_NAME"'_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.out'
+  run_in_docker "bash -c 'cd /numerics-playground/deps/Satire && \
+    python3 src/satire.py --std --file ../../"$SATIRE_FILE" \
+    --enable-abstraction --mindepth "$mindepth" --maxdepth "$maxdepth" \
+    --logfile ../../benchmarks-new/"$BASE_NAME"_sat_abs-serial_"${mindepth}"_"${maxdepth}".pylog \
+    --outfile ../../benchmarks-new/"$BASE_NAME"_sat_abs-serial_"${mindepth}"_"${maxdepth}".out'"
 done
