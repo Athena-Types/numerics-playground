@@ -1,4 +1,4 @@
-set -euxo pipefail
+set -uxo pipefail
 
 # Configuration: phase to run (generate, analyze, time, or all)
 # - generate: only generate benchmark files
