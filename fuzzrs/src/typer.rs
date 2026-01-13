@@ -220,8 +220,9 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
                     let r_min = min(min(r_l * r_h_a, r_h * r_h_a), min(r_l * r_l_a, r_h * r_l_a));
                     let r_max = max(max(r_l * r_h_a, r_h * r_h_a), max(r_l * r_l_a, r_h * r_l_a));
 
-                    // degenerate case should make multiplication bounds tighter
-                    if (*deg_l && *deg_r) {
+                    // if either component is degenerate, we can take the max (because the other
+                    // will be zero)
+                    if (*deg_l || *deg_r) {
                         Const(
                             (
                                 r_min,
