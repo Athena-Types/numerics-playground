@@ -225,8 +225,8 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
                         Const(
                             (
                                 r_min,
-                                max((tmul(a_l, a_l_a)), (tmul(b_l, b_l_a))),
-                                max((tmul(a_l, b_l_a)), (tmul(b_l, a_l_a))),
+                                min((tmul(a_l, a_l_a)), (tmul(b_l, b_l_a))),
+                                min((tmul(a_l, b_l_a)), (tmul(b_l, a_l_a))),
                             ),
                             (
                                 r_max,
