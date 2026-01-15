@@ -5,7 +5,7 @@ Building off Numerical Fuzz \cite{numfuzz}, we are interested in developing a
 modular family of languages for analyzing numerical round-off error. Modularity
 enables differing floating-point bit precisions (e.g. 32-bit floats, 64-bit
 floats) and floating-point operations to be soundly instantiated. In
-Section\ref{sec:encoding}, we will instantiate our family of languages with a
+Section~\ref{sec:encoding}, we will instantiate our family of languages with a
 paired representation which will help provide both a priori and a posteriori
 bounds.
 
@@ -62,8 +62,9 @@ restrict the bound term in our let expressions to be values.
 Our term language extends Numerical Fuzz's term language. We introduce a
 language for intervals (shown in Figure~\ref{fig:syntax}) as well as explicit
 terms to represent polymorphic abstraction $\bnd{(\Lambda \epsilon. e)}$ and
-instantiation $\bnd{(e \{i\})}$. This is useful for incorporating a interval
-analysis into the type system, which we detail in the following section.
+instantiation $\bnd{(e \{i\})}$. This is useful for incorporating an interval
+analysis into the type inference algorithm, which we detail in
+Section~\ref{sec:inference}.
 
 \input{sections/01-syntax.tex}
 
@@ -119,6 +120,7 @@ mirror Numerical Fuzz and correspond to the standard introduction and
 elimination rules in linear logic.
 We are also able to scale typing contexts through the (! I) rule. This is useful
 for instantiating functions with finitely scaled senstivity.
+% todo: check that we can't be infinite and that this is up-to-date everywhere
 
 The monadic grade upper-bounds the maximum possible round-off error possible.
 Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E),
@@ -371,11 +373,11 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \vskip 3em
 
 \end{center}
-    \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
-    and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
-    Definition~\ref{def:numfuzz-interface} for details on picking an adequate
-    constant). $FTV(\Gamma)$ refers to all the free type variables (e.g.
-    $\epsilon_0, \epsilon_1$) in $\Gamma$.}
+    \caption{Typing rules for \Lang, with $s \in \NNR$ and $t,q,r,u \in \NNR
+      \cup \{\infty\}$ and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant
+      parameter (see Definition~\ref{def:numfuzz-interface} for details on
+      picking an adequate constant). $FTV(\Gamma)$ refers to all the free type
+      variables (e.g. $\epsilon_0, \epsilon_1$) in $\Gamma$.}
     \label{fig:typing_rules}
 \end{figure}
 
