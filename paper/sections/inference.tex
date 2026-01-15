@@ -1,12 +1,19 @@
 \section{Type inference} \label{sec:inference}
 Similar to our language syntax and semantics, our type inference approach is
-also modular. We parametrize our algorithm by an abstraction function mapping
-from our concrete domain $\textit{num}$ to intervals: $\alpha : \textit{num} \to
+also modular. We parametrize our algorithm by an injection function mapping
+from our concrete domain $\textit{num}$ to intervals: $inj : \textit{num} \to
 \textit{num}^2$. 
-We only constrain $\alpha$ to be closed:
-\begin{definition}[$\alpha$ is closed.] \label{def:alpha-closed}
-For all $k \in \textit{num}$, $k \in \alpha(k)$.
+We only constrain $inj$ to be closed:
+\begin{definition}[$inj$ is closed.] \label{def:inj-closed}
+For all $k \in \textit{num}$, $k \in inj(k)$.
 \end{definition}
+
+We also need an abstract transformer $-^{\#}$ lifting operations to operations on
+their abstract domain such that every concrete result possible falls within the
+abstract domain.
+
+% todo: state missing correctness property of our abstract transformer, setup
+% galois connection
 
 \subsection{Problem setup}
 Conceptually, we can think of our type inference algorithm in two
@@ -385,7 +392,7 @@ context, possibly using bound polymorphism.
 \AXC{}
 \RightLabel{(Const)}
 \UIC{$\Gamma; k^{\bnd{\bullet}}; \underset{bnd.}{\implies} \Gamma;
-k; \textbf{num}_{\bnd{\alpha(k)}}$}
+k; \textbf{num}_{\bnd{inj(k)}}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -614,8 +621,8 @@ follow from the soundness proof for $\underset{sens.}{\implies}$
 (in~\cite{numfuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
 is non-structural below:
 \begin{description}
-  \item[Const.] Holds by our interface for $\alpha$ from
-  Definition~\ref{def:alpha-closed}. 
+  \item[Const.] Holds by our interface for $inj$ from
+    Definition~\ref{def:inj-closed}. 
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.
   \item[$\multimap$ I.] Apply $\forall-I$ for every free $\epsilon$.
@@ -639,33 +646,50 @@ is non-structural below:
 % $\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ 
 % and 
 % $d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
+% Note that we do not modify our modular type inference algorithm and leave the
+% instantiation the same.
 % Let us write programs derivable in this type system using the
-% $\vdash_{\mathbb{R}}$ judgement. We observe that programs step the same in both
-% instantiations of the language and also that programs derivable in
-% $\vdash_{\mathbb{R}}$ have the same type with $\vdash$.
+% $\vdash_{\mathbb{R}}$ judgement and $\vdash_{\mathbb{P}}$ for the
+% paired representation instantiated previously. % todo: add backref
+% We observe that programs step the same in both instantiations of the language
+% and also that programs derivable in $\vdash_{\mathbb{R}}$ have the same type
+% with $\vdash_{\mathbb{P}}$:
 % \begin{lemma}[Derivablity]
 % If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
 % then
-% $\Delta \ | \ \Gamma \vdash e : \tau$ 
+% $\Delta \ | \ \Gamma \vdash_{\mathbb{P}} e : \tau$ 
 % \end{lemma}
 % \begin{proof}
-%   $\vdash_{\mathbb{R}}$ has strictly less operations and the associated rounding
-%   functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
+%   Proof by induction. $\vdash_{\mathbb{R}}$ has strictly less operations and the
+%   associated rounding functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
 % \end{proof}
 %
 % We also observe that for a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, $q$ suffices to bound the
 % maximum permitted round-off error.
 %
-% \begin{theorem}[Unpaired error theorem]
+% \begin{theorem}[Unpaired error soundness theorem]
 % For a program $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we have that $ e \mapsto^{*} ((r, a,
 % b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
 % \end{theorem}
 % \begin{proof}
-%   Holds by our logical relation and error metric.
+%   Holds by applying our metric preservation theorem and unfolding our logical
+%   relation and error metric.
 % \end{proof}
 %
 % We are now ready to state our tightness theorem which guarantees that the paired
 % representation produced error bounds no looser than the unpaired representation.
+%
+% \begin{lemma}[Tightness type inference lemma]\label{thm:tightness-helper}
+%   If $b$ is always zero in our concrete domain and our program does not contain
+%   subtraction, our type inference algorithm always infers that $b^{\uparrow} =
+%   b^{\downarrow} = 0$.
+% \end{lemma}
+% \begin{proof}
+%   We track all the intervals produced by the type inference algorithm. Intervals
+%   are produced by $inj$ (base case) or by applying our lifted operations $op^{\#}$ (inductive case).
+%   By induction, in both cases, our invariant $b^{\uparrow} = b^{\downarrow} =
+%   0$ holds.
+% \end{proof}
 %
 % \begin{theorem}[Tightness]
 % For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e
@@ -674,8 +698,10 @@ is non-structural below:
 % \end{theorem}
 % \begin{proof}
 %   Unfold our logical relation and error metric. Note that our underlying carrier
-%   set of $\mathbb{P}$ is zeroed out in the last component. Therefore, $b = b' =
-%   b^{\uparrow} = b^{\downarrow} = 0$. By applying our a priori error theorem
+%   set of $\mathbb{P}$ is zeroed out in the last component. By
+%   Lemma~\ref{thm:tightness-helper}, we know that our type inference algorithm
+%   will produce $b = b^{\uparrow} = b^{\downarrow} = 0$. 
+%   By applying our a priori error theorem
 %   (Theorem~\ref{thm:paired-a-priori-rel}), we have our terms neatly zero out and
 %   simplify such that $d_{\mathbb{R}}(r, r') = ln(e^q) = q$.
 % \end{proof}
