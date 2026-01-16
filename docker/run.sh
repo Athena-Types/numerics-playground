@@ -8,10 +8,11 @@ ERROR_LOG="${SCRIPT_DIR}/log/failures.log"
 
 run_in_docker() {
     local cmd="$*"
+    # Running timeout on the outside doesn't reliably kill the container; needs to be run inside
     docker_cmd='source ~/.bashrc && LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$(rustc --print sysroot)/lib/rustlib/x86_64-unknown-linux-gnu/lib '
-    docker_cmd+="/usr/bin/time -v $cmd"
+    docker_cmd+="timeout $TIMEOUT /usr/bin/time -v $cmd"
     echo "debug: $cmd"
-    timeout "$TIMEOUT" sudo docker run --rm \
+    sudo docker run --rm \
         --memory="$MEMORY_LIMIT" \
         --memory-swap="$MEMORY_LIMIT" \
         --cpus="$CPU_LIMIT" \
