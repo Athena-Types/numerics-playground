@@ -112,7 +112,7 @@ def parse_satire_out(filename: str):
                     except (ValueError, IndexError):
                         print(f"Warning: Could not parse absolute error from: {line}")
         return (abs_error, None) if abs_error is not None else None
-    except (FileNotFoundError, ValueError) as e:
+    except FileNotFoundError:
         return None
 
 
@@ -189,7 +189,7 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     timing = {"benchmark": base_name}
 
     # Check if this is a large benchmark (has path prefix)
-    is_large_benchmark = "large" in base_name
+    is_large_benchmark = base_name.startswith("large/")
     
     # Construct full name from components for FPTaylor and Gappa files
     # Large benchmarks don't use precision/rounding mode in filenames
@@ -202,22 +202,36 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     # TODO: NegFuzz currently ignores precision and rounding_mode parameters - propagate these to NegFuzz processing
     try:
         with open(f"{benchmarks_dir}/{base_name}.fz.out") as f:
-            lines = str(f.read()).split("\n")
-            pre_rel = lines[0].split(":")[1].strip().replace("Some", "").replace("(", "").replace(")", "")
-            pre_abs = lines[1].split(":")[1].strip()
-        result["pre-rel"] = pre_rel if pre_rel else None
-        result["pre-abs"] = pre_abs if pre_abs else None
+            content = f.read()
+            pre_rel = None
+            pre_abs = None
+            for line in content.split("\n"):
+                if line.startswith("final bound (pre, rel):"):
+                    val = line.split(":", 1)[1].strip().replace("Some", "").replace("(", "").replace(")", "")
+                    pre_rel = val if val and val != "None" else None
+                elif line.startswith("final bound (pre, abs):"):
+                    val = line.split(":", 1)[1].strip()
+                    pre_abs = val if val and val != "None" else None
+        result["pre-rel"] = pre_rel
+        result["pre-abs"] = pre_abs
     except (FileNotFoundError, IndexError) as e:
         result["pre-rel"] = None
         result["pre-abs"] = None
 
     try:
         with open(f"{benchmarks_dir}/{base_name}-factor.fz.out") as f:
-            lines = str(f.read()).split("\n")
-            pre_rel_factor = lines[0].split(":")[1].strip().replace("Some", "").replace("(", "").replace(")", "")
-            pre_abs_factor = lines[1].split(":")[1].strip()
-        result["pre-rel-factor"] = pre_rel_factor if pre_rel_factor else None
-        result["pre-abs-factor"] = pre_abs_factor if pre_abs_factor else None
+            content = f.read()
+            pre_rel_factor = None
+            pre_abs_factor = None
+            for line in content.split("\n"):
+                if line.startswith("final bound (pre, rel):"):
+                    val = line.split(":", 1)[1].strip().replace("Some", "").replace("(", "").replace(")", "")
+                    pre_rel_factor = val if val and val != "None" else None
+                elif line.startswith("final bound (pre, abs):"):
+                    val = line.split(":", 1)[1].strip()
+                    pre_abs_factor = val if val and val != "None" else None
+        result["pre-rel-factor"] = pre_rel_factor
+        result["pre-abs-factor"] = pre_abs_factor
     except (FileNotFoundError, IndexError) as e:
         result["pre-rel-factor"] = None
         result["pre-abs-factor"] = None
@@ -348,15 +362,15 @@ def main():
     small_benchmarks = glob.glob(f"{args.benchmarks_dir}/*.fz")
     small_base_names = [os.path.basename(x).replace(".fz", "") for x in small_benchmarks if "factor" not in x and "shoelace" not in x]
     
-    # Find large benchmarks (in subdirectories: large/horner/, large/matmul/, large/serialsum/, large/poly/)
-    large_benchmark_types = ["horner", "matmul", "serialsum", "poly"]
+    # Find large benchmarks (in subdirectories: large/horner/, large/matmul/, large/serialsum/)
+    large_benchmark_types = ["horner", "matmul", "serialsum"]
     large_base_names = []
     for bench_type in large_benchmark_types:
         large_benchmarks = glob.glob(f"{args.benchmarks_dir}/large/{bench_type}/*.fz")
         for bench_path in large_benchmarks:
             # Filter out -factor.fz files and dotprod*.fz files
             filename = os.path.basename(bench_path)
-            if "factor" not in filename and "dotprod" not in filename:
+            if "factor" not in filename and not filename.startswith("dotprod"):
                 # Extract base name with path prefix (e.g., "large/horner/Horner4")
                 rel_path = os.path.relpath(bench_path, args.benchmarks_dir)
                 base_name = rel_path.replace(".fz", "")
@@ -430,6 +444,10 @@ def main():
     # Format each column (NaN becomes empty string)
     for col in cols:
         results_df[col] = results_df[col].apply(lambda x: f'{x:.4g}' if pd.notna(x) else '')
+
+    # Drop rows with no timing data
+    timing_cols = [c for c in timings_df.columns if c != "benchmark"]
+    timings_df = timings_df.dropna(subset=timing_cols, how="all")
 
     # Write CSVs
     results_csv = os.path.join(args.output_dir, f"results-{date_str}.csv")
