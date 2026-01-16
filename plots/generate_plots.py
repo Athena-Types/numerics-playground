@@ -86,7 +86,7 @@ def parse_fptaylor_out(filename: str):
 
 def parse_satire_out(filename: str):
     """
-    Parse Satire output files and return (abs_error, None) tuple or None.
+    Parse Satire output files and return (abs_error, full_time) tuple or None.
     
     Satire only provides absolute error bounds, not relative error.
     
@@ -99,11 +99,14 @@ def parse_satire_out(filename: str):
         REAL_INTERVAL : [-4, 4.0]
         FP_INTERVAL : [-4.000000000000002, 4.000000000000002]
         //-------------------------------------
+        
+        Full time : 0.9130442142486572
     """
     try:
         with open(filename, "r") as f:
             file = f.read()
             abs_error = None
+            full_time = None
             for line in file.split("\n"):
                 if "ABSOLUTE_ERROR" in line:
                     try:
@@ -111,7 +114,15 @@ def parse_satire_out(filename: str):
                         abs_error = float(line.split(":")[1].strip())
                     except (ValueError, IndexError):
                         print(f"Warning: Could not parse absolute error from: {line}")
-        return (abs_error, None) if abs_error is not None else None
+                elif line.startswith("Full time"):
+                    try:
+                        # Extract value after "Full time : "
+                        full_time = float(line.split(":")[1].strip())
+                    except (ValueError, IndexError):
+                        print(f"Warning: Could not parse full time from: {line}")
+        if abs_error is not None or full_time is not None:
+            return (abs_error, full_time)
+        return None
     except FileNotFoundError:
         return None
 
@@ -135,6 +146,71 @@ def timing_out(timing_file: str):
             return data["results"][0]["median"]
     except (FileNotFoundError, json.JSONDecodeError, KeyError, IndexError):
         return None
+
+
+def parse_time_v_memory(out_file: str):
+    """
+    Extract max memory (RSS) from /usr/bin/time -v output in .out files.
+    
+    Looks for line: "Maximum resident set size (kbytes): 12345"
+    
+    Returns memory in KB as int, or None if not found.
+    """
+    try:
+        with open(out_file, "r") as f:
+            for line in f:
+                if "Maximum resident set size" in line:
+                    # Format: "\tMaximum resident set size (kbytes): 12345"
+                    return int(line.split(":")[1].strip())
+        return None
+    except (FileNotFoundError, ValueError, IndexError):
+        return None
+
+
+def parse_failures_log(log_file: str):
+    """
+    Parse failures.log to build a dict mapping command substrings to failure type.
+    
+    Log format:
+        [timestamp] TIMEOUT (Xs): command
+        [timestamp] OOM (memory_limit): command
+        [timestamp] FAILED (exit_code): command
+    
+    Returns dict like: {"benchmarks-new/large/horner/Horner128.fz": "timeout", ...}
+    """
+    failures = {}
+    try:
+        with open(log_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                # Parse format: [timestamp] TYPE (detail): command
+                if "] TIMEOUT" in line:
+                    # Extract command after the last ": "
+                    cmd = line.split(": ", 1)[-1] if ": " in line else ""
+                    failures[cmd] = "timeout"
+                elif "] OOM" in line:
+                    cmd = line.split(": ", 1)[-1] if ": " in line else ""
+                    failures[cmd] = "oom"
+                elif "] FAILED" in line:
+                    cmd = line.split(": ", 1)[-1] if ": " in line else ""
+                    failures[cmd] = "failed"
+    except FileNotFoundError:
+        pass
+    return failures
+
+
+def get_failure_status(failures: dict, benchmark_path: str):
+    """
+    Check if a benchmark path matches any failure in the failures dict.
+    
+    Returns "timeout", "oom", "failed", or "success".
+    """
+    for cmd, status in failures.items():
+        if benchmark_path in cmd:
+            return status
+    return "success"
 
 
 def sample_post(fname: str):
@@ -173,7 +249,7 @@ def sample_post(fname: str):
         return None
 
 
-def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchmarks_dir: str = "../benchmarks-new"):
+def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchmarks_dir: str = "../benchmarks-new", failures: dict = None):
     """
     Process a single benchmark and return results and timing dictionaries.
     
@@ -182,9 +258,13 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
         precision: Precision string (e.g., 'binary64')
         rounding_mode: Rounding mode string (e.g., 'toPositive')
         benchmarks_dir: Directory containing benchmark files
+        failures: Dict mapping command strings to failure type (from parse_failures_log)
     
     Returns (result_dict, timing_dict, post_samples_list)
     """
+    if failures is None:
+        failures = {}
+    
     result = {"benchmark": base_name}
     timing = {"benchmark": base_name}
 
@@ -267,16 +347,40 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
         satire_result = parse_satire_out(satire_filename)
         if satire_result:
             result[f"satire-abs-{config}"] = satire_result[0]  # abs_error
+            timing[f"satire-{config}"] = satire_result[1]  # full_time
         else:
             result[f"satire-abs-{config}"] = None
+            timing[f"satire-{config}"] = None
 
-    # Parse timing files
+    # Parse timing files (from hyperfine JSON)
     timing["gappa-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.g.json")
     timing["gappa-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.g.json")
     timing["numfuzz"] = timing_out(f"{benchmarks_dir}/{base_name}.fz.json")
     timing["numfuzz-factor"] = timing_out(f"{benchmarks_dir}/{base_name}-factor.fz.json")
     timing["fptaylor-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.fptaylor.json")
     timing["fptaylor-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.fptaylor.json")
+
+    # Parse memory usage from .out files (from /usr/bin/time -v)
+    timing["gappa-abs-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}-abs.g.out")
+    timing["gappa-rel-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}-rel.g.out")
+    timing["numfuzz-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{base_name}.fz.out")
+    timing["numfuzz-factor-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{base_name}-factor.fz.out")
+    timing["fptaylor-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}.fptaylor.out")
+
+    # Note: Satire memory not tracked (no /usr/bin/time wrapper)
+    # Satire timing is extracted from "Full time" in the Satire output files above
+
+    # Parse failure status from failures log
+    timing["gappa-abs-status"] = get_failure_status(failures, f"{full_name}-abs.g")
+    timing["gappa-rel-status"] = get_failure_status(failures, f"{full_name}-rel.g")
+    timing["numfuzz-status"] = get_failure_status(failures, f"{base_name}.fz")
+    timing["numfuzz-factor-status"] = get_failure_status(failures, f"{base_name}-factor.fz")
+    timing["fptaylor-status"] = get_failure_status(failures, f"{full_name}.fptaylor")
+
+    # Satire status - check each config
+    for config in satire_configs:
+        satire_path = f"{base_name}_sat_abs-serial_{config}"
+        timing[f"satire-{config}-status"] = get_failure_status(failures, satire_path)
 
     return result, timing
 
@@ -390,6 +494,13 @@ def main():
     print(f"Note: Comparing NegFuzz (toPositive) against FPTaylor/Gappa with {precision} precision and {rounding_mode} rounding mode")
     print(f"Warning: NegFuzz currently ignores/skips precision and rounding mode settings (TODO: propagate precision/rounding_mode to NegFuzz processing)")
 
+    # Load failures log for status tracking
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    failures_log_path = os.path.join(script_dir, "..", "log", "failures.log")
+    failures = parse_failures_log(failures_log_path)
+    if failures:
+        print(f"Loaded {len(failures)} failure records from log")
+
     # Process benchmarks
     results = []
     timings = []
@@ -399,7 +510,7 @@ def main():
     for base_name in tqdm.tqdm(base_names):
         full_name = f"{base_name}-{precision}-{rounding_mode}"
         print(f"Processing: {base_name} (using {full_name} for FPTaylor/Gappa files)")
-        result, timing = process_benchmark(base_name, precision, rounding_mode, args.benchmarks_dir)
+        result, timing = process_benchmark(base_name, precision, rounding_mode, args.benchmarks_dir, failures)
         results.append(result)
         timings.append(timing)
 
@@ -441,13 +552,17 @@ def main():
     # Replace "None" strings with np.nan and convert to float64
     results_df[cols] = results_df[cols].replace({"None": np.nan}).astype("float64")
     
+    # Drop rows with no result data
+    results_df = results_df.dropna(subset=cols, how="all")
+    
     # Format each column (NaN becomes empty string)
     for col in cols:
         results_df[col] = results_df[col].apply(lambda x: f'{x:.4g}' if pd.notna(x) else '')
 
-    # Drop rows with no timing data
-    timing_cols = [c for c in timings_df.columns if c != "benchmark"]
-    timings_df = timings_df.dropna(subset=timing_cols, how="all")
+    # Drop rows with no timing data (only check actual timing columns, not memory/status)
+    timing_value_cols = [c for c in timings_df.columns 
+                         if c != "benchmark" and "-memory-kb" not in c and "-status" not in c]
+    timings_df = timings_df.dropna(subset=timing_value_cols, how="all")
 
     # Write CSVs
     results_csv = os.path.join(args.output_dir, f"results-{date_str}.csv")
