@@ -4,10 +4,13 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MEMORY_LIMIT=${MEMORY_LIMIT:-10g}
 CPU_LIMIT=${CPU_LIMIT:-1}
-ERROR_LOG="${SCRIPT_DIR}/benchmarks-new/failures.log"
+ERROR_LOG="${SCRIPT_DIR}/log/failures.log"
 
 run_in_docker() {
     local cmd="$*"
+    docker_cmd='source ~/.bashrc && LD_LIBRARY_PATH=/usr/local/lib:/numerics-playground/deps/gelpia/target/release/deps:$(rustc --print sysroot)/lib/rustlib/x86_64-unknown-linux-gnu/lib '
+    docker_cmd+="/usr/bin/time -v $cmd"
+    echo "debug: $cmd"
     timeout "$TIMEOUT" sudo docker run --rm \
         --memory="$MEMORY_LIMIT" \
         --memory-swap="$MEMORY_LIMIT" \
@@ -15,7 +18,7 @@ run_in_docker() {
         -v "$SCRIPT_DIR/benchmarks-new:/numerics-playground/benchmarks-new" \
         -w /numerics-playground \
         negfuzz \
-        bash -c "source ~/.bashrc && /usr/bin/time -v $cmd" || {
+        bash -c "$docker_cmd" || {
             exit_code=$?
             timestamp=$(date '+%Y-%m-%d %H:%M:%S')
             if [ $exit_code -eq 124 ]; then
