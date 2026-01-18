@@ -5,10 +5,11 @@ set -uxo pipefail
 # - analyze: only run analysis tools (Gappa, FPTaylor, FuzzRS)
 # - time: only run hyperfine benchmarks
 # - all: run all phases (generate + analyze + time)
-BENCH_PHASE=${BENCH_PHASE:-generate}
-TIMEOUT=${TIMEOUT:-3600}
+BENCH_PHASE=${BENCH_PHASE:-all}
+TIMEOUT=${TIMEOUT:-360}
 MEMORY_LIMIT=${MEMORY_LIMIT:-10g}
 CPU_LIMIT=${CPU_LIMIT:-1}
+PARALLEL_JOBS=8
 
 export TIMEOUT MEMORY_LIMIT CPU_LIMIT
 
@@ -18,7 +19,6 @@ cd fuzzrs
 cd ..
 
 BASH=$(which bash)
-PARALLEL_JOBS=1
 
 # TODO: Note that we exclude the shoelace formula from the small benchmarks for now.
 parallel -j $PARALLEL_JOBS $BASH bench_small.sh {1} {2} {3} $BENCH_PHASE $TIMEOUT $MEMORY_LIMIT $CPU_LIMIT ::: $(cat small.txt) ::: binary32 binary64 ::: nearestEven toZero toPositive toNegative
