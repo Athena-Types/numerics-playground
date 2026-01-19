@@ -1,75 +1,73 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_poly_fz(n, interval_min=-1, interval_max=1):
+def generate_poly_fz(f, n, interval_min=-1, interval_max=1):
     """Generate naive polynomial evaluation file for degree n"""
-    lines = []
 
     # Header
-    lines.append('#include "../../float_ops/addfp64.fz"')
-    lines.append('#include "../../float_ops/mulfp64.fz"')
-    lines.append('')
+    f.write('#include "../../float_ops/addfp64.fz"\n')
+    f.write('#include "../../float_ops/mulfp64.fz"\n')
+    f.write('\n')
 
     # Function signature
-    lines.append(f'function Poly{n} ')
+    f.write(f'function Poly{n} \n')
 
     # Parameters a0 to aN
     for i in range(n + 1):
-        lines.append(f'  (a{i} : num)')
+        f.write(f'  (a{i} : num)\n')
 
     # x parameter
-    lines.append(f'  (x : ![{n}.0]num) ')
-    lines.append('{')
+    f.write(f'  (x : ![{n}.0]num) \n')
+    f.write('{\n')
 
     # lcb line for x
-    lines.append("  lcb x' = x in")
+    f.write("  lcb x' = x in\n")
 
     # Compute x^1, x^2, ..., x^n
     # x_1 = x
     if n >= 1:
-        lines.append("  lb x_1 = x' in")
+        f.write("  lb x_1 = x' in\n")
     
     # x_i = x * x_{i-1} for i from 2 to n
     for i in range(2, n + 1):
-        lines.append(f"  lb x_{i} = mulfp64 (| x' , x_{i-1} |) in")
+        f.write(f"  lb x_{i} = mulfp64 (| x' , x_{i-1} |) in\n")
     
     # Compute S_n, S_{n-1}, ..., S_1 where S_i = a_i * x^i
     # For each i from n down to 1, compute S_i = a_i * x^i
     if n >= 1:
-        lines.append('')
+        f.write('\n')
     
     for i in range(n, 0, -1):
-        lines.append(f"  lb S_{i} = mulfp64 (| a{i} , x_{i} |) in")
+        f.write(f"  lb S_{i} = mulfp64 (| a{i} , x_{i} |) in\n")
 
     # Compute sum: Final = a0 + S_n + S_{n-1} + ... + S_1
     # Build up the sum sequentially
-    lines.append('')
+    f.write('\n')
     
     if n == 1:
         # Special case: just a0 + S_1
-        lines.append('  addfp64 (| a0 , S_1 |)')
+        f.write('  addfp64 (| a0 , S_1 |)\n')
     else:
         # Start with a0 + S_1
-        lines.append("  lb sum_1 = addfp64 (| a0 , S_1 |) in")
+        f.write("  lb sum_1 = addfp64 (| a0 , S_1 |) in\n")
         
         # Add S_2 through S_n sequentially
         for i in range(2, n):
-            lines.append(f"  lb sum_{i} = addfp64 (| sum_{i-1} , S_{i} |) in")
+            f.write(f"  lb sum_{i} = addfp64 (| sum_{i-1} , S_{i} |) in\n")
         
         # Final addition with S_n
-        lines.append(f"  addfp64 (| sum_{n-1} , S_{n} |)")
+        f.write(f"  addfp64 (| sum_{n-1} , S_{n} |)\n")
 
-    lines.append('}')
-    lines.append('')
+    f.write('}\n')
+    f.write('\n')
 
     # Function call
     call_line = f'Poly{n}'
     for _ in range(n + 2):
         call_line += f'[{interval_min},{interval_max}]'
-    lines.append(call_line)
-
-    return '\n'.join(lines)
+    f.write(call_line)
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -92,14 +90,14 @@ def main():
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_poly_fz(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_poly_fz(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_poly_fz(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

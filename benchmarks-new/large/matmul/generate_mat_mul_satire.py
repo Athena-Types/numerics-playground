@@ -1,40 +1,40 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_mat_mul_satire(n, interval_min=1.0, interval_max=2.0):
+def generate_mat_mul_satire(f, n, interval_min=1.0, interval_max=2.0):
     """Generate matrix multiplication file in the text format for n×n matrices"""
-    lines = []
 
     # INPUTS section
-    lines.append('INPUTS {')
+    f.write('INPUTS {\n')
     
     # Add all A matrix elements
     for i in range(n):
         for j in range(n):
-            lines.append(f'A_{i}_{j} fl64 : ({interval_min}, {interval_max}) ;')
+            f.write(f'A_{i}_{j} fl64 : ({interval_min}, {interval_max}) ;\n')
     
     # Add all B matrix elements
     for i in range(n):
         for j in range(n):
-            lines.append(f'B_{i}_{j} fl64 : ({interval_min}, {interval_max}) ;')
+            f.write(f'B_{i}_{j} fl64 : ({interval_min}, {interval_max}) ;\n')
 
-    lines.append('}')
-    lines.append('')
+    f.write('}\n')
+    f.write('\n')
 
     # OUTPUTS section
-    lines.append('OUTPUTS {')
+    f.write('OUTPUTS {\n')
     
     # Add all C matrix elements
     for i in range(n):
         for j in range(n):
-            lines.append(f'C_{i}_{j};')
+            f.write(f'C_{i}_{j};\n')
 
-    lines.append('}')
-    lines.append('')
+    f.write('}\n')
+    f.write('\n')
 
     # EXPRS section
-    lines.append('EXPRS {')
+    f.write('EXPRS {\n')
 
     # Generate expressions for each C_i_j
     # C_i_j = sum of A_i_k * B_k_j for k from 0 to n-1
@@ -45,12 +45,9 @@ def generate_mat_mul_satire(n, interval_min=1.0, interval_max=2.0):
             for k in range(n):
                 terms.append(f'A_{i}_{k}*B_{k}_{j}')
             expr = '+'.join(terms)
-            lines.append(f'C_{i}_{j} rnd64 =  {expr} ;')
+            f.write(f'C_{i}_{j} rnd64 =  {expr} ;\n')
 
-    lines.append('}')
-    lines.append('')
-
-    return '\n'.join(lines)
+    f.write('}\n')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -73,14 +70,14 @@ def main():
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_mat_mul_satire(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_mat_mul_satire(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_mat_mul_satire(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

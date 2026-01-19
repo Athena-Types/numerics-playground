@@ -1,50 +1,48 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 from fpcodegen import generate_tuple_type
 
-def generate_serial_sum_fz(n, interval_min=-1, interval_max=1, precision=64):
+def generate_serial_sum_fz(f, n, interval_min=-1, interval_max=1, precision=64):
     """Generate Fuzzi serial sum for n elements"""
-    lines = []
 
     # Include statement
-    lines.append(f'#include "../../float_ops/addfp{precision}.fz"')
+    f.write(f'#include "../../float_ops/addfp{precision}.fz"\n')
 
     # Function signature with nested tuple parameter
-    lines.append('function serial_sum')
+    f.write('function serial_sum\n')
     tuple_type = generate_tuple_type(n)
-    lines.append(f'(a :')
-    lines.append(tuple_type + ')')
-    lines.append('{')
+    f.write(f'(a :\n')
+    f.write(tuple_type + ')\n')
+    f.write('{\n')
 
     # Tuple unpacking: let (A_0, as1) = a; let (A_1, as2) = as1; ...
     for i in range(n-1):
         if i == 0:
-            lines.append(f'let (A_{i}, as{i+1}) = a;')
+            f.write(f'let (A_{i}, as{i+1}) = a;\n')
         elif i < n-2:
-            lines.append(f'let (A_{i}, as{i+1})= as{i};')
+            f.write(f'let (A_{i}, as{i+1})= as{i};\n')
         else:
-            lines.append(f'let (A_{i}, A_{i+1})= as{i};')
+            f.write(f'let (A_{i}, A_{i+1})= as{i};\n')
 
     # Sequential addition operations
     for i in range(1, n-1):
         if i == 1:
-            lines.append(f"A_0_{i}' = addfp{precision} (| A_0 , A_{i} |);")
+            f.write(f"A_0_{i}' = addfp{precision} (| A_0 , A_{i} |);\n")
         else:
-            lines.append(f"A_0_{i}' = addfp{precision} (| A_0_{i-1} , A_{i} |);")
-        lines.append(f'let A_0_{i}=A_0_{i}\';')
+            f.write(f"A_0_{i}' = addfp{precision} (| A_0_{i-1} , A_{i} |);\n")
+        f.write(f'let A_0_{i}=A_0_{i}\';\n')
 
     # Return final result
-    lines.append(f'addfp{precision} (|A_0_{n-2} , A_{n-1}|)')
-    lines.append('}')
+    f.write(f'addfp{precision} (|A_0_{n-2} , A_{n-1}|)\n')
+    f.write('}\n')
 
     # Interval annotations - all on one line
     call_line = f'serial_sum'
     for _ in range(n):
         call_line += f'[{interval_min}, {interval_max}]'
-    lines.append(call_line)
-
-    return '\n'.join(lines)
+    f.write(call_line + '\n')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -63,15 +61,14 @@ def parse_args():
 def main():
     args = parse_args()
 
-    content = generate_serial_sum_fz(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
-            f.write('\n')
+            generate_serial_sum_fz(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_serial_sum_fz(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

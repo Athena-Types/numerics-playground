@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_poly_satire(n, interval_min=-1.0, interval_max=1.0):
+def generate_poly_satire(f, n, interval_min=-1.0, interval_max=1.0):
     """Generate naive polynomial evaluation file in SATIRE text format for degree n"""
-    lines = []
 
     # INPUTS section
-    lines.append('INPUTS {')
-    lines.append(f'         x fl64 : ({interval_min}, {interval_max}) ;')
+    f.write('INPUTS {\n')
+    f.write(f'         x fl64 : ({interval_min}, {interval_max}) ;\n')
 
     # Add a0 to aN
     for i in range(n + 1):
-        lines.append(f'         a{i} fl64 : ({interval_min}, {interval_max}) ;')
+        f.write(f'         a{i} fl64 : ({interval_min}, {interval_max}) ;\n')
 
-    lines.append('}')
+    f.write('}\n')
 
     # OUTPUTS section
-    lines.append('OUTPUTS {')
-    lines.append('         Final ;')
-    lines.append('}')
+    f.write('OUTPUTS {\n')
+    f.write('         Final ;\n')
+    f.write('}\n')
 
     # EXPRS section
-    lines.append('EXPRS {')
+    f.write('EXPRS {\n')
 
     # Generate S_n, S_{n-1}, ..., S_1 where S_i = a_i * x^i
     # For each i from n down to 1, compute S_i = a_i * x^i
@@ -36,20 +36,18 @@ def generate_poly_satire(n, interval_min=-1.0, interval_max=1.0):
             x_power = "( " + " * ".join(["x"] * i) + " )"
         
         # S_i = a_i * x^i
-        lines.append(f'        S_{i} rnd64 = (a{i} * {x_power}) ;')
+        f.write(f'        S_{i} rnd64 = (a{i} * {x_power}) ;\n')
         acc.append(f'S_{i}')
 
     # Final expression: Final = a0 + S_n + S_{n-1} + ... + S_1
     if acc:
         acc_str = " + ".join(acc)
-        lines.append(f'        Final rnd64 = (a0 + {acc_str}) ;')
+        f.write(f'        Final rnd64 = (a0 + {acc_str}) ;\n')
     else:
         # Special case: n=0 (but we require n>=1)
-        lines.append('        Final rnd64 = a0 ;')
+        f.write('        Final rnd64 = a0 ;\n')
 
-    lines.append('}')
-
-    return '\n'.join(lines)
+    f.write('}')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -72,14 +70,14 @@ def main():
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_poly_satire(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_poly_satire(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_poly_satire(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

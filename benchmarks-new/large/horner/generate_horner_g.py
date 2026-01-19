@@ -1,60 +1,58 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_horner_gappa(n, interval_min=-1, interval_max=1):
+def generate_horner_gappa(f, n, interval_min=-1, interval_max=1):
     """Generate Gappa file for Horner polynomial of degree n"""
-    lines = []
 
     # Rounding mode definition
-    lines.append('@rnd = float<ieee_64, up>;')
+    f.write('@rnd = float<ieee_64, up>;\n')
 
     # R variable definitions (exact computation)
     if n == 2:
         # Special case for n=2
-        lines.append(f'r  = (a{n} * x + a{n-1}) * x + a0;')
+        f.write(f'r  = (a{n} * x + a{n-1}) * x + a0;\n')
     else:
         # For n > 2: generate ri variables
-        lines.append(f'r{n-1}  = (a{n} * x + a{n-1});')
+        f.write(f'r{n-1}  = (a{n} * x + a{n-1});\n')
 
         for i in range(n - 2, 0, -1):  # Changed from range(n-2, 1, -1)
-            lines.append(f'r{i}  = (r{i+1} * x + a{i});')
+            f.write(f'r{i}  = (r{i+1} * x + a{i});\n')
 
-        lines.append('r   = (r1 * x + a0);')
+        f.write('r   = (r1 * x + a0);\n')
 
     # Z variable definitions (rounded computation)
     if n == 2:
         # Special case for n=2
-        lines.append(f'z  = rnd(rnd(a{n} * x + a{n-1}) * x + a0);')
+        f.write(f'z  = rnd(rnd(a{n} * x + a{n-1}) * x + a0);\n')
     else:
         # For n > 2: generate zi variables
-        lines.append(f'z{n-1}  = rnd(a{n} * x + a{n-1});')
+        f.write(f'z{n-1}  = rnd(a{n} * x + a{n-1});\n')
 
         for i in range(n - 2, 0, -1):  # Changed from range(n-2, 1, -1)
-            lines.append(f'z{i}  = rnd(z{i+1} * x + a{i});')
+            f.write(f'z{i}  = rnd(z{i+1} * x + a{i});\n')
 
-        lines.append('z   = rnd(z1 * x + a0);')
+        f.write('z   = rnd(z1 * x + a0);\n')
 
     # Define ex0 (rounded) and Mex0 (exact) for compute_bound.py
-    lines.append('')
-    lines.append('ex0 = z;')
-    lines.append('Mex0 = r;')
+    f.write('\n')
+    f.write('ex0 = z;\n')
+    f.write('Mex0 = r;\n')
 
     # Blank line and comment
-    lines.append('')
-    lines.append('# the logical formula that Gappa will try (and succeed) to prove')
+    f.write('\n')
+    f.write('# the logical formula that Gappa will try (and succeed) to prove\n')
 
     # Logical formula
-    lines.append(f'{{ x in [{interval_min},{interval_max}]')
+    f.write(f'{{ x in [{interval_min},{interval_max}]\n')
 
     # Constraints for a0 to aN
     for i in range(n + 1):
-        lines.append(f'  /\\ a{i} in [{interval_min},{interval_max}]')
+        f.write(f'  /\\ a{i} in [{interval_min},{interval_max}]\n')
 
     # Final line
-    lines.append('  -> |(z - r) / r| in ? }')
-
-    return '\n'.join(lines)
+    f.write('  -> |(z - r) / r| in ? }')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -72,14 +70,15 @@ def parse_args():
 
 def main():
     args = parse_args()
-    content = generate_horner_gappa(args.n, args.interval_min, args.interval_max)
 
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_horner_gappa(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_horner_gappa(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

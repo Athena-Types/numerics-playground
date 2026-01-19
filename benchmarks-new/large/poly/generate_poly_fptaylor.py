@@ -1,46 +1,46 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_poly_fptaylor(n, interval_min=-1, interval_max=1):
+def generate_poly_fptaylor(f, n, interval_min=-1, interval_max=1):
     """Generate FPTaylor file for naive polynomial evaluation of degree n"""
-    lines = []
 
     # Variables section header
-    lines.append('Variables')
+    f.write('Variables\n')
 
     # Add x variable
-    lines.append(f'  float64 x  in [{interval_min}, {interval_max}];')
+    f.write(f'  float64 x  in [{interval_min}, {interval_max}];\n')
 
     # Add a0 to aN variables
     for i in range(n + 1):
-        lines.append(f'  float64 a{i} in [{interval_min}, {interval_max}];')
+        f.write(f'  float64 a{i} in [{interval_min}, {interval_max}];\n')
 
     # Blank line
-    lines.append('')
+    f.write('\n')
 
     # Definitions section header
-    lines.append('Definitions')
+    f.write('Definitions\n')
 
     # Compute x^1, x^2, ..., x^n
     if n >= 1:
-        lines.append('  x_1 = x;')
+        f.write('  x_1 = x;\n')
     
     for i in range(2, n + 1):
-        lines.append(f'  x_{i} =rnd64_up(x * x_{i-1});')
+        f.write(f'  x_{i} =rnd64_up(x * x_{i-1});\n')
 
     # Compute S_n, S_{n-1}, ..., S_1 where S_i = a_i * x^i
     if n >= 1:
-        lines.append('')
+        f.write('\n')
     
     for i in range(n, 0, -1):
-        lines.append(f'  S_{i} =rnd64_up(a{i} * x_{i});')
+        f.write(f'  S_{i} =rnd64_up(a{i} * x_{i});\n')
 
     # Blank line
-    lines.append('')
+    f.write('\n')
 
     # Expressions section header
-    lines.append('Expressions')
+    f.write('Expressions\n')
 
     # Final expression: PolyN = a0 + S_N + S_{N-1} + ... + S_1
     sum_parts = ['a0']
@@ -49,18 +49,16 @@ def generate_poly_fptaylor(n, interval_min=-1, interval_max=1):
     
     if len(sum_parts) == 1:
         # Special case: just a0 (n=0, but we require n>=1)
-        lines.append(f'  Poly{n} = a0;')
+        f.write(f'  Poly{n} = a0;')
     elif len(sum_parts) == 2:
         # Special case: a0 + S_1
-        lines.append(f'  Poly{n} =rnd64_up ({sum_parts[0]} + {sum_parts[1]});')
+        f.write(f'  Poly{n} =rnd64_up ({sum_parts[0]} + {sum_parts[1]});')
     else:
         # Build nested additions: rnd64_up(rnd64_up(...) + S_i)
         sum_expr = f'rnd64_up({sum_parts[0]} + {sum_parts[1]})'
         for part in sum_parts[2:]:
             sum_expr = f'rnd64_up({sum_expr} + {part})'
-        lines.append(f'  Poly{n} = {sum_expr};')
-
-    return '\n'.join(lines)
+        f.write(f'  Poly{n} = {sum_expr};')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -83,14 +81,14 @@ def main():
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_poly_fptaylor(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_poly_fptaylor(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_poly_fptaylor(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

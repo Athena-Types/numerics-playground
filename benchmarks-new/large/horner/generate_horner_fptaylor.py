@@ -1,46 +1,44 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_horner_fptaylor(n, interval_min=-1, interval_max=1):
+def generate_horner_fptaylor(f, n, interval_min=-1, interval_max=1):
     """Generate FPTaylor file for Horner polynomial of degree n"""
-    lines = []
 
     # Variables section header
-    lines.append('Variables')
+    f.write('Variables\n')
 
     # Add x variable
-    lines.append(f'  float64 x  in [{interval_min}, {interval_max}];')
+    f.write(f'  float64 x  in [{interval_min}, {interval_max}];\n')
 
     # Add a0 to aN variables
     for i in range(n + 1):
-        lines.append(f'  float64 a{i} in [{interval_min}, {interval_max}];')
+        f.write(f'  float64 a{i} in [{interval_min}, {interval_max}];\n')
 
     # Blank line
-    lines.append('')
+    f.write('\n')
 
     # Definitions section header
-    lines.append('Definitions')
+    f.write('Definitions\n')
 
     # Add z1 to z(n-1) definitions
     for i in range(1, n):
         if i == 1:
             # First definition: z1 = rnd64_up(aN * x + a(N-1))
-            lines.append(f'  z{i} =rnd64_up(a{n} * x + a{n-1});')
+            f.write(f'  z{i} =rnd64_up(a{n} * x + a{n-1});\n')
         else:
             # Subsequent definitions: zi = rnd64_up(z(i-1) * x + a(N-i))
-            lines.append(f'  z{i} =rnd64_up(z{i-1} * x + a{n-i});')
+            f.write(f'  z{i} =rnd64_up(z{i-1} * x + a{n-i});\n')
 
     # Blank line
-    lines.append('')
+    f.write('\n')
 
     # Expressions section header
-    lines.append('Expressions')
+    f.write('Expressions\n')
 
     # Final expression: HornerN = rnd64_up(z(N-1) * x + a0)
-    lines.append(f'  Horner{n} =rnd64_up (z{n-1} * x + a0);')
-
-    return '\n'.join(lines)
+    f.write(f'  Horner{n} =rnd64_up (z{n-1} * x + a0);')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -59,14 +57,14 @@ def parse_args():
 def main():
     args = parse_args()
 
-    content = generate_horner_fptaylor(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_horner_fptaylor(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_horner_fptaylor(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

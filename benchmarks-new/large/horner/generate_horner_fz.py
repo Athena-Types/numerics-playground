@@ -1,54 +1,52 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_horner_fz(n, interval_min=-1, interval_max=1):
+def generate_horner_fz(f, n, interval_min=-1, interval_max=1):
     """Generate Horner polynomial file for degree n"""
-    lines = []
 
     # Header
-    lines.append('#include "../../float_ops/fma64.fz"')
-    lines.append('')
+    f.write('#include "../../float_ops/fma64.fz"\n')
+    f.write('\n')
 
     # Function signature
-    lines.append(f'function Horner{n} ')
+    f.write(f'function Horner{n} \n')
 
     # Parameters a0 to aN
     for i in range(n + 1):
-        lines.append(f'  (a{i} : num)')
+        f.write(f'  (a{i} : num)\n')
 
     # x parameter
-    lines.append(f'  (x : ![{n}.0]num) ')
-    lines.append('{')
+    f.write(f'  (x : ![{n}.0]num) \n')
+    f.write('{\n')
 
     # lcb line
-    lines.append("  lcb x' = x in")
+    f.write("  lcb x' = x in\n")
 
     # First lb z0 line
-    lines.append(f"  lb z0 = (((FMA64 a{n}) x') a{n-1}) in")
+    f.write(f"  lb z0 = (((FMA64 a{n}) x') a{n-1}) in\n")
 
     # Blank line if n > 2
     if n > 2:
-        lines.append('')
+        f.write('\n')
 
     # Intermediate lb zi lines
     for i in range(1, n - 1):
-        lines.append(f"  lb z{i} = (((FMA64 z{i-1}) x') a{n-i-1}) in")
+        f.write(f"  lb z{i} = (((FMA64 z{i-1}) x') a{n-i-1}) in\n")
 
     # Blank line and final expression
     if n > 2:
-        lines.append('')
-    lines.append(f"  (((FMA64 z{n-2}) x') a0)")
-    lines.append('}')
-    lines.append('')
+        f.write('\n')
+    f.write(f"  (((FMA64 z{n-2}) x') a0)\n")
+    f.write('}\n')
+    f.write('\n')
 
     # Function call
     call_line = f'Horner{n}'
     for _ in range(n + 2):
         call_line += f'[{interval_min},{interval_max}]'
-    lines.append(call_line)
-
-    return '\n'.join(lines)
+    f.write(call_line)
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -66,14 +64,15 @@ def parse_args():
 
 def main():
     args = parse_args()
-    content = generate_horner_fz(args.n, args.interval_min, args.interval_max)
 
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_horner_fz(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_horner_fz(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

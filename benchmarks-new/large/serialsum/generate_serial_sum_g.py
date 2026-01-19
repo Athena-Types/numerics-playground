@@ -1,47 +1,45 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_serial_sum_gappa(n, interval_min=-1, interval_max=1):
+def generate_serial_sum_gappa(f, n, interval_min=-1, interval_max=1):
     """Generate Gappa file for serial sum of n elements"""
-    lines = []
 
     # Rounding mode
-    lines.append('@rnd = float<ieee_64, up>;')
-    lines.append('')
+    f.write('@rnd = float<ieee_64, up>;\n')
+    f.write('\n')
 
     # Exact computation (r variables)
     for i in range(1, n):
         if i == 1:
-            lines.append(f'r{i} = (a0 + a1);')
+            f.write(f'r{i} = (a0 + a1);\n')
         else:
-            lines.append(f'r{i} = (r{i-1} + a{i});')
-    lines.append('')
+            f.write(f'r{i} = (r{i-1} + a{i});\n')
+    f.write('\n')
 
     # Rounded computation (z variables)
     for i in range(1, n):
         if i == 1:
-            lines.append(f'z{i} = rnd(a0 + a1);')
+            f.write(f'z{i} = rnd(a0 + a1);\n')
         else:
-            lines.append(f'z{i} = rnd(z{i-1} + a{i});')
-    lines.append('')
+            f.write(f'z{i} = rnd(z{i-1} + a{i});\n')
+    f.write('\n')
 
     # Define ex0 (rounded) and Mex0 (exact) for compute_bound.py
-    lines.append(f'ex0 = z{n-1};')
-    lines.append(f'Mex0 = r{n-1};')
-    lines.append('')
+    f.write(f'ex0 = z{n-1};\n')
+    f.write(f'Mex0 = r{n-1};\n')
+    f.write('\n')
 
     # Logical formula (proof goal)
-    lines.append('# the logical formula that Gappa will try (and succeed) to prove')
-    lines.append('{')
+    f.write('# the logical formula that Gappa will try (and succeed) to prove\n')
+    f.write('{\n')
     for i in range(n):
-        lines.append(f'  a{i} in [{interval_min},{interval_max}]')
+        f.write(f'  a{i} in [{interval_min},{interval_max}]\n')
         if i < n-1:
-            lines.append('  /\\')
-    lines.append(f'  -> |(z{n-1} - r{n-1}) / r{n-1}| in ?')
-    lines.append('}')
-
-    return '\n'.join(lines)
+            f.write('  /\\\n')
+    f.write(f'  -> |(z{n-1} - r{n-1}) / r{n-1}| in ?\n')
+    f.write('}')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -60,14 +58,14 @@ def parse_args():
 def main():
     args = parse_args()
 
-    content = generate_serial_sum_gappa(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_serial_sum_gappa(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_serial_sum_gappa(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

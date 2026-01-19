@@ -1,34 +1,32 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_serial_sum_fptaylor(n, interval_min=-1, interval_max=1):
+def generate_serial_sum_fptaylor(f, n, interval_min=-1, interval_max=1):
     """Generate FPTaylor file for serial sum of n elements"""
-    lines = []
 
     # Variables section
-    lines.append('Variables')
+    f.write('Variables\n')
     for i in range(n):
-        lines.append(f'  float64 a{i} in [{interval_min}, {interval_max}];')
-    lines.append('')
+        f.write(f'  float64 a{i} in [{interval_min}, {interval_max}];\n')
+    f.write('\n')
 
     # Definitions section (intermediate sums)
-    lines.append('Definitions')
+    f.write('Definitions\n')
     for i in range(1, n-1):
         if i == 1:
-            lines.append(f'  s{i} = rnd64_up(a0 + a1);')
+            f.write(f'  s{i} = rnd64_up(a0 + a1);\n')
         else:
-            lines.append(f'  s{i} = rnd64_up(s{i-1} + a{i});')
-    lines.append('')
+            f.write(f'  s{i} = rnd64_up(s{i-1} + a{i});\n')
+    f.write('\n')
 
     # Expressions section (final sum)
-    lines.append('Expressions')
+    f.write('Expressions\n')
     if n == 2:
-        lines.append(f'  serial_sum{n} = rnd64_up(a0 + a1);')
+        f.write(f'  serial_sum{n} = rnd64_up(a0 + a1);')
     else:
-        lines.append(f'  serial_sum{n} = rnd64_up(s{n-2} + a{n-1});')
-
-    return '\n'.join(lines)
+        f.write(f'  serial_sum{n} = rnd64_up(s{n-2} + a{n-1});')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -47,14 +45,14 @@ def parse_args():
 def main():
     args = parse_args()
 
-    content = generate_serial_sum_fptaylor(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_serial_sum_fptaylor(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_serial_sum_fptaylor(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

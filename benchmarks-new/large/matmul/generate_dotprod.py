@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 from fpcodegen import generate_tuple_type, generate_unpacking_statements
 
 def generate_computation_tree(n, start_idx=0, var_counter=[0], is_top_level=True):
@@ -37,44 +38,41 @@ def generate_computation_tree(n, start_idx=0, var_counter=[0], is_top_level=True
             var_counter[0] += 1
             return f"lb c{var_num} = {factor_expr} in addfp64 c{var_num}"
 
-def generate_dotprod(n):
+def generate_dotprod(f, n):
     """Generate dot product function for n elements"""
-    lines = []
 
     # Includes
-    lines.append('#include "../../float_ops/addfp64.fz"')
-    lines.append('#include "../../float_ops/mulfp64.fz"')
-    lines.append('')
+    f.write('#include "../../float_ops/addfp64.fz"\n')
+    f.write('#include "../../float_ops/mulfp64.fz"\n')
+    f.write('\n')
 
     # Function signature
     tuple_type = generate_tuple_type(n)
-    lines.append(f'function dotprod{n}')
-    lines.append(f'(a : {tuple_type})')
-    lines.append(f'(b : {tuple_type})')
-    lines.append('{')
+    f.write(f'function dotprod{n}\n')
+    f.write(f'(a : {tuple_type})\n')
+    f.write(f'(b : {tuple_type})\n')
+    f.write('{\n')
 
     # Unpacking for a
     for line in generate_unpacking_statements('a', n):
-        lines.append(line)
+        f.write(line + '\n')
 
     # Unpacking for b
     for line in generate_unpacking_statements('b', n):
-        lines.append(line)
+        f.write(line + '\n')
 
     # Blank line
     if n > 1:
-        lines.append('')
+        f.write('\n')
 
     # Computation tree
     var_counter = [0]
     comp_tree = generate_computation_tree(n, 0, var_counter, is_top_level=True)
 
     # Wrap the entire tree with lb res = ... in / addfp64 res
-    lines.append(f'lb res = {comp_tree} in')
-    lines.append('addfp64 res')
-    lines.append('}')
-
-    return '\n'.join(lines)
+    f.write(f'lb res = {comp_tree} in\n')
+    f.write('addfp64 res\n')
+    f.write('}\n')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -93,15 +91,14 @@ def main():
         print("Error: n must be at least 1")
         sys.exit(1)
 
-    content = generate_dotprod(args.n)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
-            f.write('\n')
+            generate_dotprod(f, args.n)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_dotprod(buf, args.n)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()

@@ -1,43 +1,41 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import io
 
-def generate_horner_satire(n, interval_min=-1.0, interval_max=1.0):
+def generate_horner_satire(f, n, interval_min=-1.0, interval_max=1.0):
     """Generate Horner polynomial file in the text format for degree n"""
-    lines = []
 
     # INPUTS section
-    lines.append('INPUTS {')
-    lines.append(f'         x fl64 : ({interval_min}, {interval_max}) ;')
+    f.write('INPUTS {\n')
+    f.write(f'         x fl64 : ({interval_min}, {interval_max}) ;\n')
 
     # Add a0 to aN
     for i in range(n + 1):
-        lines.append(f'         a{i} fl64 : ({interval_min}, {interval_max}) ;')
+        f.write(f'         a{i} fl64 : ({interval_min}, {interval_max}) ;\n')
 
-    lines.append('}')
+    f.write('}\n')
 
     # OUTPUTS section
-    lines.append('OUTPUTS {')
-    lines.append('         Z_0 ;')
-    lines.append('}')
+    f.write('OUTPUTS {\n')
+    f.write('         Z_0 ;\n')
+    f.write('}\n')
 
     # EXPRS section
-    lines.append('EXPRS {')
+    f.write('EXPRS {\n')
 
     # Generate Z_1 through Z_0
     # Z_1 = (aN * x + a(N-1))
-    lines.append(f'        Z_1 rnd64 = (a{n}*x + a{n-1}) ;')
+    f.write(f'        Z_1 rnd64 = (a{n}*x + a{n-1}) ;\n')
 
     # Z_i = (Z_(i-1) * x + a(N-i)) for i from 2 to N-1
     for i in range(2, n):
-        lines.append(f'        Z_{i} rnd64 = (Z_{i-1}*x + a{n-i}) ;')
+        f.write(f'        Z_{i} rnd64 = (Z_{i-1}*x + a{n-i}) ;\n')
 
     # Final: Z_0 = (Z_(N-1) * x + a0)
-    lines.append(f'        Z_0 rnd64 = (Z_{n-1}*x + a0) ;')
+    f.write(f'        Z_0 rnd64 = (Z_{n-1}*x + a0) ;\n')
 
-    lines.append('}')
-
-    return '\n'.join(lines)
+    f.write('}')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -60,14 +58,14 @@ def main():
         print("Error: n must be at least 2")
         sys.exit(1)
 
-    content = generate_horner_satire(args.n, args.interval_min, args.interval_max)
-
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            generate_horner_satire(f, args.n, args.interval_min, args.interval_max)
         print(f"Generated {args.output}")
     else:
-        print(content)
+        buf = io.StringIO()
+        generate_horner_satire(buf, args.n, args.interval_min, args.interval_max)
+        print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
     main()
