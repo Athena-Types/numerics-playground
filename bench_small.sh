@@ -48,4 +48,6 @@ if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
+# .fz files use the base benchmark name (without precision/rounding)
+export FZ_BENCHMARK="$BENCHMARK"
 source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT" "$MEMORY_LIMIT" "$CPU_LIMIT"

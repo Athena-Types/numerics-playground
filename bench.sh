@@ -6,8 +6,18 @@ TIMEOUT=${3:-3600}
 MEMORY_LIMIT=${4:-10g}
 CPU_LIMIT=${5:-1}
 
-RUNS=50
-WARMUP=5
+if [ -z "$BENCHMARK" ]; then
+    echo "Error: BENCHMARK argument is required"
+    echo "Usage: $0 <benchmark> [phase] [timeout] [memory_limit] [cpu_limit]"
+    exit 1
+fi
+
+RUNS=5
+WARMUP=1
+
+# FZ_BENCHMARK should be set by the caller (bench_small.sh or bench_large.sh)
+# Fall back to BENCHMARK if not set
+FZ_BENCHMARK="${FZ_BENCHMARK:-$BENCHMARK}"
 
 export TIMEOUT MEMORY_LIMIT CPU_LIMIT
 source "$(dirname "${BASH_SOURCE[0]}")/docker/run.sh"
@@ -34,20 +44,24 @@ if [ "$PHASE" = "analyze" ] || [ "$PHASE" = "all" ]; then
   # Run FPTaylor
   run_in_docker "fptaylor --rel-error true --abs-error true benchmarks-new/$BENCHMARK.fptaylor" &>benchmarks-new/$BENCHMARK.fptaylor.out
 
-  # Run NegFuzz
-  if [ -f "benchmarks-new/$BENCHMARK.fz" ]; then
-    run_in_docker "./fuzzrs/target/release/fuzzrs --input benchmarks-new/$BENCHMARK.fz" &>benchmarks-new/$BENCHMARK.fz.out
+  # Run NegFuzz (uses base benchmark name without precision/rounding)
+  if [ -f "benchmarks-new/$FZ_BENCHMARK.fz" ]; then
+    run_in_docker "./fuzzrs/target/release/fuzzrs --input benchmarks-new/$FZ_BENCHMARK.fz" &>benchmarks-new/$FZ_BENCHMARK.fz.out
   fi
-  run_in_docker "./fuzzrs/target/release/fuzzrs --input benchmarks-new/$BENCHMARK-factor.fz" &>benchmarks-new/$BENCHMARK-factor.fz.out
+  if [ -f "benchmarks-new/$FZ_BENCHMARK-factor.fz" ]; then
+    run_in_docker "./fuzzrs/target/release/fuzzrs --input benchmarks-new/$FZ_BENCHMARK-factor.fz" &>benchmarks-new/$FZ_BENCHMARK-factor.fz.out
+  fi
 fi
 
 # Time phase (hyperfine benchmarks)
 if [ "$PHASE" = "time" ] || [ "$PHASE" = "all" ]; then
-  # Benchmarks
-  if [ -f "benchmarks-new/$BENCHMARK.fz" ]; then
-    run_in_docker "hyperfine -N --export-json benchmarks-new/$BENCHMARK.fz.json --warmup $WARMUP --runs $RUNS './fuzzrs/target/release/fuzzrs --input benchmarks-new/$BENCHMARK.fz'"
+  # Benchmarks (uses base benchmark name without precision/rounding for .fz files)
+  if [ -f "benchmarks-new/$FZ_BENCHMARK.fz" ]; then
+    run_in_docker "hyperfine -N --export-json benchmarks-new/$FZ_BENCHMARK.fz.json --warmup $WARMUP --runs $RUNS './fuzzrs/target/release/fuzzrs --input benchmarks-new/$FZ_BENCHMARK.fz'"
   fi
-  run_in_docker "hyperfine -N --export-json benchmarks-new/$BENCHMARK-factor.fz.json --warmup $WARMUP --runs $RUNS './fuzzrs/target/release/fuzzrs --input benchmarks-new/$BENCHMARK-factor.fz'"
+  if [ -f "benchmarks-new/$FZ_BENCHMARK-factor.fz" ]; then
+    run_in_docker "hyperfine -N --export-json benchmarks-new/$FZ_BENCHMARK-factor.fz.json --warmup $WARMUP --runs $RUNS './fuzzrs/target/release/fuzzrs --input benchmarks-new/$FZ_BENCHMARK-factor.fz'"
+  fi
   run_in_docker "hyperfine --export-json benchmarks-new/$BENCHMARK-abs.g.json --warmup $WARMUP --runs $RUNS 'gappa benchmarks-new/$BENCHMARK-abs.g'"
   run_in_docker "hyperfine --export-json benchmarks-new/$BENCHMARK-rel.g.json --warmup $WARMUP --runs $RUNS 'gappa benchmarks-new/$BENCHMARK-rel.g'"
   run_in_docker "hyperfine --export-json benchmarks-new/$BENCHMARK-abs.fptaylor.json --warmup $WARMUP --runs $RUNS 'fptaylor --rel-error true --abs-error false benchmarks-new/$BENCHMARK.fptaylor'"

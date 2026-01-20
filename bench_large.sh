@@ -72,6 +72,9 @@ if [ "$PHASE" = "generate" ]; then
   exit 0
 fi
 
+# .fz files use the same naming as other artifacts for large benchmarks
+export FZ_BENCHMARK="$BASE_NAME"
+
 echo "Running non-Satire (fptaylor, gappa, NegFuzz) tools"
 source bench.sh "$BASE_NAME" "$PHASE" "$TIMEOUT" "$MEMORY_LIMIT" "$CPU_LIMIT"
 
