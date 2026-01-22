@@ -42,7 +42,7 @@ case "$BENCHMARK" in
         ;;
     serialsum)
         python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
-        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}-factor.fz" --factor
+        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}.fz" --factor
         python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
         python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
         BASE_NAME="large/serialsum/serial_sum_${SIZE}"
