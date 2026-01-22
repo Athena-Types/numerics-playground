@@ -42,7 +42,7 @@ case "$BENCHMARK" in
         ;;
     serialsum)
         python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
-        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}-factor.fz"
+        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}-factor.fz" --factor
         python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
         python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
         BASE_NAME="large/serialsum/serial_sum_${SIZE}"
@@ -94,7 +94,7 @@ for config in "10 20" "15 25" "20 40"; do
   read -r mindepth maxdepth <<< "$config"
   run_in_docker "bash -c 'cd /numerics-playground/deps/Satire && \
     python3 src/satire.py --std --file ../../${SATIRE_FILE} \
-    --enable-abstraction --mindepth ${mindepth} --maxdepth ${maxdepth} \
-    --logfile ../../benchmarks-new/${BASE_NAME}_sat_abs-serial_${mindepth}_${maxdepth}.pylog \
-    --outfile ../../benchmarks-new/${BASE_NAME}_sat_abs-serial_${mindepth}_${maxdepth}.out'"
+    --enable-abstraction --mindepth '"${mindepth}"' --maxdepth '"${maxdepth}"' \
+    --logfile ../../benchmarks-new/${BASE_NAME}_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.pylog \
+    --outfile ../../benchmarks-new/${BASE_NAME}_sat_abs-serial_'"${mindepth}"'_'"${maxdepth}"'.out'"
 done
