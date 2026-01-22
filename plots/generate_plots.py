@@ -39,13 +39,37 @@ def parse_gappa_out(filename: str):
     """Parse gappa output files and return (lb, ub) tuple or None."""
     try:
         with open(filename, "r") as f:
-            file = f.read()
-        if "Error" in file:
+            lines = f.readlines()
+        if any("Error" in line for line in lines):
             return None
 
-        # Fix: use raw string for regex to avoid escape sequence warning
-        file = re.sub(r"\{.*?\}", "", file).strip()
-        bounds = [parse_bound(x.strip()) for x in file.split("in")[1].strip().split(",")]
+        # Find the line containing the bounds (format: "... in [lb, ub]")
+        bounds_line = None
+        for line in lines:
+            if " in [" in line:
+                bounds_line = line
+                break
+        
+        if bounds_line is None:
+            return None
+
+        # Remove {...} annotations from the bounds line
+        bounds_line = re.sub(r"\{.*?\}", "", bounds_line).strip()
+        
+        # Extract the bounds part after "in ["
+        if " in [" not in bounds_line:
+            return None
+        
+        # Get the part after "in ["
+        bounds_str = bounds_line.split(" in [", 1)[1]
+        # Remove trailing "]" and any whitespace
+        bounds_str = bounds_str.rstrip("]").strip()
+        
+        # Split by comma and parse each bound
+        bounds = [parse_bound(x.strip()) for x in bounds_str.split(",")]
+        
+        if len(bounds) < 2:
+            return None
 
         lb = abs(float(bounds[0]))
         ub = abs(float(bounds[1]))
