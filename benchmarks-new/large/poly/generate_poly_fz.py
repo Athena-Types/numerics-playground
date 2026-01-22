@@ -26,13 +26,16 @@ def generate_poly_fz(f, n, interval_min=-1, interval_max=1):
     f.write("  lcb x' = x in\n")
 
     # Compute x^1, x^2, ..., x^n
-    # x_1 = x
-    if n >= 1:
-        f.write("  lb x_1 = x' in\n")
-    
+    # x_1 = x' (we use x' directly, no need to bind it)
     # x_i = x * x_{i-1} for i from 2 to n
-    for i in range(2, n + 1):
-        f.write(f"  lb x_{i} = mulfp64 (| x' , x_{i-1} |) in\n")
+    # For i=2, we compute x_2 = x' * x' (x^2)
+    # Note: mulfp64 expects (num, num) - tensor pair, not cartesian
+    if n >= 2:
+        f.write(f"  lb x_2 = mulfp64 (x' , x') in\n")
+    
+    # x_i = x * x_{i-1} for i from 3 to n
+    for i in range(3, n + 1):
+        f.write(f"  lb x_{i} = mulfp64 (x' , x_{i-1}) in\n")
     
     # Compute S_n, S_{n-1}, ..., S_1 where S_i = a_i * x^i
     # For each i from n down to 1, compute S_i = a_i * x^i
@@ -40,7 +43,11 @@ def generate_poly_fz(f, n, interval_min=-1, interval_max=1):
         f.write('\n')
     
     for i in range(n, 0, -1):
-        f.write(f"  lb S_{i} = mulfp64 (| a{i} , x_{i} |) in\n")
+        if i == 1:
+            # For S_1, use x' directly instead of x_1
+            f.write(f"  lb S_1 = mulfp64 (a1 , x') in\n")
+        else:
+            f.write(f"  lb S_{i} = mulfp64 (a{i} , x_{i}) in\n")
 
     # Compute sum: Final = a0 + S_n + S_{n-1} + ... + S_1
     # Build up the sum sequentially
