@@ -229,7 +229,7 @@ typing context $\Gamma^{\bullet}$:
     produce interval expressions that can be further reduced.
 \end{enumerate}
 The full type inference algorithm is $\implies \triangleq
-\underset{bnd.}{\implies} \circ \underset{sens.}{\implies}$, throwing away the
+\implies \circ \underset{sens.}{\implies}$, throwing away the
 intermediate $\tau'$. The construction is detailed below.
 
 \subsubsection{Stage 1/2: Sensitivity and round-off inference}
@@ -265,55 +265,55 @@ context, possibly using bound polymorphism.
 \begin{center}
 
 \AXC{}
-\UIC{$I(\textbf{unit}^{\bnd{\bullet}}, \Delta) \to \textbf{unit}; .$}
+\UIC{$I(\textbf{unit}^{\bnd{\bullet}}) \to \textbf{unit}; .$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 % \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
 \AXC{$\epsilon \text{ globally fresh}$}
-\UIC{$ I(\textbf{num}^{\bnd{\bullet}}, \Delta) \to \textbf{num}_{\epsilon};
+\UIC{$ I(\textbf{num}^{\bnd{\bullet}}) \to \textbf{num}_{\epsilon};
 \epsilon $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau_0^{\bnd{\bullet}},\Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \times
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}) \to \tau_0 \times
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \otimes
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}) \to \tau_0 \otimes
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 + \tau_1; \alpha,
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}) \to \tau_0 + \tau_1; \alpha,
 \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau_0^{\bnd{\bullet}}, \Delta) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}, \Delta) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}, \Delta) \to \tau_0 \multimap
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}) \to \tau_0 \multimap
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$I(\tau^{\bnd{\bullet}}, \Delta) \to \tau; \beta$}
-\UIC{$I(!_s (\tau^{\bnd{\bullet}}), \Delta) \to !_s \tau ; \alpha, \beta$}
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(!_s (\tau^{\bnd{\bullet}})) \to !_s \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$I(\tau^{\bnd{\bullet}}, \Delta) \to \tau; \beta$}
-\UIC{$I(M_u (\tau^{\bnd{\bullet}}), \Delta) \to M_u \tau ; \alpha, \beta$}
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(M_u (\tau^{\bnd{\bullet}})) \to M_u \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -321,62 +321,57 @@ context, possibly using bound polymorphism.
 \vskip 3em
 
 \AXC{}
-\UIC{$E(\textbf{unit}, \Delta) \to .$}
+\UIC{$E(\textbf{unit}) \to .$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$\Delta \vdash i$}
-\UIC{$E(\textbf{num}_i) \to \Delta; i$}
+\AXC{}
+\UIC{$E(\textbf{num}_i) \to i$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau_0, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \times \tau_1), \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \times \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau_0, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \otimes \tau_1), \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \otimes \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau_0, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Delta) \to \beta$}
-\BIC{$E((\tau_0 + \tau_1), \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 + \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau_0, \Delta) \to \alpha$}
-\AXC{$E(\tau_1, \Delta) \to \beta$}
-\BIC{$E((\tau_0 \multimap \tau_1), \Delta) \to \alpha, \beta$}
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \multimap \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\tau, \Delta) \to \beta$}
-\UIC{$E(!_s (\tau), \Delta) \to \beta$}
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(!_s (\tau)) \to \beta$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$E(\tau, \Delta) \to \beta$}
-\UIC{$E(M_u (\tau), \Delta) \to \beta$}
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(M_u (\tau)) \to \beta$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
-\AXC{$E(\forall \epsilon. \tau) \to \Delta; \beta$}
-\UIC{$E(!_s (\tau), \Delta) \to (\Delta - \epsilon); \beta$}
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(\forall \epsilon. \tau) \to \beta$}
 \bottomAlignProof
 \DisplayProof
-% \hskip 0.5em
-% \AXC{$E(\tau, \Delta) \to \beta$}
-% \UIC{$E(M_u (\tau), \Delta) \to \beta$}
-% \bottomAlignProof
-% \DisplayProof
 \end{center}
     \caption{Ancillary functions for defining algorithmic type inference.}
     \label{fig:helper_type_inference}
@@ -454,7 +449,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \end{aligned} $}
 \hskip 0.5em
 \AXC{$\begin{aligned}[t]
-E(\tau'_0) &\to \Delta; i_0, \ldots, i_n \\
+E(\tau'_0) &\to i_0, \ldots, i_n \\
 \tau'_0 &\sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \\
 \end{aligned}
 $}
@@ -587,14 +582,19 @@ f)^{\bnd{\bullet}} \implies s \cdot \Gamma' + \Theta;
 \vskip 1em
 
 \RightLabel{(\textbf{case})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma; e'; \tau_0 +
-\tau_1$}
-\AXC{$\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}}
-\implies \Theta_0, x :_s \tau_0; f'_1; \tau_0$}
-\AXC{$\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}}
-\implies \Theta_1, x :_s \tau_0; f'_2; \tau_1$}
-\AXC{$s > 0$}
-\QIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
+\AXC{$
+\begin{aligned}[t]
+\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma; e'; \tau_0 + \tau_1 \\
+s > 0
+\end{aligned}
+$}
+\AXC{$
+\begin{aligned}[t]
+\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}} \implies \Theta_0, x :_s \tau_0; f'_1; \tau_0 \\
+\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_0; f'_2; \tau_1
+\end{aligned}
+$}
+\BIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
 (\textbf{in}_1~x.f_1 ~ | ~ \textbf{in}_2~x.f_2))^{\bnd{\bullet}}
 \implies s \cdot \Gamma + max(\Theta_0, \Theta_1); (\textbf{case} \ e' \ \textbf{of}
 \ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; \text{max}(\tau_0, \tau_1)$}
@@ -623,21 +623,7 @@ If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is som
 $\Delta$ such that $\Delta \ | \ \Gamma \vdash e' : \tau$ has a typing derivation.
 \end{theorem}
 \begin{proof}
-Note that the full algorithm is the fused combination of the
-$\underset{bnd.}{\implies}$ and $\underset{sens.}{\implies}$ algorithms. For
-example, the var case for the full algorithm looks like (throwing away the
-intermediate $\tau$):
-\begin{equation}
-\frac
-{}
-{(\Gamma^{\bullet}, x : \tau); x^{\bnd{\bullet}} \underset{sens.}{\implies}
-(\Gamma^0, x :_1 \tau); x^{\bnd{\bullet}}; \tau \underset{bnd.}{\implies}
-(\Gamma^{0}, x :_1 \tau); x; \tau}
-\end{equation}
-We induct over each typing / case in the full algorithm. Many of the cases that
-follow from the soundness proof for $\underset{sens.}{\implies}$
-(in~\cite{numfuzz}), We detail the cases for which $\underset{bnd.}{\implies}$
-is non-structural below:
+We induct over each typing / case in the full algorithm. 
 \begin{description}
   \item[Const.] Holds by our interface for $inj$ from
     Definition~\ref{def:inj-closed}. 
