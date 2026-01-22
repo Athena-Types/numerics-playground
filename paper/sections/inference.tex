@@ -553,6 +553,22 @@ Then, $\tau = \tau'[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
 Holds by induction over types.
 \end{proof}
 
+\begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
+  For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
+  $FTV(\Gamma) \subseteq \Delta$.
+\end{lemma}
+\begin{proof}
+  By induction over the $\vdash$ relation.
+\end{proof}
+
+\begin{lemma}[Free vars in $I$.] \label{thm:free-var-i}
+  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \cdots \epsilon_n$, we have
+  that $FTV(\tau') = \{ \epsilon_0, \cdots, \epsilon_n \}$.
+\end{lemma}
+\begin{proof}
+  By induction over the definition of $I$.
+\end{proof}
+
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
 If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
@@ -564,9 +580,22 @@ We induct over each typing / case in the type inference algorithm.
 \begin{description}
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.
-  \item[Const.] Holds by our interface for $inj$ from
-    Definition~\ref{def:inj-closed}. 
-  % \item[$\multimap$ I.] Apply $\forall-I$ for every free $\epsilon$.
+  \item[Const.] Holds trivially. 
+  \item[! I.] Holds trivially.
+  \item[$\multimap$ I.] By our inductive hypothesis, we know that there exists a
+    $\Delta'$ such that we have a typing derivation $d$ for 
+    $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
+    We wish for each $\epsilon_0, \cdots , \epsilon_n$ to apply our
+    $\forall-I$ rule to $d$. For all $i$ (each application), we must satisfy that
+    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$.
+    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \cdots, \epsilon_n\}$ by
+    Lemma~\ref{thm:free-var-i}. 
+    Then, we have that $\Delta \subseteq \Delta'$ by
+    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \cdots,
+    \epsilon_n \not\in \Delta'$.
+    We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
+    generates fresh vars. 
+    So both of our two conditions have been satisifed.
   % \item[$\multimap$ E.] Apply $\forall-E$ for every bound $\epsilon$.
   % \item[$\textbf{op}$.] Holds trivially.
   % \item[$\textbf{factor}$.] Holds by application of the inductive hypothesis.
