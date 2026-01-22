@@ -280,20 +280,28 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
 
     # Parse fz output files (use base_name since .fz files don't include rounding mode in filename)
     # TODO: NegFuzz currently ignores precision and rounding_mode parameters - propagate these to NegFuzz processing
+    fz_out_file = None
+    if os.path.exists(f"{benchmarks_dir}/{base_name}.fz.out"):
+        fz_out_file = f"{benchmarks_dir}/{base_name}.fz.out"
+    
     try:
-        with open(f"{benchmarks_dir}/{base_name}.fz.out") as f:
-            content = f.read()
-            pre_rel = None
-            pre_abs = None
-            for line in content.split("\n"):
-                if line.startswith("final bound (pre, rel):"):
-                    val = line.split(":", 1)[1].strip().replace("Some", "").replace("(", "").replace(")", "")
-                    pre_rel = val if val and val != "None" else None
-                elif line.startswith("final bound (pre, abs):"):
-                    val = line.split(":", 1)[1].strip()
-                    pre_abs = val if val and val != "None" else None
-        result["pre-rel"] = pre_rel
-        result["pre-abs"] = pre_abs
+        if fz_out_file:
+            with open(fz_out_file) as f:
+                content = f.read()
+                pre_rel = None
+                pre_abs = None
+                for line in content.split("\n"):
+                    if line.startswith("final bound (pre, rel):"):
+                        val = line.split(":", 1)[1].strip().replace("Some", "").replace("(", "").replace(")", "")
+                        pre_rel = val if val and val != "None" else None
+                    elif line.startswith("final bound (pre, abs):"):
+                        val = line.split(":", 1)[1].strip()
+                        pre_abs = val if val and val != "None" else None
+                result["pre-rel"] = pre_rel
+                result["pre-abs"] = pre_abs
+        else:
+            result["pre-rel"] = None
+            result["pre-abs"] = None
     except (FileNotFoundError, IndexError) as e:
         result["pre-rel"] = None
         result["pre-abs"] = None
@@ -355,7 +363,10 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     # Parse timing files (from hyperfine JSON)
     timing["gappa-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.g.json")
     timing["gappa-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.g.json")
-    timing["numfuzz"] = timing_out(f"{benchmarks_dir}/{base_name}.fz.json")
+    numfuzz_timing_file = None
+    if os.path.exists(f"{benchmarks_dir}/{base_name}.fz.json"):
+        numfuzz_timing_file = f"{benchmarks_dir}/{base_name}.fz.json"
+    timing["numfuzz"] = timing_out(numfuzz_timing_file) if numfuzz_timing_file else None
     timing["numfuzz-factor"] = timing_out(f"{benchmarks_dir}/{base_name}-factor.fz.json")
     timing["fptaylor-rel"] = timing_out(f"{benchmarks_dir}/{full_name}-rel.fptaylor.json")
     timing["fptaylor-abs"] = timing_out(f"{benchmarks_dir}/{full_name}-abs.fptaylor.json")
@@ -363,7 +374,10 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     # Parse memory usage from .out files (from /usr/bin/time -v)
     timing["gappa-abs-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}-abs.g.out")
     timing["gappa-rel-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}-rel.g.out")
-    timing["numfuzz-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{base_name}.fz.out")
+    numfuzz_memory_file = None
+    if os.path.exists(f"{benchmarks_dir}/{base_name}.fz.out"):
+        numfuzz_memory_file = f"{benchmarks_dir}/{base_name}.fz.out"
+    timing["numfuzz-memory-kb"] = parse_time_v_memory(numfuzz_memory_file) if numfuzz_memory_file else None
     timing["numfuzz-factor-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{base_name}-factor.fz.out")
     timing["fptaylor-memory-kb"] = parse_time_v_memory(f"{benchmarks_dir}/{full_name}.fptaylor.out")
 
@@ -373,7 +387,8 @@ def process_benchmark(base_name: str, precision: str, rounding_mode: str, benchm
     # Parse failure status from failures log
     timing["gappa-abs-status"] = get_failure_status(failures, f"{full_name}-abs.g")
     timing["gappa-rel-status"] = get_failure_status(failures, f"{full_name}-rel.g")
-    timing["numfuzz-status"] = get_failure_status(failures, f"{base_name}.fz")
+    # Check both base and -factor .fz files for failure status
+    timing["numfuzz-status"] = get_failure_status(failures, f"{base_name}.fz") or get_failure_status(failures, f"{base_name}-factor.fz")
     timing["numfuzz-factor-status"] = get_failure_status(failures, f"{base_name}-factor.fz")
     timing["fptaylor-status"] = get_failure_status(failures, f"{full_name}.fptaylor")
 
@@ -471,14 +486,29 @@ def main():
     large_base_names = []
     for bench_type in large_benchmark_types:
         large_benchmarks = glob.glob(f"{args.benchmarks_dir}/large/{bench_type}/*.fz")
+        # First, collect base .fz files (excluding -factor.fz and dotprod*.fz)
+        base_fz_files = set()
         for bench_path in large_benchmarks:
-            # Filter out -factor.fz files and dotprod*.fz files
             filename = os.path.basename(bench_path)
             if "factor" not in filename and not filename.startswith("dotprod"):
                 # Extract base name with path prefix (e.g., "large/horner/Horner4")
                 rel_path = os.path.relpath(bench_path, args.benchmarks_dir)
                 base_name = rel_path.replace(".fz", "")
+                base_fz_files.add(base_name)
                 large_base_names.append(base_name)
+        
+        # Then, collect -factor.fz files that don't have corresponding base .fz files
+        for bench_path in large_benchmarks:
+            filename = os.path.basename(bench_path)
+            if "factor" in filename and not filename.startswith("dotprod"):
+                # Extract base name by removing -factor suffix
+                rel_path = os.path.relpath(bench_path, args.benchmarks_dir)
+                base_name_with_factor = rel_path.replace(".fz", "")
+                # Remove -factor suffix to get base name
+                base_name = base_name_with_factor.replace("-factor", "")
+                # Only add if we didn't already find a base .fz file for this benchmark
+                if base_name not in base_fz_files:
+                    large_base_names.append(base_name)
     
     # Combine and sort all benchmarks
     base_names = small_base_names + large_base_names
