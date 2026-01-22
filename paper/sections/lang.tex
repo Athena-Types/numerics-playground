@@ -270,10 +270,10 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 \hskip 0.5em
 %% const
-\AXC{$k, k_0, k_1 \in \textit{num}$}
-\AXC{$k_0 \leq k \leq k_1$}
+% TODO: need to describe inj function to some degree here, I suppose
+\AXC{$k \in \textit{num}$}
 \RightLabel{(Const)}
-\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash k : \num_{\bnd{(k_0, k_1)}}$}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash k : \num_{\bnd{inj(k)}}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em

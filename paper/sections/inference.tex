@@ -562,14 +562,14 @@ e'^{\bnd{\bullet}}$.
 \begin{proof}
 We induct over each typing / case in the type inference algorithm. 
 \begin{description}
-  \item[Const.] Holds by our interface for $inj$ from
-    Definition~\ref{def:inj-closed}. 
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.
-  \item[$\multimap$ I.] Apply $\forall-I$ for every free $\epsilon$.
-  \item[$\multimap$ E.] Apply $\forall-E$ for every bound $\epsilon$.
-  \item[$\textbf{op}$.] Holds trivially.
-  \item[$\textbf{factor}$.] Holds by application of the inductive hypothesis.
+  \item[Const.] Holds by our interface for $inj$ from
+    Definition~\ref{def:inj-closed}. 
+  % \item[$\multimap$ I.] Apply $\forall-I$ for every free $\epsilon$.
+  % \item[$\multimap$ E.] Apply $\forall-E$ for every bound $\epsilon$.
+  % \item[$\textbf{op}$.] Holds trivially.
+  % \item[$\textbf{factor}$.] Holds by application of the inductive hypothesis.
 \end{description}
 \end{proof}
 
