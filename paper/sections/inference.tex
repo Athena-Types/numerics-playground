@@ -389,7 +389,7 @@ context, possibly using bound polymorphism.
 %% unit
 \AXC{}
 \RightLabel{(Unit)}
-\UIC{$\Gamma^{\bullet}; \langle \rangle^{\bnd{\bullet}}; \underset{bnd.}{\implies} \Gamma^{0};
+\UIC{$\Gamma^{\bullet}; \langle \rangle^{\bnd{\bullet}}; \implies \Gamma^{0};
 \langle \rangle; \textbf{unit}$}
 \bottomAlignProof
 \DisplayProof
@@ -397,7 +397,7 @@ context, possibly using bound polymorphism.
 %% var
 \AXC{}
 \RightLabel{(Var)}
-\UIC{$\Gamma^{\bullet}, x : \tau, x^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma^{0}, x
+\UIC{$\Gamma^{\bullet}, x : \tau, x^{\bnd{\bullet}} \implies \Gamma^{0}, x
 :_1 \tau; x; \tau$}
 \bottomAlignProof
 \DisplayProof
@@ -405,15 +405,15 @@ context, possibly using bound polymorphism.
 %% const
 \AXC{}
 \RightLabel{(Const)}
-\UIC{$\Gamma^{\bullet}; k^{\bnd{\bullet}}; \underset{bnd.}{\implies} \Gamma^{0};
+\UIC{$\Gamma^{\bullet}; k^{\bnd{\bullet}}; \implies \Gamma^{0};
 k; \textbf{num}_{\bnd{inj(k)}}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% bang intro
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; \tau$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
 \RightLabel{($!$ I)}
-\UIC{$\Gamma^{\bullet}; [e]_{\annotate{s}}^{\bnd{\bullet}} \underset{bnd.}{\implies} s
+\UIC{$\Gamma^{\bullet}; [e]_{\annotate{s}}^{\bnd{\bullet}} \implies s
 * \Gamma'; [e']_{\annotate{s}}; !_s~\tau$}
 \bottomAlignProof
 \DisplayProof
@@ -421,13 +421,13 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 
 %% fun
 \AXC{$I(\tau_0^{\bnd{\bullet}}) = \annotate{\tau_0}; \epsilon_0, \ldots, \epsilon_n$}
-\AXC{$\Gamma^{\bullet}, x : \annotate{\tau_0}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma', x
+\AXC{$\Gamma^{\bullet}, x : \annotate{\tau_0}; e^{\bnd{\bullet}} \implies \Gamma', x
 :_s \annotate{\tau_0}; e'; \tau$}
 \AXC{$s \geq 1$}
 % \AXC{$\epsilon_0, \ldots, \epsilon_n \not\in FTV(\Gamma) \cup DOM(\Delta)$}
 \RightLabel{($\multimap$ I)}
 \TIC{$\Gamma^{\bullet}; \lambda (x : \annotate{\tau_0^{\bnd{\bullet}}}). e^{\bnd{\bullet}}
-\underset{bnd.}{\implies} \Gamma'; \Lambda \epsilon_0, \ldots, \epsilon_n
+\implies \Gamma'; \Lambda \epsilon_0, \ldots, \epsilon_n
 (\lambda (x : \annotate{\tau_0}) . e'); \forall \epsilon_0, \ldots, \epsilon_n . \
 \annotate{\tau_0} \multimap \tau$}
 \bottomAlignProof
@@ -448,9 +448,9 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 %% imp elim, forall
 \AXC{$
 \begin{aligned}[t]
-\Gamma^{\bullet}; f^{\bnd{\bullet}} &\underset{bnd.}{\implies} \Gamma'; f'; \forall
+\Gamma^{\bullet}; f^{\bnd{\bullet}} &\implies \Gamma'; f'; \forall
 \epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau \\
-\Gamma^{\bullet}; e^{\bnd{\bullet}} &\underset{bnd.}{\implies} \Theta; e'; \tau'_0 \\
+\Gamma^{\bullet}; e^{\bnd{\bullet}} &\implies \Theta; e'; \tau'_0 \\
 \end{aligned} $}
 \hskip 0.5em
 \AXC{$\begin{aligned}[t]
@@ -465,7 +465,7 @@ $}
 % \end{aligned}
 % $}
 \RightLabel{($\multimap$ E)}
-\BIC{$\Gamma^{\bullet}; (f~e)^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma' +
+\BIC{$\Gamma^{\bullet}; (f~e)^{\bnd{\bullet}} \implies \Gamma' +
 \Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau'$}
 \bottomAlignProof
 \DisplayProof
@@ -475,16 +475,16 @@ $}
 % todo: require that ops are closed at the bound polymorphism level
 \RightLabel{(\textbf{op})}
 \AXC{$\{\textbf{op} : \forall \epsilon_0, \epsilon_1, \tau_0 \multimap \tau_1 \} \in \Sigma$}
-\UIC{$\Gamma^{\bullet}; \textbf{op}^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma;
+\UIC{$\Gamma^{\bullet}; \textbf{op}^{\bnd{\bullet}} \implies \Gamma;
 \textbf{op}; \forall \epsilon_0, \epsilon_1, \tau_0 \multimap \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{factor})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; (M_q
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; (M_q
 \tau_0 \times M_r \tau_1)$}
-\UIC{$\Gamma^{\bullet}; \textbf{factor}~e^{\bnd{\bullet}} \underset{bnd.}{\implies}
+\UIC{$\Gamma^{\bullet}; \textbf{factor}~e^{\bnd{\bullet}} \implies
 \Gamma'; \textbf{factor}~e'; M_{max(q, r)} (\tau_0 \times \tau_1)$}
 \bottomAlignProof
 \DisplayProof
@@ -495,25 +495,25 @@ $}
 \vskip 1em
 
 %% Ret
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; \tau$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
 \RightLabel{(\textbf{Ret})}
-\UIC{$\Gamma^{\bullet}; \textbf{ret}~e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma';
+\UIC{$\Gamma^{\bullet}; \textbf{ret}~e^{\bnd{\bullet}} \implies \Gamma';
 \textbf{ret}~e'; M_0~\tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
 %% Rnd
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; \tau$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
 \RightLabel{(\textbf{Rnd})}
-\UIC{$\Gamma^{\bullet}; \textbf{rnd}~e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma';
+\UIC{$\Gamma^{\bullet}; \textbf{rnd}~e^{\bnd{\bullet}} \implies \Gamma';
 \textbf{rnd}~e'; M_q~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 %% times intro 
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma_0; e'; \tau_0$}
-\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma_1; f'; \tau_1$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_0; e'; \tau_0$}
+\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_1; f'; \tau_1$}
 % \AXC{$
 % \begin{aligned}[t]
 % \Delta'_0 \sqsubseteq \Delta' \\
@@ -527,82 +527,82 @@ $}
 % \end{aligned}
 % $}
 \RightLabel{($\times$ I)}
-\BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}} \underset{bnd.}{\implies}
+\BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}} \implies
 \text{max}(\Gamma_0, \Gamma_1); \langle f', e' \rangle; \tau_0 \times \tau_1$}
 % todo: check that max is defined
 \bottomAlignProof
 \DisplayProof
 \RightLabel{($\times$ E)}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; \tau_0
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau_0
 \times \tau_1$}
-\UIC{$\Gamma^{\bullet}; (\pi_i~e)^{\bnd{\bullet}} \underset{bnd.}{\implies}
+\UIC{$\Gamma^{\bullet}; (\pi_i~e)^{\bnd{\bullet}} \implies
 \Gamma'; \pi_i~e'; \tau_i$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 %% otimes intro 
-\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma_0; f'; \tau_1$}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma_1; e'; \tau_0$}
+\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_0; f'; \tau_1$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_1; e'; \tau_0$}
 \RightLabel{($\otimes$ I)}
 \BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}}
-\underset{bnd.}{\implies} \Gamma_0 + \Gamma_1; (f', e'); \tau_0 \otimes \tau_1$}
+\implies \Gamma_0 + \Gamma_1; (f', e'); \tau_0 \otimes \tau_1$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{let})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e'; \tau_0$}
-\AXC{$\Gamma^{\bullet}, x : \tau_0; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Theta, x :_s
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau_0$}
+\AXC{$\Gamma^{\bullet}, x : \tau_0; f^{\bnd{\bullet}} \implies \Theta, x :_s
 \tau_0; f'; \tau$}
 \BIC{$\Gamma^{\bullet}; (\textbf{let} \ x \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s \cdot \Gamma + \Theta;
+f)^{\bnd{\bullet}} \implies s \cdot \Gamma + \Theta;
 \textbf{let} \ x \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{let-pair})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e';
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
 \tau_0 \otimes \tau_1$}
 \AXC{$\Gamma^{\bullet}, x: \tau_0, y : \tau_1; f^{\bnd{\bullet}}
-\underset{bnd.}{\implies} \Theta, x :_s \tau_0, y :_s' \tau_1; f'; \tau$}
+\implies \Theta, x :_s \tau_0, y :_s' \tau_1; f'; \tau$}
 \BIC{$\Gamma^{\bullet}; (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} max(s, s') \cdot \Gamma' + \Theta;
+f)^{\bnd{\bullet}} \implies max(s, s') \cdot \Gamma' + \Theta;
 \textbf{let-pair} \ (x, y) \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{let-bind})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma'; e';
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
 M_r~\tau_0$}
-\AXC{$\Gamma^{\bullet}, x: \tau_0; f^{\bnd{\bullet}} \underset{bnd.}{\implies} \Theta, x
+\AXC{$\Gamma^{\bullet}, x: \tau_0; f^{\bnd{\bullet}} \implies \Theta, x
 :_s \tau_0; f; M_q~\tau$}
 \BIC{$\Gamma^{\bullet}; (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \
-f)^{\bnd{\bullet}} \underset{bnd.}{\implies} s \cdot \Gamma' + \Theta;
+f)^{\bnd{\bullet}} \implies s \cdot \Gamma' + \Theta;
 \textbf{let-bind} \ x \ = \ e' \ \textbf{in} \ f'; M_{s \cdot r + q}~\tau$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
 
 \RightLabel{(\textbf{case})}
-\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma; e'; \tau_0 +
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma; e'; \tau_0 +
 \tau_1$}
 \AXC{$\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}}
-\underset{bnd.}{\implies} \Theta_0, x :_s \tau_0; f'_1; \tau_0$}
+\implies \Theta_0, x :_s \tau_0; f'_1; \tau_0$}
 \AXC{$\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}}
-\underset{bnd.}{\implies} \Theta_1, x :_s \tau_0; f'_2; \tau_1$}
+\implies \Theta_1, x :_s \tau_0; f'_2; \tau_1$}
 \AXC{$s > 0$}
 \QIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
 (\textbf{in}_1~x.f_1 ~ | ~ \textbf{in}_2~x.f_2))^{\bnd{\bullet}}
-\underset{bnd.}{\implies} s \cdot \Gamma + max(\Theta_0, \Theta_1); (\textbf{case} \ e' \ \textbf{of}
+\implies s \cdot \Gamma + max(\Theta_0, \Theta_1); (\textbf{case} \ e' \ \textbf{of}
 \ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; \text{max}(\tau_0, \tau_1)$}
 \bottomAlignProof
 \DisplayProof
 \end{center}
     \caption{Algorithmic rules. \annotate{Red text} are user-required
-    annotations. To help define the $\underset{bnd.}{\implies}$ relation, we
+    annotations. To help define the $\implies$ relation, we
     define a $\to$ relation that annotates (removes the bullet) for a given
     type.}
     \label{fig:type_inference}
