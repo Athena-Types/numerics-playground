@@ -419,7 +419,6 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \AXC{$\Gamma^{\bullet}, x : \annotate{\tau_0}; e^{\bnd{\bullet}} \implies \Gamma', x
 :_s \annotate{\tau_0}; e'; \tau$}
 \AXC{$s \geq 1$}
-% \AXC{$\epsilon_0, \ldots, \epsilon_n \not\in FTV(\Gamma) \cup DOM(\Delta)$}
 \RightLabel{($\multimap$ I)}
 \TIC{$\Gamma^{\bullet}; \lambda (x : \annotate{\tau_0^{\bnd{\bullet}}}). e^{\bnd{\bullet}}
 \implies \Gamma'; \Lambda \epsilon_0, \ldots, \epsilon_n
@@ -428,17 +427,6 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
-
-% %% imp elim
-% \AXC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet} \implies \Delta'_0 \ | \ \Gamma_0; f; \tau_0 \multimap \tau$}
-% \AXC{$\Delta \ | \ \Gamma^{\bullet}; e^{\bullet} \implies \Delta'_1 \ | \ \Gamma_1; e; \tau'_0$}
-% \AXC{$\tau'_0 \sqsubseteq \tau_0$}
-% \RightLabel{($\multimap$ E)}
-% \TIC{$\Delta \ | \ \Gamma^{\bullet}; f^{\bullet}~e^{\bullet} \implies \Delta_0 +
-% \Delta_1 \ | \ \Gamma_0 + \Gamma_1 ; f~e; \tau$}
-% \bottomAlignProof
-% \DisplayProof
-% \vskip 1em
 
 %% imp elim, forall
 \AXC{$
@@ -453,12 +441,6 @@ E(\tau'_0) &\to i_0, \ldots, i_n \\
 \tau'_0 &\sqsubseteq \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \\
 \end{aligned}
 $}
-% \AXC{$
-% \begin{aligned}[t]
-% \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] &\mapsto^{*} \tau' \\
-% \tau' &\not\mapsto 
-% \end{aligned}
-% $}
 \RightLabel{($\multimap$ E)}
 \BIC{$\Gamma^{\bullet}; (f~e)^{\bnd{\bullet}} \implies \Gamma' +
 \Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau'$}
@@ -509,18 +491,6 @@ $}
 %% times intro 
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_0; e'; \tau_0$}
 \AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_1; f'; \tau_1$}
-% \AXC{$
-% \begin{aligned}[t]
-% \Delta'_0 \sqsubseteq \Delta' \\
-% \Delta'_1 \sqsubseteq \Delta' \\
-% \end{aligned}
-% $}
-% \AXC{$
-% \begin{aligned}[t]
-% \Gamma'_0 \sqsubseteq \Gamma' \\
-% \Gamma'_1 \sqsubseteq \Gamma' \\
-% \end{aligned}
-% $}
 \RightLabel{($\times$ I)}
 \BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}} \implies
 \text{max}(\Gamma_0, \Gamma_1); \langle f', e' \rangle; \tau_0 \times \tau_1$}
