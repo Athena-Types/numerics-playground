@@ -27,7 +27,7 @@ cd "benchmarks-new/large/$BENCHMARK"
 case "$BENCHMARK" in
     horner)
         python3 generate_horner_fptaylor.py "$SIZE" "Horner${SIZE}.fptaylor"
-        python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}-factor.fz"
+        python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}.fz"
         python3 generate_horner_g.py "$SIZE" "Horner${SIZE}.g"
         python3 generate_horner_satire.py "$SIZE" "Horner${SIZE}.txt"
         BASE_NAME="large/horner/Horner${SIZE}"
