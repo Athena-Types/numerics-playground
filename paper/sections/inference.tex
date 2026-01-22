@@ -589,11 +589,13 @@ Holds by induction over types.
 \end{proof}
 
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
-If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is some
-$\Delta$ such that $\Delta \ | \ \Gamma \vdash e' : \tau$ has a typing derivation.
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
 \end{theorem}
 \begin{proof}
-We induct over each typing / case in the full algorithm. 
+We induct over each typing / case in the type inference algorithm. 
 \begin{description}
   \item[Const.] Holds by our interface for $inj$ from
     Definition~\ref{def:inj-closed}. 
