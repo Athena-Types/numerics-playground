@@ -2,9 +2,9 @@ Following Fuzz, we prove the following syntanctic properties relating our type
 system and operational semantics. These syntactic properties will be useful for
 reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 
-\begin{lemma}[Admissibity of weakening]\label{thm:weakening}
+\begin{lemma}[Admissibility of weakening]\label{thm:weakening}
   If $\Delta \ | \ \Gamma \vdash e : \tau$, then 
-  $\Delta \ | \ \Gamma + \Sigma \vdash e : \tau$.
+  $\Delta + \Delta' \ | \ \Gamma + \Sigma \vdash e : \tau$.
 \end{lemma}
 \begin{proof}
   We induct over our typing devivation. 

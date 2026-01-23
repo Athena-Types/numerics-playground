@@ -242,15 +242,11 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \BIC{$\bnd{\Delta \ |} \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-
+\hskip 0.5em
 % ops
-\AXC{$\bnd{\Delta \vdash i_0 : \textbf{bnd}}$}
-\AXC{$\bnd{\Delta \vdash i_1 : \textbf{bnd}}$}
 \AXC{$\{ \mathbf{op} : \bnd{\forall \epsilon_0, \epsilon_1,} \tau_0 \multimap \tau_1 \} \in \Sigma$}
-\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0$}
 \RightLabel{(Op)}
-\QIC{$\bnd{\Delta \ |} \ \Gamma \vdash \mathbf{op} ~ \bnd{\{i_0\}} ~ \bnd{\{i_1\}} ~ e : \tau_1$}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \mathbf{op} : \bnd{\forall \epsilon_0, \epsilon_1,} \tau_0 \multimap \tau_1 $}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
