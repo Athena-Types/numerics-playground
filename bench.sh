@@ -12,8 +12,8 @@ if [ -z "$BENCHMARK" ]; then
     exit 1
 fi
 
-RUNS=5
-WARMUP=1
+RUNS=6
+WARMUP=2
 
 # FZ_BENCHMARK should be set by the caller (bench_small.sh or bench_large.sh)
 # Fall back to BENCHMARK if not set
