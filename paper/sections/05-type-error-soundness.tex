@@ -17,6 +17,16 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
   variables into $\Delta$. 
 \end{proof}
 
+\begin{lemma}[Admissibility of weakening (on bound contexts)]\label{thm:weakening-bnd}
+  If $\Delta \vdash i : \textbf{bnd}$ and $\Delta \subseteq \Delta'$, then
+  $\Delta' \vdash i : \textbf{bnd}$. 
+\end{lemma}
+\begin{proof}
+  The intuition here is that $\Delta$ essentially tracks the free type variables
+  in $i$. We induct over our typing devivation and then the size of $\Delta' -
+  \Delta$. Our proof is complete.
+\end{proof}
+
 Following Fuzz, we prove a $r$-sensitive substitution lemma.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and 
