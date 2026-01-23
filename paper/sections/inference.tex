@@ -555,7 +555,7 @@ Holds by induction over types.
 
 \begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
   For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
-  $FTV(\Gamma) \subseteq \Delta$.
+  $FTV(\Gamma) \subseteq \Delta$ and $FTV(\tau) \subseteq \Delta$.
 \end{lemma}
 \begin{proof}
   By induction over the $\vdash$ relation.
@@ -571,10 +571,11 @@ Holds by induction over types.
 
 \begin{lemma}[Well-formedness of intervals produced by $E$.] \label{thm:wff-var-e}
   For any types $\tau$, $E(\tau) \to i_0, \cdots, i_n$ means that for every
-  $i_j$, $FTV(\tau) = \Delta \vdash i_j$.
+  $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
 \end{lemma}
 \begin{proof}
   By induction over types $\tau$.
+  % TODO: flesh this out some more, spell it out.
 \end{proof}
 
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
@@ -594,7 +595,10 @@ We induct over each typing / case in the type inference algorithm.
     $\Delta'$ such that we have a typing derivation $d$ for 
     $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
     We wish for each $\epsilon_0, \cdots , \epsilon_n$ to apply our
-    $\forall-I$ rule to $d$. For all $i$ (each application), we must satisfy that
+    $\forall I$ rule to $d$. 
+    \par\bigskip
+
+    For all $i$ (each application), we must satisfy that
     (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$.
     Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \cdots, \epsilon_n\}$ by
     Lemma~\ref{thm:free-var-i}. 
@@ -604,17 +608,17 @@ We induct over each typing / case in the type inference algorithm.
     We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
     generates fresh vars. 
     So both of our two conditions have been satisifed.
-  \item[$\multimap$ E.] By our inductive hypothesis, we know that there exists a
-    $\Delta'$ such that we have a derivation $d_0$ where
-    $\Delta' \ | \ \Gamma' \vdash f : \forall \epsilon_0, \cdots, \epsilon_n,
-    \tau_0 \multimap \tau$
-    and $\Delta''$ such that we have a derivation $d_1$ where
-    $\Delta'' \ | \ \Theta \vdash e : \tau_0'$.
-    By Lemma~\ref{thm:free-var-gamma}, we have that 
-    $FTV(\tau'_0) \subseteq FTV(\Theta) \subseteq \Delta''$.
+  \item[$\multimap$ E.] By our inductive hypothesis, we know that there exists:
+    \begin{itemize}
+      \item a derivation $d_0$ where $\Delta' \ | \ \Gamma' \vdash f : \forall
+        \epsilon_0, \cdots, \epsilon_n, \tau_0 \multimap \tau$
+      \item a derivation $d_1$ where $\Delta'' \ | \ \Theta \vdash e : \tau_0'$.
+    \end{itemize}
     Note that $\epsilon_0, \cdots, \epsilon_n$ are fresh from $\Delta''$ as each
     $\epsilon$ generated is globally fresh in our type inference algo.
-    By weakeing, we have a derivation for $\Delta \ | \ \Theta \vdash e :
+    \par\bigskip
+
+    By weakening, we have a derivation for $\Delta \ | \ \Theta \vdash e :
     \tau_0[\epsilon_0 / i_0, \cdots, \epsilon_n / i_n]$ (think contrapositively
     for now). 
     Then we are able to
@@ -623,10 +627,13 @@ We induct over each typing / case in the type inference algorithm.
     us the following intermediate typing derivation $d_3$: 
     $\Delta' - \{\epsilon_0, \cdots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
     \vdash f' \ \{i_0\} \cdots \{i_n\} : \tau_0 \multimap \tau$.
-    Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each applicatin
-    of the $\forall E$ rule is satisfied by Lemma~\ref{thm:wff-var-e} and
-    Lemma~\ref{thm:free-var-gamma} and weakening on the interval bound
-    judgements.
+    \par\bigskip
+
+    Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
+    of the $\forall E$ rule is satisfied by applying Lemma~\ref{thm:wff-var-e}
+    and Lemma~\ref{thm:free-var-gamma} on the interval bound judgements.
+    In particular, by Lemma~\ref{thm:free-var-gamma}, we have that $FTV(\tau'_0)
+    \subseteq FTV(\Theta) \subseteq \Delta''$.
     Now we are ready to apply our $\multimap E$ typing rule with derivation
     $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
     \cdots \{i_n\}) e' : \tau'$.
