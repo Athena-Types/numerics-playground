@@ -207,23 +207,26 @@ $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
 is derivable for some $\Delta$ (our soundness criterion). We start type
 inference by passing the empty context (written .), along with the bound-erased
-program (written $e^{\bnd{\bullet}}$) to the inference algorithm.
+program (written $e^{\bnd{\bullet}}$) to the inference algorithm detailed in
+Figure~\ref{fig:inference-algo}. Finally, we evaluate our lifted interval
+operations (if they exist) until they get suck.
 
-Our type inference algorithm occurs in two stages, starting from an erased
+Our type inference algorithm occurs in three stages, starting from an erased
 program (with no $\Lambda$ or polymoprhic instantiations) and sensitivity erased
 typing context $\Gamma^{\bullet}$:
 \begin{enumerate}
-  \item We infer sensitivities via the type inference algorithm
-  provided in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$
-  primitive and interval bounds (Section~\ref{sec:sen-type-infer}). 
-  $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \underset{sens.}{\implies} \Gamma;
-  e^{\bnd{\bullet}}; \tau^{\bnd{\bullet}}$$
+  \item We infer sensitivities via the type inference algorithm provided in
+    \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
+    and interval bounds (Section~\ref{sec:sen-type-infer}). $$\Gamma^{\bullet};
+    e^{\bnd{\bullet}} \underset{sens.}{\implies} \Gamma; e^{\bnd{\bullet}};
+    \tau^{\bnd{\bullet}}$$
 
-  \item We infer bounds (Section~\ref{sec:bnd-type-infer}):
-  $$\Gamma; e^{\bnd{\bullet}} \underset{bnd.}{\implies} \Gamma; e'; \tau'$$
-    During bound inference, we rely on helper functions $I$ and $E$
-    (Figure~\label{fig:helper_type_inference}) to automatically instantiate and
-    eliminate bound variables.
+  \item We infer bounds. During bound inference, we rely on helper functions $I$
+    and $E$ (Figure~\label{fig:helper_type_inference}) to automatically
+    instantiate and eliminate bound variables.
+
+  \item We compute our interval operations. The output of bound inference may
+    produce interval expressions that can be further reduced.
 \end{enumerate}
 The full type inference algorithm is $\implies \triangleq
 \underset{bnd.}{\implies} \circ \underset{sens.}{\implies}$, throwing away the
@@ -257,7 +260,7 @@ The goal of this stage of type inference, then, is to take a program
 $e^{\bnd{\bullet}}$ in context $\Gamma$ and produce a program and with type in
 context, possibly using bound polymorphism.
 
-\begin{figure}
+\begin{figure}\label{fig:inference-algo}
 %% ROW1
 \begin{center}
 
