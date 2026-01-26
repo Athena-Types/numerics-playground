@@ -1,26 +1,26 @@
 \section{Type inference} \label{sec:inference}
-Similar to our language syntax and semantics, our type inference approach is
-also modular. We parametrize our algorithm by an injection function mapping
-from our concrete domain $\textit{num}$ to intervals: $inj : \textit{num} \to
-\textit{num}^2$. 
-We only constrain $inj$ to be closed:
-\begin{definition}[$inj$ is closed.] \label{def:inj-closed}
-For all $k \in \textit{num}$, $k \in inj(k)$.
-\end{definition}
-
-We also need an abstract transformer $-^{\#}$ lifting operations to operations on
-their abstract domain such that every concrete result possible falls within the
-abstract domain.
-
-% todo: state missing correctness property of our abstract transformer, setup
-% galois connection
-
-\subsection{Problem setup}
+% Similar to our language syntax and semantics, our type inference approach is
+% also modular. We parametrize our algorithm by an injection function mapping
+% from our concrete domain $\textit{num}$ to intervals: $inj : \textit{num} \to
+% \textit{num}^2$. 
+% We only constrain $inj$ to be closed:
+% \begin{definition}[$inj$ is closed.] \label{def:inj-closed}
+% For all $k \in \textit{num}$, $k \in inj(k)$.
+% \end{definition}
+%
+% We also need an abstract transformer $-^{\#}$ lifting operations to operations on
+% their abstract domain such that every concrete result possible falls within the
+% abstract domain.
+%
+% % todo: state missing correctness property of our abstract transformer, setup
+% % galois connection
+%
+% \subsection{Problem setup}
 Users write programs in \Lang, without sensitivities or bound polymorphism. We
-perform the type sensitivity and inference algorithm developed in
+compute the type sensitivity and inference analysis developed in
 \cite{numfuzz}, extended to our core language without bound polymorphism.
-We also automatically infer polymorphic bound annotations to generate a valid
-typing derivation of the program in \bnd{\Lang}.
+At the same time, we also automatically infer polymorphic bound annotations to
+generate a valid typing derivation of the program in \bnd{\Lang}.
 For example, the following unannotated program would be transformed as follows:
 
 \begin{example}[Unannotated example program]
