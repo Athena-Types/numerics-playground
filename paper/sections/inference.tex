@@ -576,10 +576,9 @@ Holds by induction over types.
   $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
 \end{lemma}
 \begin{proof}
-  We apply the contrapositive of weakening (over bound contexts,
-  Lemma~\ref{thm:weakening-bnd}) to the
-  conclusion. So it suffices to prove that $FTV(\tau) \vdash i_j$.
-  We complete the proof by induction over $\tau$.
+  We apply weakening (over bound contexts, Lemma~\ref{thm:weakening-bnd}) to the
+  conclusion. So it suffices to prove that $FTV(\tau) \vdash i_j$. We complete
+  the proof by induction over $\tau$.
 \end{proof}
 
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
