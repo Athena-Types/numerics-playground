@@ -662,7 +662,7 @@ We induct over each typing / case in the type inference algorithm.
   \item[Let-pair.] Holds by applying weakening to the second inductive
     hypothesis to obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s,
     s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
-    the corresponding $\times E$ rule to complete the case.
+    the corresponding $\otimes E$ rule to complete the case.
   \item[Let-bind.] Holds trivially.
   \item[$\otimes$ E.] By the definition of $\text{max}$, we have that 
     $\tau_0 \subseteq \text{max}(\tau_0, \tau_1)$
