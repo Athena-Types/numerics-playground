@@ -16,11 +16,11 @@ abstract domain.
 % galois connection
 
 \subsection{Problem setup}
-Conceptually, we can think of our type inference algorithm in two
-stages. Users write programs in \Lang, without sensitivities or bound polymorphism. We then perform the type sensitivity and
-inference algorithm developed in \cite{numfuzz}, extended to our core language
-without bound polymorphism. Finally, we automatically infer polymorphic bound
-annotations to generate a valid typing derivation of the program in \bnd{\Lang}.
+Users write programs in \Lang, without sensitivities or bound polymorphism. We
+perform the type sensitivity and inference algorithm developed in
+\cite{numfuzz}, extended to our core language without bound polymorphism.
+We also automatically infer polymorphic bound annotations to generate a valid
+typing derivation of the program in \bnd{\Lang}.
 For example, the following unannotated program would be transformed as follows:
 
 \begin{example}[Unannotated example program]
