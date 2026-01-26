@@ -594,8 +594,10 @@ We induct over each typing / case in the type inference algorithm.
     $\epsilon_0, \cdots, \epsilon_n$, obtaining
     us the following intermediate typing derivation $d_3$: 
     $\Delta' - \{\epsilon_0, \cdots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
-    \vdash f' \ \{i_0\} \cdots \{i_n\} : (\tau_0 \multimap \tau) 
-    [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
+    \vdash f' \ \{i_0\} \cdots \{i_n\} : 
+    (\tau_0 \multimap \tau) [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which
+    whose type is the same as 
+    $\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \multimap \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
     \par\bigskip
 
     Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
@@ -604,8 +606,8 @@ We induct over each typing / case in the type inference algorithm.
     In particular, by Lemma~\ref{thm:free-var-gamma}, we have that
     $FTV(\tau'_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]) \subseteq FTV(\tau'_0)
     \subseteq FTV(\Theta) \subseteq \Delta''$. 
-    Applying Lemma~\ref{thm:wff-var-e} and our inductive hypothesis
-    finishes each proof obligation.
+    Applying Lemma~\ref{thm:wff-var-e} and our inductive hypothesis finishes
+    each proof obligation.
     Now we are ready to apply our $\multimap E$ typing rule with derivation
     $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
     \cdots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
