@@ -224,6 +224,8 @@ Conceptually, our type inference algorithm does three things:
   \item We compute our interval operations. The output of bound inference may
     produce interval expressions that can be further reduced.
 \end{enumerate}
+We present our type inference algorithm as a combined algorithm where the
+sensitivities and bounds are inferred in one pass:
 
 \begin{figure}\label{fig:inference-algo}
 %% ROW1
