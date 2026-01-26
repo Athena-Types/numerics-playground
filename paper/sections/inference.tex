@@ -21,42 +21,6 @@ compute the type sensitivity and inference analysis developed in
 \cite{numfuzz}, extended to our core language without bound polymorphism.
 At the same time, we also automatically infer polymorphic bound annotations to
 generate a valid typing derivation of the program in \bnd{\Lang}.
-For example, the following unannotated program would be transformed as follows:
-
-\begin{example}[Unannotated example program]
-  \begin{equation}
-    \lambda x \ . \ \mathbf{let} \ s \ = \ add \ x \ \tin \ (\mathbf{rnd} \ s)
-    : \textbf{num} \times \textbf{num} \multimap \textbf{num}
-  \end{equation}
-\end{example}
-
-\begin{example}[Annotated program]
-  \begin{equation}
-    \bnd{\Lambda \epsilon_0, \epsilon_1 \ .} \lambda x : num_{\bnd{\epsilon_0}}
-    \times num_{\bnd{\epsilon_1}} \ . \ 
-    \mathbf{let} \ s \ = \ add \ \bnd{\{\epsilon_0\}} \ \{\bnd{\epsilon_1\}} \ x
-    \ \tin \ (\mathbf{rnd} \ s)
-    : 
-    \bnd{\forall \epsilon_0, \epsilon_1 \ .} \ 
-    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
-    \multimap
-    \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}}
-  \end{equation}
-\end{example}
-
-\begin{equation}
-  \begin{aligned}[c]
-    add &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
-    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
-    \multimap \textbf{num}_{\bnd{\epsilon_0 + \epsilon_1}} \\
-    sub &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
-    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
-    \multimap \textbf{num}_{\bnd{\epsilon_0 - \epsilon_1}} \\
-    mult &: \bnd{\forall \epsilon_0, \epsilon_1 \ .} \
-    \textbf{num}_{\bnd{\epsilon_0}} \times \textbf{num}_{\bnd{\epsilon_1}}
-    \multimap \textbf{num}_{\bnd{\epsilon_0 \cdot \epsilon_1}} \\
-  \end{aligned}
-\end{equation}
 
 To define the type inference problem, we first define two erasure operations
 over terms, types and contexts. Full typing contexts can be seen as maps from
@@ -410,7 +374,7 @@ E(\tau'_0) &\to i_0, \ldots, i_n \\
 $}
 \RightLabel{($\multimap$ E)}
 \BIC{$\Gamma^{\bullet}; (f~e)^{\bnd{\bullet}} \implies \Gamma' +
-\Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau'$}
+\Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -642,7 +606,7 @@ We induct over each typing / case in the type inference algorithm.
     proof obligation.
     Now we are ready to apply our $\multimap E$ typing rule with derivation
     $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
-    \cdots \{i_n\}) e' : \tau'$ which completes the case.
+    \cdots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
   \item[Op.] Holds trivially.
   \item[Factor.] Holds trivially.
   \item[Ret.] Holds trivially.
@@ -662,7 +626,7 @@ We induct over each typing / case in the type inference algorithm.
   \item[Let-pair.] Holds by applying weakening to the second inductive
     hypothesis to obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s,
     s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
-    the corresponding $\otimes E$ rule to complete the case.
+    the corresponding $\otimes \text{ E}$ rule to complete the case.
   \item[Let-bind.] Holds trivially.
   \item[$\otimes$ E.] By the definition of $\text{max}$, we have that 
     $\tau_0 \subseteq \text{max}(\tau_0, \tau_1)$
