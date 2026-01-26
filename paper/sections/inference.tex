@@ -498,7 +498,7 @@ f)^{\bnd{\bullet}} \implies s \cdot \Gamma + \Theta;
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
 \tau_0 \otimes \tau_1$}
 \AXC{$\Gamma^{\bullet}, x: \tau_0, y : \tau_1; f^{\bnd{\bullet}}
-\implies \Theta, x :_s \tau_0, y :_s' \tau_1; f'; \tau$}
+\implies \Theta, x :_s \tau_0, y :_{s'} \tau_1; f'; \tau$}
 \BIC{$\Gamma^{\bullet}; (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \
 f)^{\bnd{\bullet}} \implies max(s, s') \cdot \Gamma' + \Theta;
 \textbf{let-pair} \ (x, y) \ = \ e' \ \textbf{in} \ f'; \tau$}
@@ -622,7 +622,7 @@ We induct over each typing / case in the type inference algorithm.
     $\epsilon$ generated is globally fresh in our type inference algo.
     \par\bigskip
 
-    By weakening on our inducitve hypothesis, we have a derivation for $\Delta \
+    By weakening on our inductive hypothesis, we have a derivation for $\Delta \
     | \ \Theta \vdash e : \tau_0[\epsilon_0 / i_0, \cdots, \epsilon_n / i_n]$
     (think contrapositively for now). 
     Then we are able to
@@ -642,7 +642,7 @@ We induct over each typing / case in the type inference algorithm.
     proof obligation.
     Now we are ready to apply our $\multimap E$ typing rule with derivation
     $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
-    \cdots \{i_n\}) e' : \tau'$.
+    \cdots \{i_n\}) e' : \tau'$ which completes the case.
   \item[Op.] Holds trivially.
   \item[Factor.] Holds trivially.
   \item[Ret.] Holds trivially.
@@ -654,12 +654,15 @@ We induct over each typing / case in the type inference algorithm.
     By weakening, we can produce a typing derivation for the following
     judgement:
     $\Delta_0 \cup \Delta_1 \ | \ \text{max}(\Gamma_0, \Gamma_1) \vdash \langle
-    f', e' \rangle; \tau_0 \times \tau_1$.
+    f', e' \rangle; \tau_0 \times \tau_1$ which completes the case.
   \item[$\times$ E.] Holds trivially.
   \item[$\times$ E.] Holds trivially.
   \item[$\otimes$ I.] Holds trivially.
   \item[Let.] Holds trivially.
-  \item[Let-pair.] Holds by weakening and the inductive hypothesis.
+  \item[Let-pair.] Holds by weakening to the second inductive hypothesis to
+    obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s, s')} \tau_0, y
+    :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying the
+    corresponding $\times E$ rule to complete the case.
   \item[Let-bind.] Holds trivially.
   \item[$\otimes$ E.] By the definition of $\text{max}$, we have that 
     $\tau_0 \subseteq \text{max}(\tau_0, \tau_1)$
@@ -671,7 +674,8 @@ We induct over each typing / case in the type inference algorithm.
     $\Delta_0 \ | \ \Theta_0 x :_s \tau_0 \vdash f'_1 : \text{max}(\tau_0, \tau_1)$
     and
     $\Delta_1 \ | \ \Theta_1 x :_s \tau_1 \vdash f'_2 : \text{max}(\tau_0, \tau_1)$.
-    We can now finish by applying our $\otimes$ E typing rule.
+    We can now finish by applying our $\otimes$ E typing rule which completes
+    the case.
 \end{description}
 \end{proof}
 
