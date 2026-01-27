@@ -131,10 +131,10 @@ $d(r, \tilde{r})
 = max(|ln(e^u + \frac{100}{900}(e^{-u}-e^u))|, |ln(e^-u + \frac{100}{900}(e^u-e^{-u}))|) 
 = 4.635916 \times 10^{-8}$. 
 % https://www.wolframalpha.com/input?i2d=true&i=max%5C%2840%29%7Cln%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2844%29%7Cln%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2841%29
-Another piece of information that tightens our error analysis is knowing how big
-our output value is. For example, if we knew that $\tilde{r} = 1000$, then we
-can apply Theorem~\ref{thm:paired-a-posteriori} and obtain the following tighter
-\textit{a posterori} bound: TODO.
+% Another piece of information that tightens our error analysis is knowing how big
+% our output value is. For example, if we knew that $\tilde{r} = 1000$, then we
+% can apply Theorem~\ref{thm:paired-a-posteriori} and obtain the following tighter
+% \textit{a posterori} bound: TODO.
 
 % TODO: justin says "go slower here, connect to numfuzz type, space out, break
 % up paragraphs. this part is important to help readers understand how our
@@ -160,12 +160,11 @@ typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
 \multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
 polymorphism via $\forall$ introduction and elimination rules.
 % provided in Figure~\ref{fig:typing_rules}.
-
 To reduce annotation overhead, we provide a type inference algorithm that can
 automatically infer bound polymorphism abstraction and instantiation sites. We
-prove our type inference algorithm sound in Section~\ref{sec:inference}. We also
-prove that our low-annotation approach gives us bounds no looser than prior type
-based work while also supporting subtraction and negative numbers.
+prove our type inference algorithm sound in Section~\ref{sec:inference}. 
+% We also prove that our low-annotation approach gives us bounds no looser than
+% prior type based work while also supporting subtraction and negative numbers.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}

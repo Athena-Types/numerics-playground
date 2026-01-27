@@ -450,6 +450,71 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
     \label{fig:sub_eval_rules}
 \end{figure}
 
+% \subsection{Equivalence class of interval expressions.}
+\subsection{The lattice of interval expressions}
+For a given lattice $(\textit{num}, \leq)$ we build up to the definition of
+lattice over interval expression equivalence classes. 
+First we define \textit{concrete intervals}, which will serve as our canonical
+representative for each equivalence class:
+
+\begin{definition}[Concrete intervals and lattice]
+  The set of concrete intervals $C$ are
+  $C \triangleq (k_0, k_1) \in \textit{num}^2$ where each 
+  $\llbracket (k_0, k_1) \rrbracket = 
+  \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \}$ 
+  equipped with the standard $\subseteq$ relation over sets.
+  Then, $(C, \subseteq)$ forms our concrete interval lattice.
+\end{definition}
+
+Each interval operation $\textbf{iop}$ of arity $n$ has a corresponding mathematical
+function $\textit{iop} : \textit{num}^n \to \textit{num}$. 
+We can now define our equivalence classes of closed \textit{interval expressions},
+which we will use to define our logical relations over.
+
+\begin{definition}[Closed interval expressions]
+  An interval expression $b$ is a closed interval expression iff either:
+  \begin{itemize}
+    \item $b = (k_0, k_1)$; it's a constant
+    \item $b = \textbf{iop}(b_0, \cdots, b_1)$ where $b_0, \cdots, b_1$ are all
+      closed interval expressions
+  \end{itemize}
+\end{definition}
+
+\begin{definition}[Evaluation of closed interval expressions]
+  For an interval expression $b$,
+  \begin{equation}
+    \begin{aligned}[c]
+      \llbracket (k_0, k_1) \rrbracket &\triangleq \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \} \\
+      \llbracket \textbf{iop}(b_0, \cdots, b_n) \rrbracket &\triangleq \textit{iop}(b_0, \cdots, b_n)
+    \end{aligned}
+  \end{equation}
+\end{definition}
+
+\begin{definition}[Interval expression equivalence class]
+  We inductively define our equivalence relation $\sim$ over closed interval
+  expressions $I$ based upon the underlying equality of the sets
+  $b_0 \sim b_1 \iff \llbracket b_0 \rrbracket =  \llbracket b_0 \rrbracket$ 
+\end{definition}
+
+\begin{lemma}
+  $I, \sim$ form an equivalence class
+\end{lemma}
+\begin{proof}
+  $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
+  underlying equality.
+\end{proof}
+
+We are now ready to define a lattice structure over our the quotient space
+formed by our interval equivalence class $I / \sim$. We will later use this to
+define our logical relation over these interval bound equivalence classes.
+
+\begin{definition}[Interval expression lattice]
+  $b_0 \subseteq b_1 \iff \llbracket b_0 \rrbracket \subseteq \llbracket b_1
+  \rrbracket$.
+  The $\subseteq$ relation clearly respects our equivalence relation $\sim$ by
+  inspection of the underlying equality on sets used in the construction.
+\end{definition}
+
 \subsection{Modular Interface} \label{sec:interface}
 To define the modular interface that enables sound instantiation of the
 Numerical Fuzz family of programming languages, we first define distances
