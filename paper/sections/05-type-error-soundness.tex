@@ -45,10 +45,6 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
   \begin{description}
     \item[Var.] In the case that $s=1$, holds immediately. Otherwise, we apply
       weakening.
-    \item[Immediate inductive caes: $\multimap$ E, $\times$ I, $\times$ E,
-      $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption, Factor, Ret, Rnd,
-      $\forall$ E.]
-      These cases follow immediately by application of the inductive hypothesis.
     \item[Inductive cases with possible variable capture $\multimap$ I, $\otimes E$,
       $+$ E, $!$ E, Let, $M_u$ E] 
       We case: if $x$ is immediately captured by the expression (e.g. $\lambda$ for
@@ -59,6 +55,10 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
       Holds by our inductive hyothesis and observing that the side condition
       necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
       \cap \Delta_1 = \emptyset$ condition.
+    \item[Remaining inductive cases.] The remaining cases ($\multimap$ E,
+      $\times$ I, $\times$ E, $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption,
+      Factor, Ret, Rnd, $\forall$ E) follow immediately by application of the
+      inductive hypothesis.
   \end{description}
 \end{proof}
 
