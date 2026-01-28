@@ -186,11 +186,17 @@ Conceptually, our type inference algorithm does three things:
     and $E$ (Figure~\label{fig:helper_type_inference}) to automatically
     instantiate and eliminate bound variables.
 
-  \item We compute our interval operations. The output of bound inference may
+  \item We compute our interval operations via $\llbracket - \rrbracket$. The output of bound inference may
     produce interval expressions that can be further reduced.
 \end{enumerate}
-We present our type inference algorithm as a combined algorithm where the
-sensitivities and bounds are inferred in one pass:
+We present our type inference algorithm in Figure~\ref{fig:inference-algo} as a
+combined algorithm where the sensitivities and bounds are inferred in one pass.
+We prove the soundness of the fused sensitivity-and-bound pass in
+Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
+inference algorithm. 
+After running type inference, we evaluate the closed interval bound expressions
+using $\llbracket - \rrbracket$ and prove soundness via a semantic logical
+relations argument.
 
 \begin{figure}\label{fig:inference-algo}
 %% ROW1
@@ -645,6 +651,50 @@ We induct over each typing / case in the type inference algorithm.
     We can now finish by applying our $\otimes$ E typing rule which completes
     the case.
 \end{description}
+\end{proof}
+
+\subsection{Evaluating interval bounds}
+After running type inference we obtain a result in the form: 
+$\Delta \ | \ \Gamma \vdash e : \tau$. 
+In some cases, $\tau$ might contain interval expressions.
+In this case, we can extend the $\bnd{\llbracket - \rrbracket}$ mapping interval
+expressions to concrete intervals to be over all types.
+Note that for simplicity, we halt evaluation when we see a $\forall$.
+
+\begin{definition}[Type evaluation]
+Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
+spits out a type $\tau'$:
+\begin{equation}
+  \begin{aligned}[c]
+    \llbracket \textbf{unit} \rrbracket &= \textbf{unit} \\
+    \llbracket \textbf{num}_{\bnd{b}} \rrbracket &= \textbf{num}_{\bnd{\llbracket b \rrbracket}} \\
+    \llbracket \tau_0 \times \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \times \llbracket \tau_1 \rrbracket \\
+    \llbracket \tau_0 \otimes \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \otimes \llbracket \tau_1 \rrbracket \\
+    \llbracket \tau_0 + \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      + \llbracket \tau_1 \rrbracket \\
+    \llbracket \tau_0 \multimap \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \multimap \llbracket \tau_1 \rrbracket \\
+    \llbracket !_s \tau \rrbracket &= !_s \llbracket \tau \rrbracket \\
+    \llbracket M_u \tau \rrbracket &= M_u \llbracket \tau \rrbracket \\
+    \llbracket \forall \epsilon . \tau \rrbracket &= \forall \epsilon . \tau
+  \end{aligned}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Soundness of evaluating closed interval bounds]
+  For any $e \in \mathbb{R}_{\tau}$ and $\tau' = \llbracket \tau \rrbracket$,
+  then $e \in \mathbb{R}_{\tau'}$.
+\end{theorem}
+\begin{proof}
+  We induct over the definition of $\llbracket - \rrbracket$ to show that
+  $\mathbb{R}_\tau = \mathbb{R}_{\tau'}$ at each step.
+  The structural cases are immediate.
+  The only non-structural case evaluates $\textbf{num}_{\bnd{b}}$ to
+  $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$. Since $\bnd{b \sim \llbracket b
+  \rrbracket}$, they are in the same equivalence class and thus the same logical
+  relation.
 \end{proof}
 
 % \subsection{Tightness} \label{sec:tightness}
