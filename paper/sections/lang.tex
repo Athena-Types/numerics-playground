@@ -342,12 +342,12 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$\Delta \vdash b_0 : \textbf{bnd}$}
+\AXC{$\Delta \bdash b_0 : \textbf{bnd}$}
 \AXC{$\ldots$}
-\AXC{$\Delta \vdash b_c : \textbf{bnd}$}
+\AXC{$\Delta \bdash b_c : \textbf{bnd}$}
 \AXC{$\textbf{iop}_c \in \Sigma_{\textbf{bnd}}$}
 \RightLabel{(\bnd{\text{Bop}})}
-\QIC{$\Delta \vdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
+\QIC{$\Delta \bdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -360,7 +360,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \DisplayProof
 \hskip 0.5em
 \AXC{$\Delta \ | \ \Gamma \vdash e : \forall \epsilon . \tau$}
-\AXC{$\Delta \vdash i : \textbf{bnd}$}
+\AXC{$\Delta \bdash i : \textbf{bnd}$}
 \RightLabel{(\bnd{$\forall$-E})}
 \BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
 \bottomAlignProof
@@ -582,11 +582,9 @@ e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
 \end{definition}
 
 \begin{definition}[Distance between expression vectors.]
-    We write write vectors of expressions (e.g. for substitutions) 
-    % $\sigma =
-    % \sigma_{\Delta} \ | \ \sigma_{\Gamma}, \sigma' = \sigma'_{\Delta} \ | \
-    % \sigma'_{\Gamma}$
-    for a given typing context $\Delta \ | \ \Gamma$ that: $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ for a \textit{distance vector}
+    We write vectors of expressions $\sigma$, $\sigma'$ are $\gamma$ apart for a
+    given typing context $\Delta \ | \ \Gamma$ like so 
+    $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$
     if and only if
     $\gamma = r_0, r_1, \ldots$
     where

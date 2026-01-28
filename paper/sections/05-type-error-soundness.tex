@@ -18,8 +18,8 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 \end{proof}
 
 \begin{lemma}[Admissibility of weakening (on bound contexts)]\label{thm:weakening-bnd}
-  If $\Delta \vdash i : \textbf{bnd}$ and $\Delta \subseteq \Delta'$, then
-  $\Delta' \vdash i : \textbf{bnd}$. 
+  If $\Delta \bdash i : \textbf{bnd}$ and $\Delta \subseteq \Delta'$, then
+  $\Delta' \bdash i : \textbf{bnd}$. 
 \end{lemma}
 \begin{proof}
   $\Delta$ tracks the free type variables in $i$. 
@@ -32,15 +32,17 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and 
   $\Delta_1 \ | \ \Theta, x :_r \tau \vdash e' : \tau'$, then 
-  $r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
+  $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
 \end{lemma}
 \begin{proof}
-  We first induct over the height of the second typing derivation. 
+  We first induct over the height of the second typing derivation. Note that the
+  $\bnd{Bvar}$ and $\bnd{Bop}$ rules are rules for a different typing judgement
+  from our main judgement $\vdash$.
   \begin{description}
-    \item[Base case.] Follows by copying-and-pasting the first typing derivation
-      if / where a variable is used.
-    \item[Inductive case.] We case into each possible typing rule. 
-      For each premise in the typing rule, we have a way / a function to
+    \item[Base cases (unit, var, Const).] Follows by application of the first typing rule wherever
+      the var $x$ is used.
+    \item[Inductive case.]
+      For each premise in the typing rule, by our inductive hypothesis, we can
       subsitute $e$ for $x$ with sensitivity $s$ and obtain a valid typing tree. 
       We apply this function to each premise (where $x$ is not captured by a
       binder). 
