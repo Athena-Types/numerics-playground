@@ -28,28 +28,37 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
   Our proof is complete.
 \end{proof}
 
+% TODO: check that we properly handle the not zero and intersection condition
+% everywhere this is used
 Following Fuzz, we prove a $r$-sensitive substitution lemma.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
-  Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and 
-  $\Delta_1 \ | \ \Theta, x :_r \tau \vdash e' : \tau'$, then 
-  $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash e'[e/x] : \tau'$.
+  Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
+  \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
+  \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
+  e'[e/x] : \tau'$.
 \end{lemma}
 \begin{proof}
-  We first induct over the height of the second typing derivation. Note that the
-  $\bnd{Bvar}$ and $\bnd{Bop}$ rules are rules for a different typing judgement
-  from our main judgement $\vdash$.
+  We first induct over the height of the final typing derivation with
+  substitution. Note that the $\bnd{Bvar}$ and $\bnd{Bop}$ rules are rules for a
+  different typing judgement from our main judgement $\vdash$. The Unit, Const,
+  and Op base cases are immediate. We detail the remaining cases here:
   \begin{description}
-    \item[Base cases (unit, var, Const).] Follows by application of the first typing rule wherever
-      the var $x$ is used.
-    \item[Inductive case.]
-      For each premise in the typing rule, by our inductive hypothesis, we can
-      subsitute $e$ for $x$ with sensitivity $s$ and obtain a valid typing tree. 
-      We apply this function to each premise (where $x$ is not captured by a
-      binder). 
-      Now we want to construct a valid typing tree for $\Delta_1 \ | \ r \cdot \Gamma + \Theta
-      \vdash e'[e/x] : \tau'$. We observe how $x$ gets scaled (in the $!_s \tau$
-      rule) or combined in the typing derivation (whereever $\Gamma + \Theta$
-      occurs) and observe that our invariant is maintained.
+    \item[Var.] In the case that $s=1$, holds immediately. Otherwise, we apply
+      weakening.
+    \item[Immediate inductive caes: $\multimap$ E, $\times$ I, $\times$ E,
+      $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption, Factor, Ret, Rnd,
+      $\forall$ E.]
+      These cases follow immediately by application of the inductive hypothesis.
+    \item[Inductive cases with possible variable capture $\multimap$ I, $\otimes E$,
+      $+$ E, $!$ E, Let, $M_u$ E] 
+      We case: if $x$ is immediately captured by the expression (e.g. $\lambda$ for
+      $\multimap$ I or $x$ and $y$ for the \textbf{let-pair} expression, etc.), we can
+      apply our inductive hypothesis.
+      Otherwise, it holds immediately.
+    \item[Inductive case: $\forall$ - I.]
+      Holds by our inductive hyothesis and observing that the side condition
+      necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
+      \cap \Delta_1 = \emptyset$ condition.
   \end{description}
 \end{proof}
 

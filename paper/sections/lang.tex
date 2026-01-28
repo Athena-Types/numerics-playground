@@ -460,7 +460,7 @@ representative for each equivalence class:
 \begin{definition}[Concrete intervals and lattice]
   The set of concrete intervals $C$ are
   $C \triangleq (k_0, k_1) \in \textit{num}^2$ where each 
-  $\llbracket (k_0, k_1) \rrbracket = 
+  $\bnd{\llbracket} (k_0, k_1) \bnd{\rrbracket} = 
   \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \}$ 
   equipped with the standard $\subseteq$ relation over sets.
   Then, $(C, \subseteq)$ forms our concrete interval lattice.
@@ -480,12 +480,13 @@ which we will use to define our logical relations over.
   \end{itemize}
 \end{definition}
 
-\begin{definition}[Evaluation of closed interval expressions]
+\begin{definition}[Evaluation of closed interval
+  expressions] \label{def:interval-exp-eval}
   For an interval expression $b$,
   \begin{equation}
     \begin{aligned}[c]
-      \llbracket (k_0, k_1) \rrbracket &\triangleq \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \} \\
-      \llbracket \textbf{iop}(b_0, \ldots, b_n) \rrbracket &\triangleq \textit{iop}(b_0, \ldots, b_n)
+      \bnd{\llbracket} (k_0, k_1) \bnd{\rrbracket} &\triangleq \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \} \\
+      \bnd{\llbracket} \textbf{iop}(b_0, \ldots, b_n) \bnd{\rrbracket} &\triangleq \textit{iop}(b_0, \ldots, b_n)
     \end{aligned}
   \end{equation}
 \end{definition}
@@ -493,7 +494,7 @@ which we will use to define our logical relations over.
 \begin{definition}[Interval expression equivalence class]
   We inductively define our equivalence relation $\sim$ over closed interval
   expressions $I$ based upon the underlying equality of the sets
-  $b_0 \sim b_1 \iff \llbracket b_0 \rrbracket =  \llbracket b_0 \rrbracket$ 
+  $b_0 \sim b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} =  \bnd{\llbracket} b_0 \bnd{\rrbracket}$ 
 \end{definition}
 
 \begin{lemma}
