@@ -475,7 +475,7 @@ which we will use to define our logical relations over.
   An interval expression $b$ is a closed interval expression iff either:
   \begin{itemize}
     \item $b = (k_0, k_1)$; it's a constant
-    \item $b = \textbf{iop}(b_0, \cdots, b_1)$ where $b_0, \cdots, b_1$ are all
+    \item $b = \textbf{iop}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$ are all
       closed interval expressions
   \end{itemize}
 \end{definition}
@@ -485,7 +485,7 @@ which we will use to define our logical relations over.
   \begin{equation}
     \begin{aligned}[c]
       \llbracket (k_0, k_1) \rrbracket &\triangleq \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \} \\
-      \llbracket \textbf{iop}(b_0, \cdots, b_n) \rrbracket &\triangleq \textit{iop}(b_0, \cdots, b_n)
+      \llbracket \textbf{iop}(b_0, \ldots, b_n) \rrbracket &\triangleq \textit{iop}(b_0, \ldots, b_n)
     \end{aligned}
   \end{equation}
 \end{definition}
@@ -537,7 +537,7 @@ syntactic values as follows:
     \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w =
       \langle \rangle \\
     \mathcal{SDV}_{\mathbf{num_{b}}}(k_0, k_1) &\triangleq 
-      d_\mathbf{num} &\text{ for } k_0, k_1 \in \mathbb{R} \\
+      d_\mathbf{num} &\text{ for } k_0, k_1 \in \llbracket b \rrbracket \\
     \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
       &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_0}(v_1, w_1))
     \\
@@ -561,11 +561,11 @@ syntactic values as follows:
       &\triangleq 0 
     \\
     \mathcal{SDV}_{\textbf{bnd}}((k_0, k_1), (k'_0, k'_1)) 
-      &\triangleq \infty &\text{ otherwise }
+      &\triangleq \infty &\text{ for } k_0 \not= k'_0, k_1 \not= k'_1 
     \\
     \mathcal{SDV}_{\forall \epsilon . \tau}(v_0, v_1) 
-      &\triangleq \text{sup}_{w \in \mathcal{VR}_{\textbf{bnd}}} 
-      \mathcal{SD}_{\tau_1}(v_0~\{w\},~v_1~\{w\})
+      &\triangleq \text{sup}_{w \in \textit{num}} 
+      \mathcal{SD}_{\tau[w / \epsilon]}(v_0~\{w\},~v_1~\{w\})
     \\
     \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
   \end{aligned}
@@ -642,40 +642,36 @@ soundness theorems to follow.
 \begin{definition}[Interface for instantiating Numerical Fuzz.]
   \label{def:numfuzz-interface}
   The interface for Numerical Fuzz consists of  $\textit{num}$,
-  $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and $\Sigma_{\mathbf{bnd}}$ such that
+  $\leq_{\textit{num}}$ $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
+  $\Sigma_{\mathbf{bnd}}$ such that
   the following properties hold: 
 \begin{description}
-  \item[a) The set \textit{num} and distance function $d_\textbf{num}$ form a
+  \item[a) The lattice (\textit{num}, $\leq$) and distance function $d_\textbf{num}$ form a
   metric space.]
   \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
   \item[c) Property of $\mathbf{iop}$: closure over intervals ($\textit{num}^2$).] We further need to
-    assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
-    have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
+    assume that for every operation $\mathbf{iop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
+    have that if $b_0, \ldots, b_n$ are closed interval expressions for any sequence of bounds $b_0, \ldots, b_n : \textbf{bnd}$ the
     corresponding metalevel function will actually map concrete bounds to concrete bounds
     where 
     $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
     holds.
-  \item[d) Property of $\mathbf{op}$: metric preservation.] 
+  \item[d) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
     \footnote{Note that we could make this portion of the interface more general
     by definining it in terms of the logical relation in
     Section~\ref{sec:logical-relation}. We have opted to
   keep the interface minimal for presentational purposes.}
     We can view $\textit{op}$ as a (possibly constant) metalevel function.
-    We also assume that for every operation has the following two shapes
-    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . (\textbf{num}_{\epsilon_0}
-    \times \textbf{num}_{\epsilon_1}) \multimap \textbf{num}_i \in \ \Sigma$ 
-    and
-    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . (\textbf{num}_{\epsilon_0}
-    \otimes \textbf{num}_{\epsilon_1}) \multimap \textbf{num}_i \in \ \Sigma$ 
+    We also assume that for every operation has the following shape with no free
+    type variables
+    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$ 
     where for the corresponding $\textit{op} \ \bnd{\{i_0\}} \ \bnd{\{i_1\}} \
-    v$ for all $\bnd{i_0}, \bnd{i_1} \in \mathbb{P}^2$ 
+    v$ for all $\bnd{i_0}, \bnd{i_1} \in \mathbb{\textit{num}}^2$ 
     and for all v mapping bounds and syntactic values in
-    $(\textbf{num}_{\epsilon_0} \otimes \textbf{num}_{\epsilon_1})$
-    and
-    $(\textbf{num}_{\epsilon_0} \times \textbf{num}_{\epsilon_1})$
-    to $\textbf{num}_i$ is 1-sensitive as measured by $\mathcal{SD}$.
+    $(\tau_0 \to \tau_1)[i_0 / \epsilon_0, i_1 / \epsilon_1]$
+    is 1-sensitive as measured by $\mathcal{SD}$.
 
     % $\mathcal{VR}_{\tau}$ where 
     % metric preservation holds: For all $\sigma
@@ -739,11 +735,9 @@ capture the core information needed to prove our error soundness theorem.
         \in CV(\tau) \text{ s.t. } e \mapsto^{*} v \text{ and } v \in \mathcal{VR_{\tau}} 
       \} \\
     \mathcal{VR_{\mathbf{unit}}} &\triangleq \{ \langle \rangle \} \\
-    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq 
-      \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} 
-      \hspace{22em} \text{if } b \mapsto^* (k_0, k_1) \\
-    \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} &\triangleq 
-      \{ r \ | \ r \in \mathit{num} \text{ and } k_0 \leq r \leq k_1 \} \\
+    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq \llbracket b \rrbracket \\
+    % \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} &\triangleq 
+    %   \{ r \ | \ r \in \mathit{num} \text{ and } k_0 \leq r \leq k_1 \} \\
     \mathcal{VR_{\mathbf{\tau_0 \times \tau_1}}} &\triangleq 
       \{ \langle v, w \rangle \ | 
         \ v \in \mathcal{R}_{\tau_0} \text{ and } w \in \mathcal{R}_{\tau_1}
@@ -766,12 +760,16 @@ capture the core information needed to prove our error soundness theorem.
     \mathcal{VR_{\mathbf{M_q \tau}}} &\triangleq 
       \{ (v, w) \ | \ v, w \in \mathcal{R}_{\tau} \text{ and } \mathcal{SDV}_{\tau}(v, w)
       \leq q \} \\
-    \mathcal{VR}_{\textbf{bnd}} &\triangleq \{ (k_0, k_1) \ | \ k_0 \leq k_1 \ \forall k_0, k_1 \in
-    \textit{ num } \} \\
+    % \mathcal{VR}_{\textbf{bnd}} &\triangleq \{ (k_0, k_1) \ | \ k_0 \leq k_1 \ \forall k_0, k_1 \in
+    % \textit{ num } \} \\
     \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
-      \{ ((k_0, k_1), v) \ | \ \forall (k_0, k_1) \in
-      \mathcal{VR}_{\textbf{bnd}} \text{ s.t. } v ~ \{(k_0, k_1)\} \in
+      \{ \Lambda \epsilon . v \ | \ \forall (k_0, k_1) \in \textit{num}^2, \ v ~ 
+        \{(k_0, k_1)\} \in
       \mathcal{R}_{\tau[(k_0, k_1) / \epsilon]}\} \\
+    % \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
+    %   \{ (\llbracket b \rrbracket, v) \ | \ \forall (k_0, k_1) \in
+    %   \mathcal{VR}_{\textbf{bnd}} \text{ s.t. } v ~ \{(k_0, k_1)\} \in
+    %   \mathcal{R}_{\tau[(k_0, k_1) / \epsilon]}\} \\
   \end{aligned}
   \end{equation}
 \end{definition}

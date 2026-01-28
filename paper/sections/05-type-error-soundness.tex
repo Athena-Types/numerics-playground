@@ -22,9 +22,10 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
   $\Delta' \vdash i : \textbf{bnd}$. 
 \end{lemma}
 \begin{proof}
-  The intuition here is that $\Delta$ essentially tracks the free type variables
-  in $i$. We induct over our typing devivation and then the size of $\Delta' -
-  \Delta$. Our proof is complete.
+  $\Delta$ tracks the free type variables in $i$. 
+  We induct over our typing devivation. The base cases hold. For the inductive
+  cases, we induct over the size of $\Delta' - \Delta$.
+  Our proof is complete.
 \end{proof}
 
 Following Fuzz, we prove a $r$-sensitive substitution lemma.
