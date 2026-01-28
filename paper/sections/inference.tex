@@ -657,9 +657,10 @@ We induct over each typing / case in the type inference algorithm.
 After running type inference we obtain a result in the form: 
 $\Delta \ | \ \Gamma \vdash e : \tau$. 
 In some cases, $\tau$ might contain interval expressions.
-In this case, we can extend the $\bnd{\llbracket - \rrbracket}$ mapping interval
-expressions to concrete intervals to be over all types.
-Note that for simplicity, we halt evaluation when we see a $\forall$.
+In this case, we can extend the $\bnd{\llbracket - \rrbracket}$
+(Definition~\ref{def:interval-exp-eval}) evaluating intervals expressions to
+also evaluate types that possibly contain interval expressions. Note that for
+simplicity, we only halt evaluation when we see a $\forall$.
 
 \begin{definition}[Type evaluation]
 Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
@@ -686,7 +687,7 @@ spits out a type $\tau'$:
 \begin{theorem}[Soundness of evaluating closed interval bounds]
   For any $e \in \mathbb{R}_{\tau}$ and $\tau' = \llbracket \tau \rrbracket$,
   then $e \in \mathbb{R}_{\tau'}$.
-\end{theorem}
+\end{theorem} 
 \begin{proof}
   We induct over the definition of $\llbracket - \rrbracket$ to show that
   $\mathbb{R}_\tau = \mathbb{R}_{\tau'}$ at each step.
