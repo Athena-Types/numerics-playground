@@ -85,8 +85,8 @@ Following Fuzz, we prove a $r$-sensitive substitution lemma.
   $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
 \end{lemma}
 \begin{proof}
-  Fix an ordering of the variables in $\Gamma + \Theta$. Follows by induction
-  over the list of variables.
+  Follows by induction over the length of the relation $\sigma \sim_{\alpha}
+  \sigma'$.
 \end{proof}
 
 The below lemma is useful towards proving metric preservation:
@@ -105,8 +105,8 @@ The below lemma is useful towards proving metric preservation:
   deterministic. Further, since we only define our rewrite relation over closed
   terms, we know that $e~\sigma, e~\sigma'$ is closed and therefore constant
   under all substitutions. 
-  So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, 
-  context stepping, we know that both 
+  So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, and context stepping,
+  we know that both 
   $$
   C[e~\sigma]~\sigma, C[e~\sigma']~\sigma' \in \mathcal{R}_{\tau}
   $$ 
