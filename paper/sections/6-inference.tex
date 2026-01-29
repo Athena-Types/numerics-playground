@@ -375,7 +375,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \end{aligned} $}
 \hskip 0.5em
 \AXC{$\begin{aligned}[t]
-E(\tau'_0) &\to i_0, \ldots, i_n \\
+E(\tau'_0) &= i_0, \ldots, i_n \\
 \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] &\sqsubseteq \tau'_0 \\
 \end{aligned}
 $}
@@ -553,7 +553,7 @@ Holds by induction over types.
 \end{proof}
 
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
-If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau'$ then there is
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there is
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
 derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 e'^{\bnd{\bullet}}$.
