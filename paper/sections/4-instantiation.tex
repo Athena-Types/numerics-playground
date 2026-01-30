@@ -26,12 +26,12 @@ space.
 To soundly use our encoding, we must show it satisfies the correctness
 properties demanded by the modular interface defined in
 Section~\ref{sec:lang}.
-\begin{lemma}[Metric space]
-  $\mathbb{P}, \leq$ forms a lattice.
-\end{lemma}
-\begin{proof}
-  Follows by the $\leq$ lattice on $\mathbb{R}$.
-\end{proof}
+% \begin{lemma}[Metric space]
+%   $\mathbb{P}, \leq$ forms a lattice.
+% \end{lemma}
+% \begin{proof}
+%   Follows by the $\leq$ lattice on $\mathbb{R}$.
+% \end{proof}
 
 \begin{lemma}[Metric space]
   $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
@@ -44,6 +44,10 @@ and appliation of triangle inequality with respect to $d_{\mathbb{R}}$.
 % To avoid this problem, we encode our semantics through a \textit{paired
 % representation} where we associate for each real $r \in \mathbb{R}$ a pair $(a,
 % b) \in \mathbb{R}^2$ such that $r = a - b$. 
+
+% TODO: define abstract domain
+For our bounds we use the following set: TODO.
+
 Our operations and interval bounds operate over the paired representation
 $\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
 using bounded-sensitivity operations over the non-negative reals, avoiding the

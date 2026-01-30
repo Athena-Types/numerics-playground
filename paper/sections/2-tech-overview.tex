@@ -116,9 +116,8 @@ To be useful, we wish to relate error on the paired components $a$, $b$ with the
 error on the \textit{unpaired} component $r$.
 We can obtain bounds on $r$ by utilizing the invariant that for a triple $(r, a,
 b)$ that $r = a - b$.
-If we know the intervals that $a$ and $b$ belong to, we can take advantage of
-our invariant.
-We can obtain bounds on $r$ by extending the type system to be able to perform
+If we have bounds on $a$ and $b$ , we can take advantage of our invariant.
+Simplifying for presentational purposes, we can obtain bounds on $r$ by extending the type system to be able to perform
 an interval-style analysis on the paired components. In our running example, we
 have that $x \in [1, 100]$ and $y \in [1000, 10000]$. For all inputs $x, y$ to
 our input program, for an output value $(r, a, b), (\tilde{r}, \tilde{a},
@@ -135,25 +134,26 @@ $d(r, \tilde{r})
 % our output value is. For example, if we knew that $\tilde{r} = 1000$, then we
 % can apply Theorem~\ref{thm:paired-a-posteriori} and obtain the following tighter
 % \textit{a posterori} bound: TODO.
+We present a more sophisticated version of the above example in this paper.
 
 % TODO: justin says "go slower here, connect to numfuzz type, space out, break
 % up paragraphs. this part is important to help readers understand how our
 % system works"
 
-We now consider how to compositionally introduce a precise interval bounds
-analysis to the type system. A naive approach to incorporating a bounds analysis
-in the type system would be to annotate each $\textbf{num}_{\bnd{i}}$ with a
-subscript interval $\bnd{i}$. However, many programs we wish to type call the
-same function many times. 
+We now consider how to compositionally introduce a precise bounds analysis to
+the type system. A naive approach to incorporating a bounds analysis in the type
+system would be to annotate each $\textbf{num}_{\bnd{i}}$ with a subscript
+$\bnd{b}$. However, many programs we wish to type call the same
+function many times. 
 For example, if we have a function such as the identity function over numbers
-$id : \textbf{num}_{\bnd{i}} \multimap \textbf{num}_{\bnd{i}}$ called at two
-different call sites with intervals $j$ and $k$, the tightest sound bound for
-$i$ would be $j \cup k$.
+$id : \textbf{num}_{\bnd{b}} \multimap \textbf{num}_{\bnd{b}}$ called at two
+different call sites with bounds $b_0$ and $b_1$, the tightest sound bound for
+$b$ would be an upper bound on $b_0$ and $b_1$.
 
-To ensure that our interval analysis is scalable and that functions types can be
+To ensure that our bounds analysis is scalable and that functions types can be
 reused, we support \textit{bound polymorphism}, which allows functions to be
-specialized with different concrete bounds $\bnd{i}$ at each call site. We write
-types $\tau$ polymorphic in interval variable $\bnd{\epsilon}$ as $\bnd{\forall
+specialized with different concrete bounds $\bnd{b}$ at each call site. We write
+types $\tau$ polymorphic in bound variable $\bnd{\epsilon}$ as $\bnd{\forall
 \epsilon.} \tau$.
 By adding \textit{bound polymorphism}, we allow functions to be
 typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
