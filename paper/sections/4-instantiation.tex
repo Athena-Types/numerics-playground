@@ -41,17 +41,24 @@ Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
 and appliation of triangle inequality with respect to $d_{\mathbb{R}}$.
 \end{proof}
 
-% To avoid this problem, we encode our semantics through a \textit{paired
-% representation} where we associate for each real $r \in \mathbb{R}$ a pair $(a,
-% b) \in \mathbb{R}^2$ such that $r = a - b$. 
-
-% TODO: define abstract domain
-For our bounds we use the following set: TODO.
-
-Our operations and interval bounds operate over the paired representation
+Our operations and bounds operate over the paired representation
 $\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
 using bounded-sensitivity operations over the non-negative reals, avoiding the
 problem of infinite sensitivity.
+
+Our bounds analysis is inspired by interval analysis. For a concrete tuple 
+$(r, a, b) \in \mathbb{P}$
+we track seven things:
+$((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
+(b^{\downarrow}, b^{\uparrow}), d)$
+with the following constraints
+\begin{enumerate}
+  \item Lower and upper bounds on $r$, with the following constraints $r^{\uparrow} \leq r \leq r^{\downarrow}$
+  \item Lower and upper bounds on $a$, with the following constraints $a^{\uparrow} \leq a \leq a^{\downarrow}$
+  \item Lower and upper bounds on $b$, with the following constraints $b^{\uparrow} \leq b \leq b^{\downarrow}$
+  \item A boolean $d$ tracking whether the condition $a > 0 \land b > 0$ is true.
+\end{enumerate}
+
 We instantiate the modular interface with the interval operations 
 $\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul} \}$ with the following
 types:
