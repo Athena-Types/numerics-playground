@@ -557,14 +557,14 @@ which we will use to define our logical relations over.
 \begin{definition}[Closed bound expressions]
   A bound expression $b$ is a closed bound expression iff either:
   \begin{itemize}
-    \item $b = c \in \mathbb{B}$; it's a constant
-    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$ are all
-      closed bound expressions; it's made up of constants
+    \item $b = c \in \bnd{\mathbb{B}}$. In other words, $b$ is a constant.
+    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$
+      are all closed bound expressions. $b$ is made up of constants.
   \end{itemize}
 \end{definition}
 
-\begin{definition}[Evaluation of closed bound
-  expressions] \label{def:bound-exp-eval}
+\begin{definition}[Evaluation of closed bound expressions]
+  \label{def:bound-exp-eval}
   For an bound expression $b$,
   \begin{equation}
     \begin{aligned}[c]
@@ -576,12 +576,13 @@ which we will use to define our logical relations over.
 
 \begin{definition}[Bound expression equivalence class]
   We inductively define our equivalence relation $\sim$ over closed bound
-  expressions $B$ based upon the underlying equality of the sets
-  $b_0 \sim b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$ 
+  expressions $\bnd{b, b_0, b_1 \in \mathbb{B}_{\text{exp}}}$ based upon the
+  underlying equality of the sets $b_0 \sim b_1 \iff \bnd{\llbracket} b_0
+  \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$.
 \end{definition}
 
 \begin{lemma}
-  $B, \sim$ form an equivalence class
+  $\bnd{\mathbb{B}_{\text{exp}}}, \sim$ form an equivalence class
 \end{lemma}
 \begin{proof}
   $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
@@ -589,7 +590,7 @@ which we will use to define our logical relations over.
 \end{proof}
 
 We are now ready to define a lattice structure over our the quotient space
-formed by our interval equivalence class $B / \sim$. We will later use this to
+formed by our interval equivalence class $\bnd{\mathbb{B}_{\text{exp}}} / \sim$. We will later use this to
 define our logical relation over these interval bound equivalence classes.
 
 \begin{definition}[Bound expression partial order]
@@ -641,15 +642,15 @@ syntactic values as follows:
     \mathcal{SDV}_{M_q~\tau}((v_0, v_1), (w_0, w_1)) 
       &\triangleq \mathcal{SDV}_{\tau}(v_0, w_0)
     \\
-    \mathcal{SDV}_{\textbf{bnd}}((k_0, k_1), (k_0, k_1)) 
-      &\triangleq 0 
+    \mathcal{SDV}_{\textbf{bnd}}(\bnd{b_0}, \bnd{b_1}) 
+      &\triangleq 0 &\text{ for } \bnd{\llbracket b_0 \rrbracket = \llbracket b_1 \rrbracket} 
     \\
-    \mathcal{SDV}_{\textbf{bnd}}((k_0, k_1), (k'_0, k'_1)) 
-      &\triangleq \infty &\text{ for } k_0 \not= k'_0, k_1 \not= k'_1 
+    \mathcal{SDV}_{\textbf{bnd}}(\bnd{b_0}, \bnd{b_1}) 
+      &\triangleq \infty & \text{otherwise}
     \\
     \mathcal{SDV}_{\forall \epsilon . \tau}(v_0, v_1) 
-      &\triangleq \text{sup}_{w \in \textit{num}} 
-      \mathcal{SD}_{\tau[w / \epsilon]}(v_0~\{w\},~v_1~\{w\})
+      &\triangleq \text{sup}_{c \in \mathbb{B}} 
+      \mathcal{SD}_{\tau[w / \epsilon]}(v_0~\{c\},~v_1~\{c\})
     \\
     \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
   \end{aligned}
@@ -725,7 +726,7 @@ soundness theorems to follow.
 \begin{definition}[Interface for instantiating Numerical Fuzz.]
   \label{def:numfuzz-interface}
   The interface for Numerical Fuzz consists of $\textit{num}$,
-  $(\mathbb{B}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
+  $(\bnd{\mathbb{B}}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
   $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
 \begin{description}
   \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
