@@ -60,17 +60,17 @@ Note that our term language is more expressive than Numerical Fuzz as we do not
 restrict the bound term in our let expressions to be values.
 
 Our term language extends Numerical Fuzz's term language. We introduce a
-language for intervals (shown in Figure~\ref{fig:syntax}) as well as explicit
+language for bounds (shown in Figure~\ref{fig:syntax}) as well as explicit
 terms to represent polymorphic abstraction $\bnd{(\Lambda \epsilon. e)}$ and
-instantiation $\bnd{(e \{i\})}$. This is useful for incorporating an interval
+instantiation $\bnd{(e \bnd{\{b\}})}$. This is useful for incorporating an bound
 analysis into the type inference algorithm, which we detail in
 Section~\ref{sec:inference}.
 
 \begin{figure}[tbp]
   \begin{alignat*}{3}
-    &\bnd{\text{Intervals } b, b_0, b_1} &::=~ &\bnd{\epsilon}
-         \mid \bnd{(k_0, k_1) \in \textit{num}^{2}}
-         \mid \bnd{\mathbf{iop_c(b_0, \ldots, b_c)}} \\
+    &\bnd{\text{Bounds } b, b_0, b_1} &::=~ &\bnd{\epsilon}
+    \mid \bnd{c \in \mathbb{B}}
+         \mid \bnd{\mathbf{bop_c(b_0, \ldots, b_c)}} \\
          &\text{Types } \tau, \tau_0, \tau_1 &::=~ &\mathbf{unit}
          \mid \num_{\bnd{b}}
          \mid \tau_0 \times \tau_1
@@ -146,7 +146,7 @@ Section~\ref{sec:inference}.
   \end{alignat*}
   \caption{
     Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$.
-    $\textbf{op}$ and $\textbf{iop}$ are syntactic metavars representing
+    $\textbf{op}$ and $\textbf{bop}$ are syntactic metavars representing
     functions of arbitrary arity.
     $\textit{num}$ is a parameter in the programming language representing the
     set of numbers the language computes over.
@@ -221,15 +221,20 @@ detail the (Factor) rule and walk through an example in
 Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
-polymorphism. 
-In the (\bnd{Widen}), (\bnd{Bvar}), (\bnd{Bop}), ($\forall-I$), and
-($\forall-E$) rules, we further extend Numerical Fuzz with an interval-style
-analysis by annotating $\textbf{num}_{\bnd{i}}$ types with a subscript bound
-with the grammar $\bnd{i}$ shown in Figure~\ref{fig:syntax}. 
-We also extend Numerical Fuzz by adding expressions in more places
-(e.g. the application rule) and a $\textbf{factor}$ primitive to enable tighter
-error bounds. To support operations that have polymorphic bounds, we
-additionally modify our (Op) typing rule from Numerical Fuzz.
+polymorphism. In the (\bnd{Widen}), (\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$
+I}), and (\bnd{$\forall$ E}) rules, we further extend Numerical Fuzz's type
+system with an abstract interpretation-style analysis by annotating
+$\textbf{num}_{\bnd{i}}$ types with a subscript bound with the grammar $\bnd{b}$
+shown in Figure~\ref{fig:syntax}. Our type system is parametric in
+$\bnd{\mathbb{B}}$, which is a set of bounds equipped with a partial order
+$\leq$.
+In Section~\ref{sec:bexp}, we define the $\bnd{\llbracket} - \bnd{\rrbracket}$
+relation interpreting bound expressions $\bnd{b}$ to a subset of
+$\bnd{\mathbb{B}}$.
+We additionally extend Numerical Fuzz by adding expressions in more places (e.g.
+the application rule) and a $\textbf{factor}$ primitive to enable tighter error
+bounds. To support operations that have polymorphic bounds, we additionally
+modify our (Op) typing rule from Numerical Fuzz.
 % For presentational purposes, we present a restricted form of the
 % typing rule to make the modular interface easier to follow.
 
@@ -361,10 +366,10 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \vskip 1em
 
 %% widen
-\AXC{$(k_0, k_1) \sqsubseteq (k'_0, k'_1)$}
-\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{(k_0, k_1)}}$}
+\AXC{$\bnd{\llbracket b_0 \rrbracket} \leq \bnd{\llbracket b_1 \rrbracket}$}
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{b_0}}$}
 \RightLabel{(\bnd{Widen})}
-\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{(k'_0, k'_1)}}$}
+\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{b_1}}$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -428,12 +433,12 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
-\AXC{$\Delta \bdash b_0 : \textbf{bnd}$}
+\AXC{$\Delta \ \bdash \ b_0 : \textbf{bnd}$}
 \AXC{$\ldots$}
-\AXC{$\Delta \bdash b_c : \textbf{bnd}$}
-\AXC{$\textbf{iop}_c \in \Sigma_{\textbf{bnd}}$}
+\AXC{$\Delta \ \bdash \ b_n : \textbf{bnd}$}
+\AXC{$\textbf{bop} \in \Sigma_{\textbf{bnd}}$}
 \RightLabel{(\bnd{\text{Bop}})}
-\QIC{$\Delta \bdash \textbf{iop}_c(i_0, \ldots, i_c) : \textbf{bnd}$}
+\QIC{$\Delta \bdash \textbf{bop}(b_0, \ldots, b_n) : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -486,7 +491,7 @@ semantics.
 Evaluation contexts and the characteristic \textit{context rule} allow us to
 simplify reasoning about the rewrite relation, which we factor out into a
 separate lemma in our soundness proof. 
-Our rewrite relation has a restricted ability to step interval bounds and
+Our rewrite relation has a restricted ability to step bound expressions and
 eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 (2, 4)$.
 
@@ -494,8 +499,8 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 \begin{center}
 \begin{equation*}
 \begin{aligned}[c]
-  \mathbf{op} \ \bnd{\{i_0\}} \ \bnd{\{i_1\}} \ v &\mapsto op \ \bnd{\{i_0\}} \
-    \bnd{\{i_1\}} \ v \\
+  \mathbf{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \ v &\mapsto op \ \bnd{\{b_0\}} \
+    \bnd{\{b_1\}} \ v \\
 	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
 	(\lambda x.e) \ v &\mapsto e[v/x] \\
   \rnd k &\mapsto (k, \rho(k))
@@ -513,9 +518,9 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 	\mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  &\mapsto e_i[v/x]
    \\
   \factor ((v_1, v_2), (v_3, v_4)) &\mapsto ((v_1, v_3), (v_2, v_4)) \\
-  \textbf{iop}_c((k_0, k_1), \ldots) &\mapsto \textit{iop}_c((k_0, k_1) \ldots)
+  \textbf{bop}_c(c_0, \ldots, c_n) &\mapsto \textit{bop}_c(c_0, \ldots, c_n)
   \\
-  \Lambda \epsilon . e~{(k_0, k_1)} &\mapsto e[(k_0, k_1)/\epsilon] \\
+  \Lambda \epsilon . e~{c} &\mapsto e[c /\epsilon] \\
 \end{align*}
   \vskip -0.25em
   \RightLabel{(Context Rule)}
@@ -537,54 +542,46 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 \end{figure}
 
 % \subsection{Equivalence class of interval expressions.}
-\subsection{The lattice of interval expressions}
-For a given lattice $(\textit{num}, \leq)$ we build up to the definition of
-lattice over interval expression equivalence classes. 
-First we define \textit{concrete intervals}, which will serve as our canonical
-representative for each equivalence class:
+\subsection{The partial order of bounds} \label{sec:bexp}
+For a given partial order $(\bnd{\mathbb{B}}, \leq)$ we build up to the definition of
+lattice over bound equivalence classes. 
+First we call $\bnd{\mathbb{B}}$ our \textit{concrete bounds}, which will serve as our
+canonical representative for each equivalence class:
 
-\begin{definition}[Concrete intervals and lattice]
-  The set of concrete intervals $C$ are
-  $C \triangleq (k_0, k_1) \in \textit{num}^2$ where each 
-  $\bnd{\llbracket} (k_0, k_1) \bnd{\rrbracket} = 
-  \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \}$ 
-  equipped with the standard $\subseteq$ relation over sets.
-  Then, $(C, \subseteq)$ forms our concrete interval lattice.
-\end{definition}
-
-Each interval operation $\textbf{iop}$ of arity $n$ has a corresponding mathematical
-function $\textit{iop} : \textit{num}^n \to \textit{num}$. 
-We can now define our equivalence classes of closed \textit{interval expressions},
+Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
+mathematical function $\bnd{\textit{bop}} : \bnd{\mathbb{B}}^n \to
+\bnd{\mathbb{B}}$. 
+We can now define our equivalence classes of closed \textit{bound expressions},
 which we will use to define our logical relations over.
 
-\begin{definition}[Closed interval expressions]
-  An interval expression $b$ is a closed interval expression iff either:
+\begin{definition}[Closed bound expressions]
+  A bound expression $b$ is a closed bound expression iff either:
   \begin{itemize}
-    \item $b = (k_0, k_1)$; it's a constant
-    \item $b = \textbf{iop}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$ are all
-      closed interval expressions
+    \item $b = c \in \mathbb{B}$; it's a constant
+    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$ are all
+      closed bound expressions; it's made up of constants
   \end{itemize}
 \end{definition}
 
-\begin{definition}[Evaluation of closed interval
-  expressions] \label{def:interval-exp-eval}
-  For an interval expression $b$,
+\begin{definition}[Evaluation of closed bound
+  expressions] \label{def:bound-exp-eval}
+  For an bound expression $b$,
   \begin{equation}
     \begin{aligned}[c]
-      \bnd{\llbracket} (k_0, k_1) \bnd{\rrbracket} &\triangleq \{ k \ | \ \forall k \in \textit{num}, \ k_0 \leq k \leq k_1 \} \\
-      \bnd{\llbracket} \textbf{iop}(b_0, \ldots, b_n) \bnd{\rrbracket} &\triangleq \textit{iop}(b_0, \ldots, b_n)
+      \bnd{\llbracket} c \bnd{\rrbracket} &\triangleq c \\
+      \bnd{\llbracket} \bnd{\textbf{bop}}(b_0, \ldots, b_n) \bnd{\rrbracket} &\triangleq \textit{bop}(b_0, \ldots, b_n)
     \end{aligned}
   \end{equation}
 \end{definition}
 
-\begin{definition}[Interval expression equivalence class]
-  We inductively define our equivalence relation $\sim$ over closed interval
-  expressions $I$ based upon the underlying equality of the sets
-  $b_0 \sim b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} =  \bnd{\llbracket} b_0 \bnd{\rrbracket}$ 
+\begin{definition}[Bound expression equivalence class]
+  We inductively define our equivalence relation $\sim$ over closed bound
+  expressions $B$ based upon the underlying equality of the sets
+  $b_0 \sim b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$ 
 \end{definition}
 
 \begin{lemma}
-  $I, \sim$ form an equivalence class
+  $B, \sim$ form an equivalence class
 \end{lemma}
 \begin{proof}
   $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
@@ -592,10 +589,10 @@ which we will use to define our logical relations over.
 \end{proof}
 
 We are now ready to define a lattice structure over our the quotient space
-formed by our interval equivalence class $I / \sim$. We will later use this to
+formed by our interval equivalence class $B / \sim$. We will later use this to
 define our logical relation over these interval bound equivalence classes.
 
-\begin{definition}[Interval expression lattice]
+\begin{definition}[Bound expression partial order]
   $b_0 \subseteq b_1 \iff \llbracket b_0 \rrbracket \subseteq \llbracket b_1
   \rrbracket$.
   The $\subseteq$ relation clearly respects our equivalence relation $\sim$ by
@@ -605,7 +602,7 @@ define our logical relation over these interval bound equivalence classes.
 \subsection{Modular Interface} \label{sec:interface}
 To define the modular interface that enables sound instantiation of the
 Numerical Fuzz family of programming languages, we first define distances
-between intervals, expressions, vectors of expressions, and substitutions. This
+between bounds, expressions, vectors of expressions, and substitutions. This
 notation will be useful later for stating and proving type soundness. 
 
 Our syntactic definition for distance, $d_\tau$ and the distance between
@@ -623,8 +620,8 @@ syntactic values as follows:
     \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \infty &\text{ otherwise } \\
     \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w =
       \langle \rangle \\
-    \mathcal{SDV}_{\mathbf{num_{b}}}(k_0, k_1) &\triangleq 
-      d_\mathbf{num} &\text{ for } k_0, k_1 \in \llbracket b \rrbracket \\
+    \mathcal{SDV}_{\mathbf{num_{b}}}(c_0, c_1) &\triangleq 
+      d_\mathbf{num} &\text{ for } c_0, c_1 \in \llbracket b \rrbracket \\
     \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
       &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_0}(v_1, w_1))
     \\
@@ -684,9 +681,9 @@ e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
     ~\ldots,
     ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
     $$
-    where $\sigma_{\Delta}$ is a interval vector with no free varaibles.
+    where $\sigma_{\Delta}$ is a bound vector with no free variables.
     Note that the distance between expression vectors are undefined when the
-    interval vector $\sigma_{\Delta}$ differs between substitutions.
+    bound vector $\sigma_{\Delta}$ differs between substitutions.
 \end{definition}
 
 \begin{definition}[Enviroment compatibility.]
@@ -697,7 +694,8 @@ $x_0 : \tau_0, \ldots, x_n : \tau_n$
 if each term 
 $e_0 \in \mathcal{R}_{\tau_0~[\sigma_{\Delta}]}, 
 \ldots,
-e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by the interval vector $\sigma_{\Delta}$.
+e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by
+the bound vector $\sigma_{\Delta}$.
 \end{definition}
 
 \begin{definition}[Dot product of distance vectors.]
@@ -726,23 +724,23 @@ to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.
 \begin{definition}[Interface for instantiating Numerical Fuzz.]
   \label{def:numfuzz-interface}
-  The interface for Numerical Fuzz consists of ($\textit{num}$,
-  $\leq_{\textit{num}}$), $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
+  The interface for Numerical Fuzz consists of $\textit{num}$,
+  $(\mathbb{B}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
   $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
 \begin{description}
-  \item[a) The lattice (\textit{num}, $\leq$) and distance function $d_\textbf{num}$ form a
+  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
   metric space.]
   \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Property of $\mathbf{iop} \in \Sigma_{\bnd{bnd}}$: closure over intervals ($\textit{num}^2$).] We further need to
-    assume that for every operation $\mathbf{iop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
-    have that if $b_0, \ldots, b_n$ are closed interval expressions for any sequence of bounds $b_0, \ldots, b_n : \textbf{bnd}$ the
-    corresponding metalevel function will actually map concrete bounds to concrete bounds
-    where 
-    $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
+  \item[c) Partial order.] $(\mathbb{B}, \leq)$ form a partial order.
+  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\textit{num}^2$).] 
+    We further need to assume that for every operation $\mathbf{bop}(b_0,
+    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
+    \mathbb{B}$ are
+    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
     holds.
-  \item[d) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
+  \item[e) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
     \footnote{Note that we could make this portion of the interface more general
     by definining it in terms of the logical relation in
     Section~\ref{sec:logical-relation}. We have opted to
@@ -751,10 +749,10 @@ soundness theorems to follow.
     We also assume that for every operation has the following shape with no free
     type variables
     $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$ 
-    where for the corresponding $\textit{op} \ \bnd{\{i_0\}} \ \bnd{\{i_1\}} \
-    v$ for all $\bnd{i_0}, \bnd{i_1} \in \mathbb{\textit{num}}^2$ 
+    where for the corresponding $\textit{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \
+    v$ for all $\bnd{b_0}, \bnd{b_1} \in \mathbb{B}$ 
     and for all v mapping bounds and syntactic values in
-    $(\tau_0 \to \tau_1)[i_0 / \epsilon_0, i_1 / \epsilon_1]$
+    $(\tau_0 \to \tau_1)[b_0 / \epsilon_0, b_1 / \epsilon_1]$
     is 1-sensitive as measured by $\mathcal{SD}$.
 
     % $\mathcal{VR}_{\tau}$ where 
@@ -1021,7 +1019,7 @@ The below lemma is useful towards proving metric preservation:
   Unit, Const) follow trivially. The subsumption and widening cases also follow
   trivially. We detail the remaining cases here. Note that the distance between
   $\textbf{bnd}$ vars in $\Delta$ is $\infty$ if they correspond to different
-  intervals. Therefore for the following cases, we omit reptitively reasoning
+  bounds. Therefore for the following cases, we omit reptitively reasoning
   about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
