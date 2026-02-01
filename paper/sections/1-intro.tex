@@ -165,11 +165,14 @@ Concretely, our contributions are as follows:
 
   \item We instantiate Numerical Fuzz to use a \textit{paired representation}
     that allows for subtraction and negative numbers to be soundly represented
-    in a finitely-sensitive manner (Section~\ref{sec:instantiation}). We prove
-    that error types can be used to provide both \textit{a priori} and \textit{a
-    posterori} compositional error bounds in the presence of subtraction and
-    negative numbers (Section~\ref{sec:application}). We provide an abstract
-    domain to statically reason about our paired represenation.
+    in a finitely-sensitive manner (Section~\ref{sec:instantiation}). 
+    We instantiate our bounds domain to reason about our paired represenation.
+    We provide error soundness theorems to allow the type to be understood in
+    terms of floating-point error on the standard, unpaired program
+    representation.
+    % TODO: how do we show that this is non-trivial without talking too much
+    % about type inference and bound polymorphism. does this do the job? feels a
+    % bit understated here
 
     % todo: some claim about novelty is needed to put this contribution in context
     % to develop the first type-based approach to forwards error analysis that
@@ -177,6 +180,10 @@ Concretely, our contributions are as follows:
     % Our instantiation relies on a \textit{paired numeric representation}. 
     % To our knowledge, our approach is the first automatic general-purpose
     % numerical analysis that can produce usable \textit{a posteori} error bounds.
+    
+    % We prove that error types can be used to provide both \textit{a priori} and
+    % \textit{a posterori} compositional error bounds in the presence of
+    % subtraction and negative numbers (Section~\ref{sec:application}). 
 
   \item We improve the expressiveness of Numerical Fuzz by allowing allowing
     error grades and sensitivities in rounded terms to be shared. This enables

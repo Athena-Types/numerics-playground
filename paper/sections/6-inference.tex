@@ -181,9 +181,9 @@ typing context $\Gamma$ with sensitivity information and fully annotated program
 e and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
 is derivable for some $\Delta$ (our soundness criterion). We start type
-inference by passing the empty context (written ".``), along with the bound-erased
-program (written $e^{\bnd{\bullet}}$) to the inference algorithm detailed in
-Figure~\ref{fig:inference-algo}. 
+inference by passing the empty context (written ``."), along with the
+bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
+detailed in Figure~\ref{fig:inference-algo}. 
 Finally, we evaluate our bound expressions using the $\llbracket - \rrbracket$
 evaluation map defined over types.
 
@@ -200,9 +200,9 @@ Conceptually, our type inference algorithm does three things:
 
   \item Finally, we evaluate our bound expresions via $\llbracket - \rrbracket$. 
 \end{enumerate}
-We present our type inference algorithm in Figure~\ref{fig:inference-algo} as a
-combined algorithm where the sensitivities and bounds are inferred
-simultaneously in one pass.
+We present our syntax-directed type inference algorithm in
+Figure~\ref{fig:inference-algo} as a combined algorithm where the sensitivities
+and bounds are inferred simultaneously in one pass.
 We prove the soundness of the fused sensitivity-and-bound pass in
 Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
 inference algorithm. 
