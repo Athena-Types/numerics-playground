@@ -1,36 +1,25 @@
 \section{Type inference} \label{sec:inference}
-% Similar to our language syntax and semantics, our type inference approach is
-% also modular. We parametrize our algorithm by an injection function mapping
-% from our concrete domain $\textit{num}$ to intervals: $inj : \textit{num} \to
-% \textit{num}^2$. 
-% We only constrain $inj$ to be closed:
-% \begin{definition}[$inj$ is closed.] \label{def:inj-closed}
-% For all $k \in \textit{num}$, $k \in inj(k)$.
-% \end{definition}
-%
-% We also need an abstract transformer $-^{\#}$ lifting operations to operations on
-% their abstract domain such that every concrete result possible falls within the
-% abstract domain.
-%
-% % todo: state missing correctness property of our abstract transformer, setup
-% % galois connection
-%
-% \subsection{Problem setup}
-Users write programs in \Lang, without sensitivities or bound polymorphism. We
-compute the type sensitivity and inference analysis developed in
-\cite{numfuzz}, extended to our core language without bound polymorphism.
+Full typing derivations can be seen as maps from variables to pairs of
+sensitivities and types with interval bounds. This can be cumbersome to manually
+annotate.
+
+Therefore, we introduce a type inference algorithm that allows users to write
+programs in \Lang, without sensitivities or bound polymorphism. We compute the
+type sensitivity and inference analysis developed in \cite{numfuzz}, extended to
+our core language without bound polymorphism.
+
 At the same time, we also automatically infer polymorphic bound annotations to
-generate a valid typing derivation of the program in \bnd{\Lang}.
+generate a valid typing derivation of the program in \bnd{\Lang}. To define the
+type inference problem, we first define a sensitivity erasure $-^{bullet}$ over
+typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over types and terms. We
+will then define type inference as inferring sensitivities and bounds over
+erased, well-typed terms.
 
-To define the type inference problem, we first define two erasure operations
-over terms, types and contexts. Full typing contexts can be seen as maps from
-variables to pairs of sensitivities and types. We will then define type
-inference as inferring sensitivities and bound over erased, well-typed terms.
-
-\begin{definition}[Sensitivity and round-off erasure]
+\begin{definition}[Sensitivity erasure]
 For a fully annotated typing context $\Gamma$, a fully erased typing context
-$\Gamma^{\bullet} = \Gamma \circ (map \ \pi_2)$ with all sensitivity and
-round-off information erased.
+$\Gamma^{\bnd{\bullet}} = \Gamma \circ (map \ \pi_2)$ with all sensitivity and
+information erased.
+% TODO: find a better way to define sensitivty erasure 
 \end{definition}
 
 \begin{definition}[Bound erasure]
@@ -54,6 +43,7 @@ We similarly define an erasure operation for terms:
 (e \{ i \})^{\bnd{\bullet}} &\triangleq e  \\
 (\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e \\
 e^{\bnd{\bullet}} &\triangleq e &\text{otherwise} 
+% TODO: missing cases (otherwise is not correct)
 \end{aligned}
 \end{equation}
 \end{definition}
@@ -65,12 +55,12 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 
 \subsection{Subtyping and supertyping}
 Before we provide the algorithm, we extend the subtyping and supertyping
-relations in Numerical Fuzz. In particular, we add the following cases to
-deal with bounds and bound polymoprhism. 
+relations used in Numerical Fuzz for type inference. In particular, we add the
+following cases to deal with bounds and bound polymoprhism.
 $$
 \begin{aligned}[c]
-  \textbf{num}_{(k_0, k_1)} \sqsubseteq \textbf{num}_{(k'_0, k'_1)} &\triangleq 
-k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
+  \textbf{num}_{b_0} \sqsubseteq \textbf{num}_{b'_0} &\triangleq b_0 \leq b'_0
+  \\
   \textbf{num}_{i} \sqsubseteq \textbf{num}_{i'} &\triangleq \forall i :
   \Delta, \textbf{num}_{i}~[\sigma] \sqsubseteq \textbf{num}_{i'}~[\sigma] \\
   \forall \epsilon_0. \tau \sqsubseteq \forall \epsilon_1. \tau' &\triangleq 
@@ -78,6 +68,7 @@ k'_0 \leq k_0 \leq k_1 \leq k'_1 \\
 \end{aligned}
 $$
 the remaining cases are unchanged and listed in Figure~\ref{fig:sub_ty}.
+% TODO: consider combining / inlining
 
 \begin{figure}[htbp]
 $$
@@ -138,19 +129,22 @@ $$
 \end{figure}
 
 \begin{theorem}[Admissibility of subtyping] \label{thm:subtyping}
-  The typing judgement $\Delta \ | \ \Gamma \vdash e : \tau$ is derivable if
-  $\Delta \ | \ \Gamma \vdash e : \tau'$ has a derivation and $\tau \sqsubseteq
-  \tau'$.
+  If $\Delta \ | \ \Gamma \vdash e : \tau$ has a derivation 
+  and $\tau' \sqsubseteq \tau'$
+  then typing judgement $\Delta \ | \ \Gamma \vdash e : \tau'$ is derivable.
 \end{theorem}
 \begin{proof}
+% TODO: inline NumFuzz proof
   The admissibility of subtyping mostly follows from the proof in
   \cite{numfuzz}.
   We detail the new cases that are not immediate below:
   \begin{description}
     \item[Case (Widen).] Corresponds to the new \textbf{num} cases we added to
       the subtyping relation. 
+      % TODO: spell out more
     \item[Case $\forall \epsilon_0 . \tau$.] Follows from application of the
       inductive hypothesis.
+      % TODO: spell out more
   \end{description}
   and the new interval widening rule in our type
   system, which corresponds to the $\textbf{num}$ subtyping case. 
@@ -165,32 +159,35 @@ We are now ready to define the type inference algorithm. Our type inference
 algorithm has the following shape:
 $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
 where we start a program with a typing context $\Gamma^{\bullet}$ that has
-erased sensitivity information (but with bound variables) and an erased program
-$e^{\bnd{\bullet}}$ with no polymorphic bounds, and produces a typing context
-$\Gamma$ with sensitivity information and fully annotated program e and type
-$\tau$ such that
+erased sensitivity information (but with polymorphic bound variables) and an
+erased program $e^{\bnd{\bullet}}$ with no polymorphic bounds, and produces a
+typing context $\Gamma$ with sensitivity information and fully annotated program
+e and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
 is derivable for some $\Delta$ (our soundness criterion). We start type
-inference by passing the empty context (written .), along with the bound-erased
+inference by passing the empty context (written ".``), along with the bound-erased
 program (written $e^{\bnd{\bullet}}$) to the inference algorithm detailed in
-Figure~\ref{fig:inference-algo}. Finally, we evaluate our lifted interval
-operations (if they exist) until they get suck.
+Figure~\ref{fig:inference-algo}. 
+Finally, we evaluate our bound expressions using the $\llbracket - \rrbracket$
+evaluation map defined over types.
 
 Conceptually, our type inference algorithm does three things: 
 \begin{enumerate}
-  \item We infer sensitivities via the type inference algorithm provided in
-    \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
+  \item First, we infer sensitivities via the type inference algorithm provided
+    in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
     and interval bounds as well as support expressions in greater places.
 
-  \item We infer bounds. During bound inference, we rely on helper functions $I$
-    and $E$ (Figure~\label{fig:helper_type_inference}) to automatically
-    instantiate and eliminate bound variables.
+  \item At the same time as our sensitivity inference, we infer our bounds. We
+    rely on helper functions $I$ and $E$
+    (Figure~\label{fig:helper_type_inference}) to automatically instantiate and
+    eliminate polymorphic bound variables. 
 
-  \item We compute our interval operations via $\llbracket - \rrbracket$. The output of bound inference may
+  \item Finally, we compute our interval operations via $\llbracket - \rrbracket$. The output of bound inference may
     produce interval expressions that can be further reduced.
 \end{enumerate}
 We present our type inference algorithm in Figure~\ref{fig:inference-algo} as a
-combined algorithm where the sensitivities and bounds are inferred in one pass.
+combined algorithm where the sensitivities and bounds are inferred
+simultaneously in one pass.
 We prove the soundness of the fused sensitivity-and-bound pass in
 Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
 inference algorithm. 
@@ -311,7 +308,9 @@ relations argument.
 \bottomAlignProof
 \DisplayProof
 \end{center}
-    \caption{Ancillary functions for defining algorithmic type inference.}
+    \caption{Ancillary functions defining algorithmic type inference. I
+    introduces bounds for an type with erased bounds. E extracts the bounds used
+  in an unerased type.}
     \label{fig:helper_type_inference}
 \end{figure}
 
@@ -346,7 +345,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 %% bang intro
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
 \RightLabel{($!$ I)}
-\UIC{$\Gamma^{\bullet}; [e]_{\annotate{s}}^{\bnd{\bullet}} \implies s
+\UIC{$\Gamma^{\bullet}; [e]_{\annotate{s}}^{\bnd{\bullet}} \implies \annotate{s}
 * \Gamma'; [e']_{\annotate{s}}; !_s~\tau$}
 \bottomAlignProof
 \DisplayProof
@@ -516,15 +515,6 @@ $}
     \label{fig:type_inference}
 \end{figure}
 
-\begin{lemma}[Elimination between $I$ and $E$.]
-Pick some type $\tau$.
-Let $\tau'; \epsilon_0, \ldots, \epsilon_n = I(\tau^{\bnd{\bullet}})$.
-Let $i_0, \ldots i_n = E(\tau)$.
-Then, $\tau = \tau'[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
-\end{lemma}
-\begin{proof}
-Holds by induction over types.
-\end{proof}
 
 \begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
   For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
@@ -534,16 +524,16 @@ Holds by induction over types.
   By induction over the $\vdash$ relation.
 \end{proof}
 
-\begin{lemma}[Free vars in $I$.] \label{thm:free-var-i}
-  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \cdots \epsilon_n$, we have
-  that $FTV(\tau') = \{ \epsilon_0, \cdots, \epsilon_n \}$.
+\begin{lemma}[Free vars in I.] \label{thm:free-var-i}
+  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \ldots \epsilon_n$, we have
+  that $FTV(\tau') = \{ \epsilon_0, \ldots, \epsilon_n \}$.
 \end{lemma}
 \begin{proof}
   By induction over the definition of $I$.
 \end{proof}
 
 \begin{lemma}[Well-formedness of intervals produced by $E$.] \label{thm:wff-var-e}
-  For any types $\tau$, $E(\tau) \to i_0, \cdots, i_n$ means that for every
+  For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
   $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
 \end{lemma}
 \begin{proof}
@@ -552,6 +542,18 @@ Holds by induction over types.
   the proof by induction over $\tau$.
 \end{proof}
 
+Now we are able to prove the soundness of our type inference algorithm. Note
+that if the ordering of the variables produced by the I and E helper functions
+do not align, the subtyping check in the $\multimap$ E case will fail. This
+means that the choice of ordering is not essential for our soundness proof but
+would be relevant for a completeness argument.
+
+Note that we have that $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and
+$e^{\bnd{\bullet}} = e'^{\bnd{\bullet}}$ as we do not prove that our type
+inferencde algorithm infers the tightest possible sensitivity or round-off
+grades.
+% TODO: prove that we infer the tighest possible sens + round-off error grades
+% (or provide counterexample).
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
 If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there is
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
@@ -564,43 +566,47 @@ We induct over each typing / case in the type inference algorithm.
   \item[$\textbf{unit}$.] Holds trivially.
   \item[Var.] Holds trivially.
   \item[Const.] Holds trivially. 
-  \item[! I.] Holds trivially.
+  % TODO: spell out delta
+  \item[! I.] Holds trivially. Note that our sensitivity scaling factor
+    $\annotate{s}$ is user-annotated.
   \item[$\multimap$ I.] By our inductive hypothesis, we know that there exists a
     $\Delta'$ such that we have a typing derivation $d$ for 
     $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
-    We wish for each $\epsilon_0, \cdots , \epsilon_n$ to apply our
-    $\forall I$ rule to $d$. 
+    We wish for each $\epsilon_0, \ldots , \epsilon_n$ to apply our
+    $\forall$ I rule to $d$. 
     \par\bigskip
-
-    For all $i$ (each application), we must satisfy that
+    For each application of our $\forall$ I rule using variable $\epsilon_i$, we
+    must satisfy that:
     (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$.
-    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \cdots, \epsilon_n\}$ by
+
+    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \ldots, \epsilon_n\}$ by
     Lemma~\ref{thm:free-var-i}. 
     Then, we have that $\Delta \subseteq \Delta'$ by
-    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \cdots,
+    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \ldots,
     \epsilon_n \not\in \Delta'$.
     We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
     generates fresh vars. 
-    So both of our two conditions have been satisifed.
+    So both of our two conditions have been satisifed for all $\epsilon_i$.
   \item[$\multimap$ E.] By our inductive hypothesis, we know that there exist
     derivations:
     \begin{itemize}
       \item $d_0$ where $\Delta' \ | \ \Gamma' \vdash f : \forall
-        \epsilon_0, \cdots, \epsilon_n, \tau_0 \multimap \tau$
+        \epsilon_0, \ldots, \epsilon_n, \tau_0 \multimap \tau$
       \item $d_1$ where $\Delta'' \ | \ \Theta \vdash e : \tau_0'$
     \end{itemize}
-    Note that $\epsilon_0, \cdots, \epsilon_n$ are fresh from $\Delta''$ as each
-    $\epsilon$ generated is globally fresh in our type inference algo.
+    Note that $\epsilon_0, \ldots, \epsilon_n$ are fresh from $\Delta''$ as each
+    $\epsilon$ generated is globally fresh in our type inference algorithm.
     \par\bigskip
+  % TODO: spell out delta
 
     By weakening on our inductive hypothesis, we have a derivation for $\Delta \
-    | \ \Theta \vdash e : \tau_0[\epsilon_0 / i_0, \cdots, \epsilon_n / i_n]$.
+    | \ \Theta \vdash e : \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
     Then we are able to iteratively apply the $\forall \text{ E}$ typing rule to
     our derivation $d_0$ for each
-    $\epsilon_0, \cdots, \epsilon_n$, obtaining
+    $\epsilon_0, \ldots, \epsilon_n$, obtaining
     us the following intermediate typing derivation $d_3$: 
-    $\Delta' - \{\epsilon_0, \cdots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
-    \vdash f' \ \{i_0\} \cdots \{i_n\} : 
+    $\Delta' - \{\epsilon_0, \ldots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
+    \vdash f' \ \{i_0\} \ldots \{i_n\} : 
     (\tau_0 \multimap \tau) [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ 
     whose type is the same as the following
     $\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \multimap \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
@@ -616,7 +622,7 @@ We induct over each typing / case in the type inference algorithm.
     each proof obligation.
     Now we are ready to apply our $\multimap E$ typing rule with derivation
     $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
-    \cdots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
+    \ldots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
   \item[Op.] Holds trivially.
   \item[Factor.] Holds trivially.
   \item[Ret.] Holds trivially.
@@ -629,7 +635,6 @@ We induct over each typing / case in the type inference algorithm.
     judgement:
     $\Delta_0 \cup \Delta_1 \ | \ \text{max}(\Gamma_0, \Gamma_1) \vdash \langle
     f', e' \rangle; \tau_0 \times \tau_1$ which completes the case.
-  \item[$\times$ E.] Holds trivially.
   \item[$\times$ E.] Holds trivially.
   \item[$\otimes$ I.] Holds trivially.
   \item[Let.] Holds trivially.

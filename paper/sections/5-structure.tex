@@ -10,7 +10,7 @@ Consider the following two ways to associate this expression:
     structure of a linked-list. Error terms grow in $O(n)$, where $n$ is the
     number of subterms: $$((w \tilde{+} x) \tilde{+} y) \tilde{+} z$$
   \item[The balanced tree way.] The abstract syntax tree represents a balanced
-    binary tree. Error terms grow in $O(ln(n))$. $$(w \tilde{+} x) \tilde{+} (y
+    binary tree. Error terms grow in $O(ln(n))$: $$(w \tilde{+} x) \tilde{+} (y
     \tilde{+} z)$$
 \end{description}
 It is clear from this example that the clever user may wish to structure and
@@ -204,117 +204,117 @@ are derivable.
 
 We now explore the interaction between $\textbf{factor}$ and subtraction. TODO??
 
-\subsection{Automatic inference of factor}
-We now describe an automatic program transformation $\textsc{factorize}$ that
-can insert $\textbf{factor}$ in a program that is strictly sequenced without
-$\textbf{factor}$. We assume that each variable is unique (no shadowing).
-
-We first recusively transform the program so that it is in administrative normal
-form. In particular, we desire that every application is of an
-expression to a variable (e.g. $e \ x$) or operation to a variable (e.g.
-$\textbf{op} \ y$). 
-% The non-structural cases of the transformation are provided below:
+% \subsection{Automatic inference of factor}
+% We now describe an automatic program transformation $\textsc{factorize}$ that
+% can insert $\textbf{factor}$ in a program that is strictly sequenced without
+% $\textbf{factor}$. We assume that each variable is unique (no shadowing).
+%
+% We first recusively transform the program so that it is in administrative normal
+% form. In particular, we desire that every application is of an
+% expression to a variable (e.g. $e \ x$) or operation to a variable (e.g.
+% $\textbf{op} \ y$). 
+% % The non-structural cases of the transformation are provided below:
+% %
+% % \begin{equation}
+% %   \begin{aligned}[c]
+% %     \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
+% %     \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
+% %   \end{aligned}
+% % \end{equation}
+%
+% Now, we we can define $\textsc{factorize}$, which syntatically operates on pairs
+% of well-typed programs in adminstrative normal form and \textit{monadic maps}
+% $\sigma$, which maps variables to expressions of monadic type. These maps behave
+% similarly to substutiton maps. $\textsc{transform}$ returns the transformed
+% program fragment and sets of variables that have been used by factor. It has
+% type:
+% % max: hmm this last part doesn't quite make sense wrt sets of vars
+% $$
+% \textsc{factorize} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
+% (\text{program} \times \text{sets of variables})
+% $$
+%
+% % By default, for all variables $x$, $\sigma[x] = x$ if $x$ is not
+% % otherwise defined in $\sigma$.
+%
+% % \begin{equation}
+% %   \textsc{factorize}(e) = \textsc{sequence}(\textsc{factorize-rec}(e, \emptyset))
+% % \end{equation}
+%
+% We use $V$ as a metavariable to represent a set of variables. We first detail
+% the interesting cases for our program transformation:
 %
 % \begin{equation}
-%   \begin{aligned}[c]
-%     \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
-%     \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
+% \begin{aligned}[c]
+%   \textsc{factorize}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V) \ = (\textsc{factorize}(f, \sigma;[x \mapsto \text{fst} \ \textsc{factorize}(e, \sigma)])) \ \text{in} \\
+%     \text{if} \ x \in V \\
+%     \text{then} \ (g, V) \\
+%     \text{else} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V \cup \{x\})\\
+%   \text{(if x only occurs once in f)}
+%   \end{aligned}
+%   \\
+%   \\
+%   \textsc{factorize}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V) = \textsc{factorize}(f, \sigma) \ \text{in}\\
+%     \text{if} \ x, y \in DOM(\sigma) \\
+%     \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
+%     \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
+%     V) \\
+%   \end{aligned} \\
+%   \\
+%   \textsc{factorize}(e \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V_0) = \textsc{factorize}(e, \sigma) \ \text{in}\\
+%     \text{let} \ (h, V_1) = \textsc{factorize}(f, \sigma) \ \text{in}\\
+%     (g \ h, V_0 \cup V_1)
+%   \end{aligned} \\
+% \end{aligned}
+% \end{equation}
+% Now, we detail our base case for variables:
+% \begin{equation}
+%   \begin{aligned}
+%     \textsc{factorize}(x, \sigma) &= (x, \{\})
 %   \end{aligned}
 % \end{equation}
-
-Now, we we can define $\textsc{factorize}$, which syntatically operates on pairs
-of well-typed programs in adminstrative normal form and \textit{monadic maps}
-$\sigma$, which maps variables to expressions of monadic type. These maps behave
-similarly to substutiton maps. $\textsc{transform}$ returns the transformed
-program fragment and sets of variables that have been used by factor. It has
-type:
-% max: hmm this last part doesn't quite make sense wrt sets of vars
-$$
-\textsc{factorize} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
-(\text{program} \times \text{sets of variables})
-$$
-
-% By default, for all variables $x$, $\sigma[x] = x$ if $x$ is not
-% otherwise defined in $\sigma$.
-
+% and our base case for constants:
 % \begin{equation}
-%   \textsc{factorize}(e) = \textsc{sequence}(\textsc{factorize-rec}(e, \emptyset))
+%   \begin{aligned}
+%     \textsc{factorize}(k, \sigma) &= (k, \{\})
+%   \end{aligned}
 % \end{equation}
-
-We use $V$ as a metavariable to represent a set of variables. We first detail
-the interesting cases for our program transformation:
-
-\begin{equation}
-\begin{aligned}[c]
-  \textsc{factorize}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
-  \begin{aligned}
-    \text{let} \ (g, V) \ = (\textsc{factorize}(f, \sigma;[x \mapsto \text{fst} \ \textsc{factorize}(e, \sigma)])) \ \text{in} \\
-    \text{if} \ x \in V \\
-    \text{then} \ (g, V) \\
-    \text{else} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V \cup \{x\})\\
-  \text{(if x only occurs once in f)}
-  \end{aligned}
-  \\
-  \\
-  \textsc{factorize}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
-  \begin{aligned}
-    \text{let} \ (g, V) = \textsc{factorize}(f, \sigma) \ \text{in}\\
-    \text{if} \ x, y \in DOM(\sigma) \\
-    \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
-    \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
-    V) \\
-  \end{aligned} \\
-  \\
-  \textsc{factorize}(e \ f, \sigma) &= 
-  \begin{aligned}
-    \text{let} \ (g, V_0) = \textsc{factorize}(e, \sigma) \ \text{in}\\
-    \text{let} \ (h, V_1) = \textsc{factorize}(f, \sigma) \ \text{in}\\
-    (g \ h, V_0 \cup V_1)
-  \end{aligned} \\
-\end{aligned}
-\end{equation}
-Now, we detail our base case for variables:
-\begin{equation}
-  \begin{aligned}
-    \textsc{factorize}(x, \sigma) &= (x, \{\})
-  \end{aligned}
-\end{equation}
-and our base case for constants:
-\begin{equation}
-  \begin{aligned}
-    \textsc{factorize}(k, \sigma) &= (k, \{\})
-  \end{aligned}
-\end{equation}
-The remainder of the rules are recursive and structural. Invoking the program
-transformation on a well-typed program transformation $. \vdash e : \tau$
-can be done by calling: $\textsc{factorize} ~ e ~ \emptyset$.
-
-\subsubsection{Program transformation properties}
-We now wish to prove that our program transformation is sound and never results
-in looser error bounds.
-\begin{theorem}[Factorization soundness]
-  For any program $. \vdash e : \tau$ and $(e', \sigma) = \textsc{factorize} \ e \
-  \emptyset$, we have that $. \vdash e' : \tau'$ where $\tau' \subseteq \tau$.
-\end{theorem}
-\begin{proof}
-  We first generalize the hypothesis to be over all typing contexts $\Gamma$.
-  We induct over the typing derivation. 
-  We strengthen the inductive hypothesis with the assumption that our map
-  $\sigma: \text{var} \rightharpoonup \text{program}$ only maps variables $x_0,
-  x_1, x_n$ defined in the typing context $\Gamma$ such that $\Gamma \vdash
-  \sigma[x] : M_u \ \Gamma[x]$ is well-typed and a output guarantee that for all
-  $x \in DOM(\sigma)$:
-  \begin{enumerate}
-    \item If $x \in \sigma$, $\Gamma \vdash e' : \tau'$ for $\tau' \subseteq
-      \tau$ (substitution occured with \textbf{factor}).
-    \item If $x \not\in \sigma$, $\Gamma, x : \tau \vdash e' : \tau'$ for $\tau' \subseteq
-      \tau$ (substitution did not occur, revert).
-  \end{enumerate}
-  We proceed with our induction: 
-  \begin{description}
-    \item[Base cases (variables, constants, etc.).] Holds trivially as the
-      transformation does nothing.
-    \item[Let.] TODO.
-    \item[Let-bind ($M_u E$).] TODO.
-  \end{description}
-\end{proof}
+% The remainder of the rules are recursive and structural. Invoking the program
+% transformation on a well-typed program transformation $. \vdash e : \tau$
+% can be done by calling: $\textsc{factorize} ~ e ~ \emptyset$.
+%
+% \subsubsection{Program transformation properties}
+% We now wish to prove that our program transformation is sound and never results
+% in looser error bounds.
+% \begin{theorem}[Factorization soundness]
+%   For any program $. \vdash e : \tau$ and $(e', \sigma) = \textsc{factorize} \ e \
+%   \emptyset$, we have that $. \vdash e' : \tau'$ where $\tau' \subseteq \tau$.
+% \end{theorem}
+% \begin{proof}
+%   We first generalize the hypothesis to be over all typing contexts $\Gamma$.
+%   We induct over the typing derivation. 
+%   We strengthen the inductive hypothesis with the assumption that our map
+%   $\sigma: \text{var} \rightharpoonup \text{program}$ only maps variables $x_0,
+%   x_1, x_n$ defined in the typing context $\Gamma$ such that $\Gamma \vdash
+%   \sigma[x] : M_u \ \Gamma[x]$ is well-typed and a output guarantee that for all
+%   $x \in DOM(\sigma)$:
+%   \begin{enumerate}
+%     \item If $x \in \sigma$, $\Gamma \vdash e' : \tau'$ for $\tau' \subseteq
+%       \tau$ (substitution occured with \textbf{factor}).
+%     \item If $x \not\in \sigma$, $\Gamma, x : \tau \vdash e' : \tau'$ for $\tau' \subseteq
+%       \tau$ (substitution did not occur, revert).
+%   \end{enumerate}
+%   We proceed with our induction: 
+%   \begin{description}
+%     \item[Base cases (variables, constants, etc.).] Holds trivially as the
+%       transformation does nothing.
+%     \item[Let.] TODO.
+%     \item[Let-bind ($M_u E$).] TODO.
+%   \end{description}
+% \end{proof}
