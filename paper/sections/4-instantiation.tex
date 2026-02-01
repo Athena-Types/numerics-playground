@@ -20,8 +20,8 @@ representation} where we associate for each real $r \in \mathbb{R}$ a lattice of
 triples
 $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ \triangleq \mathbb{P} = \mathit{num}$ 
 under the $\leq$ relation over the first component
-such that $r = a - b$. We equip our set $\mathbb{P}$ with a distance functionn
-$d_{\textit{num}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b}))$ forming a metric
+such that $r = a - b$. We equip our set $\mathbb{P}$ with a distance function
+$d_{\textit{num}}((r, a, b)(r', a', b'))$ forming a metric
 space.
 To soundly use our encoding, we must show it satisfies the correctness
 properties demanded by the modular interface defined in
@@ -48,20 +48,37 @@ problem of infinite sensitivity.
 
 Our bounds analysis is inspired by interval analysis. For a concrete tuple 
 $(r, a, b) \in \mathbb{P}$
-we track seven things:
+we track using our set of bound $\bnd{\mathbb{B}}$ seven things:
 $((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
 (b^{\downarrow}, b^{\uparrow}), d)$
-with the following constraints
+under the following constraints
 \begin{enumerate}
   \item Lower and upper bounds on $r$, with the following constraints $r^{\uparrow} \leq r \leq r^{\downarrow}$
   \item Lower and upper bounds on $a$, with the following constraints $a^{\uparrow} \leq a \leq a^{\downarrow}$
   \item Lower and upper bounds on $b$, with the following constraints $b^{\uparrow} \leq b \leq b^{\downarrow}$
   \item A boolean $d$ tracking whether the condition $a > 0 \land b > 0$ is true.
 \end{enumerate}
+Accordingly, we define our $\bnd{\llbracket - \rrbracket}$ evaluation function:
+\begin{equation}
+  \begin{aligned}[c]
+  \bnd{\llbracket} ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \bnd{\rrbracket} 
+    = \\ \{ (r, a, b) \ | \
+    (r^{\downarrow} \leq r \leq r^{\uparrow}) \land
+      (a^{\downarrow} \leq a \leq a^{\uparrow}) 
+      \land (b^{\downarrow} \leq b \leq b^{\uparrow})
+      \land ((a > 0 \land b > 0) = d) \\
+    \forall (r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+\}
+  \end{aligned}
+\end{equation}
+Our $\leq$ relation over $\mathbb{B}$ is simply the $\subseteq$ relation over
+the interpretation of each bound:
+\begin{definition}[$\leq$ over $\mathbb{B}$.]
+  $b_0 \leq b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} \subseteq
+  \bnd{\llbracket} b_1 \bnd{\rrbracket}$
+\end{definition}
 
-We instantiate the modular interface with the interval operations 
-$\Sigma = \{ \textbf{add}, \ \textbf{add}, \ \textbf{mul} \}$ with the following
-types:
+We instantiate the modular interface with the interval operations $\Sigma = \{
+\textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$ with the following types:
 \begin{equation}
 \begin{aligned}[c]
   &\textbf{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
@@ -81,27 +98,40 @@ types:
 \end{aligned}
 \end{equation}
 Our binary interval operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$ mapping
-$\mathbb{P} \times \mathbb{P} \to \mathbb{P}$ as follows:
+$\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$ as follows:
 \begin{equation}
   \begin{aligned}[c]
-    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) + 
-    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
-    ((r^{\downarrow} + r'^{\downarrow}, a^{\downarrow} + a'^{\downarrow}, b^{\downarrow} + b'^{\downarrow}), \\
-      & \quad \quad
-      (r^{\uparrow} + r'^{\uparrow}, a^{\uparrow} + a'^{\uparrow}, b^{\uparrow} + b'^{\uparrow})) \\
-    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) - 
-    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
-    ((r^{\downarrow}_{sub} - r'^{\uparrow}, a^{\downarrow} + b'^{\downarrow}, b^{\downarrow} + a'^{\downarrow}), \\
-      & \quad \quad
-      (r^{\uparrow}_{sub} - r'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}, b^{\uparrow} + a'^{\uparrow})) \\
+    ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) + 
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    &= \\
+    ((r^{\downarrow}_{add}, 
+    r^{\uparrow}_{add}), 
+      (a^{\downarrow} + a'^{\downarrow}, 
+      a^{\uparrow} + a'^{\uparrow}),
+      (b^{\downarrow} + b'^{\downarrow},
+      b^{\uparrow} + b'^{\uparrow}),
+      TODO) \\
+    ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) -
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    &= \\
+    ((r^{\downarrow}_{sub}, r^{\uparrow}_{sub}),
+    (a^{\downarrow} + b'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}),
+    (b^{\downarrow} + a'^{\downarrow}, b^{\uparrow} + a'^{\uparrow}),
+    TODO
+    ), \\
     ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
-    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) &=
-    ((r^{\downarrow}_{mul}, a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}), \\ 
-      & \quad \quad
-      (r^{\uparrow}_{mul}, a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow}, a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow})) \\
+    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) 
+    &= \\
+    ((r^{\downarrow}_{mul}, r^{\uparrow}_{mul}),
+    (a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, 
+    a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow}), 
+    (a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}, 
+    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow}), TODO) \\ 
   \end{aligned}
 \end{equation}
 where 
+$$r^{\downarrow}_{add} = min(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+$$r^{\uparrow}_{add} = max(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
@@ -124,7 +154,7 @@ the same unit round-off constant as the original rounding function over the
 unpaired representation:
 \begin{lemma}[Property of rounding and constant parameter $u$]
 We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
-    $\forall e \in d_\mathbb{R} (\rho(e), e) \leq u$, then
+$\forall r \in \mathbb{R}, d_\mathbb{R} (\rho(r), r) \leq u$, then
     $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
     \leq u$. 
 \end{lemma}
@@ -139,19 +169,31 @@ d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
 $.
 \end{proof}
 
-Our interval operations are closed over intervals ($\mathbb{P}^2$).
-\begin{lemma}[Interval operations closure.]
-Each interval operation is closed over our intervals $\mathbb{P}^2$.
+We need to show that our intantiatned bounds follow the required properties
+specified in the modular interface.
+
+\begin{lemma}[Partial order of $\bnd{\mathbb{B}}$.]
+  $(\mathbb{B}, \leq)$ form a partial order.
 \end{lemma}
 \begin{proof}
-Holds by inspection of our interval operations.
+  Follows from the fact that $\subseteq$ forms a partial order over
+  $\mathbb{Set}$.
+\end{proof}
+
+\begin{lemma}[Closure over bounds]
+For every operation $\mathbf{bop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
+have that if $c_0, \ldots, c_n \in \mathbb{B}$ are $\textit{bop}(c_0, \ldots,
+c_n) = c' : \textbf{bnd}$ holds.
+\end{lemma}
+\begin{proof}
+  Follows by inspection of the definition of our three supported operations.
 \end{proof}
 
 Our operations satisfy metric preservation.
 % todo: these are closed over something other than num?
 
 \begin{lemma}[Operations satisfy metric preservation]
-Each $\textbf{op} : \tau \in \Sigma$ satisfies metric preservation.
+Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
 \end{lemma}
 \begin{proof}
 Holds by a case analysis for each operation in $\Sigma$ and unfolding the
@@ -159,12 +201,12 @@ definition of our metric function.
 \end{proof}
 
 By stapling together the proceeding lemmas, the interface 
-($(\mathbb{P}, \leq), d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) 
-satisfy the interface for instantiating Numerical Fuzz specified in
+($\mathbb{P}, (\mathbb{B}, \leq), d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) 
+satisfy the interface for instantiating Negative Fuzz specified in
 Definition~\ref{def:numfuzz-interface}.
 
 \subsection{Application} \label{sec:application}
-For a given $. \vdash e : M_q \textbf{num}_{(k_0, k_1)}$, we wish to bound the
+For a given $. \vdash e : M_q \textbf{num}_{\bnd{b}}$, we wish to bound the
 error between $e$ computed ideally over the reals versus the floating-point
 approximation. We now prove our paired error theorems
 (Theorem~\ref{thm:paired-a-priori-rel}, Theorem~\ref{thm:paired-a-posteriori-rel}, ),

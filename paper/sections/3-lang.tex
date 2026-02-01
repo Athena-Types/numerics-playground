@@ -546,7 +546,7 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 For a given partial order $(\bnd{\mathbb{B}}, \leq)$ we build up to the definition of
 lattice over bound equivalence classes. 
 First we call $\bnd{\mathbb{B}}$ our \textit{concrete bounds}, which will serve as our
-canonical representative for each equivalence class:
+canonical representative for each equivalence class.
 
 Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
 mathematical function $\bnd{\textit{bop}} : \bnd{\mathbb{B}}^n \to
@@ -723,9 +723,9 @@ numeric computations $\Sigma$.
 It is the proof obligation for any language designer instantiating the language
 to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.
-\begin{definition}[Interface for instantiating Numerical Fuzz.]
+\begin{definition}[Interface for instantiating Negative Fuzz.]
   \label{def:numfuzz-interface}
-  The interface for Numerical Fuzz consists of $\textit{num}$,
+  The interface for Negative Fuzz consists of $\textit{num}$,
   $(\bnd{\mathbb{B}}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
   $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
 \begin{description}
@@ -734,8 +734,8 @@ soundness theorems to follow.
   \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Partial order.] $(\mathbb{B}, \leq)$ form a partial order.
-  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\textit{num}^2$).] 
+  \item[c) Partial order.] $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
+  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
     We further need to assume that for every operation $\mathbf{bop}(b_0,
     \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
     \mathbb{B}$ are
