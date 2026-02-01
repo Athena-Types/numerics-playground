@@ -4,21 +4,23 @@ round-off error of a sequence of additions is linear in the height of the
 computation tree. Recalling our running example from Section~\ref{sec:overview},
 consider the expression 
 $w \tilde{+} x \tilde{+} y \tilde{+} z$.
-We can choose to associate the expression in the degenerate way, resembling a
-linked-list and with error terms growing in $O(n)$, where $n$ is the number of
-subterms:
-$$((w \tilde{+} x) \tilde{+} y) \tilde{+} z$$
-or in the balanced way with error growing in $O(ln(n))$, resembling a perfect
-binary tree:
-$$(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$$
+Consider the following two ways to associate this expression:
+\begin{description}
+  \item[The degenerate way.] The abstract syntax tree here resembles the
+    structure of a linked-list. Error terms grow in $O(n)$, where $n$ is the
+    number of subterms: $$((w \tilde{+} x) \tilde{+} y) \tilde{+} z$$
+  \item[The balanced tree way.] The abstract syntax tree represents a balanced
+    binary tree. Error terms grow in $O(ln(n))$. $$(w \tilde{+} x) \tilde{+} (y
+    \tilde{+} z)$$
+\end{description}
 It is clear from this example that the clever user may wish to structure and
 sequence computation in a manner that minimizes the height of their computation
 tree.
 
 Unfortunately, for a given sequence of additions, the characteristic monadic
-bind rule in Numerical Fuzz forces the error to grow in $O(n)$ of the number of
-added subterms.
-To better understand why, we look to the type of the floating point addition
+bind rule in Negative Fuzz (without factor) forces the error to grow in $O(n)$
+of the number of added subterms.
+To understand why, we look to the type of the floating point addition
 function:
 \footnote{For the remainder of this section, we omit the interval bound
 subscripts.}
