@@ -32,19 +32,20 @@ possible in the last bit for the floating point format (e.g. $2^{-24}$ and
 $2^{-53}$ for 32 and 64-bit floating-point numbers respectively).
 
 We are interested in bounding round-off error. 
-To bound error, one must first be capable of measuring it. Following Numerical
-Fuzz, we rely on Olver's \cite{olver} \textit{relative precision} metric for
-measuring round-off error. 
+To bound error, one must first have a suitable definition for measuring error.
+Following Numerical Fuzz, we rely on Olver's \cite{olver} \textit{relative
+precision} metric for measuring round-off error. 
 
 \begin{equation}
   d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|
 \end{equation}
 
-Relative precision forms a true metric and allows for compositional error
-reasoning. 
-In our case, we crucially rely on triangle inequality for the soundness of the
-error grades for our charateristic monadic bind rule.
-% Importantly, triangle inequality does not hold for \textit{relative error}.
+Our approach relies on triangle inequality for the soundness of the error grades
+for our charateristic monadic bind rule.
+As relative precision forms a true metric and satisfies triangle equality, we
+are able to relative precision to compositionally reason about repeated
+applications of the monadic bind rule.
+Importantly, triangle inequality does not hold for \textit{relative error}.
 
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
 Many real-world programs use subtraction or negative numbers. Unfortuantely,
