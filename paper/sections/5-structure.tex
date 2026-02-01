@@ -22,8 +22,7 @@ bind rule in Negative Fuzz (without factor) forces the error to grow in $O(n)$
 of the number of added subterms.
 To understand why, we look to the type of the floating point addition
 function:
-\footnote{For the remainder of this section, we omit the interval bound
-subscripts.}
+\footnote{For the remainder of this section, we omit the bound subscripts.}
 $\textbf{addfp} : (\textbf{num} \times \textbf{num}) \multimap M_u \textbf{num}$.
 The issue occurs when we try to pass two computations of type $M_q \textbf{num}$
 to $\textbf{addfp}$. 

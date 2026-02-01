@@ -1,7 +1,7 @@
 \section{Type inference} \label{sec:inference}
 Full typing derivations can be seen as maps from variables to pairs of
-sensitivities and types with interval bounds. This can be cumbersome to manually
-annotate.
+sensitivities and types with possibly-polymorphic bounds. This can be cumbersome to
+manually annotate.
 
 Therefore, we introduce a type inference algorithm that allows users to write
 programs in \Lang, without sensitivities or bound polymorphism. We compute the
@@ -40,10 +40,26 @@ We define bound erasure ($-^{\bnd{\bullet}}$) over types and terms below:
 We similarly define an erasure operation for terms:
 \begin{equation}
 \begin{aligned}[c]
+v^{\bnd{\bullet}} &\triangleq v \\
+x^{\bnd{\bullet}} &\triangleq x \\
+(\textbf{op} \ e)^{\bnd{\bullet}} &\triangleq \textbf{op} \ e^{\bnd{\bullet}} \\
+(e \ f)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \ f^{\bnd{\bullet}} \\
 (e \{ i \})^{\bnd{\bullet}} &\triangleq e  \\
 (\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e \\
-e^{\bnd{\bullet}} &\triangleq e &\text{otherwise} 
-% TODO: missing cases (otherwise is not correct)
+(\pi_i \ e)^{\bnd{\bullet}} &\triangleq \pi_i \ e^{\bnd{\bullet}} \\
+(\textbf{in}_i \ e)^{\bnd{\bullet}} &\triangleq \textbf{in}_i \ e^{\bnd{\bullet}} \\
+\langle e, f \rangle ^{\bnd{\bullet}} &\triangleq \langle e^{\bnd{\bullet}}, f^{\bnd{\bullet}} \rangle \\
+(e, f) ^{\bnd{\bullet}} &\triangleq (e^{\bnd{\bullet}}, f^{\bnd{\bullet}}) \\
+(\textbf{let} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-bind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-cobind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-pair} \ (x, y) \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{case} \ e \ \textbf{of} \ (\textbf{in}_1 x. f_1 \ | \textbf{in}_2 x. f_2 ))^{\bnd{\bullet}} &\triangleq (\textbf{case} \ e^{\bnd{\bullet}} \ \textbf{of} \ (\textbf{in}_1 x. f_1^{\bnd{\bullet}} \ | \textbf{in}_2 x. f_2^{\bnd{\bullet}} )) \\
+[e]^{\bnd{\bullet}} &\triangleq [e^{\bnd{\bullet}}] \\
+(\textbf{rnd} \ e)^{\bnd{\bullet}} &\triangleq \textbf{rnd} \ e^{\bnd{\bullet}} \\
+(\textbf{ret} \ e)^{\bnd{\bullet}} &\triangleq \textbf{ret} \ e^{\bnd{\bullet}} \\
+(\textbf{factor} \ e)^{\bnd{\bullet}} &\triangleq \textbf{factor} \ e^{\bnd{\bullet}} \\
+% TODO: double check cases and make sure nothing is missing
 \end{aligned}
 \end{equation}
 \end{definition}
@@ -53,7 +69,7 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 : \tau$ for $e$ in \Lang if such a derivation exists. 
 \end{definition}
 
-\subsection{Subtyping and supertyping}
+\subsection{Subtyping for type inference}
 Before we provide the algorithm, we extend the subtyping and supertyping
 relations used in Numerical Fuzz for type inference. In particular, we add the
 following cases to deal with bounds and bound polymoprhism.
@@ -146,7 +162,7 @@ $$
       inductive hypothesis.
       % TODO: spell out more
   \end{description}
-  and the new interval widening rule in our type
+  and the new bound widening rule in our type
   system, which corresponds to the $\textbf{num}$ subtyping case. 
   Note that the proof in \cite{numfuzz} relies on
   the admissibility of weakening, which we proved in (Theorem
@@ -154,7 +170,7 @@ $$
 \end{proof}
 
 
-\subsection{Inference algorithm}
+\subsection{Type inference algorithm}
 We are now ready to define the type inference algorithm. Our type inference
 algorithm has the following shape:
 $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
@@ -175,15 +191,14 @@ Conceptually, our type inference algorithm does three things:
 \begin{enumerate}
   \item First, we infer sensitivities via the type inference algorithm provided
     in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
-    and interval bounds as well as support expressions in greater places.
+    and polymorphic bounds as well as support expressions in greater places.
 
   \item At the same time as our sensitivity inference, we infer our bounds. We
     rely on helper functions $I$ and $E$
     (Figure~\label{fig:helper_type_inference}) to automatically instantiate and
     eliminate polymorphic bound variables. 
 
-  \item Finally, we compute our interval operations via $\llbracket - \rrbracket$. The output of bound inference may
-    produce interval expressions that can be further reduced.
+  \item Finally, we evaluate our bound expresions via $\llbracket - \rrbracket$. 
 \end{enumerate}
 We present our type inference algorithm in Figure~\ref{fig:inference-algo} as a
 combined algorithm where the sensitivities and bounds are inferred
@@ -191,9 +206,9 @@ simultaneously in one pass.
 We prove the soundness of the fused sensitivity-and-bound pass in
 Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
 inference algorithm. 
-After running type inference, we evaluate the closed interval bound expressions
-using $\llbracket - \rrbracket$ and prove soundness via a semantic logical
-relations argument.
+After running type inference, we evaluate the closed bound expressions using
+$\llbracket - \rrbracket$ and prove soundness via a semantic logical relations
+argument.
 
 \begin{figure}\label{fig:inference-algo}
 %% ROW1
@@ -532,7 +547,7 @@ $}
   By induction over the definition of $I$.
 \end{proof}
 
-\begin{lemma}[Well-formedness of intervals produced by $E$.] \label{thm:wff-var-e}
+\begin{lemma}[Well-formedness of bounds produced by $E$.] \label{thm:wff-var-e}
   For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
   $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
 \end{lemma}
@@ -614,7 +629,7 @@ We induct over each typing / case in the type inference algorithm.
 
     Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
     of the $\forall E$ rule is satisfied by applying Lemma~\ref{thm:wff-var-e}
-    and Lemma~\ref{thm:free-var-gamma} on the interval bound judgements.
+    and Lemma~\ref{thm:free-var-gamma} on the polymorphic bound judgements.
     In particular, by Lemma~\ref{thm:free-var-gamma}, we have that
     $FTV(\tau'_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]) \subseteq FTV(\tau'_0)
     \subseteq FTV(\Theta) \subseteq \Delta''$. 
@@ -629,7 +644,7 @@ We induct over each typing / case in the type inference algorithm.
   \item[Rnd.] Holds trivially.
   \item[$\times$ I.] Like Numerical Fuzz, we define \text{max} as the least
     upper bound of $\Gamma_0$ and $\Gamma_1$. Let $\Delta_0$ and $\Delta_1$ be
-    the (implicit) interval bound contexts generated by our inductive
+    the (implicit) polymorphic bound contexts generated by our inductive
     hypothesis.
     By weakening, we can produce a typing derivation for the following
     judgement:
@@ -658,13 +673,13 @@ We induct over each typing / case in the type inference algorithm.
 \end{description}
 \end{proof}
 
-\subsection{Evaluating interval bounds}
+\subsection{Evaluating bound expressions}
 After running type inference we obtain a result in the form: 
 $\Delta \ | \ \Gamma \vdash e : \tau$. 
-In some cases, $\tau$ might contain interval expressions.
+In some cases, $\tau$ might contain bound expressions.
 In this case, we can extend the $\bnd{\llbracket - \rrbracket}$
-(Definition~\ref{def:interval-exp-eval}) evaluating intervals expressions to
-also evaluate types that possibly contain interval expressions. Note that for
+(Definition~\ref{def:interval-exp-eval}) evaluating bound expressions to
+also evaluate types that possibly contain bound expressions. Note that for
 simplicity, we only halt evaluation when we see a $\forall$.
 
 \begin{definition}[Type evaluation]
@@ -689,7 +704,7 @@ spits out a type $\tau'$:
 \end{equation}
 \end{definition}
 
-\begin{theorem}[Soundness of evaluating closed interval bounds]
+\begin{theorem}[Soundness of evaluating closed bounds]
   For any $e \in \mathbb{R}_{\tau}$ and $\tau' = \llbracket \tau \rrbracket$,
   then $e \in \mathbb{R}_{\tau'}$.
 \end{theorem} 
