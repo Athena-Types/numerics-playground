@@ -1,21 +1,57 @@
 \section{Structuring and sequencing arithmetic} \label{sec:structure}
 Floating-point operations are not associative. It is well-known that the
 round-off error of a sequence of additions is linear in the height of the
-computation tree. Recalling our running example from Section~\ref{sec:overview},
-consider the expression 
-$w \tilde{+} x \tilde{+} y \tilde{+} z$.
-Consider the following two ways to associate this expression:
+computation tree. Recall our running example from Section~\ref{sec:overview},
+computing addition for four variables: $w \tilde{+} x \tilde{+} y \tilde{+} z$.
+Consider the following two ways to associate the expression:
 \begin{description}
-  \item[The degenerate way.] The abstract syntax tree here resembles the
-    structure of a linked-list. Error terms grow in $O(n)$, where $n$ is the
-    number of subterms: $$((w \tilde{+} x) \tilde{+} y) \tilde{+} z$$
-  \item[The balanced tree way.] The abstract syntax tree represents a balanced
-    binary tree. Error terms grow in $O(ln(n))$: $$(w \tilde{+} x) \tilde{+} (y
-    \tilde{+} z)$$
+  \item[1) The degenerate way.] The abstract syntax tree here resembles the
+    structure of a linked-list: 
+    $$((w \tilde{+} x) \tilde{+} y) \tilde{+} z$$
+    Error terms grow in $O(n)$, where $n$ is the number of subterms.
+  \item[2) The balanced tree way.] The abstract syntax tree represents a
+    balanced binary tree:
+    $$(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$$
+    Error terms grow in $O(ln(n))$.
 \end{description}
 It is clear from this example that the clever user may wish to structure and
 sequence computation in a manner that minimizes the height of their computation
 tree.
+
+We wish for our language to be sensitive to the associativity of floating-point
+operations.
+In Figure~\ref{fig:fail-assoc-side-by-side}, we consider how to write both
+expressions in Negative Fuzz without \textbf{factor}. Note that the monadic
+error grade for both computations is the same.
+\begin{figure}[ht]
+\centering
+
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// ((w + x) + y) + z) : M[3*u] num 
+let-bind a = addfp <w, x> in
+let-bind b = addfp <a, y> in
+let-bind c = addfp <b, z> in
+addfp c 
+\end{lstlisting}
+\caption{Program for the degenerate tree computation.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{lstlisting}
+// (w + x) + (y + z) : M[3*u] num 
+let-bind a = addfp <w, x> in
+let-bind b = addfp <y, z> in
+let-bind c = addfp <a, b> in
+addfp c 
+\end{lstlisting}
+\caption{Program for the balanced tree computation.}
+\end{subfigure}
+
+\caption{Side-by-side comparison of two ways to associate the $w \tilde{+} x
+\tilde{+} y \tilde{+} z$ computation.}
+\label{fig:fail-assoc-side-by-side}
+\end{figure}
 
 Unfortunately, for a given sequence of additions, the characteristic monadic
 bind rule in Negative Fuzz (without factor) forces the error to grow in $O(n)$
@@ -35,14 +71,14 @@ Recall from Figure~\ref{fig:monadic-bind-again} that the monadic bind rule
 \bottomAlignProof
 \DisplayProof
 \end{figure}
-is the only way to eliminate the monadic $M_q \tau$ type. Consider the the
+is the only way to eliminate the monadic $M_q \tau$ type. Consider the
 following program sketch shown in Figure~\ref{fig:sketch} where we try to
 compute $(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$ and $((w \tilde{+} x)
 \tilde{+} y) \tilde{+} z$. Due to the grades on our monadic bind rule, for both
 programs the same expression in \lstinline{HOLE?} will yield the same type and
 error grade. Although the height of the corresponding \textit{computation tree}
 differs in Figure~\ref{fig:sketch}, the height of the number of applications of
-the monadic bind rule in the \textit{typing tree} does not differ. The Numerical
+the monadic bind rule in the \textit{typing tree} does not differ. The Negative
 Fuzz type system is incapable of distinguishing between the two different
 program sketches. 
 \begin{figure}[ht]
@@ -153,6 +189,8 @@ of $(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$ corresponding to the prefect
 binary tree .}
 \label{fig:factor-side-by-side}
 \end{figure}
+
+
 Note that $u$ represents the unit round-off associated with $\textbf{addfp}$. In
 the summation example, the program with \textbf{factor} has an error bound of
 two ULPs whereas the program without \textbf{factor} has an error bound of three
