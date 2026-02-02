@@ -2,12 +2,11 @@
 Full typing derivations can be seen as maps from variables to pairs of
 sensitivities and types with possibly-polymorphic bounds. This can be cumbersome
 to manually annotate.
-
 Therefore, we introduce a type inference algorithm that allows users to write
-programs in \Lang, without sensitivities or bound polymorphism. We compute the
-type sensitivity and inference analysis developed in \cite{numfuzz}, extended to
-our core language without bound polymorphism.
+programs in \Lang, without sensitivities or bound polymorphism. 
 
+We compute the type sensitivity and inference analysis developed in
+\cite{numfuzz}, extended to our core language without bound polymorphism.
 At the same time, we also automatically infer polymorphic bound annotations to
 generate a valid typing derivation of the program in \bnd{\Lang}. To define the
 type inference problem, we first define a sensitivity erasure $-^{\bullet}$ over
@@ -28,40 +27,49 @@ We define bound erasure ($-^{\bnd{\bullet}}$) over types and terms below:
 \begin{aligned}[c]
 \textbf{unit}^{\bnd{\bullet}} &\triangleq \textbf{unit} \\
 \textbf{num}_i^{\bnd{\bullet}} &\triangleq \textbf{num} \\
-(!_s \tau)^{\bnd{\bullet}} &\triangleq !_s \tau^{\bnd{\bullet}} \\
-(M_u \tau)^{\bnd{\bullet}} &\triangleq M_u \tau^{\bnd{\bullet}} \\
 (\forall \epsilon . \tau)^{\bnd{\bullet}} &\triangleq \tau^{\bnd{\bullet}} \\
 (\tau_0 \times \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \times \tau_1^{\bnd{\bullet}}) \\
+\end{aligned}
+\begin{aligned}[c]
+(!_s \tau)^{\bnd{\bullet}} &\triangleq !_s \tau^{\bnd{\bullet}} \\
+(M_u \tau)^{\bnd{\bullet}} &\triangleq M_u \tau^{\bnd{\bullet}} \\
 (\tau_0 \otimes \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \otimes \tau_1^{\bnd{\bullet}}) \\
 (\tau_0 \multimap \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \multimap \tau_1^{\bnd{\bullet}}) \\
 \end{aligned}
 \end{equation}
 
 We similarly define an erasure operation for terms:
+
 \begin{equation}
 \begin{aligned}[c]
 v^{\bnd{\bullet}} &\triangleq v \\
 x^{\bnd{\bullet}} &\triangleq x \\
 (\textbf{op} \ e)^{\bnd{\bullet}} &\triangleq \textbf{op} \ e^{\bnd{\bullet}} \\
 (e \ f)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \ f^{\bnd{\bullet}} \\
+(\textbf{rnd} \ e)^{\bnd{\bullet}} &\triangleq \textbf{rnd} \ e^{\bnd{\bullet}} \\
 (e \{ i \})^{\bnd{\bullet}} &\triangleq e  \\
 (\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e \\
-(\pi_i \ e)^{\bnd{\bullet}} &\triangleq \pi_i \ e^{\bnd{\bullet}} \\
+% TODO: double check cases and make sure nothing is missing
+\end{aligned}
+\begin{aligned}[c]
+[e]^{\bnd{\bullet}} &\triangleq [e^{\bnd{\bullet}}] \\
+(\textbf{factor} \ e)^{\bnd{\bullet}} &\triangleq \textbf{factor} \ e^{\bnd{\bullet}} \\
 (\textbf{in}_i \ e)^{\bnd{\bullet}} &\triangleq \textbf{in}_i \ e^{\bnd{\bullet}} \\
+(\pi_i \ e)^{\bnd{\bullet}} &\triangleq \pi_i \ e^{\bnd{\bullet}} \\
+(\textbf{ret} \ e)^{\bnd{\bullet}} &\triangleq \textbf{ret} \ e^{\bnd{\bullet}} \\
 \langle e, f \rangle ^{\bnd{\bullet}} &\triangleq \langle e^{\bnd{\bullet}}, f^{\bnd{\bullet}} \rangle \\
 (e, f) ^{\bnd{\bullet}} &\triangleq (e^{\bnd{\bullet}}, f^{\bnd{\bullet}}) \\
+\end{aligned}
+\end{equation}
+\begin{equation*}
+\begin{aligned}
+(\textbf{case} \ e \ \textbf{of} \ (\textbf{in}_1 x. f_1 \ | \textbf{in}_2 x. f_2 ))^{\bnd{\bullet}} &\triangleq (\textbf{case} \ e^{\bnd{\bullet}} \ \textbf{of} \ (\textbf{in}_1 x. f_1^{\bnd{\bullet}} \ | \textbf{in}_2 x. f_2^{\bnd{\bullet}} )) \\
 (\textbf{let} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
 (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-bind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
 (\textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-cobind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
 (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-pair} \ (x, y) \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
-(\textbf{case} \ e \ \textbf{of} \ (\textbf{in}_1 x. f_1 \ | \textbf{in}_2 x. f_2 ))^{\bnd{\bullet}} &\triangleq (\textbf{case} \ e^{\bnd{\bullet}} \ \textbf{of} \ (\textbf{in}_1 x. f_1^{\bnd{\bullet}} \ | \textbf{in}_2 x. f_2^{\bnd{\bullet}} )) \\
-[e]^{\bnd{\bullet}} &\triangleq [e^{\bnd{\bullet}}] \\
-(\textbf{rnd} \ e)^{\bnd{\bullet}} &\triangleq \textbf{rnd} \ e^{\bnd{\bullet}} \\
-(\textbf{ret} \ e)^{\bnd{\bullet}} &\triangleq \textbf{ret} \ e^{\bnd{\bullet}} \\
-(\textbf{factor} \ e)^{\bnd{\bullet}} &\triangleq \textbf{factor} \ e^{\bnd{\bullet}} \\
-% TODO: double check cases and make sure nothing is missing
 \end{aligned}
-\end{equation}
+\end{equation*}
 \end{definition}
 
 \begin{definition}[Type inference problem]
