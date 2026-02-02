@@ -40,7 +40,7 @@ We define bound erasure ($-^{\bnd{\bullet}}$) over types and terms below:
 
 We similarly define an erasure operation for terms:
 
-\begin{equation}
+\begin{equation*}
 \begin{aligned}[c]
 v^{\bnd{\bullet}} &\triangleq v \\
 x^{\bnd{\bullet}} &\triangleq x \\
@@ -60,7 +60,7 @@ x^{\bnd{\bullet}} &\triangleq x \\
 \langle e, f \rangle ^{\bnd{\bullet}} &\triangleq \langle e^{\bnd{\bullet}}, f^{\bnd{\bullet}} \rangle \\
 (e, f) ^{\bnd{\bullet}} &\triangleq (e^{\bnd{\bullet}}, f^{\bnd{\bullet}}) \\
 \end{aligned}
-\end{equation}
+\end{equation*}
 \begin{equation*}
 \begin{aligned}
 (\textbf{case} \ e \ \textbf{of} \ (\textbf{in}_1 x. f_1 \ | \textbf{in}_2 x. f_2 ))^{\bnd{\bullet}} &\triangleq (\textbf{case} \ e^{\bnd{\bullet}} \ \textbf{of} \ (\textbf{in}_1 x. f_1^{\bnd{\bullet}} \ | \textbf{in}_2 x. f_2^{\bnd{\bullet}} )) \\
