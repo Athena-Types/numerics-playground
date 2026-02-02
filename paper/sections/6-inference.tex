@@ -1,7 +1,7 @@
 \section{Type inference} \label{sec:inference}
 Full typing derivations can be seen as maps from variables to pairs of
-sensitivities and types with possibly-polymorphic bounds. This can be cumbersome to
-manually annotate.
+sensitivities and types with possibly-polymorphic bounds. This can be cumbersome
+to manually annotate.
 
 Therefore, we introduce a type inference algorithm that allows users to write
 programs in \Lang, without sensitivities or bound polymorphism. We compute the
@@ -180,13 +180,16 @@ erased program $e^{\bnd{\bullet}}$ with no polymorphic bounds, and produces a
 typing context $\Gamma$ with sensitivity information and fully annotated program
 e and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
-is derivable for some $\Delta$ (our soundness criterion). We start type
-inference by passing the empty context (written ``."), along with the
-bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
-detailed in Figure~\ref{fig:inference-algo}. 
-Finally, we evaluate our bound expressions using the $\llbracket - \rrbracket$
-evaluation map defined over types.
+is derivable for some $\Delta$ (our soundness criterion). 
+Note that we leave the $\Delta$ out of our type inference algorithm and
+implicitly reconstruct an appropraite $\Delta$ inside our constructive soundness
+proof.
 
+We start type inference by passing the empty context (written ``."), along with
+the bound-erased program (written $e^{\bnd{\bullet}}$) to the inference
+algorithm detailed in Figure~\ref{fig:inference-algo}. Finally, we evaluate our
+bound expressions using the $\llbracket - \rrbracket$ evaluation map defined
+over types.
 Conceptually, our type inference algorithm does three things: 
 \begin{enumerate}
   \item First, we infer sensitivities via the type inference algorithm provided
