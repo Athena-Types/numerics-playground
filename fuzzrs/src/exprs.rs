@@ -25,6 +25,7 @@ pub enum Interval {
     Eps(usize),
     Const((Float, Float, Float), (Float, Float, Float), bool),
     IOp(Op, Vec<Interval>),
+    Substitution(Box<Interval>, Sub),
 }
 
 #[derive(Debug, Clone, PartialEq)]

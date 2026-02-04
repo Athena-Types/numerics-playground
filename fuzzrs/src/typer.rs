@@ -103,7 +103,11 @@ pub fn make_subs(v: Vec<Interval>, i: Vec<Interval>) -> Sub {
     map
 }
 
-pub fn sub_eps(i: Interval, s: &Sub) -> Interval {
+pub fn combine(s_l : Sub, s_r : Sub) -> Sub {
+    unimplemented!();
+}
+
+pub fn sub_eps(i: Interval, s: Sub) -> Interval {
     debug!("sub {:?} with interval {:?}", s, i);
     match i {
         Eps(v) => match s.get(&v) {
@@ -112,7 +116,12 @@ pub fn sub_eps(i: Interval, s: &Sub) -> Interval {
         },
         Const(_, _, _) => i,
         IOp(o, intvs) => {
-            step_interval_incremental(IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect()))
+            Substitution(Box::new(i), s)
+            //IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect())
+            //step_interval_incremental(IOp(o, intvs.into_iter().map(|x| sub_eps(x, s)).collect()))
+        }
+        Substitution(i, s_r) => {
+            Substitution(i, combine(s, s_r))
         }
     }
 }
@@ -122,7 +131,7 @@ pub fn sub_ty<'a>(t: &Rc<RefCell<Ty>>, s: &Sub) -> Rc<RefCell<Ty>> {
         Ty::Unit => Ty::Unit,
         Ty::NumErased => panic!("Should not see an erased type!"),
         //Ty::Num(interval) => Ty::Num(step_interval(sub_eps(interval.clone(), s)),
-        Ty::Num(ref interval) => Ty::Num(sub_eps(interval.clone(), s)),
+        Ty::Num(ref interval) => Ty::Num(sub_eps(interval.clone(), *s)),
         Ty::Tens(ref t0, ref t1) => {
             let t0n = sub_ty(&t0, s);
             let t1n = sub_ty(&t1, s);
@@ -257,6 +266,9 @@ pub fn step_interval_incremental(i: Interval) -> Interval {
         }
         Const(cl, ch, deg) => Const(cl, ch, deg),
         Eps(x) => Eps(x),
+        Substitution(i, s) => {
+            sub_eps(Box::into_inner(i), s)
+        }
     };
     debug!("step to {:?}", res);
     res

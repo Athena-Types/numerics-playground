@@ -1,4 +1,5 @@
-// use pest::Parser;
+#![feature(box_into_inner)]
+
 use pest_derive::Parser;
 
 #[derive(Parser)]
