@@ -539,17 +539,61 @@ separate lemma in our soundness proof.
 \end{figure}
 
 % \subsection{Equivalence class of interval expressions.}
-\subsection{The partial order of bounds} \label{sec:bexp}
-For a given partial order $(\bnd{\mathbb{B}}, \leq)$ we build up to the definition of
-lattice over bound equivalence classes. 
-First we call $\bnd{\mathbb{B}}$ our \textit{concrete bounds}, which will serve as our
-canonical representative for each equivalence class.
+\subsection{Modular Interface} \label{sec:interface}
+Numerical Fuzz is a modular family of programming langauges paramterized
+by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
+numeric computations $\Sigma$.  
+It is the proof obligation for any language designer instantiating the language
+to demonstrate that these properties hold in order for our paramterized
+soundness theorems to follow.
 
+\begin{definition}[Interface for instantiating Negative Fuzz.]
+  \label{def:numfuzz-interface}
+  The interface for Negative Fuzz consists of $\textit{num}$,
+  $(\bnd{\mathbb{B}}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
+  $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
+\begin{description}
+  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
+  metric space.]
+  \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
+    $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
+    \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[c) Partial order of bounds.] The set of bounds and binary relation
+    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
+  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
+    We further need to assume that for every operation $\mathbf{bop}(b_0,
+    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
+    \mathbb{B}$ then the corresponding
+    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
+    holds.
+  \item[e) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
+    \footnote{Note that we could make this portion of the interface more general
+    by definining it in terms of the logical relation in
+    Section~\ref{def:logical-relation}. We have opted to keep the interface
+    minimal for presentational purposes.}
+
+    We can view $\textit{op}$ as a (possibly constant) metalevel function.
+    We also assume that for every operation has the following shape with no free
+    type variables
+    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$ 
+    where for the corresponding $\textit{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \
+    v$ for all $\bnd{b_0}, \bnd{b_1} \in \mathbb{B}$ 
+    and for all v mapping bounds and syntactic values in
+    $(\tau_0 \to \tau_1)[b_0 / \epsilon_0, b_1 / \epsilon_1]$
+    is 1-sensitive as measured by $\mathcal{SD}$, defined below.
+\end{description}
+\end{definition}
+
+The remainder of this subsection is dedicated to defining distances between
+terms, which is necessary to understand the metric preservation property our
+interface demans on all operations.
+We first define evaluation ($\bnd{\llbracket - \rrbracket}$) of our bound expressions to $\bnd{\mathbb{B}}$ which
+we call our \textit{concrete bounds}.
 Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
 mathematical function $\bnd{\textit{bop}} : \bnd{\mathbb{B}}^n \to
 \bnd{\mathbb{B}}$. 
-We can now define our equivalence classes of closed \textit{bound expressions},
-which we will use to define our logical relations over.
+We can now define closed \textit{bound expressions}, which we will use to define
+the evaluation function used in the definition of our logical relations.
 
 \begin{definition}[Closed bound expressions]
   A bound expression $b$ is a closed bound expression iff either:
@@ -571,38 +615,33 @@ which we will use to define our logical relations over.
   \end{equation}
 \end{definition}
 
-\begin{definition}[Bound expression equivalence class]
-  We inductively define our equivalence relation $\sim$ over closed bound
-  expressions $\bnd{b, b_0, b_1 \in \mathbb{B}_{\text{exp}}}$ based upon the
-  underlying equality of the sets $b_0 \sim b_1 \iff \bnd{\llbracket} b_0
-  \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$.
-\end{definition}
+% \begin{definition}[Bound expression equivalence class]
+%   We inductively define our equivalence relation $\sim$ over closed bound
+%   expressions $\bnd{b, b_0, b_1 \in \mathbb{B}_{\text{exp}}}$ based upon the
+%   underlying equality of the sets $b_0 \sim b_1 \iff \bnd{\llbracket} b_0
+%   \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$.
+% \end{definition}
+%
+% \begin{lemma}
+%   $\bnd{\mathbb{B}_{\text{exp}}}, \sim$ form an equivalence class
+% \end{lemma}
+% \begin{proof}
+%   $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
+%   underlying equality.
+% \end{proof}
+%
+% We are now ready to define a lattice structure over our the quotient space
+% formed by our interval equivalence class $\bnd{\mathbb{B}_{\text{exp}}} / \sim$. We will later use this to
+% define our logical relation over these interval bound equivalence classes.
+%
+% \begin{definition}[Bound expression partial order]
+%   $b_0 \subseteq b_1 \iff \llbracket b_0 \rrbracket \subseteq \llbracket b_1
+%   \rrbracket$.
+%   The $\subseteq$ relation clearly respects our equivalence relation $\sim$ by
+%   inspection of the underlying equality on sets used in the construction.
+% \end{definition}
 
-\begin{lemma}
-  $\bnd{\mathbb{B}_{\text{exp}}}, \sim$ form an equivalence class
-\end{lemma}
-\begin{proof}
-  $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
-  underlying equality.
-\end{proof}
-
-We are now ready to define a lattice structure over our the quotient space
-formed by our interval equivalence class $\bnd{\mathbb{B}_{\text{exp}}} / \sim$. We will later use this to
-define our logical relation over these interval bound equivalence classes.
-
-\begin{definition}[Bound expression partial order]
-  $b_0 \subseteq b_1 \iff \llbracket b_0 \rrbracket \subseteq \llbracket b_1
-  \rrbracket$.
-  The $\subseteq$ relation clearly respects our equivalence relation $\sim$ by
-  inspection of the underlying equality on sets used in the construction.
-\end{definition}
-
-\subsection{Modular Interface} \label{sec:interface}
-To define the modular interface that enables sound instantiation of the
-Numerical Fuzz family of programming languages, we first define distances
-between bounds, expressions, vectors of expressions, and substitutions. This
-notation will be useful later for stating and proving type soundness. 
-
+We proceed to define distances between bounds and expressions.
 Our syntactic definition for distance, $d_\tau$ and the distance between
 syntactic values $\mathcal{SD}_\tau$ (for $\mathcal{S}$yntactic
 $\mathcal{D}$istance) and $\mathcal{SDV}_\tau$ (for $\mathcal{S}$yntactic
@@ -654,160 +693,20 @@ syntactic values as follows:
   \end{equation}
 \end{definition}
 
-We incrementally build up to the definition of distance between substitutions
-below.
-
 \begin{definition}[Distance between expressions.]
 For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
 e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
 \tau$ where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
 \end{definition}
 
-\begin{definition}[Distance between expression vectors.]
-    We write vectors of expressions $\sigma$, $\sigma'$ are $\gamma$ apart for a
-    given typing context $\Delta \ | \ \Gamma$ like so 
-    $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$
-    if and only if
-    $\gamma = r_0, r_1, \ldots$
-    where
-    $\sigma = \sigma_{\Delta}, e_0,~\ldots,~e_n$ 
-    and 
-    $\sigma' = \sigma_{\Delta}, e'_0,~\ldots,~e'_n$ 
-    such that:
-    $$
-    e_0 \sim_{r_0} e'_0 : \tau_0~[\sigma_{\Delta}],
-    ~\ldots,
-    ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
-    $$
-    where $\sigma_{\Delta}$ is a bound vector with no free variables.
-    Note that the distance between expression vectors are undefined when the
-    bound vector $\sigma_{\Delta}$ differs between substitutions.
-\end{definition}
+\subsection{Type Soundness} \label{sec:soundness}
 
-\begin{definition}[Enviroment compatibility.]
-We also say that a substitution vector 
-$$\sigma_{\Delta}, [e_0/x_0, \ldots, e_n/x_n]$$
-is \textit{compatible} with a typing context 
-$x_0 : \tau_0, \ldots, x_n : \tau_n$
-if each term 
-$e_0 \in \mathcal{R}_{\tau_0~[\sigma_{\Delta}]}, 
-\ldots,
-e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by
-the bound vector $\sigma_{\Delta}$.
-\end{definition}
-
-\begin{definition}[Dot product of distance vectors.]
-Our definition for the dot product of a distance vector $\gamma = r_0, \ldots,
-r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
-the same as Fuzz \cite{Fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
-\end{definition}
-
-In the remainder of the paper, we'll treat and represent our distance vector
-$\gamma$ as a lookup function and assume that there is an implicit fixed
-ordering on the variables.
-\begin{definition}[Distance vector lookup.]
-  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
-  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
-  in the domain, $\gamma(x) = 0$ by default. 
-\end{definition}
-
-We are now ready to state the interface for soundly instantiating Numerical
-Fuzz. Numerical Fuzz is a modular family of programming langauges paramterized
-by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
-numeric computations $\Sigma$.  
-% We can now state a few assumptions about how the operational and static
-% semantics of $\mathbf{rnd}$ and $\Sigma$ (for $\mathbf{op}$) relate.
-It is the proof obligation for any language designer instantiating the language
-to demonstrate that these properties hold in order for our paramterized
-soundness theorems to follow.
-\begin{definition}[Interface for instantiating Negative Fuzz.]
-  \label{def:numfuzz-interface}
-  The interface for Negative Fuzz consists of $\textit{num}$,
-  $(\bnd{\mathbb{B}}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
-  $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
-\begin{description}
-  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
-  metric space.]
-  \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
-    $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
-    \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Partial order.] $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
-  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
-    We further need to assume that for every operation $\mathbf{bop}(b_0,
-    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
-    \mathbb{B}$ are
-    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
-    holds.
-  \item[e) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
-    \footnote{Note that we could make this portion of the interface more general
-    by definining it in terms of the logical relation in
-    Section~\ref{sec:logical-relation}. We have opted to
-  keep the interface minimal for presentational purposes.}
-    We can view $\textit{op}$ as a (possibly constant) metalevel function.
-    We also assume that for every operation has the following shape with no free
-    type variables
-    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$ 
-    where for the corresponding $\textit{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \
-    v$ for all $\bnd{b_0}, \bnd{b_1} \in \mathbb{B}$ 
-    and for all v mapping bounds and syntactic values in
-    $(\tau_0 \to \tau_1)[b_0 / \epsilon_0, b_1 / \epsilon_1]$
-    is 1-sensitive as measured by $\mathcal{SD}$.
-
-    % $\mathcal{VR}_{\tau}$ where 
-    % metric preservation holds: For all $\sigma
-    % \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
-    % \Gamma} \textit{op} : \tau$.
-    % Or, expanded:
-    % \begin{description}
-    %   \item[\underline{1) Type denotation.}] $\mathit{op} \in
-    %     \mathcal{R}_{\tau}$. The metalevel operation will step to something in the
-    %     value relation.
-    %   \item[\underline{2) Context sensitivity.}]
-    %     This property states that for every $\textbf{op}$, the
-    %     corresponding $\textit{op}$ preserves the metric. For any two
-    %     substitutions $\sigma, \sigma'$ such that:
-    %     $\sigma \sim_{\gamma} \sigma' : \Gamma$
-    %     we have that
-    %     $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
-    % \end{description} 
-  % \item[c) Property of $\mathbf{op}$: metric preservation.] 
-  %   We can view $\textit{op}$ as a (possibly constant) metalevel function.
-  %   We also assume that for every operation
-  %   $\mathbf{op} : \tau \in \ \Sigma$ we have a
-  %   corresponding function $op$ mapping syntactic values in
-  %   $\mathcal{VR}_{\tau}$ where metric preservation holds: For all $\sigma
-  %   \sim_{\gamma} \sigma' : \Gamma$, $\textit{op}~\sigma \sim_{\gamma \cdot
-  %   \Gamma} \textit{op} : \tau$.
-  %   Or, expanded:
-  %   \begin{description}
-  %     \item[\underline{1) Type denotation.}] $\mathit{op} \in
-  %       \mathcal{R}_{\tau}$. The metalevel operation will step to something in the
-  %       value relation.
-  %     \item[\underline{2) Context sensitivity.}]
-  %       This property states that for every $\textbf{op}$, the
-  %       corresponding $\textit{op}$ preserves the metric. For any two
-  %       substitutions $\sigma, \sigma'$ such that:
-  %       $\sigma \sim_{\gamma} \sigma' : \Gamma$
-  %       we have that
-  %       $\mathcal{SD}_{\tau}(\textit{op}~\sigma, \textit{op}~\sigma') \leq \gamma \cdot \Gamma$.
-  %   \end{description} 
-  %   \item[d) Property of $\mathbf{iop}$: closure over intervals ($\textit{num}^2$).] We further need to
-  %     assume that for every operation $\mathbf{iop}_c : \Sigma_\textbf{num}$, we
-  %     have that for any sequence of bounds $b_0, b_1, \ldots : \textbf{bnd}$ the
-  %     corresponding metalevel function will actually map concrete bounds to concrete bounds
-  %     where 
-  %     $\textit{iop}_c((k'_0, k'_1), \ldots, (k'_n, k'_n)) = (k_0, k_1) : \textbf{bnd}$
-  %     holds.
-\end{description}
-\end{definition}
-
-\subsection{Logical Relation} \label{sec:logical-relation}
 In our language, we only reason about closed types and terms. Let $CV(\tau)$ be
 the closed values of type $\tau$ and $CE(\tau)$ be the closed expressions of
 type $\tau$. Then we can define a unary logical relation over types which
 capture the core information needed to prove our error soundness theorem.
 
-\begin{definition}[Logical relation]
+\begin{definition}[Logical relation] \label{def:logical-relation}
   \begin{equation}
   \begin{aligned}[c]
     \mathcal{R_{\tau}} &\triangleq 
@@ -815,7 +714,7 @@ capture the core information needed to prove our error soundness theorem.
         \in CV(\tau) \text{ s.t. } e \mapsto^{*} v \text{ and } v \in \mathcal{VR_{\tau}} 
       \} \\
     \mathcal{VR_{\mathbf{unit}}} &\triangleq \{ \langle \rangle \} \\
-    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq \llbracket b \rrbracket \\
+    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq \bnd{\llbracket b \rrbracket} \\
     % \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} &\triangleq 
     %   \{ r \ | \ r \in \mathit{num} \text{ and } k_0 \leq r \leq k_1 \} \\
     \mathcal{VR_{\mathbf{\tau_0 \times \tau_1}}} &\triangleq 
@@ -854,7 +753,6 @@ capture the core information needed to prove our error soundness theorem.
   \end{equation}
 \end{definition}
 
-\subsection{Soundness} \label{sec:soundness}
 \begin{lemma}[$\mathcal{SD}$ is a metric]
   $\mathcal{SD}$ forms a metric over our syntactic terms; in particular it
   satisfies:
@@ -913,9 +811,65 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
   Our proof is complete.
 \end{proof}
 
+We now define vectors of expressions, and substitutions which will also be
+useful later for stating and proving our main type soundness proof (Metric
+Preservation, Theorem~\ref{thm:type-soundness}). We proceed to incrementally
+build up to the definition of distance between substitutions below.
+
+\begin{definition}[Distance between expression vectors.]
+    We write vectors of expressions $\sigma$, $\sigma'$ are $\gamma$ apart for a
+    given typing context $\Delta \ | \ \Gamma$ like so 
+    $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$
+    if and only if
+    $\gamma = r_0, r_1, \ldots$
+    where
+    $\sigma = \sigma_{\Delta}, e_0,~\ldots,~e_n$ 
+    and 
+    $\sigma' = \sigma_{\Delta}, e'_0,~\ldots,~e'_n$ 
+    such that:
+    $$
+    e_0 \sim_{r_0} e'_0 : \tau_0~[\sigma_{\Delta}],
+    ~\ldots,
+    ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
+    $$
+    where $\sigma_{\Delta}$ is a bound vector with no free variables.
+    Note that the distance between expression vectors are undefined when the
+    bound vector $\sigma_{\Delta}$ differs between substitutions.
+\end{definition}
+
+\begin{definition}[Enviroment compatibility.]
+We also say that a substitution vector 
+$$\sigma_{\Delta}, [e_0/x_0, \ldots, e_n/x_n]$$
+is \textit{compatible} with a typing context 
+$x_0 : \tau_0, \ldots, x_n : \tau_n$
+if each term 
+$e_0 \in \mathcal{R}_{\tau_0~[\sigma_{\Delta}]}, 
+\ldots,
+e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by
+the bound vector $\sigma_{\Delta}$.
+\end{definition}
+
+\begin{definition}[Dot product of distance vectors.]
+Our definition for the dot product of a distance vector $\gamma = r_0, \ldots,
+r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
+the same as Fuzz \cite{Fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
+\end{definition}
+
+In the remainder of the paper, we'll treat and represent our distance vector
+$\gamma$ as a lookup function and assume that there is an implicit fixed
+ordering on the variables.
+\begin{definition}[Distance vector lookup.]
+  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+  in the domain, $\gamma(x) = 0$ by default. 
+\end{definition}
+
+We have now finished defining all the components necessary to state our logical
+relation. 
 % TODO: check that we properly handle the not zero and intersection condition
 % everywhere this is used
-Following Fuzz, we prove a $r$-sensitive substitution lemma.
+Now that we can talk about subsitutions, we follow Fuzz and prove a
+$r$-sensitive substitution lemma.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
   \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
@@ -1006,7 +960,7 @@ The below lemma is useful towards proving metric preservation:
   $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[e] \sigma'$
   holds.
 \end{proof}
-
+Finally, we can prove our big error soundness theorem.
 \begin{theorem}[Metric preservation]
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
