@@ -164,7 +164,7 @@ Armed with the output of type inference, we can apply our main error theorem,
 Theorem~\ref{thm:paired-a-priori}, for 32-bit floats:
 % TODO: check this calculation
 $d(r, \tilde{r}) 
-= max(|ln(e^u + \frac{100}{900}(e^{-u}-e^u))|, |ln(e^-u + \frac{100}{900}(e^u-e^{-u}))|) 
+= max(|ln(e^u + \frac{100}{900}(e^{-u}-e^u))|, |ln(e^{-u} + \frac{100}{900}(e^u-e^{-u}))|) 
 = 4.635916 \times 10^{-8}$. 
 % https://www.wolframalpha.com/input?i2d=true&i=max%5C%2840%29%7Cln%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2844%29%7Cln%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2841%29
 % Another piece of information that tightens our error analysis is knowing how big
@@ -201,8 +201,18 @@ polymorphism via $\forall$ introduction and elimination rules.
 To reduce annotation overhead, we provide a type inference algorithm that can
 automatically infer bound polymorphism abstraction and instantiation sites. We
 prove our type inference algorithm sound in Section~\ref{sec:inference}. 
-% We also prove that our low-annotation approach gives us bounds no looser than
-% prior type based work while also supporting subtraction and negative numbers.
+
+% TODO: awk phrasing I think, can be tighter. forwards reference to section
+% where we do this once this is written
+A natural question to ask is whether our approach of first using a paired
+representation, then running a bounds analysis to recover the error on the
+original unpaired representation reduces the precision of our analysis on
+programs. Interestingly, we do not lose any precision. We provide several
+examples showing that our bounds analysis is capable of reasoning that programs
+containing only-growing functions on non-negative numbers will be non-negative.
+When our bounds analysis successfully proves that a result is non-negative, the
+terms in our main error theorem reliant on the bounds analysis disappear that
+the maximum round-off error is simply the grade of the monad.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}
@@ -257,4 +267,6 @@ let-bind a =
 More generally, for perfect binary trees of addition, we have a $log_2 (n)$
 factor improvement on our error bounds. We defer a detailed explaination of
 \textbf{factor} and how it allows for structuring and sequencing arithmetic
-towards a more precise error analysis in Section~\ref{sec:structure}.
+towards a more precise error analysis in Section~\ref{sec:structure}. We also
+showcase the improved precision offered by programs annotated with the
+\textbf{factor} primitive in Section~\ref{sec:eval}.
