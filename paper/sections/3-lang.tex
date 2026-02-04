@@ -171,12 +171,13 @@ upper-bounded by $q$.
 \end{equation}
 
 
-Typing contexts have the following grammar: $\Gamma, \Delta ::= . | \Gamma, x :s
-\tau$. Semantically, we can treat contexts $\Gamma$ as a partial map from
-variables $x$ to pairs of sensitivities and types $(s, \tau)$. Similarly to
-Numerical Fuzz, we can sum and scale typing contexts. We represent context
-scaling as $\Gamma + \Delta$ and scaling by a real $s$ as $s \cdot \Gamma$. We
-define pair context and scaling and then context summing and scaling below.
+Typing contexts have the following grammar: 
+$\Gamma, \Delta ::= . | \Gamma, x :_s \tau$.
+Semantically, we can treat contexts $\Gamma$ as a partial map from variables $x$
+to pairs of sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we
+can sum and scale typing contexts. We represent context scaling as $\Gamma +
+\Delta$ and scaling by a real $s$ as $s \cdot \Gamma$. We define pair context
+and scaling and then context summing and scaling below.
 
 \begin{definition}[Pair summing]
   We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +
@@ -437,7 +438,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \AXC{$\Delta \ \bdash \ b_n : \textbf{bnd}$}
 \AXC{$\textbf{bop} \in \Sigma_{\textbf{bnd}}$}
 \RightLabel{(\bnd{\text{Bop}})}
-\QIC{$\Delta \bdash \textbf{bop}(b_0, \ldots, b_n) : \textbf{bnd}$}
+\QIC{$\Delta \bdash \bnd{\textbf{bop}}(b_0, \ldots, b_n) : \textbf{bnd}$}
 \bottomAlignProof
 \DisplayProof
 \vskip 1em
@@ -490,9 +491,6 @@ semantics.
 Evaluation contexts and the characteristic \textit{context rule} allow us to
 simplify reasoning about the rewrite relation, which we factor out into a
 separate lemma in our soundness proof. 
-Our rewrite relation has a restricted ability to step bound expressions and
-eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
-(2, 4)$.
 
 \begin{figure}
 \begin{center}
@@ -517,7 +515,7 @@ eliminate polymorphic variables. For example, the bound $(0, 1) + (2,3) \mapsto
 	\mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  &\mapsto e_i[v/x]
    \\
   \factor ((v_1, v_2), (v_3, v_4)) &\mapsto ((v_1, v_3), (v_2, v_4)) \\
-  \textbf{bop}_c(c_0, \ldots, c_n) &\mapsto \textit{bop}_c(c_0, \ldots, c_n)
+  \textbf{bop}(c_0, \ldots, c_n) &\mapsto \textit{bop}(c_0, \ldots, c_n)
   \\
   \Lambda \epsilon . e~{c} &\mapsto e[c /\epsilon] \\
 \end{align*}
@@ -845,9 +843,9 @@ capture the core information needed to prove our error soundness theorem.
     % \mathcal{VR}_{\textbf{bnd}} &\triangleq \{ (k_0, k_1) \ | \ k_0 \leq k_1 \ \forall k_0, k_1 \in
     % \textit{ num } \} \\
     \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
-      \{ \Lambda \epsilon . v \ | \ \forall (k_0, k_1) \in \textit{num}^2, \ v ~ 
-        \{(k_0, k_1)\} \in
-      \mathcal{R}_{\tau[(k_0, k_1) / \epsilon]}\} \\
+    \{ \Lambda \epsilon . v \ | \ \forall \bnd{c} \in \bnd{\mathbb{B}}, \ v ~ 
+      \{\bnd{c}\} \in
+      \mathcal{R}_{\tau[\bnd{c} / \epsilon]}\} \\
     % \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
     %   \{ (\llbracket b \rrbracket, v) \ | \ \forall (k_0, k_1) \in
     %   \mathcal{VR}_{\textbf{bnd}} \text{ s.t. } v ~ \{(k_0, k_1)\} \in
@@ -1015,12 +1013,12 @@ The below lemma is useful towards proving metric preservation:
   $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
 \end{theorem} \label{thm:metric-preservation}
 \begin{proof}
-  We induct over our typing derivation. The base cases (Var, \textbf{bvar},
-  Unit, Const) follow trivially. The subsumption and widening cases also follow
-  trivially. We detail the remaining cases here. Note that the distance between
-  $\textbf{bnd}$ vars in $\Delta$ is $\infty$ if they correspond to different
-  bounds. Therefore for the following cases, we omit reptitively reasoning
-  about $\Delta$ substitutions:
+  We induct over our typing derivation. The base cases (Var,
+  \bnd{\textbf{bvar}}, Unit, Const) follow trivially. The subsumption and
+  widening cases also follow trivially. We detail the remaining cases here. Note
+  that the distance between $\bnd{\textbf{bnd}}$ vars in $\Delta$ is $\infty$ if
+  they correspond to different bounds. Therefore for the following cases, we
+  omit reptitively reasoning about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
       We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
