@@ -137,8 +137,8 @@ $$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\upar
 $$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 
-Given a rounding function $\rho_\mathbb{R}$ over the reals, we can also
-associate a paired $\rho_{\mathbb{P}}$, defined below:
+Given a rounding function $\rho_\mathbb{R}$ over the reals, we recall the
+definition of our paired $\rho_{\mathbb{P}}$ below:
 \begin{definition}[Rounding over pairs]
 $\rho_{\mathbb{P}}((r, a, b)) = 
 \begin{cases}
@@ -146,8 +146,9 @@ $\rho_{\mathbb{P}}((r, a, b)) =
 (\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
   \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
 \end{cases}
-$.
+$
 \end{definition}
+which satisfies the constraint that $r = a - b$ at all times.
 It is sound to use the same round-off error bound $u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
 In other words, we wish to show that the translated rounding function can share
 the same unit round-off constant as the original rounding function over the
