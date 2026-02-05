@@ -10,10 +10,10 @@ MEMORY_LIMIT=${5:-10g}
 CPU_LIMIT=${6:-1}
 
 if [ -z "$BENCHMARK" ] || [ -z "$SIZE" ]; then
-    echo "Usage: $0 <benchmark> <size> [phase] [timeout] [memory_limit] [cpu_limit]"
-    echo "Benchmarks: horner, matmul, serialsum, poly"
-    echo "Size: integer (e.g., 5, 10, 64, 128)"
-    exit 1
+  echo "Usage: $0 <benchmark> <size> [phase] [timeout] [memory_limit] [cpu_limit]"
+  echo "Benchmarks: horner, matmul, serialsum, poly"
+  echo "Size: integer (e.g., 5, 10, 64, 128)"
+  exit 1
 fi
 
 export TIMEOUT MEMORY_LIMIT CPU_LIMIT
@@ -25,40 +25,42 @@ echo "Generating large benchmark: $BENCHMARK with size: $SIZE"
 cd "benchmarks-new/large/$BENCHMARK"
 
 case "$BENCHMARK" in
-    horner)
-        python3 generate_horner_fptaylor.py "$SIZE" "Horner${SIZE}.fptaylor"
-        python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}.fz"
-        python3 generate_horner_g.py "$SIZE" "Horner${SIZE}.g"
-        python3 generate_horner_satire.py "$SIZE" "Horner${SIZE}.txt"
-        BASE_NAME="large/horner/Horner${SIZE}"
-        ;;
-    matmul)
-        python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}.fz"
-        python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}-factor.fz"
-        python3 generate_matmul_fptaylor.py "$SIZE" "matmul${SIZE}.fptaylor"
-        python3 generate_matmul_g.py "$SIZE" "matmul${SIZE}.g"
-        python3 generate_mat_mul_satire.py "$SIZE" "matmul${SIZE}.txt"
-        BASE_NAME="large/matmul/matmul${SIZE}"
-        ;;
-    serialsum)
-        python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
-        python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}.fz" --factor
-        python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
-        python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
-        BASE_NAME="large/serialsum/serial_sum_${SIZE}"
-        ;;
-    poly)
-        python3 generate_poly_fptaylor.py "$SIZE" "Poly${SIZE}.fptaylor"
-        python3 generate_poly_fz.py "$SIZE" "Poly${SIZE}-factor.fz"
-        python3 generate_poly_g.py "$SIZE" "Poly${SIZE}.g"
-        python3 generate_poly_satire.py "$SIZE" "Poly${SIZE}.txt"
-        BASE_NAME="large/poly/Poly${SIZE}"
-        ;;
-    *)
-        echo "Error: Invalid benchmark '$BENCHMARK'"
-        echo "Benchmarks must be: horner, matmul, serialsum, or poly"
-        exit 1
-        ;;
+horner)
+  python3 generate_horner_fptaylor.py "$SIZE" "Horner${SIZE}.fptaylor"
+  python3 generate_horner_fz.py "$SIZE" "Horner${SIZE}.fz"
+  python3 generate_horner_g.py "$SIZE" "Horner${SIZE}.g"
+  python3 generate_horner_satire.py "$SIZE" "Horner${SIZE}.txt"
+  BASE_NAME="large/horner/Horner${SIZE}"
+  ;;
+matmul)
+  python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}.fz"
+  python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}.fz"
+  python3 generate_dotprod.py "$SIZE" "dotprod${SIZE}-factor.fz" --factor
+  python3 generate_mat_mul.py "$SIZE" "matmul${SIZE}-factor.fz" --factor
+  python3 generate_matmul_fptaylor.py "$SIZE" "matmul${SIZE}.fptaylor"
+  python3 generate_matmul_g.py "$SIZE" "matmul${SIZE}.g"
+  python3 generate_mat_mul_satire.py "$SIZE" "matmul${SIZE}.txt"
+  BASE_NAME="large/matmul/matmul${SIZE}"
+  ;;
+serialsum)
+  python3 generate_serial_sum_fptaylor.py "$SIZE" "serial_sum_${SIZE}.fptaylor"
+  python3 generate_serial_sum_fz.py "$SIZE" "serial_sum_${SIZE}.fz" --factor
+  python3 generate_serial_sum_g.py "$SIZE" "serial_sum_${SIZE}.g"
+  python3 generate_serial_sum_satire.py "$SIZE" "serial_sum_${SIZE}.txt"
+  BASE_NAME="large/serialsum/serial_sum_${SIZE}"
+  ;;
+poly)
+  python3 generate_poly_fptaylor.py "$SIZE" "Poly${SIZE}.fptaylor"
+  python3 generate_poly_fz.py "$SIZE" "Poly${SIZE}-factor.fz"
+  python3 generate_poly_g.py "$SIZE" "Poly${SIZE}.g"
+  python3 generate_poly_satire.py "$SIZE" "Poly${SIZE}.txt"
+  BASE_NAME="large/poly/Poly${SIZE}"
+  ;;
+*)
+  echo "Error: Invalid benchmark '$BENCHMARK'"
+  echo "Benchmarks must be: horner, matmul, serialsum, or poly"
+  exit 1
+  ;;
 esac
 
 # Return to project root
@@ -91,7 +93,7 @@ run_in_docker "bash -c 'cd /numerics-playground/deps/Satire && \
 
 # Abstraction windows: (10,20), (15,25), (20,40)
 for config in "10 20" "15 25" "20 40"; do
-  read -r mindepth maxdepth <<< "$config"
+  read -r mindepth maxdepth <<<"$config"
   run_in_docker "bash -c 'cd /numerics-playground/deps/Satire && \
     python3 src/satire.py --std --compress --file ../../${SATIRE_FILE} \
     --enable-abstraction --mindepth '"${mindepth}"' --maxdepth '"${maxdepth}"' \

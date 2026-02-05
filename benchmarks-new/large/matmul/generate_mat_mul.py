@@ -20,11 +20,14 @@ def generate_matrix_type(n):
         result = f"({row_type},{result})"
         return result
 
-def generate_mat_mul(f, n):
+def generate_mat_mul(f, n, factor):
     """Generate matrix multiplication function for nxn matrices"""
 
-    # Include
-    f.write(f'#include "dotprod{n}.fz"\n')
+    # Include, check if we import the factor version or not
+    if factor:
+        f.write(f'#include "dotprod{n}-factor.fz"\n')
+    else:
+        f.write(f'#include "dotprod{n}.fz"\n')
     f.write('\n')
 
     # Function signature
@@ -90,6 +93,8 @@ def parse_args():
                        help='Matrix dimension (must be at least 1)')
     parser.add_argument('output', nargs='?', type=str, default=None,
                        help='Output file (default: print to stdout)')
+    parser.add_argument('--factor', action='store_true', 
+                        help='Whether to use the factor primitive')
     return parser.parse_args()
 
 def main():
@@ -101,11 +106,11 @@ def main():
 
     if args.output:
         with open(args.output, 'w') as f:
-            generate_mat_mul(f, args.n)
+            generate_mat_mul(f, args.n, args.factor)
         print(f"Generated {args.output}")
     else:
         buf = io.StringIO()
-        generate_mat_mul(buf, args.n)
+        generate_mat_mul(buf, args.n, args.factor)
         print(buf.getvalue(), end='')
 
 if __name__ == '__main__':
