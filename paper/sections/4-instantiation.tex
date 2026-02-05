@@ -1,6 +1,6 @@
 \section{Instantiation} \label{sec:encoding}
-In this section we instantiate Numerical Fuzz to provide \textit{a priori} and
-error bounds in the presence of subtraction and negative numbers.
+In this section we instantiate Numerical Fuzz to provide forwards error bounds
+in the presence of subtraction and negative numbers.
 In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the
 modular interface defined in Definition~\ref{def:numfuzz-interface} using a
 $\textit{paired representation}$ introduced below. Then, in
@@ -23,9 +23,9 @@ under the $\leq$ relation over the first component
 such that $r = a - b$. We equip our set $\mathbb{P}$ with a distance function
 $d_{\textit{num}}((r, a, b)(r', a', b'))$ forming a metric
 space.
-To soundly use our encoding, we must show it satisfies the correctness
-properties demanded by the modular interface defined in
-Section~\ref{sec:lang}.
+To soundly use our encoding, we must instantiate the modular interface defined
+in Definition~\ref{def:numfuzz-interface} and show it satisfies the correctness
+properties specified in the definition.
 % \begin{lemma}[Metric space]
 %   $\mathbb{P}, \leq$ forms a lattice.
 % \end{lemma}

@@ -684,24 +684,23 @@ We induct over each typing / case in the type inference algorithm.
 \end{description}
 \end{proof}
 
-\subsection{Evaluating bound expressions}
 After running type inference we obtain a result in the form: 
 $\Delta \ | \ \Gamma \vdash e : \tau$. 
 In some cases, $\tau$ might contain bound expressions.
 For example, after running type inference on the program $add \langle 1, 2 \rangle$, we might
 obtain the following type 
-$. \vdash add \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}$
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}$
 Semantically, this type represents the same relation as:
-$. \vdash add \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \text{True})}$
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \text{True})}$
 
-In this case, we can extend the $\bnd{\llbracket - \rrbracket}$
-(Definition~\ref{def:interval-exp-eval}) evaluating bound expressions to
-also evaluate types that possibly contain bound expressions. 
-Importantly our soundness theorem proved below, the logical relation
-corresponding to the evalauted type should be the same logical relation as the
-original type. This is a semantic notion of soundness, which is why we present
-the evaluation of types and bound expressions separately from our
-syntax-directed type inference algorithm.
+To handle such cases, we extend the $\bnd{\llbracket - \rrbracket}$
+(Definition~\ref{def:interval-exp-eval}) evaluating bound expressions to also
+evaluate types that possibly contain bound expressions. Importantly our
+soundness theorem proved below, the logical relation corresponding to the
+evalauted type should be the same logical relation as the original type. This is
+a semantic notion of soundness, which is why we present the evaluation of types
+and bound expressions separately from our syntax-directed type inference
+algorithm.
 
 \begin{definition}[Type evaluation]
 Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
@@ -739,6 +738,14 @@ Note that for simplicity, we only halt evaluation when we see a $\forall$.
   \rrbracket}$, they are in the same equivalence class and thus the same logical
   relation.
 \end{proof}
+
+\subsection{Example programs and types}
+We now demonstrate to run set up and run the type inference problem from start
+to finish on an example FPCore benchmark.
+We also remark on several observations that match our intuition on how the
+algorithm behaves.
+
+% TODO: add tightness by example argument
 
 % \subsection{Tightness} \label{sec:tightness}
 % A natural question to ask is whether the paired representation introduced in the

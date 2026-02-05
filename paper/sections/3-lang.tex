@@ -704,7 +704,8 @@ e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
 In our language, we only reason about closed types and terms. Let $CV(\tau)$ be
 the closed values of type $\tau$ and $CE(\tau)$ be the closed expressions of
 type $\tau$. Then we can define a unary logical relation over types which
-capture the core information needed to prove our error soundness theorem.
+capture the core information needed to prove our error soundness theorem (Metric
+Preservation, Theorem~\ref{thm:metric-preservation}).
 
 \begin{definition}[Logical relation] \label{def:logical-relation}
   \begin{equation}
@@ -801,8 +802,8 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 \end{proof}
 
 \begin{lemma}[Admissibility of weakening (on bound contexts)]\label{thm:weakening-bnd}
-  If $\Delta \bdash i : \textbf{bnd}$ and $\Delta \subseteq \Delta'$, then
-  $\Delta' \bdash i : \textbf{bnd}$. 
+  If $\Delta \bdash i : \bnd{\textbf{bnd}}$ and $\Delta \subseteq \Delta'$, then
+  $\Delta' \bdash i : \bnd{\textbf{bnd}}$. 
 \end{lemma}
 \begin{proof}
   $\Delta$ tracks the free type variables in $i$. 
