@@ -97,15 +97,13 @@ def generate_dotprod(f, n):
     for line in generate_unpacking_statements('b', n):
         f.write(line + '\n')
 
-    f.write(f'lb c0 = mulfp64(a0, b0) in \n')
     for i in range(0,n):
-        f.write(f'lb c{i} = mulfp64 (a{i}, b{i}) in \n')
+        f.write(f'lb c{i} = mulfp64(a{i}, b{i}) in \n')
 
     f.write(f'lb s{1} = addfp64<c0, c1> in \n')
-    for i in range(2,n):
+    for i in range(2,n-1):
         f.write(f'lb s{i} = addfp64<c{i}, s{i-1}> in \n')
-
-    f.write(f's{n-1}\n')
+    f.write(f'addfp64<c{n-1}, s{n-2}>\n')
     f.write('}\n')
 
 def parse_args():
