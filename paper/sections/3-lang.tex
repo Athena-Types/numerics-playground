@@ -59,12 +59,11 @@ types, and \textbf{let} for sequencing variable assignment.
 Note that our term language is more expressive than Numerical Fuzz as we do not
 restrict the bound term in our let expressions to be values.
 
-Our term language extends Numerical Fuzz's term language. We introduce a
-language for bounds (shown in Figure~\ref{fig:syntax}) as well as explicit
-terms to represent polymorphic abstraction $\bnd{(\Lambda \epsilon. e)}$ and
-instantiation $\bnd{(e \bnd{\{b\}})}$. This is useful for incorporating an bound
-analysis into the type inference algorithm, which we detail in
-Section~\ref{sec:inference}.
+We also introduce a language for bounds (shown in Figure~\ref{fig:syntax}) as
+well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
+\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. This is useful for
+incorporating an bound analysis into the type inference algorithm, which we
+detail in Section~\ref{sec:inference}.
 
 \begin{figure}[tbp]
   \begin{alignat*}{3}
