@@ -101,7 +101,7 @@ by a small amount, for example, by 1 per-cent, we can observe quite large
 % catestrophic cancellation (or rule it out) in order to produce useful error
 % bounds.
 
-\paragraph{Our approach} 
+\paragraph{Our approach: Negative Fuzz} 
 The techniques detailed in this paper center around representing each possibly
 negative number, $r$, in our semantics with a pair of non-negative $(a, b)$
 which behave akin to ghost variables.
@@ -148,7 +148,7 @@ Section~\ref{sec:inference}.
 
 % TODO: maybe refer to sec 5 (factor) above too?
 
-Our approach addresses the limitations of prior work by providing a scalable,
+Negative Fuzz addresses the limitations of prior work by providing a scalable,
 type-based forwards error analysis that can handle broader classes of programs
 and, at the same time, more accurately structure and sequence arithmetic while
 tightening error bounds. 
