@@ -212,10 +212,10 @@ examples showing that our bounds analysis is capable of reasoning that programs
 containing only-growing functions on non-negative numbers can only produce
 non-negative numbers. Therefore, on the programs supported by both Negative Fuzz and
 Numerical Fuzz, the maximum round-off error obtained by Negative Fuzz is simply
-the inferred grade of the monad and is therefore no looser than the bound
-obtained by Numerical Fuzz. Negative Fuzz is therefore a strict improvement on
-Numerical Fuzz: our approach can analyze more programs with possibly tighter
-bounds on previously supported programs.
+the inferred grade of the monad and is no looser than the bound obtained by
+Numerical Fuzz. Negative Fuzz is therefore a strict improvement on Numerical
+Fuzz: our approach can analyze more programs with possibly tighter bounds on
+previously supported programs.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}
