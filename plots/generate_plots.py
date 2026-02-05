@@ -432,7 +432,7 @@ def generate_pdfs(post_samples: dict, results_transpose: pd.DataFrame, output_di
             columns=["result", "error-bound-rel", "error-bound-abs"]
         )
 
-        # Get reference bounds (matching notebook access pattern)
+        # Get reference bounds
         gappa_abs = results_transpose[fname]["gappa-abs"]
         gappa_rel = results_transpose[fname]["gappa-rel"]
         fptaylor_abs = results_transpose[fname]["fptaylor-abs"]
@@ -456,7 +456,7 @@ def generate_pdfs(post_samples: dict, results_transpose: pd.DataFrame, output_di
         g.set(yscale="log")
 
         # Save PDF
-        output_path = os.path.join(output_dir, f"{fname}.pdf")
+        output_path = os.path.join(output_dir, f"{fname}.pdf".replace("/large", ""))
         g.savefig(output_path)
         print(f"Saved PDF: {output_path}")
 
@@ -588,13 +588,6 @@ def main():
     results_transpose = results_df.transpose()
     results_transpose.columns = results_transpose.iloc[0]
 
-    # Generate PDFs
-    if not args.skip_sampling and post_samples:
-        print("\nGenerating PDFs...")
-        generate_pdfs(post_samples, results_transpose, args.output_dir)
-    else:
-        print("\nSkipping PDF generation (no samples)")
-
     # Format results CSV
     cols = ["pre-rel", "pre-abs", "pre-rel-factor", "pre-abs-factor",
             "gappa-abs", "gappa-rel", "fptaylor-abs", "fptaylor-rel",
@@ -628,6 +621,13 @@ def main():
     print(f"\nSaved CSV files:")
     print(f"  Results: {results_csv}")
     print(f"  Timings: {timings_csv}")
+
+    # Generate PDFs
+    if not args.skip_sampling and post_samples:
+        print("\nGenerating PDFs...")
+        generate_pdfs(post_samples, results_transpose, args.output_dir)
+    else:
+        print("\nSkipping PDF generation (no samples)")
 
 
 if __name__ == "__main__":
