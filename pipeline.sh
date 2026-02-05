@@ -6,7 +6,7 @@ set -uxo pipefail
 # - time: only run hyperfine benchmarks
 # - all: run all phases (generate + analyze + time)
 BENCH_PHASE=${BENCH_PHASE:-all}
-TIMEOUT=${TIMEOUT:-1800}
+TIMEOUT=${TIMEOUT:-3600}
 MEMORY_LIMIT=${MEMORY_LIMIT:-64GB}
 CPU_LIMIT=${CPU_LIMIT:-1}
 PARALLEL_JOBS=24
