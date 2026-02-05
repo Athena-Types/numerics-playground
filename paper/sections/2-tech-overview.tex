@@ -206,13 +206,16 @@ prove our type inference algorithm sound in Section~\ref{sec:inference}.
 % where we do this once this is written
 A natural question to ask is whether our approach of first using a paired
 representation, then running a bounds analysis to recover the error on the
-original unpaired representation reduces the precision of our analysis on
+original unpaired representation hurts the precision of our analysis on
 programs. Interestingly, we do not lose any precision. We provide several
 examples showing that our bounds analysis is capable of reasoning that programs
-containing only-growing functions on non-negative numbers will be non-negative.
-When our bounds analysis successfully proves that a result is non-negative, the
-terms in our main error theorem reliant on the bounds analysis disappear that
-the maximum round-off error is simply the grade of the monad.
+containing only-growing functions on non-negative numbers can only produce
+non-negative numbers. Therefore, on the programs supported by both Negative Fuzz and
+Numerical Fuzz, the maximum round-off error obtained by Negative Fuzz is simply
+the inferred grade of the monad and is therefore no looser than the bound
+obtained by Numerical Fuzz. Negative Fuzz is therefore a strict improvement on
+Numerical Fuzz: our approach can analyze more programs with possibly tighter
+bounds on previously supported programs.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}
