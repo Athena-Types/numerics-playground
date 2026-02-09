@@ -99,12 +99,14 @@ real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
 Our error function $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b}))$
-over $\mathbb{P}$ is measured as the 
-$max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
+over $\mathbb{P}$ is defined below:
+\begin{definition}[Distance over pairs] \label{def:distance-p}
+$d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
+\end{definition}
 
 Importantly, we can ``simulate" error on the paired representation by defining a
 paired version of our rounding function $\rho$:
-\begin{definition}[Rounding over pairs]
+\begin{definition}[Rounding over pairs] \label{def:rounding-p}
 $\rho_{\mathbb{P}}((r, a, b)) = 
 \begin{cases}
   (0, a, b)  & r = 0\\

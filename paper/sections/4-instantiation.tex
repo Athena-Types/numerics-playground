@@ -1,67 +1,170 @@
 \section{Instantiation} \label{sec:encoding}
-In this section we instantiate Numerical Fuzz to provide forwards error bounds
-in the presence of subtraction and negative numbers.
-In Section~\ref{sec:instantiation}, we instantiate Numerical Fuzz using the
-modular interface defined in Definition~\ref{def:numfuzz-interface} using a
-$\textit{paired representation}$ introduced below. Then, in
-Section~\ref{sec:application} we demonstrate how to read out the paired
-representation as concrete bounds for standard, unpaired, floating-point
-arithmetic.
+Numerical Fuzz's forwards error analysis relies on bounding Lipschitz function
+sensitivity. However, subtraction, and by extension addition with negative
+numbers, has unbounded Lipschitz sensitivity over the reals. This poses a
+challenge to a compositional type-based analysis of programs involving
+subtraction and negative numbers.
 
-\subsection{Instantiation} \label{sec:instantiation}
-Our forwards error analysis relies on bounding Lipschitz function sensitivity.
-However, subtraction, and by extension addition with negative numbers, has
-unbounded Lipschitz sensitivity over the reals. This poses a challenge to a
-compositional type-based analysis of programs involving subtraction and negative
-numbers.
-
-To avoid this problem, we encode our semantics through a \textit{paired
+To avoid this problem, we translate our semantics to a \textit{paired
 representation} where we associate for each real $r \in \mathbb{R}$ a lattice of
-triples
-$(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ \triangleq \mathbb{P} = \mathit{num}$ 
-under the $\leq$ relation over the first component
-such that $r = a - b$. We equip our set $\mathbb{P}$ with a distance function
-$d_{\textit{num}}((r, a, b)(r', a', b'))$ forming a metric
-space.
-To soundly use our encoding, we must instantiate the modular interface defined
-in Definition~\ref{def:numfuzz-interface} and show it satisfies the correctness
-properties specified in the definition.
-% \begin{lemma}[Metric space]
-%   $\mathbb{P}, \leq$ forms a lattice.
-% \end{lemma}
-% \begin{proof}
-%   Follows by the $\leq$ lattice on $\mathbb{R}$.
-% \end{proof}
+triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+
+\triangleq \mathbb{P} = \mathit{num}$ under the $\leq$ relation over the first
+component such that $r = a - b$. 
+Accordingly, we equip our set $\mathbb{P}$ with a distance function
+$d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maxmimum distance over
+the paried components (Definition~\ref{def:distance-p}).
+Instead of reasoning over the real component, we instantiate our graded type
+system to track distances and error over the always-growing paired components.
+We then instantiate our automatic typed-based bounds analysis and apply our main
+error theorem to translate our error bound back over the unpaired component.
 
-\begin{lemma}[Metric space]
-  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
-\end{lemma}
-\begin{proof}
-Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
-and appliation of triangle inequality with respect to $d_{\mathbb{R}}$.
-\end{proof}
+The remainder of this section is organized as follows. In
+Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
+interface (Definition~\ref{def:numfuzz-interface}) with our $\textit{paired
+representation}$. In particular, we define and type our supported operations
+including subtraction under the paired representation. We describe our bounds
+analysis setup and provide intuition for our choice of domain. In
+Section~\ref{sec:application}, we use the results of our automatic type-based
+bounds analysis to translate the monadic grade over the paired components into
+useful bounds over the underlying unpaired real. We also present our main error
+theorem over the unpaired real. We defer intrducing our approach to automatic
+type inference to Section~\ref{sec:inference}.
 
-Our operations and bounds operate over the paired representation
-$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
-using bounded-sensitivity operations over the non-negative reals, avoiding the
-problem of infinite sensitivity.
 
-Our bounds analysis is inspired by interval analysis. For a concrete tuple 
+% In the remainder of this section, we demonstrate how to use Negative Fuzz to
+% provide error bounds in the presence of subtraction and negative numbers. 
+% Then, in Section~\ref{sec:application} we use the bounds analysis to translate
+% the grade on the paired representation into useful error bounds for the
+% standard, unpaired, floating-point arithmetic.
+% TODO: signpost more detailed
+
+% outline:
+% - explanation, signpost
+% - instantiating modular interfacde (direct, concise, and technical)
+% - reading out things (technical but mixed with some explanation)
+
+\subsection{Instantiating the modular interface} \label{sec:instantiation}
+To soundly use our encoding, we must instantiate the modular interface
+($\textit{num}$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, $(\bnd{\mathbb{B}},
+\leq)$, $\Sigma_{\bnd{bnd}}$) defined in Definition~\ref{def:numfuzz-interface}
+and show that it satisfies the properties specified. In the subsequent
+subsections, we instantiate the interface with the appropriate rounding
+functions and round-off parameters (Section~\ref{sec:rho-and-u}), supported
+arithmetic operations (Section~\ref{sec:paired-ops}), bounds domain and bounds
+operations (Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
+instantation adheres to the spec demanded by Negative Fuzz
+(Sections~\ref{sec:prop-a}-\ref{sec:prop-e}).
+
+\subsubsection{Defining the rounding function and round-off parameters for the
+paired representation.} \label{sec:rho-and-u}
+We set $\textit{num} = \mathbb{P}$ equipped with $\leq$ defined above.
+We also set $\rho = \rho_{\mathbb{P}}$ (Definition~\ref{def:rounding-p}) to
+``simulate" the round-off error on the unpaired component.
+Our choice of $u$ depends on the format and founding mode used. 
+% TODO: change thm statement to reflect this, add label and ref here
+It is sound to use same corresponding choice of $u$ representing the
+unit-roundoff constant as Numerical Fuzz (Lemma~\ref{thm:rounding-param}); we
+reproduce the corresponding choices from Numerical Fuzz in
+Table~\ref{tab:formats} and Table~\ref{tab:rnd_modes}. We define our operations
+$\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and bound operations
+$\Sigma_{\bnd{bnd}}$ below.
+
+\begin{table}
+\caption{Parameters for floating-point number sets in the IEEE 754-2008
+standard. For each, $emin = 1 - emax$.}
+\label{tab:formats}
+\begin{tabular}{ c c c c }
+ \hline
+\textbf{Parameter}& \textbf{binary32} & \textbf{binary64} &\textbf{binary128} \\
+ \hline
+ $p$   & 24    & 53 & 113     \\
+$emax$ &   $+127$  & $+1023$ & $+16383$ \\
+ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+\caption{Common Rounding Functions (modes).}
+\label{tab:rnd_modes}
+\begin{tabular}{ c c c c }
+ \hline
+\textbf{Rounding mode} & \textbf{Behavior} & \textbf{Notation} & \textbf{Unit Roundoff ($u$)} \\
+\hline
+ Round towards $+\infty$   & $\min\{y \in \F \mid y \ge x \}$  & $\rho_{RU}(x)$ & $\beta^{1-p}$   \\
+ Round towards $-\infty$   & $\max\{y \in \F \mid y \le x \}$  &   $\rho_{RD}(x)$ & $\beta^{1-p}$ \\
+ Round towards $0$   &   $\rho_{RU}(x)$ if $x < 0 $, otherwise  $\rho_{RD}(x)$  & $\rho_{RZ}(x)$
+	& $\beta^{1-p} $ \\
+ Round towards nearest \footnote{For round towards nearest, there 
+	are several possible tie-breaking choices.}   & $\{y \in \F \mid \forall z \in \F,  |x - y| \le |x-z| \} 
+	 $   & $\rho_{RN(x})$ & $\frac{1}{2}\beta^{1-p}  $    \\
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Defining our operations over the paired representation}
+\label{sec:paired-ops}
+We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
+compute are are typed over our paired representationn in the following way:
+\begin{equation}
+\begin{aligned}[c]
+  &\textit{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 + \epsilon_2} \\
+  &\textit{add} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a,
+  b), (r', a', b') \rangle) \mapsto (r + r', a + a', b + b') \\
+  \\
+  &\textit{sub} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 - \epsilon_2} \\
+  &\textit{sub} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a, b),
+  (r, a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
+  \\
+  &\textit{mul} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 \cdot \epsilon_2} \\
+  &\textit{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r, a',
+  b'))) \mapsto (r * r', a * b + b * b', b * a' + a * b') \\
+\end{aligned}
+\end{equation}
+
+
+% TODO: now we describe / define bounds and bound ops. make sure that the
+% lettering of each of the props are ok
+\subsubsection{Defining our bounds domain and bound operations}
+\label{sec:bnd-domain-and-op}
+Our bounds analysis is inspired by interval analysis. For each component in our
+triple, we track the lower bound and upper bound. For example, for a pair $(1,
+2, 3)$ we might track that $r^{\downarrow}$ (pronounced r ``lower bound") and
+$r^{\uparrow}$ (pronounced r ``upper bound") and $a^{\downarrow}, a^{\uparrow},
+b^{\downarrow}, b^{\uparrow}$ each bound their respective components. 
+To improve the precision of our bounds analysis, we observe that frequently only
+one of the paired components is greater than zero. In fact, an inspection of our
+supported operations shows that $a > 0 \land b > 0$ can only be true when
+either: (1) the program contains subtraction, or (2) the program contains
+negative numbers. Further, we observe that when the ($a > 0 \land b > 0$)
+condition holds, the bound drastically tightens.
+% TODO: brag about Horner being much tighter (do we foreshadow or just drop some
+% random eval claim here?)
+
+% TODO: intuition on the bit, why we have it and what it tracks. emp on common
+% case
+Accordingly, for a concrete tuple 
 $(r, a, b) \in \mathbb{P}$
-we track using our set of bound $\bnd{\mathbb{B}}$ seven things:
+we set our bound domain $\bnd{\mathbb{B}}$ to track seven things:
 $((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
 (b^{\downarrow}, b^{\uparrow}), d)$
-under the following constraints
+under the following constraints:
 \begin{enumerate}
   \item Lower and upper bounds on $r$, with the following constraints $r^{\uparrow} \leq r \leq r^{\downarrow}$
   \item Lower and upper bounds on $a$, with the following constraints $a^{\uparrow} \leq a \leq a^{\downarrow}$
   \item Lower and upper bounds on $b$, with the following constraints $b^{\uparrow} \leq b \leq b^{\downarrow}$
   \item A boolean $d$ tracking whether the condition $a > 0 \land b > 0$ is true.
 \end{enumerate}
-Accordingly, we define our $\bnd{\llbracket - \rrbracket}$ evaluation function:
+To define $\leq$ over our bounds domain, we first define a mapping of bounds to
+sets:
+\begin{definition}[Mapping of bounds to sets.]
+Our mapping from bounds to sets $\textbf{toSet} : \bnd{\mathbb{B}} \to
+\mathbf{Set}$ is defined as follows:
 \begin{equation}
   \begin{aligned}[c]
-  \bnd{\llbracket} ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \bnd{\rrbracket} 
+   \textbf{toSet} ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) 
     = \\ \{ (r, a, b) \ | \
     (r^{\downarrow} \leq r \leq r^{\uparrow}) \land
       (a^{\downarrow} \leq a \leq a^{\uparrow}) 
@@ -70,35 +173,18 @@ Accordingly, we define our $\bnd{\llbracket - \rrbracket}$ evaluation function:
     \forall (r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+\}
   \end{aligned}
 \end{equation}
-Our $\leq$ relation over $\mathbb{B}$ is simply the $\subseteq$ relation over
-the interpretation of each bound:
-\begin{definition}[$\leq$ over $\mathbb{B}$.]
-  $b_0 \leq b_1 \iff \bnd{\llbracket} b_0 \bnd{\rrbracket} \subseteq
-  \bnd{\llbracket} b_1 \bnd{\rrbracket}$
 \end{definition}
 
-We instantiate the modular interface with the interval operations $\Sigma = \{
-\textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$ with the following types:
-\begin{equation}
-\begin{aligned}[c]
-  &\textbf{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
-  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 + \epsilon_2} \\
-  &\textbf{add} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a,
-  b), (r', a', b') \rangle) \mapsto (r + r', a + a', b + b') \\
-  \\
-  &\textbf{sub} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
-  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 - \epsilon_2} \\
-  &\textbf{sub} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a, b),
-  (r, a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
-  \\
-  &\textbf{mul} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
-  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 \cdot \epsilon_2} \\
-  &\textbf{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r, a',
-  b'))) \mapsto (r * r', a * b + b * b', b * a' + a * b') \\
-\end{aligned}
-\end{equation}
-Our binary interval operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$ mapping
-$\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$ as follows:
+Then, our $\leq$ relation over $\bnd{\mathbb{B}}$ is simply the $\subseteq$
+relation over the \textbf{toSet} interpretation of each bound:
+\begin{definition}[$\leq$ over $\bnd{\mathbb{B}}$.]
+  $b_0 \leq b_1 \iff \textbf{toSet} b_0 \subseteq \textbf{toSet} b_1$
+\end{definition}
+
+% TODO: add logic for the bit
+Finally, we deifne our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
+mapping $\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$ as
+follows:
 \begin{equation}
   \begin{aligned}[c]
     ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) + 
@@ -136,23 +222,47 @@ $$r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\up
 $$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+% TODO: do we need more intuition here? maybe connect to abstract transformers?
 
-Given a rounding function $\rho_\mathbb{R}$ over the reals, we recall the
-definition of our paired $\rho_{\mathbb{P}}$ below:
-\begin{definition}[Rounding over pairs]
-$\rho_{\mathbb{P}}((r, a, b)) = 
-\begin{cases}
-  (0, a, b)  & r = 0\\
-(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
-  \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
-\end{cases}
-$
-\end{definition}
-which satisfies the constraint that $r = a - b$ at all times.
-It is sound to use the same round-off error bound $u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
+We now prove that our instantation adheres to the properties demanded by the
+interface spec of Negative Fuzz. By stapling together the following lemmas, the
+interface ($\mathbb{P}, d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma,
+(\mathbb{B}, \leq), \Sigma_{\mathbf{num}}$) satisfies the spec for instantiating
+Negative Fuzz specified in Definition~\ref{def:numfuzz-interface}.
+
+\subsubsection{Property A: The \textit{num} and distance function
+$d_\textbf{num}$ form a metric space.} \label{sec:prop-a}
+\begin{lemma}[Metric space]
+  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
+\end{lemma}
+\begin{proof}
+Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
+and appliation of triangle inequality with respect to $d_{\mathbb{R}}$.
+\end{proof}
+
+Our operations and bounds operate over the paired representation
+$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
+using bounded-sensitivity operations over the non-negative reals, avoiding the
+problem of infinite sensitivity.
+
+
+\subsubsection{Property B: Property of $u$ and rounding function $\rho$.}
+
+% TODO: keep the below
+To show a correspondance with the constants for $u$ given in Numerical Fuzz and
+Negative Fuzz, we show that it is sound to use the same round-off error bound
+$u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
 In other words, we wish to show that the translated rounding function can share
-the same unit round-off constant as the original rounding function over the
-unpaired representation:
+the same round-off constant as the grade used in Numerical Fuzz over an unpaired
+representation.
+
+Given a rounding function $\rho_\mathbb{R}$ over the real with up to $u$
+round-off error, recall that we define a ``simualted" rounding function
+$\rho_{\mathbb{P}}$ over the paired representation
+(Definition~\ref{def:rounding-p})
+which satisfies the constraint that $r = a - b$ at all times. We need to show
+that our round-off constants $u$ still work for our new paired representation
+and paired rounding function $\rho_{\mathbb{P}}$.
 \begin{lemma}[Property of rounding and constant parameter $u$]
 We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
 $\forall r \in \mathbb{R}, d_\mathbb{R} (\rho(r), r) \leq u$, then
@@ -170,9 +280,19 @@ d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
 $.
 \end{proof}
 
-We need to show that our intantiatned bounds follow the required properties
-specified in the modular interface.
+\subsubsection{Property C: Property of $\mathbf{op} \in \Sigma$: metric preservation.}
+Our operations satisfy metric preservation.
+% TODO: elaborate some more?
 
+\begin{lemma}[Operations satisfy metric preservation]
+Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
+\end{lemma}
+\begin{proof}
+Holds by a case analysis for each operation in $\Sigma$ and unfolding the
+definition of our metric function.
+\end{proof}
+
+\subsubsection{Property D: Partial order of bounds.}
 \begin{lemma}[Partial order of $\bnd{\mathbb{B}}$.]
   $(\mathbb{B}, \leq)$ form a partial order.
 \end{lemma}
@@ -180,6 +300,9 @@ specified in the modular interface.
   Follows from the fact that $\subseteq$ forms a partial order over
   $\mathbb{Set}$.
 \end{proof}
+
+\subsubsection{Property E: Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$:
+closure over bounds ($\bnd{\mathbb{B}}$).} \label{sec:prop-e}
 
 \begin{lemma}[Closure over bounds]
 For every operation $\mathbf{bop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
@@ -190,36 +313,26 @@ c_n) = c' : \textbf{bnd}$ holds.
   Follows by inspection of the definition of our three supported operations.
 \end{proof}
 
-Our operations satisfy metric preservation.
-% todo: these are closed over something other than num?
-
-\begin{lemma}[Operations satisfy metric preservation]
-Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
-\end{lemma}
-\begin{proof}
-Holds by a case analysis for each operation in $\Sigma$ and unfolding the
-definition of our metric function.
-\end{proof}
-
-By stapling together the proceeding lemmas, the interface 
-($\mathbb{P}, (\mathbb{B}, \leq), d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma, \Sigma_{\mathbf{num}}$) 
-satisfy the interface for instantiating Negative Fuzz specified in
-Definition~\ref{def:numfuzz-interface}.
-
-\subsection{Application} \label{sec:application}
+\subsection{Translating our error bounds from the paired to the unpaired
+representation} \label{sec:application} 
+% TODO: completed up to here
 For a given $. \vdash e : M_q \textbf{num}_{\bnd{b}}$, we wish to bound the
 error between $e$ computed ideally over the reals versus the floating-point
-approximation. We now prove our paired error theorems
+approximation. 
+To do this, we prove our paired error theorems
 (Theorem~\ref{thm:paired-a-priori-rel},
-Theorem~\ref{thm:paired-a-posteriori-rel}),
-which for a triple $(r, a, b)$ relates error on the paired components $a, b$
-with error on $r$. By plugging in the theorems proved below, we are able to
-obtain multiple bounds for a given typed program.
+Theorem~\ref{thm:paired-a-posteriori-rel}), which for a triple $(r, a, b)$
+relates error on the paired components $a, b$ with error on $r$. By plugging in
+the theorems proved below, we are able obtain useful bounds over the unpaired
+representation for a given typed program.
+We have two main error theorems in this paper, detailed below: a relative error
+theorem (Theorem~\ref{thm:paired-a-priori-rel}) and an absolute error theorem
+(Theorem~\ref{thm:paired-a-priori-abs}).
 
-Note that we have the condition $0 < r^{\downarrow}$. This can be generalized
-to $r^{\downarrow}$ and $r^{\uparrow}$ having the same sign. In practice, it is
-rare for a program to have $r^{\downarrow}$ and $r^{\uparrow}$ negative so we
-ignore that case here.
+Note that for the below theorem we have the condition $0 < r^{\downarrow}$. This
+can be generalized to $r^{\downarrow}$ and $r^{\uparrow}$ having the same sign
+by a mirrored proof. When the lower and upper bounds on $r$ straddle zero, we
+cannot produce a relative error bound.
 \begin{theorem}[Paired error theorem; a priori relative] \label{thm:paired-a-priori-rel}
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
   $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
@@ -288,159 +401,14 @@ ignore that case here.
 \end{proof}
 
 \begin{corollary}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto ((r, a, b), (r',
-  a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
-  following bounds: 
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, $e
+  \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than
+  or equal to all of the following bounds: 
 \begin{enumerate}
   \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
   \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
 \end{enumerate} 
-\end{corollary} 
-\begin{proof}
-  By our logical relation and metric preservation theorem (Theorem
-  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
-  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
-  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
-  theorem proves the corollary.
-\end{proof}
-
-\begin{theorem}[Paired error theorem; a posteriori relative] \label{thm:paired-a-posteriori-rel}
-  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
-  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
-  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
-  \begin{enumerate}
-    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
-    \item $r \in [r^{\downarrow}, r^{\uparrow}]$
-    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
-    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
-  \end{enumerate}
-  and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
-  to the following bounds if $0 < r'$: 
-  \begin{enumerate}
-    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
-    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
-  \end{enumerate}
-  and to the following bounds if $r' < 0$:
-  \begin{enumerate}
-    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
-    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
-  \end{enumerate}
-\end{theorem} 
-\begin{proof}
-  We first examine the scenario where $0 < r'$.
-  Similarly to the previous theorem, there are two subcases, $r' \leq r$ or $r' >
-  r$. In the first case, we wish to maximize the numerator and minimize the
-  denominator. So, 
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \leq
-    \frac{r}{r'} \leq
-    \frac{a - b'e^{-q}}{a' - b'} =
-    \frac{a - b' e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
-    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \leq
-    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
-    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \leq
-    e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q})
-  \end{aligned}
-  \end{equation}
-  Therefore,
-  \begin{equation} \label{eq:a-posterori-bnd-a-pos}
-  \begin{aligned}[c]
-  0 \leq ln(\frac{r'}{r}) \leq 
-  ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))
-  \end{aligned}
-  \end{equation}
-  Similarly, for the other case, we have:
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \geq
-    \frac{r}{r'} \geq
-    \frac{a - b'e^{q}}{a' - b'} =
-    \frac{a - b'e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
-    e^{q} + \frac{a - a'e^{q}}{a' - b'} \geq
-    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
-    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \geq
-    e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q})
-  \end{aligned}
-  \end{equation}
-  Therefore, 
-  \begin{equation} \label{eq:a-posterori-bnd-a-neg}
-  \begin{aligned}[c]
-    0 \geq ln(\frac{r'}{r}) \geq
-    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))
-  \end{aligned}
-  \end{equation}
-  A sound bound for both cases is absolute value of the maximum of
-  Equation~\ref{eq:a-posterori-bnd-a-pos} and Equation~\ref{eq:a-posterori-bnd-a-neg},
-  which is exactly our first bound (a). The proof strategy for the second bound
-  (b) mirrors that of the first bound.
-
-  We now examine the scenario where $r' < 0$. Recall that we assume that $r$ and
-  $r'$ have the same sign.
-  This scenario largely mirrors the first one, except some directions are
-  flipped. Similarly to the previous case, there are two subcases, $r' \leq r$
-  or $r' > r$. In the first case, we wish to maximize our numerator and minimize
-  our denominator. 
-  So, 
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \geq
-    \frac{r}{r'} \geq
-    \frac{a - b'e^{-q}}{a' - b'} =
-    \frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
-    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \geq
-    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
-    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \geq
-    e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q})
-  \end{aligned}
-  \end{equation}
-  Therefore, 
-  \begin{equation} \label{eq:a-posterori-bnd-a-pos-neg}
-  \begin{aligned}[c]
-    0 \geq ln(\frac{r'}{r}) \geq
-    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))
-  \end{aligned}
-  \end{equation}
-  Similarly, for the other case, we have:
-  \begin{equation}
-  \begin{aligned}[c]
-    1 \leq
-    \frac{r}{r'} \leq
-    \frac{a - b'e^{q}}{a' - b'} =
-    \frac{a - b' e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
-    e^{q} + \frac{a - a'e^{q}}{a' - b'} \leq
-    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
-    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \leq
-    e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q})
-  \end{aligned}
-  \end{equation}
-  Therefore,
-  \begin{equation} \label{eq:a-posterori-bnd-a-neg-neg}
-  \begin{aligned}[c]
-  0 \leq ln(\frac{r'}{r}) \leq 
-  ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))
-  \end{aligned}
-  \end{equation}
-  A sound bound for both cases is absolute value of the the maximum of
-  Equation~\ref{eq:a-posterori-bnd-a-pos-neg} and
-  Equation~\ref{eq:a-posterori-bnd-a-neg-neg}, which is exactly our first bound
-  (c). The proof strategy for the second bound (d) mirrors that of the first
-  bound.
-\end{proof}
-
-\begin{corollary}
-  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
-  (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to the
-  following bounds if $0 < r'$: 
-  \begin{enumerate}
-    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
-    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
-  \end{enumerate}
-  and to the following bounds if $r' < 0$:
-  \begin{enumerate}
-    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
-    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
-  \end{enumerate}
 \end{corollary} 
 \begin{proof}
   By our logical relation and metric preservation theorem (Theorem
@@ -510,9 +478,10 @@ ignore that case here.
 \end{proof}
 
 \begin{corollary}
-  For $. \vdash e : M_q~\mathbf{num}_{(r^{\downarrow}, a^{\downarrow}, b^{\downarrow}), (r^{\uparrow}, a^{\uparrow}, b^{\uparrow})}$, 
-  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ 
-  where $|r - r'|$ is the maximum of the following:
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, 
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is the
+  maximum of the following:
 \begin{enumerate}
   \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
   \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$

@@ -237,7 +237,8 @@ modify our (Op) typing rule from Numerical Fuzz.
 % For presentational purposes, we present a restricted form of the
 % typing rule to make the modular interface easier to follow.
 
-\begin{figure}
+\begin{figure}[hbtp]
+\vskip 5em
 %% ROW1
 \begin{center}
 %% unit
@@ -456,7 +457,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \bottomAlignProof
 \DisplayProof
 
-\vskip 3em
+\vskip 5em
 
 \end{center}
     \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
@@ -491,7 +492,7 @@ Evaluation contexts and the characteristic \textit{context rule} allow us to
 simplify reasoning about the rewrite relation, which we factor out into a
 separate lemma in our soundness proof. 
 
-\begin{figure}
+\begin{figure}[]
 \begin{center}
 \begin{equation*}
 \begin{aligned}[c]
@@ -546,26 +547,19 @@ It is the proof obligation for any language designer instantiating the language
 to demonstrate that these properties hold in order for our paramterized
 soundness theorems to follow.
 
+\begin{samepage}
 \begin{definition}[Interface for instantiating Negative Fuzz.]
   \label{def:numfuzz-interface}
-  The interface for Negative Fuzz consists of $\textit{num}$,
-  $(\bnd{\mathbb{B}}, \leq)$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, and
-  $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
+  The interface for Negative Fuzz consists of $\textit{num}$, $d_\textbf{num}$,
+  $\rho$, $u$, $\Sigma$, $(\bnd{\mathbb{B}}, \leq)$, and $\Sigma_{\bnd{bnd}}$
+  such that the following properties hold: 
 \begin{description}
   \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
   metric space.]
-  \item[b) Property of $\rho$ and constant parameter $u$.] We assume that the
+  \item[b) Property of $u$ and rounding function $\rho$.] We assume that the
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Partial order of bounds.] The set of bounds and binary relation
-    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
-  \item[d) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
-    We further need to assume that for every operation $\mathbf{bop}(b_0,
-    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
-    \mathbb{B}$ then the corresponding
-    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
-    holds.
-  \item[e) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
+  \item[c) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
     \footnote{Note that we could make this portion of the interface more general
     by definining it in terms of the logical relation in
     Section~\ref{def:logical-relation}. We have opted to keep the interface
@@ -580,8 +574,17 @@ soundness theorems to follow.
     and for all v mapping bounds and syntactic values in
     $(\tau_0 \to \tau_1)[b_0 / \epsilon_0, b_1 / \epsilon_1]$
     is 1-sensitive as measured by $\mathcal{SD}$, defined below.
+  \item[d) Partial order of bounds.] The set of bounds and binary relation
+    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
+  \item[e) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
+    We further need to assume that for every operation $\mathbf{bop}(b_0,
+    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
+    \mathbb{B}$ then the corresponding
+    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
+    holds.
 \end{description}
 \end{definition}
+\end{samepage}
 
 The remainder of this subsection is dedicated to defining distances between
 terms, which is necessary to understand the metric preservation property our

@@ -1,0 +1,145 @@
+\begin{theorem}[Paired error theorem; a posteriori relative] \label{thm:paired-a-posteriori-rel}
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r \in [r^{\downarrow}, r^{\uparrow}]$
+    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
+    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
+  \end{enumerate}
+  and we know $r'$, we have that $d_{\mathbb{R}}(r, r')$ is less than or equal
+  to the following bounds if $0 < r'$: 
+  \begin{enumerate}
+    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+  and to the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+\end{theorem} 
+\begin{proof}
+  We first examine the scenario where $0 < r'$.
+  Similarly to the previous theorem, there are two subcases, $r' \leq r$ or $r' >
+  r$. In the first case, we wish to maximize the numerator and minimize the
+  denominator. So, 
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \leq
+    \frac{r}{r'} \leq
+    \frac{a - b'e^{-q}}{a' - b'} =
+    \frac{a - b' e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
+    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \leq
+    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
+    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \leq
+    e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q})
+  \end{aligned}
+  \end{equation}
+  Therefore,
+  \begin{equation} \label{eq:a-posterori-bnd-a-pos}
+  \begin{aligned}[c]
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r}{r'} \geq
+    \frac{a - b'e^{q}}{a' - b'} =
+    \frac{a - b'e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
+    e^{q} + \frac{a - a'e^{q}}{a' - b'} \geq
+    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
+    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \geq
+    e^{q} + \frac{a^{\downarrow}}{r'}(1-e^{2q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-posterori-bnd-a-neg}
+  \begin{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))
+  \end{aligned}
+  \end{equation}
+  A sound bound for both cases is absolute value of the maximum of
+  Equation~\ref{eq:a-posterori-bnd-a-pos} and Equation~\ref{eq:a-posterori-bnd-a-neg},
+  which is exactly our first bound (a). The proof strategy for the second bound
+  (b) mirrors that of the first bound.
+
+  We now examine the scenario where $r' < 0$. Recall that we assume that $r$ and
+  $r'$ have the same sign.
+  This scenario largely mirrors the first one, except some directions are
+  flipped. Similarly to the previous case, there are two subcases, $r' \leq r$
+  or $r' > r$. In the first case, we wish to maximize our numerator and minimize
+  our denominator. 
+  So, 
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r}{r'} \geq
+    \frac{a - b'e^{-q}}{a' - b'} =
+    \frac{a - b'e^{-q} + a'e^{-q} - a'e^{-q}}{a' - b'} \\ =
+    e^{-q} + \frac{a - a'e^{-q}}{a' - b'} \geq
+    e^{-q} + \frac{a - ae^{-2q}}{a' - b'} =
+    e^{-q} + \frac{a}{r'}(1-e^{-2q}) \\ \geq
+    e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-posterori-bnd-a-pos-neg}
+  \begin{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))
+  \end{aligned}
+  \end{equation}
+  Similarly, for the other case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \leq
+    \frac{r}{r'} \leq
+    \frac{a - b'e^{q}}{a' - b'} =
+    \frac{a - b' e^{q} + a'e^{q} - a'e^{q}}{a' - b'} \\ =
+    e^{q} + \frac{a - a'e^{q}}{a' - b'} \leq
+    e^{q} + \frac{a - ae^{2q}}{a' - b'} =
+    e^{q} + \frac{a}{r'}(1-e^{2q}) \\ \leq
+    e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q})
+  \end{aligned}
+  \end{equation}
+  Therefore,
+  \begin{equation} \label{eq:a-posterori-bnd-a-neg-neg}
+  \begin{aligned}[c]
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^{q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))
+  \end{aligned}
+  \end{equation}
+  A sound bound for both cases is absolute value of the the maximum of
+  Equation~\ref{eq:a-posterori-bnd-a-pos-neg} and
+  Equation~\ref{eq:a-posterori-bnd-a-neg-neg}, which is exactly our first bound
+  (c). The proof strategy for the second bound (d) mirrors that of the first
+  bound.
+\end{proof}
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{(k_0, k_1)}$, $e \mapsto^{*} ((r, a, b),
+  (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than or equal to the
+  following bounds if $0 < r'$: 
+  \begin{enumerate}
+    \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{2q}))|)$
+    \item[(b)] $max(|ln(e^{q} + \frac{b^{\uparrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\downarrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+  and to the following bounds if $r' < 0$:
+  \begin{enumerate}
+    \item[(c)] $max(|ln(e^{-q} + \frac{a^{\downarrow}}{r'}(1-e^{-2q}))|, |ln(e^{-q} + \frac{a^{\uparrow}}{r'}(1-e^{2q}))|)$
+    \item[(d)] $max(|ln(e^{q} + \frac{b^{\downarrow}}{r'}(e^{2q}- 1))|,|ln(e^q + \frac{b^{\uparrow}}{r'}(e^{-2q}-1))|)$
+  \end{enumerate}
+\end{corollary} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
+  theorem proves the corollary.
+\end{proof}
