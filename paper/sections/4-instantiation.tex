@@ -44,14 +44,15 @@ type inference to Section~\ref{sec:inference}.
 % - reading out things (technical but mixed with some explanation)
 
 \subsection{Instantiating the modular interface} \label{sec:instantiation}
-To soundly use our encoding, we must instantiate the modular interface
-($\textit{num}$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$, $(\bnd{\mathbb{B}},
-\leq)$, $\Sigma_{\bnd{bnd}}$) defined in Definition~\ref{def:numfuzz-interface}
-and show that it satisfies the properties specified. In the subsequent
-subsections, we instantiate the interface with the appropriate rounding
-functions and round-off parameters (Section~\ref{sec:rho-and-u}), supported
-arithmetic operations (Section~\ref{sec:paired-ops}), bounds domain and bounds
-operations (Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
+To soundly use the paired representation, we must instantiate the modular
+interface ($\textit{num}$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$,
+$(\bnd{\mathbb{B}}, \leq)$, $\Sigma_{\bnd{bnd}}$) defined in
+Definition~\ref{def:numfuzz-interface} and show that it satisfies the properties
+specified. In the subsequent subsections, we instantiate the interface with the
+appropriate rounding functions and round-off parameters
+(Section~\ref{sec:rho-and-u}), supported arithmetic operations
+(Section~\ref{sec:paired-ops}), bounds domain and bounds operations
+(Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
 instantation adheres to the spec demanded by Negative Fuzz
 (Sections~\ref{sec:prop-a}-\ref{sec:prop-e}).
 

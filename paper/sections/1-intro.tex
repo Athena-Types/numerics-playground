@@ -1,8 +1,6 @@
 \section{Introduction}
 It is natural for ordinary programmers such as mathematicians and scientists to
 wish their computers operate over the reals. 
-However, this is impossible in many contexts. Instead, we settle for a finitary
-floating-point number approximation.
 As language designers, we wish to convince the ordinary programmer, who are
 largely not experts in numerical analysis, that the floating-point semantics we
 have provided is ``close enough" to what they desire.
@@ -10,37 +8,30 @@ Towards this end, we develop automated numerical analyses to bound the error
 introduced by our floating-point approximations. We wish for our analyses to be
 efficient, as automatic as possible, and precise.
 
-A major challenge in the automated numerical analysis literature is scalability.
-Many existing approaches rely on global optimization \cite{fptaylor}
-\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
-\cite{rosa}. However, as programs scale, these analysis approaches frequently
-time-out. Recent work has applied typed-based analysis approaches to both
-forwards and backwards error analysis, such as Numerical Fuzz \cite{numfuzz} and
-Bean \cite{bean}. The advantage of type-based methods is that they are
-inherently compositional and scalable: all of the information necessary to
-perform an error analysis on a function is contained within the type.
-There is no need to perform global optimization, run an algorithm to
-convergence, saturate rewrites, or bit-blast.
-
-% max: do I need to explain round-off error first?
-\paragraph{Prior type-based work and limitations.} 
 In this paper, we extend Numerical Fuzz, an affine call-by-value graded type
-system for bounding round-off error. The core idea of Numerical Fuzz is to track
-two key properties of each function: (1) the function sensitivity $s$ and (2)
-the maximum error $q$ introduced by the function. Intuitively, $s$ upper-bounds
-the amount by which perturbations in a function's input affect its output.
-Formally, function sensitivity is defined below.
-For the remainder of this paper, $\tilde{\phi}$ corresponds to the
-floating-point approximation of $\phi$.
+system for bounding round-off error.
+The advantage of a type-based method is that it is inherently compositional and
+scalable: all of the information necessary to perform an error analysis on a
+function is contained within the type. 
+The core idea of Numerical Fuzz is to track two key properties of each function:
+(1) how a function magnifies error in its inputs (function sensitivity), and (2)
+the maximum error introduced by the function. By simultaneously tracking these
+two properties, Numerical Fuzz is able to compositionally bound the maximum
+accmulated error in a program via a graded monad.
 
-\begin{definition}[Lipschitz function sensitivity]
-  For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
-  $s$-sensitive if $\forall x, \tilde{x} \in X, d_Y(f(x), f(\tilde{x})) \leq s
-  \cdot d_X(x, \tilde{x})$.
-\end{definition}
 
-Function sensitivity bounds the amount by which error in a function's inputs
-will become magnified in its outputs.
+% \paragraph{Prior type-based work and limitations.} 
+% For the remainder of this paper, $\tilde{\phi}$ corresponds to the
+% floating-point approximation of $\phi$.
+%
+% \begin{definition}[Lipschitz function sensitivity]
+%   For a given metric space $(X, d_X)$ and $(Y, d_Y)$ a function $f : X \to Y$ is
+%   $s$-sensitive if $\forall x, \tilde{x} \in X, d_Y(f(x), f(\tilde{x})) \leq s
+%   \cdot d_X(x, \tilde{x})$.
+% \end{definition}
+
+% Function sensitivity bounds the amount by which error in a function's inputs
+% will become magnified in its outputs.
 % If a given function $f$ with senstivity $s$ and round-off error $q$ has at most
 % $r$ error in its inputs $\tilde{x}$, we can apply triangle inequality to obtain
 % that $\widetilde{f(x)}$ will exhibit at most $s \cdot r + q$ round-off error. 
@@ -214,3 +205,15 @@ Concretely, our contributions are as follows:
     performance (Section~\ref{sec:eval}).
     % TODO: put in hard numbers
 \end{itemize}
+
+% TODO: where do I stick this?
+\paragraph{Related work}
+A major challenge in the automated numerical analysis literature is scalability.
+Many existing approaches rely on global optimization \cite{fptaylor}
+\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
+\cite{rosa}. However, as programs scale, these analysis approaches frequently
+time-out. Recent work has applied typed-based analysis approaches to error
+analysis, such as Numerical Fuzz \cite{numfuzz} and Bean \cite{bean}. 
+There is no need to perform global
+optimization, run an algorithm to convergence, saturate rewrites, or bit-blast.
+
