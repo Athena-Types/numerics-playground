@@ -131,8 +131,8 @@ compute are are typed over our paired representationn in the following way:
 \label{sec:bnd-domain-and-op}
 Our bounds analysis is inspired by interval analysis. For each component in our
 triple, we track the lower bound and upper bound. For example, for a pair $(1,
-2, 3)$ we might track that $r^{\downarrow}$ (pronounced r ``lower bound") and
-$r^{\uparrow}$ (pronounced r ``upper bound") and $a^{\downarrow}, a^{\uparrow},
+2, 3)$ we might track that $r^{\downarrow}$ (pronounced ``r lower bound") and
+$r^{\uparrow}$ (pronounced ``r upper bound") and $a^{\downarrow}, a^{\uparrow},
 b^{\downarrow}, b^{\uparrow}$ each bound their respective components. 
 To improve the precision of our bounds analysis, we observe that frequently only
 one of the paired components is greater than zero. In fact, an inspection of our
@@ -181,10 +181,12 @@ relation over the \textbf{toSet} interpretation of each bound:
   $b_0 \leq b_1 \iff \textbf{toSet} b_0 \subseteq \textbf{toSet} b_1$
 \end{definition}
 
-% TODO: add logic for the bit
-Finally, we deifne our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
-mapping $\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$ as
-follows:
+Finally, we define our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
+mapping $\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$.
+Each bound operation corresponds to the primitive operation in the surface
+syntax of the language. The correctness of the definition of each bound
+operation is ensured by the interface requirement that that each primitive
+operation's corresponding type obeys metric preservation.
 \begin{equation}
   \begin{aligned}[c]
     ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) + 
@@ -196,15 +198,35 @@ follows:
       a^{\uparrow} + a'^{\uparrow}),
       (b^{\downarrow} + b'^{\downarrow},
       b^{\uparrow} + b'^{\uparrow}),
-      TODO) \\
+      (d \land d' \land 
+      ((0 \leq r^{\downarrow} \land 0 \leq r'^{\downarrow}) 
+        \lor
+    (r^{\uparrow} \leq 0 \land r'^{\uparrow} \leq 0)))) & \\
     ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) -
     ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
     &= \\
     ((r^{\downarrow}_{sub}, r^{\uparrow}_{sub}),
     (a^{\downarrow} + b'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}),
     (b^{\downarrow} + a'^{\downarrow}, b^{\uparrow} + a'^{\uparrow}),
-    TODO
-    ), \\
+      (d \land d' \land 
+      ((0 \leq r^{\downarrow} \land r'^{\uparrow} \leq 0) 
+        \lor
+    (r^{\uparrow} \leq 0 \land 0 \leq r'^{\downarrow})))) &\\
+    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
+    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) 
+    &= \\
+    ((r^{\downarrow}_{mul}, r^{\uparrow}_{mul}),
+    (
+    \text{min}(a^{\downarrow} a'^{\downarrow}, b^{\downarrow} b'^{\downarrow})
+    , 
+    \text{min}(a^{\uparrow} a'^{\uparrow}, b^{\uparrow} b'^{\uparrow})
+    ), 
+    (
+    \text{max}(a^{\downarrow} b'^{\downarrow}, b^{\downarrow} a'^{\downarrow})
+    , 
+    \text{max}(a^{\uparrow} b'^{\uparrow}, b^{\uparrow} a'^{\uparrow}), 
+    d \land d')) \\ 
+    \text{if $d \land d'$}\\ 
     ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
     ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) 
     &= \\
@@ -212,7 +234,8 @@ follows:
     (a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, 
     a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow}), 
     (a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}, 
-    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow}), TODO) \\ 
+    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow}), d \land d') \\
+    \text{otherwise}\\ 
   \end{aligned}
 \end{equation}
 where 
@@ -221,8 +244,11 @@ $$r^{\uparrow}_{add} = max(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\upar
 $$r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 $$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+$$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow},
+r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 % TODO: do we need more intuition here? maybe connect to abstract transformers?
+% TODO: add intuition on logic for the bit, maybe break up and define each op
+% one-by-one? maybe also tease horner pathological example?
 
 We now prove that our instantation adheres to the properties demanded by the
 interface spec of Negative Fuzz. By stapling together the following lemmas, the
