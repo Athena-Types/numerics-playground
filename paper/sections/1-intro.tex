@@ -82,7 +82,7 @@ We demonstrate how to encode subtraction as a finite-sensitive operation.
 Then, we encorporate an interval-style analysis in the type system to translate
 the simulated error on the paired representation into floating-point error on
 the standard representation.
-Finally, we introduce a new primitive that can more precisely capture the
+We introduce a new primitive that can more precisely capture the
 propagation of floating-point error under addition and subtraction.
 Supporting subtraction and improving the precision of addition are orthogonal
 contributions, so we describe them separately:
@@ -141,27 +141,10 @@ approaches while covering many more programs, including those with subtraction
 and negative numbers. We defer the details of our paired approach to
 Section~\ref{sec:encoding} and type inference to Section~\ref{sec:inference}. 
 
-% Now, we can track error on the paired representation.
-% We wish to turn our relative bounds on the paired components $a$ and $b$ into a
-% useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce useful
-% bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
-% \tilde{a} - \tilde{b}$. 
-% If we can obtain bounds on the paired ideal components $a$ and $b$, we would be
-% able to statically produce bounds on the distance beteen $r$ and $\tilde{r}$.
-
-% To accomplish this, we incorporate a bounds analysis in the type system. 
-% A challenge of doing a bounds analysis in the type system is how to assign a
-% precise bound to a function that has multiple call sites. A na{\"i}ve approach
-% might widen the bounds for each call site, drastically reducing the precision
-% of the bounds analysis. We address this challenge by introducing \textit{bound
-% polymorphism}, allowing 
-%    At each function call site, we specialize the polymorphic function to the
-%    appropriate bounds. 
-
-
 \subsubsection*{More precise analysis of addition and subtraction.}
-% TODO: fill in factor stuff, intuition and ref
+% TODO: fill in factor stuff, intuition and forwards ref
 
+\subsubsection*{Contributions.}
 Negative Fuzz addresses the limitations of prior work by providing a scalable,
 type-based forwards error analysis that can handle broader classes of programs
 and, at the same time, more accurately structure and sequence arithmetic while
@@ -229,14 +212,4 @@ Concretely, our contributions are as follows:
     % TODO: put in hard numbers
 \end{itemize}
 
-% TODO: where do I stick this?
-\paragraph{Related work}
-A major challenge in the automated numerical analysis literature is scalability.
-Many existing approaches rely on global optimization \cite{fptaylor}
-\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
-\cite{rosa}. However, as programs scale, these analysis approaches frequently
-time-out. Recent work has applied typed-based analysis approaches to error
-analysis, such as Numerical Fuzz \cite{numfuzz} and Bean \cite{bean}. 
-There is no need to perform global
-optimization, run an algorithm to convergence, saturate rewrites, or bit-blast.
 
