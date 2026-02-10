@@ -74,12 +74,23 @@ There are two limitations of Numerical Fuzz that our work addresses:
    % (when it really shouldn't be)
 \end{enumerate}
 
-\paragraph{Our approach: Negative Fuzz} 
+\subsection*{Our approach: Negative Fuzz} 
+The limitations of Numerical Fuzz we address are orthogonal, so we describe them
+separately. To support subtraction, we first introduce a \textit{paired
+representation} that simulates the floating-point error of a standard, unpaired
+program representation.
+We demonstrate how we can encode subtraction as a finitely-sensitive operation.
+Then, we use a bounds analysis to translate the simulated error  on the paired
+representation into floating-point error on the standard representation.
+Finally, we introduce a new primitive that can more precisely capture the
+propagation of floating-point error under addition and subtraction.
 % TODO: signpost this approach:
 % - sensitivity concern
 %   - but wait, we broke it! (how to translate bounds?)
 % - dealing with conservative treatment of addition and subtraction
 
+\paragraph{Supporing subtraction and negative numbers.} 
+% TODO: polish and org this entire para
 To support subtraction and negative numbers, we represent each possibly negative
 real, $r$, in our semantics with a pair of non-negative $(a, b)$ which behave
 akin to ghost variables.
@@ -96,26 +107,18 @@ finite-sensitive manner.
 We wish to turn our relative bounds on the paired components $a$ and $b$, into a
 useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce a useful
 bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
-\tilde{a} - \tilde{b}$. We detail two approaches towards convert relative bounds
-on the paired components (e.g. $d(a, \tilde{a}), d(b, \tilde{b}) \leq q$) to
-relative bounds on $r$ and $\tilde{r}$ (e.g. bounds on $d(r, \tilde{r})$):
-\begin{description}
-  \item[1) \textit{A priori.}] If we can obtain bounds on the paired ideal
-    components $a$ and $b$, we would be able to statically produce bounds on the
-    distance beteen $r$ and $\tilde{r}$.
-  \item[2) \textit{A posterori.}] If we are able to obtain bounds on either $a$
-    or $b$ \textit{and} know the value of $\tilde{r}$ from the actual execution
-    of the floating-point program, we can also obtain after-the-fact bounds on
-    $r$ and $\tilde{r}$.
-\end{description}
-Both approaches rely on having useful bounds for the ideal components. To
-accomplish this, we incorporate an bounds analysis in the type system.
-A challenge of doing a bounds analysis in the type system is how to assign a
-precise bound to a function that has multiple call sites. A na{\"i}ve
-approach might widen the bounds for each call site, drastically reducing the
-precision of the bounds analysis. We address this challenge by introducing \textit{bound polymorphism}, allowing functions to be polymorphic in
-the bounds assigned to the inputs. At each call site, we specialize the
-polymorphic function to the appropriate bounds. 
+\tilde{a} - \tilde{b}$. 
+If we can obtain bounds on the paired ideal components $a$ and $b$, we would be
+able to statically produce bounds on the distance beteen $r$ and $\tilde{r}$.
+
+To accomplish this, we incorporate a bounds analysis in the type system. A
+challenge of doing a bounds analysis in the type system is how to assign a
+precise bound to a function that has multiple call sites. A na{\"i}ve approach
+might widen the bounds for each call site, drastically reducing the precision of
+the bounds analysis. We address this challenge by introducing \textit{bound
+polymorphism}, allowing functions to be polymorphic in the bounds assigned to
+the inputs. At each call site, we specialize the polymorphic function to the
+appropriate bounds. 
 
 To reduce the user type annotation burden, we provide a type inference algorithm
 that can automatically generalize and instantiate bound-polymorphic functions.
@@ -126,7 +129,8 @@ including those with subtraction and negative numbers. We defer the details of
 our paired approach to Section~\ref{sec:encoding} and type inference to
 Section~\ref{sec:inference}. 
 
-% TODO: maybe refer to sec 5 (factor) above too?
+\paragraph{More precise analysis of addition and subtraction.}
+% TODO: fill in factor stuff, intuition and ref
 
 Negative Fuzz addresses the limitations of prior work by providing a scalable,
 type-based forwards error analysis that can handle broader classes of programs
