@@ -60,14 +60,15 @@ paired representation.} \label{sec:rho-and-u}
 We set $\textit{num} = \mathbb{P}$ equipped with $\leq$ defined above.
 We also set $\rho = \rho_{\mathbb{P}}$ (Definition~\ref{def:rounding-p}) to
 ``simulate" the round-off error on the unpaired component.
-Our choice of $u$ depends on the format and founding mode used. 
+Our choice of $u$ depends on the format and rounding mode used. 
 % TODO: change thm statement to reflect this, add label and ref here
 It is sound to use same corresponding choice of $u$ representing the
 unit-roundoff constant as Numerical Fuzz (Lemma~\ref{thm:rounding-param}); we
-reproduce the corresponding choices from Numerical Fuzz in
-Table~\ref{tab:formats} and Table~\ref{tab:rnd_modes}. We define our operations
-$\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and bound operations
-$\Sigma_{\bnd{bnd}}$ below.
+reproduce the corresponding choices from Numerical Fuzz broken out by
+floating-point format and rounding mode used in Table~\ref{tab:formats} and
+Table~\ref{tab:rnd_modes} respectively. We define our operations $\Sigma$, bound
+domain $(\bnd{\mathbb{B}}, \leq)$, and bound operations $\Sigma_{\bnd{bnd}}$
+below.
 
 \begin{table}
 \caption{Parameters for floating-point number sets in the IEEE 754-2008
