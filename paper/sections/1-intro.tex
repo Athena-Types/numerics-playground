@@ -1,9 +1,9 @@
 \section{Introduction}
 It is natural for ordinary programmers such as mathematicians and scientists to
 wish their computers operate over the reals. 
-As language designers, we wish to convince the ordinary programmer, who are
-largely not experts in numerical analysis, that the floating-point semantics we
-have provided is ``close enough" to what they desire.
+As language designers, we wish to convince the ordinary programmer that the
+floating-point semantics we have provided is ``close enough" to what they
+desire.
 Towards this end, we develop automated numerical analyses to bound the error
 introduced by our floating-point approximations. We wish for our analyses to be
 efficient, as automatic as possible, and precise.
@@ -56,53 +56,42 @@ accmulated error in a program via a graded monad.
 %   to bound round-off error.}
 %   \label{fig:sen}
 % \end{figure}
-However, subtraction over the reals is infinitely-sensitive, which leads
-Numerical Fuzz to conservatively conclude that any use of subtraction might lead
-to infinite round-off error.
-The core problem is that relatively small peturbations in the
-input of subtraction can lead to hard-to-bound relatively large perturbations in
-the output. As an illustrative toy example, suppose we have two large numbers
-like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
-by a small amount, for example, by 1 per-cent, we can observe quite large
-\textit{relative} changes in the output. 
-
-% As an illustrative toy example, suppose we
-% have two large numbers like 1,000,001 and 1,000,000 with little relative error.
-% Suppose that the relative error bounds for both large numbers is ``small" at 1
-% per cent. Then the relative error for $1,000,001 - 1,000,000 = 1$ is quite
-% large, upper-bounded at roughly 2,000,000 per cent.
-
-% The problem is essentially:
-% compositional type-based error bounds seem to require relative notions of error;
-% however, relative notions of error are not well-behaved in the presence of
-% subtraction and negative numbers. 
-% This fundamental phenomenon is known as \textit{catastrophic cancellation}: two
-% large nearby numbers with small relative error can be subtracted to produce a
-% small number with arbitrarily high relative error.
-
-% When catestrophic cancellation occurs, it is impossible to obtain tight error
-% bounds. Importantly, we often know when catestrophic cancellation cannot not
-% occur (\textit{a priori}) and can detect when it has occured (\textit{a
-% posteori}). \textit{A posterori} error bounds are particularly promising as
-% catestrophic cancellation only occurs when two large numbers are subtracted to
-% produce a \textit{small} number with arbitrarily high error. Knowing that the
-% final value is large allows for the ruling out of catestrophic cancellation,
-% sidestepping the problem entirely.
-% In both circumstances, our approach is able to reason about the presence of
-% catestrophic cancellation (or rule it out) in order to produce useful error
-% bounds.
+There are two limitations of Numerical Fuzz that our work addresses:
+\begin{enumerate}
+  \item \textbf{Lack of support for negative numbers or subtraction:} Subtraction over the
+   reals is infinitely-sensitive, which leads Numerical Fuzz to conservatively
+   conclude that any use of subtraction might lead to infinite round-off error.
+   Since many programs use subtraction or have negative numbers, this limitation
+   severely restricts the practical utility of Numerical Fuzz in modeling
+   real-world programs.
+ \item \textbf{Conservative treatment of addition and subtraction:} For
+   addition, floating-point error of addition is known to grow in the
+   \textit{height} of a computation tree. In Numerical Fuzz, a sequence of
+   additions grows in the \textit{number of nodes} in the corresponding
+   computation tree. As many programs use addition or subtraction, this limits
+   the precision of the Numerical Fuzz type system.
+   % maybe tie into claim that Numerical Fuzz is blind to reassociating exprs
+   % (when it really shouldn't be)
+\end{enumerate}
 
 \paragraph{Our approach: Negative Fuzz} 
-The techniques detailed in this paper center around representing each possibly
-negative number, $r$, in our semantics with a pair of non-negative $(a, b)$
-which behave akin to ghost variables.
+% TODO: signpost this approach:
+% - sensitivity concern
+%   - but wait, we broke it! (how to translate bounds?)
+% - dealing with conservative treatment of addition and subtraction
+
+To support subtraction and negative numbers, we represent each possibly negative
+real, $r$, in our semantics with a pair of non-negative $(a, b)$ which behave
+akin to ghost variables.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$ we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When our semantics subtracts two numbers
 $r_0 - r_1 = (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs
-to add components; subtraction is represented implictly. Distance between $(a_0,
-b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the pairwise distance:
-$max(d(a_0, a_1), d(b_0, b_1))$. In this manner, we encode subtraction and
-negative numbers in a finite-sensitive manner. 
+to add components and is always-growing; subtraction is represented implictly.
+Distance between $(a_0, b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the
+pairwise distance: $max(d(a_0, a_1), d(b_0, b_1))$. 
+By ensuring that the paired representation is always-growing, we avoid the
+problem of ill-conditioned subtraction and can encode subtraction in a
+finite-sensitive manner. 
 
 We wish to turn our relative bounds on the paired components $a$ and $b$, into a
 useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce a useful

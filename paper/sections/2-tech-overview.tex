@@ -56,9 +56,14 @@ Unforutantely, Numerical Fuzz cannot assign a type to infinitely sensitive
 functions and subtraction over the reals is infinitely sensitive. 
 Stated in terms of numerical analysis, subtraction between two possibly close
 numbers is ill-conditioned. 
-One way to view this is to imagine two large nearby numbers with small relative
-error. Subtracting the two numbers could obtain a small number with arbitrarily
-high relative error.
+The core problem is that relatively small peturbations in the
+input of subtraction can lead to hard-to-bound relatively large perturbations in
+the output. As an illustrative toy example, suppose we have two large numbers
+like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
+by a small amount, for example, by 1 per-cent, we can observe quite large
+\textit{relative} changes in the output. 
+In other words, subtracting two large nearby numbers could obtain a small number
+with arbitrarily high relative error.
 This feature of subtraction is sometimes referred to as \textit{catestrophic
 cancelation} and forms the primary technical obstacle that this paper aims to
 overcome.

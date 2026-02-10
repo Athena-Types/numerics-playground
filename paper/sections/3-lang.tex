@@ -53,10 +53,11 @@ Our term syntax has explicit terms to represent our effectful computation
 sensitivity: $[e]$). We have several terms for sequencing and structuring
 computation. We have $\textbf{let-bind}$ for sequencing monadic computation,
 $\textbf{let-cobind}$ for sequencing comonadic computation, $\textbf{let-pair}$
-for unpacking tensors, and \textbf{case \ldots of \ldots} for unpacking sum
-types, and \textbf{let} for sequencing variable assignment.
+for unpacking tensors, \textbf{case \ldots of \ldots} for unpacking sum types,
+and \textbf{let} for sequencing variable assignment.
 Note that our term language is more expressive than Numerical Fuzz as we do not
 restrict the bound term in our let expressions to be values.
+% TODO: mention other things that are less restrictive, be complete here
 
 We also introduce a language for bounds (shown in Figure~\ref{fig:syntax}) as
 well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
