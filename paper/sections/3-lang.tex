@@ -1,13 +1,12 @@
 \section{Language} \label{sec:lang}
-Our language is an extension of the Numerical Fuzz
-\cite{numfuzz} language, a call-by-value affine lambda calculus.
-Building off Numerical Fuzz \cite{numfuzz}, we are interested in developing a
-modular family of languages for analyzing numerical round-off error. Modularity
-enables differing floating-point bit precisions (e.g. 32-bit floats, 64-bit
-floats) and floating-point operations to be soundly instantiated. In
-Section~\ref{sec:encoding}, we will instantiate our family of languages with a
-paired representation which will help provide both a priori and a posteriori
-bounds.
+Our language is an extension of the Numerical Fuzz \cite{numfuzz} language, a
+call-by-value affine lambda calculus.
+We are interested in developing a modular family of languages for analyzing
+numerical round-off error.
+Modularity enables differing floating-point bit precisions (e.g. 32-bit floats,
+64-bit floats) and floating-point operations to be soundly instantiated. 
+In Section~\ref{sec:encoding}, we will instantiate our family of languages and
+demonstrate how to read a type as a floating-point error bound.
 
 In this section, we detail the construction of our modular family of languages.
 We first describe the terms (Section~\ref{sec:terms}), types and static
