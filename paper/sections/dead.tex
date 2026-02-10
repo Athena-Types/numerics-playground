@@ -143,3 +143,29 @@
   $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
   theorem proves the corollary.
 \end{proof}
+
+% As an illustrative toy example, suppose we
+% have two large numbers like 1,000,001 and 1,000,000 with little relative error.
+% Suppose that the relative error bounds for both large numbers is ``small" at 1
+% per cent. Then the relative error for $1,000,001 - 1,000,000 = 1$ is quite
+% large, upper-bounded at roughly 2,000,000 per cent.
+
+% The problem is essentially:
+% compositional type-based error bounds seem to require relative notions of error;
+% however, relative notions of error are not well-behaved in the presence of
+% subtraction and negative numbers. 
+% This fundamental phenomenon is known as \textit{catastrophic cancellation}: two
+% large nearby numbers with small relative error can be subtracted to produce a
+% small number with arbitrarily high relative error.
+
+% When catestrophic cancellation occurs, it is impossible to obtain tight error
+% bounds. Importantly, we often know when catestrophic cancellation cannot not
+% occur (\textit{a priori}) and can detect when it has occured (\textit{a
+% posteori}). \textit{A posterori} error bounds are particularly promising as
+% catestrophic cancellation only occurs when two large numbers are subtracted to
+% produce a \textit{small} number with arbitrarily high error. Knowing that the
+% final value is large allows for the ruling out of catestrophic cancellation,
+% sidestepping the problem entirely.
+% In both circumstances, our approach is able to reason about the presence of
+% catestrophic cancellation (or rule it out) in order to produce useful error
+% bounds.

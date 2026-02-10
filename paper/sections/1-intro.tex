@@ -75,61 +75,91 @@ There are two limitations of Numerical Fuzz that our work addresses:
 \end{enumerate}
 
 \subsection*{Our approach: Negative Fuzz} 
-The limitations of Numerical Fuzz we address are orthogonal, so we describe them
-separately. To support subtraction, we first introduce a \textit{paired
-representation} that simulates the floating-point error of a standard, unpaired
-program representation.
-We demonstrate how we can encode subtraction as a finitely-sensitive operation.
-Then, we use a bounds analysis to translate the simulated error  on the paired
-representation into floating-point error on the standard representation.
+To support subtraction, we first introduce a \textit{paired
+representation} that simulates the floating-point error of the standard,
+unpaired program representation.
+We demonstrate how to encode subtraction as a finite-sensitive operation.
+Then, we encorporate an interval-style analysis in the type system to translate
+the simulated error on the paired representation into floating-point error on
+the standard representation.
 Finally, we introduce a new primitive that can more precisely capture the
 propagation of floating-point error under addition and subtraction.
+Supporting subtraction and improving the precision of addition are orthogonal
+contributions, so we describe them separately:
 % TODO: signpost this approach:
 % - sensitivity concern
 %   - but wait, we broke it! (how to translate bounds?)
 % - dealing with conservative treatment of addition and subtraction
 
-\paragraph{Supporing subtraction and negative numbers.} 
+\subsubsection*{Supporing subtraction and negative numbers.} 
 % TODO: polish and org this entire para
 To support subtraction and negative numbers, we represent each possibly negative
-real, $r$, in our semantics with a pair of non-negative $(a, b)$ which behave
-akin to ghost variables.
-When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$ we produce
-$r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When our semantics subtracts two numbers
-$r_0 - r_1 = (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs
-to add components and is always-growing; subtraction is represented implictly.
-Distance between $(a_0, b_0)$ and $(a_1, b_1)$ is encoded as the maximum of the
-pairwise distance: $max(d(a_0, a_1), d(b_0, b_1))$. 
-By ensuring that the paired representation is always-growing, we avoid the
-problem of ill-conditioned subtraction and can encode subtraction in a
-finite-sensitive manner. 
+real $r$ in our semantics with a pair of non-negative $(a, b)$ such that $r = a
+- b$.
+% Then, we can translate the error over
+% $a, b$ to be error over $r$.
+Importantly, we can encode our operations, including subtraction, such that both
+components of the pair are always-growing.
+When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
+$r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
+(a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs to add
+components; subtraction is represented implictly. 
+By ensuring that each operation in the paired representation is always-growing,
+we can encode subtraction in a finite-sensitive manner. 
 
-We wish to turn our relative bounds on the paired components $a$ and $b$, into a
-useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce a useful
-bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
-\tilde{a} - \tilde{b}$. 
-If we can obtain bounds on the paired ideal components $a$ and $b$, we would be
-able to statically produce bounds on the distance beteen $r$ and $\tilde{r}$.
+To reason about the unpaired and paired representations side-by-side, we use a
+triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in \mathbb{R}^{+}$ and $r
+= a - b$. For our paired representation to be useful in bounding the round-off
+error on the unpaired $r$ representing real-world floating-point programs, we
+need to be able to (1) ``simulate" floating-point round-off error on $r$ using
+the paired represenation, (2) measure error in the paired represenation, and (3)
+``translate" error bounds on $(a, b)$ to be back on the unpaired $r$
+representing the real-world program:
+\begin{enumerate}
+  \item A way to ``simulate" round-off error on $r$ as error on the pair $(a,
+    b)$. We do this by taking the rounding function $\rho(r)$ and defining a
+    corresponding rounding function $\rho_{\mathbb{P}}(r, a, b) = (\rho(r),
+    \tilde{a}, \tilde{b})$ such that $\rho(r) = \tilde{a} - \tilde{b}$.
+  \item A way to measure error on the paired components. We define distance
+    between pairs $(r_0, a_0, b_0)$ and $(r_1, a_1, b_1)$ as the maximum of the
+    pairwise distance: $max(d(a_0, a_1), d(b_0, b_1))$. 
+  \item A way to ``translate" the distances between pairs $(r, a, b)$ and
+    $(\tilde{r}, \tilde{a}, \tilde{b})$ to be a suitable bound on the
+    floating-point error on $r$. 
+    We do this by integrating an interval-style bounds analysis into the type
+    system. 
+\end{enumerate}
 
-To accomplish this, we incorporate a bounds analysis in the type system. A
-challenge of doing a bounds analysis in the type system is how to assign a
-precise bound to a function that has multiple call sites. A na{\"i}ve approach
-might widen the bounds for each call site, drastically reducing the precision of
-the bounds analysis. We address this challenge by introducing \textit{bound
-polymorphism}, allowing functions to be polymorphic in the bounds assigned to
-the inputs. At each call site, we specialize the polymorphic function to the
-appropriate bounds. 
+To aid in the precision of our bounds analysis, we support analyzing functions
+via \textit{bound polymophism}, which allows functions to be polymorphic in the
+bounds assigned to the inputs. To reduce the user type annotation burden, we
+provide a type inference algorithm that can automatically generalize and
+instantiate bound-polymorphic functions. We prove the soundness of our type
+inference algorithm and evaluate its utility and performance. We additionally
+show that our approach provides no looser error bounds than prior type-based
+approaches while covering many more programs, including those with subtraction
+and negative numbers. We defer the details of our paired approach to
+Section~\ref{sec:encoding} and type inference to Section~\ref{sec:inference}. 
 
-To reduce the user type annotation burden, we provide a type inference algorithm
-that can automatically generalize and instantiate bound-polymorphic functions.
-We prove the soundness of our type inference algorithm and evaluate its utility
-and performance. We additionally prove that our approach provides no looser
-error bounds than prior type-based approaches while covering many more programs,
-including those with subtraction and negative numbers. We defer the details of
-our paired approach to Section~\ref{sec:encoding} and type inference to
-Section~\ref{sec:inference}. 
+% Now, we can track error on the paired representation.
+% We wish to turn our relative bounds on the paired components $a$ and $b$ into a
+% useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce useful
+% bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
+% \tilde{a} - \tilde{b}$. 
+% If we can obtain bounds on the paired ideal components $a$ and $b$, we would be
+% able to statically produce bounds on the distance beteen $r$ and $\tilde{r}$.
 
-\paragraph{More precise analysis of addition and subtraction.}
+% To accomplish this, we incorporate a bounds analysis in the type system. 
+% A challenge of doing a bounds analysis in the type system is how to assign a
+% precise bound to a function that has multiple call sites. A na{\"i}ve approach
+% might widen the bounds for each call site, drastically reducing the precision
+% of the bounds analysis. We address this challenge by introducing \textit{bound
+% polymorphism}, allowing 
+%    At each function call site, we specialize the polymorphic function to the
+%    appropriate bounds. 
+
+
+\subsubsection*{More precise analysis of addition and subtraction.}
 % TODO: fill in factor stuff, intuition and ref
 
 Negative Fuzz addresses the limitations of prior work by providing a scalable,
