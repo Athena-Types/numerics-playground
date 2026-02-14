@@ -1,18 +1,12 @@
 \section{Type inference} \label{sec:inference}
-Full typing derivations can be seen as maps from variables to pairs of
-sensitivities and types with possibly-polymorphic bounds. This can be cumbersome
-to manually annotate.
-Therefore, we introduce a type inference algorithm that allows users to write
-programs in \Lang, without sensitivities or bound polymorphism. 
-
-We compute the type sensitivity and inference analysis developed in
-\cite{numfuzz}, extended to our core language without bound polymorphism.
-At the same time, we also automatically infer polymorphic bound annotations to
-generate a valid typing derivation of the program in \bnd{\Lang}. To define the
-type inference problem, we first define a sensitivity erasure $-^{\bullet}$ over
-typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over types and terms. We
-will then define type inference as inferring sensitivities and bounds over
-erased, well-typed terms.
+Our type inference algorithm computes the type sensitivity and inference
+analysis developed in \cite{numfuzz} in addition to inferring polymoprhic bound
+to generate a valid typing derivation of the program in \bnd{\Lang}.
+Automatically inferring polymorphic bounds reduces the user annotation burden.
+To define the type inference problem, we first define a sensitivity erasure
+$-^{\bullet}$ over typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over
+types and terms. We will then define type inference as inferring sensitivities
+and bounds over erased, well-typed terms.
 
 \begin{definition}[Sensitivity erasure]
 For a fully annotated typing context $\Gamma$, a fully erased typing context
