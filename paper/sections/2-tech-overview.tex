@@ -73,8 +73,6 @@ Numerical Fuzz cannot handle negative numbers, which leads us to our first new
 major technical contribution 
 
 \subsection{Supporting Subtraction and Negative Numbers}
-% TODO: mention that this is forwards error above maybe? in contrast with bean?
-% maybe explain fowards vs backwards
 We wish to support a error analysis on programs containing subtraction
 or negative numbers. 
 Unforutantely, subtraction in Numerical Fuzz is infinitely sensitive. 
@@ -120,7 +118,7 @@ our running example:
 \textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
 \end{aligned}
 \end{equation}
-under the restriction that $x \in [-1, 1]$ and $y \in [-1, 1]$. 
+under the restriction that $w, x, y, z \in [-1, 1]$. 
 % TODO: more intuition
 We will show how the program cannot be typed in Numerical Fuzz.
 We will first assign a type in Negative Fuzz to a simplified toy example. Then,
@@ -300,8 +298,9 @@ the tree.
 We accomplish this by including a special primitive $\textbf{factor}$ in our
 term language inspired by linear logic. Rewriting our running example with our
 special primitive below, we can see that using factor results in a significantly
-smaller error bound for a program representing the same association and order of
-operations.
+smaller error grade for a program representing the same association and order of
+operations. 
+A smaller monadic error grade results in a smaller floating-point error bound.
 
 \begin{figure}[ht] \label{fig:factor-cmp-overview}
 \centering
@@ -313,7 +312,7 @@ let-bind a = rnd (add <w, x>) in
 let-bind b = rnd (add <y, z>) in
 rnd (addfp <a, b>)
 \end{lstlisting}
-\caption{Without factor: error bound is $3u$.}
+\caption{Without factor: error grade is $3u$.}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.48\textwidth}
@@ -324,7 +323,7 @@ let-bind a =
     <rnd (add <w, x>), rnd (add <y, z>)> 
   in rnd (add a)
 \end{lstlisting}
-\caption{With factor: error bound is $2u$.}
+\caption{With factor: error grade is $2u$.}
 \end{subfigure}
 
 \caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
