@@ -281,7 +281,7 @@ automatically infer bound polymorphism abstraction and instantiation sites. We
 prove our type inference algorithm sound in Section~\ref{sec:inference} and
 provide an evaluation in Section~\ref{sec:eval}.
 
-\subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
+\subsection{Language Feature: More Precise Treatment of Addition and Subtraction} 
 \label{sec:factor}
 Returning to our running example, it is well known that round-off error grows
 linearly in the height of a summation tree. 
@@ -291,16 +291,16 @@ In prior type-based work \cite{numfuzz}, the monadic computation sequencing rule
 forces the error analysis to always compute the worst-case round-off error
 associated with the pathological degenerate tree:
 $\rho(\rho(\rho(w~+~x)~+~y)~+~z)$.
-In other words, the error bound obtained by \cite{numfuzz} grows linearly in
+In other words, the error bound obtained by Numerical Fuzz grows linearly in
 size of the number of \textit{nodes}, which is undesirable.
 
 Our extension enables the user to associate the computation tree arbitrarily,
 and to obtain tighter error bounds that grow linearly in size of the \textit{height} of
 the tree.
 We accomplish this by including a special primitive $\textbf{factor}$ in our
-term language inspired by linear logic. Stucturing the example arithmetic into a
-program below, we can see that using factor results in a significantly smaller
-error bound for a program representing the same association and order of
+term language inspired by linear logic. Rewriting our running example with our
+special primitive below, we can see that using factor results in a significantly
+smaller error bound for a program representing the same association and order of
 operations.
 
 \begin{figure}[ht] \label{fig:factor-cmp-overview}

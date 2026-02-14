@@ -1,11 +1,6 @@
 \section{Language} \label{sec:lang}
 Our language is an extension of the Numerical Fuzz \cite{numfuzz} family of
 call-by-value affine lambda calculi.
-% We are interested in developing a modular family of languages for analyzing
-% numerical round-off error.
-% Modularity enables differing floating-point bit precisions (e.g. 32-bit floats,
-% 64-bit floats) and floating-point operations to be soundly instantiated. 
-
 In this section, we detail the construction of our modular family of languages.
 We first describe the terms (Section~\ref{sec:terms}), types and static
 semantics (Section~\ref{sec:types}), operational semantics
@@ -56,7 +51,9 @@ $\textbf{let-cobind}$ for sequencing comonadic computation, $\textbf{let-pair}$
 for unpacking tensors, \textbf{case \ldots of \ldots} for unpacking sum types,
 and \textbf{let} for sequencing variable assignment.
 Note that our term language is more expressive than Numerical Fuzz as we do not
-restrict the bound term in our let expressions to be values.
+restrict the bound term in our let expressions to be values. This makes it
+easier to write more concise programs with less variables needed for storing the
+results of intermediate computations.
 % TODO: mention other things that are less restrictive, be complete here
 
 We also introduce a language for bounds (shown in Figure~\ref{fig:syntax}) as
@@ -171,7 +168,7 @@ upper-bounded by $q$.
 
 
 Typing contexts have the following grammar: 
-$\Gamma, \Delta ::= . | \Gamma, x :_s \tau$.
+$\Gamma, \Delta ::= . \ | \ \Gamma, x :_s \tau$.
 Semantically, we can treat contexts $\Gamma$ as a partial map from variables $x$
 to pairs of sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we
 can sum and scale typing contexts. We represent context scaling as $\Gamma +
