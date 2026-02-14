@@ -2,21 +2,21 @@
 In this paper, we are primarily motivated to extend Numerical Fuzz to support
 more floating-point operations and richer ways of structuring and sequencing
 arithmetic. We provide some background and provide our motivating running
-example below. Through our motivating example, we overview our extensions.
+example below. Then, we overview our extensions.
 
 % In this section, we briefly introduce floating-point round-off error and
 % outline the main technical features of our system. 
 \subsection{Background: floating-point and error metrics}
-The floating-point number system is a family of formats with the following
-setup:
+The binary floating-point number system is a family of formats with the
+following setup:
 \begin{equation}
-  x = (-1)^s \cdot m \cdot \beta^{e - p + 1}
+  x = (-1)^s \cdot m \cdot 2^{e - p + 1}
 \end{equation}
 where $s$ controls the sign, $m$ is the mantissa, $e$ is the exponent, and $p$
 is the precision. A specific floating-point number system fixes a particular
 precision $p$ and represents a subset of the reals, for example
 $\textsc{binary32}$ and $\textsc{binary64}$ which fix $p = 32$ and $p = 64$
-respectively. 
+respectively.
 Operations over the reals can be represented in a floating-point system as the
 exact operation followed by rounding by a function $\rho$ to a float. The error
 introduced by the rounding function $\rho$ is known as \textit{round-off error}.
@@ -116,6 +116,7 @@ same problem, so we first try to support the paper's running example:
 \end{equation}
 under the restriction that $x \in [-1, 1]$ and $y \in [-1, 1]$. 
 % TODO: more intuition
+We will show how the program cannot be typed in Numerical Fuzz.
 We will first assign a type in Negative Fuzz to a simplified toy example. Then,
 we will demonstrate how to obtain a useful error bound from the program type
 from the example.
@@ -216,11 +217,12 @@ We can obtain bounds on $r$ by recalling the invariant that for a triple $(r, a,
 b)$ that $r = a - b$.
 If we have bounds on $a$ and $b$, we can take advantage of our invariant.
 Simplifying for presentational purposes, we perform an interval-style analysis.
-In our running example, we have that $x \in [-1, 1] \times [0, 1] \times [0, 1]$
-and $y \in [-1, 1] \times [0, 1] \times [0, 1]$. 
+In our running example, we have that the paired represetnation of 
+$x, y \in [-1, 1] \times [0, 1] \times [0, 1]$.
 
-The bounds analysis in our type inference algorithm will assign the type 
-$M_{3 \cdot u} \textbf{num}_{\bnd{(-4, 4), (0, 4), (0, 4)}}$ 
+We'd like to have the bounds analysis in type inference algorithm to infer the
+type 
+$M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ 
 to the program, where the subscript indicates that the result of the program
 will be inside of the set 
 $[-4, 4] \times [0, 4] \times [0, 4]$.
@@ -229,24 +231,28 @@ $x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
 \tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq 3 \cdot u$.
 With this, we can apply our main absolute error theorem,
 Theorem~\ref{thm:paired-a-priori}, for 64-bit floats and obtain: $r - \tilde{r}
-= 1.7763568394002505e-15$. 
+= 1.7763568394002505 \times 10^{-15}$. 
 %
-In Section~\ref{sec:encoding}, we present a more generalized and sophisticated
-version of the bounds analysis given in the example above.
 
 % TODO: justin says "go slower here, connect to numfuzz type, space out, break
 % up paragraphs. this part is important to help readers understand how our
 % system works"
-
-We now consider how to compositionally introduce a precise bounds analysis to
-the type system. A naive approach to incorporating a bounds analysis in the type
-system would be to annotate each $\textbf{num}_{\bnd{i}}$ with a subscript
-$\bnd{b}$. However, many programs we wish to type call the same
-function many times. 
-For example, if we have a function such as the identity function over numbers
-$id : \textbf{num}_{\bnd{b}} \multimap \textbf{num}_{\bnd{b}}$ called at two
-different call sites with bounds $b_0$ and $b_1$, the tightest sound bound for
-$b$ would be an upper bound on $b_0$ and $b_1$.
+However, there is some difficulty in assigning a single, most precise type to
+$\textbf{add}$.
+The difficulty arises because $\textbf{add}$ is called multiple times in
+different contexts.
+If we look at the first two add calls, we would try to assign the type: 
+$$\textbf{add} : \textbf{num}_{\bnd{((-1, 1), (0, 1), (0, 1))}} \times
+\textbf{num}_{\bnd{((-1, 1), (0, 1), (0, 1))}} \multimap
+\textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}}$$
+However, this would make it impossible to type the second add call.
+On the other hand, if we look at the last add call, we would try to assign the
+type: 
+$$\textbf{add} : \textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \times
+\textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \multimap
+\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$$
+However, this would make our analysis imprecise in our first two calls to
+$\textbf{add}$.
 
 To ensure that our bounds analysis is scalable and that functions types can be
 reused, we support \textit{bound polymorphism}, which allows functions to be
@@ -258,38 +264,42 @@ typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
 \multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
 polymorphism via $\forall$ introduction and elimination rules.
 % provided in Figure~\ref{fig:typing_rules}.
+We also introduce \textit{bound operations}, which are meta-level operations
+that let us type:
+$$
+\textbf{add} : \bnd{\forall \epsilon_1, \epsilon_2}, \mathbf{num}_{\bnd{\epsilon_1}} \times
+\mathbf{num}_{\bnd{\epsilon_2}} \multimap \mathbf{num}_{\bnd{\epsilon_1 + \epsilon_2}}
+$$
 To reduce annotation overhead, we provide a type inference algorithm that can
 automatically infer bound polymorphism abstraction and instantiation sites. We
 prove our type inference algorithm sound in Section~\ref{sec:inference}. 
 
 % TODO: awk phrasing I think, can be tighter. forwards reference to section
 % where we do this once this is written
-A natural question to ask is whether our approach of first using a paired
-representation, then running a bounds analysis to recover the error on the
-original unpaired representation hurts the precision of our analysis on
-programs. Interestingly, we do not lose any precision. We provide several
-examples showing that our bounds analysis is capable of reasoning that programs
-containing only-growing functions on non-negative numbers can only produce
-non-negative numbers. Therefore, on the programs supported by both Negative Fuzz and
-Numerical Fuzz, the maximum round-off error obtained by Negative Fuzz is simply
-the inferred grade of the monad and is no looser than the bound obtained by
-Numerical Fuzz. Negative Fuzz is therefore a strict improvement on Numerical
-Fuzz: our approach can analyze more programs with possibly tighter bounds on
-previously supported programs.
+One might wonder if using a paired representation, then running a bounds
+analysis to recover the error on the original unpaired representation hurts the
+precision of our analysis on programs. Interestingly, we do not lose any
+precision. We provide several examples showing that our bounds analysis is
+capable of reasoning that programs containing only-growing functions on
+non-negative numbers can only produce non-negative numbers. Therefore, on the
+programs supported by both Negative Fuzz and Numerical Fuzz, the maximum
+round-off error obtained by Negative Fuzz is simply the inferred grade of the
+monad and is no looser than the bound obtained by Numerical Fuzz. Negative Fuzz
+is therefore a strict improvement on Numerical Fuzz: our approach can analyze
+more programs with possibly tighter bounds on previously supported programs.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}
-Suppose, by way of example, that we wish to compute the sum
-$w~\tilde{+}~x~\tilde{+}~y~\tilde{+}~z$, where $\tilde{+}$ represents addition
-with round-off error. It is well known that round-off error grows linearly in
-the height of a summation tree. So, a user might naturally want to sequence the
-summation as a perfect binary tree: $(w~\tilde{+}~x)~\tilde{+}~(y~\tilde{+}~z)$.
+Returning to our running example, it is well known that round-off error grows
+linearly in the height of a summation tree. 
+We'd expect Numerical Fuzz to infer that the error on our paired summation
+example grows in $log_2(n)$.
 In prior type-based work \cite{numfuzz}, the monadic computation sequencing rule
 forces the error analysis to always compute the worst-case round-off error
 associated with the pathological degenerate tree:
-$((w~\tilde{+}~x)~\tilde{+}~y)~\tilde{+}~z$.
+$\rho(\rho(\rho(w~+~x)~+~y)~+~z)$.
 In other words, the error bound obtained by \cite{numfuzz} grows linearly in
-size of the number of \textit{nodes}.
+size of the number of \textit{nodes}, which is undesirable.
 
 Our extension enables the user to associate the computation tree arbitrarily,
 and to obtain tighter error bounds that grow linearly in size of the \textit{height} of
@@ -305,10 +315,9 @@ bound for a program representing the same association and order of operations.
 \begin{subfigure}[t]{0.48\textwidth}
 \begin{lstlisting}
 // (w + x) + (y + z) : M[3*u] num 
-let-bind a = addfp <w, x> in
-let-bind b = addfp <y, z> in
-let-bind c = addfp <a, b> in
-addfp c 
+let-bind a = rnd (add <w, x>) in
+let-bind b = rnd (add <y, z>) in
+rnd (addfp <a, b>)
 \end{lstlisting}
 \caption{Without factor: error bound is $3u$.}
 \end{subfigure}
@@ -316,9 +325,10 @@ addfp c
 \begin{subfigure}[t]{0.48\textwidth}
 \begin{lstlisting}
 // (w + x) + (y + z) : M[2*u] num 
-let-bind a = 
-  factor <addfp <w, x>, addfp <y, z>> in
-  addfp a
+let-bind a =
+  factor 
+    <rnd (add <w, x>), rnd (add <y, z>)> 
+  in rnd (add a)
 \end{lstlisting}
 \caption{With factor: error bound is $2u$.}
 \end{subfigure}
@@ -328,8 +338,8 @@ let-bind a =
 \end{figure}
 
 More generally, for perfect binary trees of addition, we have a $log_2 (n)$
-factor improvement on our error bounds. We defer a detailed explaination of
-\textbf{factor} and how it allows for structuring and sequencing arithmetic
-towards a more precise error analysis in Section~\ref{sec:structure}. We also
-showcase the improved precision offered by programs annotated with the
-\textbf{factor} primitive in Section~\ref{sec:eval}.
+factor improvement on our error bounds when compared to Numerical Fuzz. We defer
+a detailed explaination of \textbf{factor} and how it allows for structuring and
+sequencing arithmetic towards a more precise error analysis in
+Section~\ref{sec:structure}. We also showcase the improved precision offered by
+programs annotated with the \textbf{factor} primitive in Section~\ref{sec:eval}.
