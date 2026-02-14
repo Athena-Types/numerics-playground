@@ -12,7 +12,7 @@ triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+
 component such that $r = a - b$. 
 Accordingly, we equip our set $\mathbb{P}$ with a distance function
 $d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maxmimum distance over
-the paried components (Definition~\ref{def:distance-p}).
+the paired components (Definition~\ref{def:distance-p}).
 Instead of reasoning over the real component, we instantiate our graded type
 system to track distances and error over the always-growing paired components.
 We then instantiate our automatic typed-based bounds analysis and apply our main
@@ -27,7 +27,7 @@ analysis setup and provide intuition for our choice of domain. In
 Section~\ref{sec:application}, we use the results of our automatic type-based
 bounds analysis to translate the monadic grade over the paired components into
 useful bounds over the underlying unpaired real. We also present our main error
-theorem over the unpaired real. We defer intrducing our approach to automatic
+theorem over the unpaired real. We defer introducing our approach to automatic
 type inference to Section~\ref{sec:inference}.
 
 
@@ -106,7 +106,7 @@ $emax$ &   $+127$  & $+1023$ & $+16383$ \\
 \subsubsection{Defining our operations over the paired representation}
 \label{sec:paired-ops}
 We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
-compute are are typed over our paired representationn in the following way:
+compute are typed over our paired representationn in the following way:
 \begin{equation}
 \begin{aligned}[c]
   &\textit{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
@@ -154,9 +154,9 @@ $((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
 (b^{\downarrow}, b^{\uparrow}), d)$
 under the following constraints:
 \begin{enumerate}
-  \item Lower and upper bounds on $r$, with the following constraints $r^{\uparrow} \leq r \leq r^{\downarrow}$
-  \item Lower and upper bounds on $a$, with the following constraints $a^{\uparrow} \leq a \leq a^{\downarrow}$
-  \item Lower and upper bounds on $b$, with the following constraints $b^{\uparrow} \leq b \leq b^{\downarrow}$
+  \item Lower and upper bounds on $r$, with the following constraints $r^{\downarrow} \leq r \leq r^{\uparrow}$
+  \item Lower and upper bounds on $a$, with the following constraints $a^{\downarrow} \leq a \leq a^{\uparrow}$
+  \item Lower and upper bounds on $b$, with the following constraints $b^{\downarrow} \leq b \leq b^{\uparrow}$
   \item A boolean $d$ tracking whether the condition $a > 0 \land b > 0$ is true.
 \end{enumerate}
 To define $\leq$ over our bounds domain, we first define a mapping of bounds to

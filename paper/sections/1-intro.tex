@@ -1,5 +1,5 @@
 \section{Introduction}
-It is natural for users such as mathematicians and scientists to to desire
+It is natural for users such as mathematicians and scientists to desire
 programs that operate over the reals. 
 As language designers, we wish to show that the floating-point semantics we have
 provided is ``close enough".
@@ -16,7 +16,7 @@ The core idea of Numerical Fuzz is to track two key properties of each function:
 how a function magnifies error in its inputs (function sensitivity), and the
 maximum error introduced by the function. By simultaneously bounding these two
 properties, Numerical Fuzz is able to compositionally bound the maximum
-accmulated error in a program via a graded monad.
+accumulated error in a program via a graded monad.
 
 
 % \paragraph{Prior type-based work and limitations.} 
@@ -82,7 +82,7 @@ To support subtraction, we first introduce a \textit{paired
 representation} that simulates the floating-point error of the standard,
 unpaired program representation.
 We demonstrate how to model subtraction as a finitely-sensitive operation.
-Then, we encorporate an interval-style analysis in the type system to translate
+Then, we incorporate an interval-style analysis in the type system to translate
 the simulated error on the paired representation into floating-point error on
 the standard representation.
 We introduce a new primitive that can more precisely capture the
@@ -94,7 +94,7 @@ contributions, so we describe them separately:
 %   - but wait, we broke it! (how to translate bounds?)
 % - dealing with conservative treatment of addition and subtraction
 
-\subsubsection*{Supporing subtraction and negative numbers.} 
+\subsubsection*{Supporting subtraction and negative numbers.} 
 % TODO: polish and org this entire para
 To support subtraction and negative numbers, we represent each possibly negative
 real $r$ in our semantics with a pair of non-negative $(a, b)$ such that $r = a
@@ -105,7 +105,7 @@ We can model our operations, including subtraction, in this representation in a
 finitely-sensitive manner.
 To reason about the unpaired and paired representations side-by-side, we use a
 triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in \mathbb{R}^{+}$ and $r
-= a - b$. For our paired representation to be useful in bounding the round-off
+= a - b$. For our paired approach to be useful in bounding the round-off
 error on the unpaired $r$ representing real-world floating-point programs, we
 need to be able to (1) ``simulate" floating-point round-off error on $r$ using
 the paired represenation, (2) measure error on the paired represenation, and (3)
@@ -113,7 +113,7 @@ the paired represenation, (2) measure error on the paired represenation, and (3)
 representing the real-world program.
 
 To aid in the usability precision of our bounds analysis, we support analyzing
-functions via \textit{bound polymophism}, which allows functions to be
+functions via \textit{bound polymorphism}, which allows functions to be
 polymorphic in the bounds assigned to the inputs. To reduce the user type
 annotation burden, we provide a type inference algorithm that can automatically
 generalize and instantiate bound-polymorphic functions. We prove the soundness
@@ -129,11 +129,11 @@ of our type inference algorithm and evaluate its utility and performance.
 % TODO: fill in factor stuff, intuition and forwards ref
 Floating-point addition and subtraction are not associative. In fact, different
 associations of the same computation can result in drastically different error
-terms. Unfortuantely, Numerical Fuzz is not capable of distinguishing between
+terms. Unfortunately, Numerical Fuzz is not capable of distinguishing between
 different associations. We address this limitation by introducing a primitive
 which acts like an annotation. We prove that the primitive is type-sound and
 show how to use the primitive in Section~\ref{sec:structure}.
-% TODO: provide op sem interpretation (reassoc'ing error tersm)?
+% TODO: provide op sem interpretation (reassoc'ing error terms)?
 
 \subsubsection*{Contributions summary.}
 Concretely, our contributions are as follows:
@@ -170,7 +170,7 @@ Concretely, our contributions are as follows:
   \item We improve the precision of Numerical Fuzz by allowing the analysis to
     more efficiently reason about addition and subtraction. This lets us achieve
     a log-factor improvement on the error bounds of a program representing
-    pariwise summation. We accomplish this by introducting a
+    pairwise summation. We accomplish this by introducting a
     previously-untypable primitive that can more accurately capture different
     techniques for sequencing addition and subtraction operations
     (Section~\ref{sec:structure}).

@@ -158,7 +158,7 @@ Our language also supports linear function types $\tau_0 \multimap \tau$
 corresponding to 1-sensitive functions.
 
 Our typing judgements incorporate a graded effect and co-effect type system to
-simulatenously track round-off error and function sensitivity. For example, the
+simultaneously track round-off error and function sensitivity. For example, the
 following term with typing context and judgement indicates that the variable $x$
 is $s$-sensitive in the expression $e$ and has worst-case round-off error
 upper-bounded by $q$.
@@ -177,7 +177,7 @@ and scaling and then context summing and scaling below.
 
 \begin{definition}[Pair summing]
   We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +
-  s', \tau)$. Note that this is only well-defined if the types are syntacitcally
+  s', \tau)$. Note that this is only well-defined if the types are syntactically
   equivalent.
 \end{definition}
 
@@ -187,8 +187,8 @@ and scaling and then context summing and scaling below.
 \end{definition}
 
 \begin{definition}[Pair scaling]
-  We can scale a pair of sensitivities and types $s' \cdot (s, \tau) (s' \cdot s
-  s', \tau)$. 
+  We can scale a pair of sensitivities and types 
+  $s' \cdot (s, \tau) =  (s' \cdot s, \tau)$. 
 \end{definition}
 
 \begin{definition}[Context scaling]
@@ -201,7 +201,7 @@ The introduction and elimaination rules for $\otimes$, $\times$, and $\multimap$
 mirror Numerical Fuzz and correspond to the standard introduction and
 elimination rules in linear logic.
 We are also able to scale typing contexts through the (! I) rule. This is useful
-for instantiating functions with finitely scaled senstivity.
+for instantiating functions with finitely scaled sensitivity.
 % todo: check that we can't be infinite and that this is up-to-date everywhere
 
 The monadic grade upper-bounds the maximum possible round-off error possible.
@@ -210,7 +210,7 @@ Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E),
 principles for reasoning about round-off error. Intuitively, (Ret) introduces no
 round-off error and (Rnd) introduces round-off error $u$ corresponding to the
 unit round-off constant. Note that $M_u E$ is the characteristic rule for
-\textbf{let-cobind} that incorporates senstivity and round-off information.
+\textbf{let-bind} that incorporates sensitivity and round-off information.
 Our language also introduces a new (Factor) rule for reasoning about monadic
 computations with round-off error, which allows for tighter error analyses. We
 detail the (Factor) rule and walk through an example in
@@ -537,7 +537,7 @@ separate lemma in our soundness proof.
 
 % \subsection{Equivalence class of interval expressions.}
 \subsection{Modular Interface} \label{sec:interface}
-Numerical Fuzz is a modular family of programming langauges paramterized
+Numerical Fuzz is a modular family of programming languages paramterized
 by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
 numeric computations $\Sigma$.  
 It is the proof obligation for any language designer instantiating the language
@@ -585,7 +585,7 @@ soundness theorems to follow.
 
 The remainder of this subsection is dedicated to defining distances between
 terms, which is necessary to understand the metric preservation property our
-interface demans on all operations.
+interface demands on all operations.
 We first define evaluation ($\bnd{\llbracket - \rrbracket}$) of our bound expressions to $\bnd{\mathbb{B}}$ which
 we call our \textit{concrete bounds}.
 Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
@@ -767,7 +767,7 @@ Preservation, Theorem~\ref{thm:metric-preservation}).
 \end{lemma}
 \begin{proof}
   The properties holds for the base cases of $\mathcal{SDV}$ and follow for the
-  remaining cases by our inductive hypothesis. Since our operational semntics is
+  remaining cases by our inductive hypothesis. Since our operational semantics is
   deterministic, the properties follow for $\mathcal{SD}$.
 \end{proof}
 
@@ -781,7 +781,7 @@ Preservation, Theorem~\ref{thm:metric-preservation}).
 Note that by metric symmetry, $\mathcal{SD}$ is preserved under stepping on both
 sides.
 
-Following Fuzz, we prove the following syntanctic properties relating our type
+Following Fuzz, we prove the following syntactic properties relating our type
 system and operational semantics. These syntactic properties will be useful for
 reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 
@@ -790,7 +790,7 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
   $\Delta + \Delta' \ | \ \Gamma + \Sigma \vdash e : \tau$.
 \end{lemma}
 \begin{proof}
-  We induct over our typing devivation. 
+  We induct over our typing derivation. 
   For each case, we can ignore arbitrary variables in our context (the type
   system is affine). 
   In particular, for the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E},
@@ -806,7 +806,7 @@ reasoning about the subtyping and type inference in Section~\ref{sec:inference}.
 \end{lemma}
 \begin{proof}
   $\Delta$ tracks the free type variables in $i$. 
-  We induct over our typing devivation. The base cases hold. For the inductive
+  We induct over our typing derivation. The base cases hold. For the inductive
   cases, we induct over the size of $\Delta' - \Delta$.
   Our proof is complete.
 \end{proof}
@@ -837,7 +837,7 @@ build up to the definition of distance between substitutions below.
     bound vector $\sigma_{\Delta}$ differs between substitutions.
 \end{definition}
 
-\begin{definition}[Enviroment compatibility.]
+\begin{definition}[Environment compatibility.]
 We also say that a substitution vector 
 $$\sigma_{\Delta}, [e_0/x_0, \ldots, e_n/x_n]$$
 is \textit{compatible} with a typing context 
@@ -891,7 +891,7 @@ $r$-sensitive substitution lemma.
       apply our inductive hypothesis.
       Otherwise, it holds immediately.
     \item[Inductive case: $\forall$ - I.]
-      Holds by our inductive hyothesis and observing that the side condition
+      Holds by our inductive hypothesis and observing that the side condition
       necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
       \cap \Delta_1 = \emptyset$ condition.
     \item[Remaining inductive cases.] The remaining cases ($\multimap$ E,

@@ -80,7 +80,7 @@ or negative numbers.
 Unforutantely, subtraction in Numerical Fuzz is infinitely sensitive. 
 % Stated in terms of numerical analysis, subtraction between two possibly close
 % numbers is ill-conditioned. 
-The core problem is that relatively small peturbations in the
+The core problem is that relatively small perturbations in the
 input of subtraction can lead to hard-to-bound relatively large perturbations in
 the output. 
 As an illustrative toy example, suppose we have two large numbers
@@ -91,7 +91,7 @@ In other words, subtracting two large nearby numbers with small round-off error
 in its inputs could obtain a small number with arbitrarily high round-off error,
 as measured using relative precision.
 This feature of subtraction is sometimes referred to as \textit{catestrophic
-cancelation} and forms one of the primary technical obstacles to verifying our
+cancellation} and forms one of the primary technical obstacles to verifying our
 running example. 
 
 % \begin{enumerate}
@@ -110,7 +110,7 @@ running example.
 % \end{enumerate}
 Note that supporting addition with negative numbers is effectively the same
 problem as supporting subtraction.
-To understand the problem posed by an infintely-sensitive operation, consider
+To understand the problem posed by an infinitely-sensitive operation, consider
 our running example:
 % TODO: make program formatting consistent
 \begin{equation}
@@ -128,7 +128,7 @@ we will demonstrate how to obtain a useful error bound from the program type
 from the example.
 
 \paragraph{Standard representation.}
-Our type system relies on bounding function senstivity. 
+Our type system relies on bounding function sensitivity. 
 We first attempt to assign a type to a hypothetical addition primitive in
 Numerical Fuzz over the reals:
 $\textbf{add} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
@@ -165,7 +165,7 @@ $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}
 \end{definition}
 Importantly, we can encode our operations, including addition and subtraction,
 such that both components of the pair are always-growing. This avoids the
-problem of catestrophic cancellation in the paired representation.
+problem of catastrophic cancellation in the paired representation.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs to add
@@ -188,7 +188,7 @@ we can encode addition and subtraction in a finitely-sensitive manner.
 % This constraint is useful for letting us relate error over the unpaired
 % components to error on the paired component.
 
-Under the paired representation, we can implement and faitfully type addition,
+Under the paired representation, we can implement and faithfully type addition,
 subtraction, and multiplication in terms of finitely-sensitive operations over
 the paired components. Addition is defined below:
 \begin{equation}
@@ -223,7 +223,7 @@ We can obtain bounds on $r$ by recalling the invariant that for a triple $(r, a,
 b)$ that $r = a - b$.
 If we have bounds on $a$ and $b$, we can take advantage of our invariant.
 Simplifying for presentational purposes, we perform an interval-style analysis.
-In our running example, we have that the paired represetnation of 
+In our running example, we have that the paired representation of 
 $x, y \in [-1, 1] \times [0, 1] \times [0, 1]$.
 
 We'd like to have the bounds analysis in type inference algorithm to infer the
@@ -333,7 +333,7 @@ let-bind a =
 
 More generally, for perfect binary trees of addition, we have a $log_2 (n)$
 factor improvement on our error bounds when compared to Numerical Fuzz. We defer
-a detailed explaination of \textbf{factor} and how it allows for structuring and
+a detailed explanation of \textbf{factor} and how it allows for structuring and
 sequencing arithmetic towards a more precise error analysis in
 Section~\ref{sec:structure}. We also showcase the improved precision offered by
 programs annotated with the \textbf{factor} primitive in Section~\ref{sec:eval}.
