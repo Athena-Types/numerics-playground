@@ -169,3 +169,21 @@
 % In both circumstances, our approach is able to reason about the presence of
 % catestrophic cancellation (or rule it out) in order to produce useful error
 % bounds.
+
+% Now, we can track error on the paired representation.
+% We wish to turn our relative bounds on the paired components $a$ and $b$ into a
+% useful bound on $r$ (ideal) and $\tilde{r}$ (approximate). To produce useful
+% bounds, we take advantage of the invariant that $r = a - b$ and $\tilde{r} =
+% \tilde{a} - \tilde{b}$. 
+% If we can obtain bounds on the paired ideal components $a$ and $b$, we would be
+% able to statically produce bounds on the distance beteen $r$ and $\tilde{r}$.
+
+% To accomplish this, we incorporate a bounds analysis in the type system. 
+% A challenge of doing a bounds analysis in the type system is how to assign a
+% precise bound to a function that has multiple call sites. A na{\"i}ve approach
+% might widen the bounds for each call site, drastically reducing the precision
+% of the bounds analysis. We address this challenge by introducing \textit{bound
+% polymorphism}, allowing 
+%    At each function call site, we specialize the polymorphic function to the
+%    appropriate bounds. 
+

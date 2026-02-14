@@ -1,8 +1,8 @@
 \section{Technical Overview} \label{sec:overview}
 In this paper, we are primarily motivated to extend Numerical Fuzz to support
 more floating-point operations and richer ways of structuring and sequencing
-arithmetic. We provide some background and briefly overview our extensions
-below.
+arithmetic. We provide some background and provide our motivating running
+example below. Through our motivating example, we overview our extensions.
 
 % In this section, we briefly introduce floating-point round-off error and
 % outline the main technical features of our system. 
@@ -47,6 +47,28 @@ are able to relative precision to compositionally reason about repeated
 applications of the monadic bind rule.
 Importantly, triangle inequality does not hold for \textit{relative error}.
 
+\subsection{Running example: pairwise summation}
+We consider the well-known pairwise summation (sometimes referred to as cascade
+summation) algorithm. 
+To sum up a list of numbers, pairwise summation will recursively divide the list
+in half and compute the sum of the halves.
+In other words, pairwise summation takes a flattened list of numbers to add and
+associates them into a balanced binary tree of height 
+$\left \lceil{log_2(n)}\right \rceil$. Error grows in $O(log(n))$.
+By contrast, naive iterative summation takes a flattened list of numbers and
+left-folds addition over the list. Error grows in $O(n)$.
+
+As a concrete running example, we consider adding up the floating-point numbers
+$w, x, y, z \in [-1, 1]$ via pairwise summation: 
+
+\begin{equation}
+  \rho(\rho((w + x)) + \rho((y + z)))
+\end{equation}
+
+Numerical Fuzz cannot handle negative numbers, which leads us to our first new
+major language feature:
+
+
 \subsection{Language Feature: Supporting Subtraction and Negative Numbers}
 % TODO: mention that this is forwards error above maybe? in contrast with bean?
 % maybe explain fowards vs backwards
@@ -63,10 +85,9 @@ like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
 by a small amount, for example, by 1 per-cent, we can observe quite large
 \textit{relative} changes in the output. 
 In other words, subtracting two large nearby numbers could obtain a small number
-with arbitrarily high relative error.
-This feature of subtraction is sometimes referred to as \textit{catestrophic
-cancelation} and forms the primary technical obstacle that this paper aims to
-overcome.
+with arbitrarily high relative error. This feature of subtraction is sometimes
+referred to as \textit{catestrophic cancelation} and forms one of the primary
+technical obstacles to verifying our running example. 
 
 % \begin{enumerate}
 %   \item A way to ``simulate" round-off error on $r$ as error on the pair $(a,
@@ -83,37 +104,49 @@ overcome.
 %     system. 
 % \end{enumerate}
 
-Let us examine the problem of subtraction in greater detail from the perspective
-of a type system designer. Consider the minimum program containing subtraction
-as a running example:
-$\lambda x \ . \ \lambda y \ . \ \textbf{let-bind} \ z \ = \ \textbf{rnd} \ x \ \textbf{in} \ \textbf{sub} \ \langle z, y \rangle$ 
-under the restriction that $x \in [1, 100]$ and $y \in [1000, 10000]$. 
+Considering addition with negative numbers and subtraction are effective the
+same problem, so we first try to support the paper's running example:
+% TODO: make program formatting consistent
+\begin{equation}
+\begin{aligned}[c]
+\textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
+\textbf{let-bind} \ p \ = \ \textbf{rnd} \ (\textbf{add} \ \langle y, z \rangle) \ \textbf{in} \  \\
+\textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
+\end{aligned}
+\end{equation}
+under the restriction that $x \in [-1, 1]$ and $y \in [-1, 1]$. 
 % TODO: more intuition
-We first demonstrate the core of our technical solution and assign a type in
-Negative Fuzz to a simplified toy example. Then, we will demonstrate how to
-obtain a useful error bound from the program type from the example.
+We will first assign a type in Negative Fuzz to a simplified toy example. Then,
+we will demonstrate how to obtain a useful error bound from the program type
+from the example.
 
 \paragraph{Standard representation.}
 Our type system relies on bounding function senstivity. 
-We first attempt to assign a type to a hypothetical subtraction primitive in
-Numerical Fuzz:
-$\textbf{sub} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
+We first attempt to assign a type to a hypothetical addition primitive in
+Numerical Fuzz over the reals:
+$\textbf{add} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
 Then, the type of our running example is 
-$!_{\infty} (\textbf{num} \times \textbf{num}) \multimap M_{\infty}~\textbf{num}$.
+$M_{\infty}~\textbf{num}$
+in the context 
+$w : \textbf{num}, x : \textbf{num}, y : \textbf{num}, z : \textbf{num}$.
+\footnote{For presentational purposes, we elide the sensitivity co-effect
+annotation in the typing context. The program is infinitely-sensitive in
+variables $w,x,y,z$. }
 Our type comes from two facts.
 Firstly, due to $\textbf{rnd}$, we know that there can be up to $u$ error
-introduced in the input $z$ to $sub$.
-Secondly, function sensitivity bounds the round-off error of the whole program
-at $\infty \cdot u = \infty$ where $u$ is our unit-roundoff constant.
-Therefore, we know that our example program is both infinitely-sensitive and
-has infintely-bounded error.
+introduced in the inputs $p$ and $q$ to the last $add$ call.
+Secondly, since the $add$ function may amplify error in its input by up to
+$\infty$, the round-off error of the whole program is $\infty \cdot u = \infty$
+where $u$ is our unit-roundoff constant.
+Therefore, we know that our example program is both infinitely-sensitive in its
+free variables and has infintely-bounded error.
 This is not a useful error bound.
 
 \paragraph{Paired representation.}
-As subtraction over the reals is infinitely-sensitive, we first deal with the
-problem of infinite sensitivity.
-We develop a paired representation where subtraction and negative
-numbers have finitely-bounded sensitivty. The trick is to associate for each
+As addition and subtraction over the unrestricted reals is infinitely-sensitive,
+we first deal with the problem of infinite sensitivity.
+We develop a paired representation where unrestricted addition and subtraction
+have finitely-bounded sensitivty. The trick is to associate for each
 real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
 \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
 The paired components $a$ and $b$ are only used for error analysis and serve a
@@ -123,15 +156,15 @@ over $\mathbb{P}$ is defined below:
 \begin{definition}[Distance over pairs] \label{def:distance-p}
 $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
 \end{definition}
-Importantly, we can encode our operations, including subtraction, such that both
-components of the pair are always-growing. This avoids the problem of
-catestrophic cancellation in the paired representation.
+Importantly, we can encode our operations, including addition and subtraction,
+such that both components of the pair are always-growing. This avoids the
+problem of catestrophic cancellation in the paired representation.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs to add
 components; subtraction is represented implictly. 
 By ensuring that each operation in the paired representation is always-growing,
-we can encode subtraction in a finitely-sensitive manner. 
+we can encode addition and subtraction in a finitely-sensitive manner. 
 
 We can ``simulate" error on the paired representation by defining a
 paired version of our rounding function $\rho$:
@@ -153,8 +186,8 @@ subtraction, and multiplication in terms of finitely-sensitive operations over
 the paired components:
 \begin{equation}
   \begin{aligned}[c]
-    sub((r, a, b), (r', a', b')) &\mapsto (r - r', a + b', a' + b) \\
     add((r, a, b), (r', a', b')) &\mapsto (r + r', a + a', b + b') \\
+    sub((r, a, b), (r', a', b')) &\mapsto (r - r', a + b', a' + b) \\
     mul((r, a, b), (r', a', b')) 
       &\mapsto 
     (r * r', a * a' + b * b', a * b' + a' * b)
@@ -172,8 +205,9 @@ $\lambda x . \ \textbf{let} \ z \ = \ \textbf{sub} \ x \ \textbf{in} \ \textbf{r
 where $u$ is the unit round-off constant.
 
 \paragraph{Bound polymorphism.}
+% TODO: how exactly do we type add?
 Now that we have a way to bound error on the paired components, we need to
-translate these bounds to state something useful over the unpaired component.
+translate these bounds into something useful over the unpaired component.
 % Unfortuantely, the error bounds obtained through the paired representation only
 % bound the maximum error on the \textit{paired} components. 
 % To be useful, we wish to relate error on the paired components $a$, $b$ with the
@@ -181,27 +215,22 @@ translate these bounds to state something useful over the unpaired component.
 We can obtain bounds on $r$ by recalling the invariant that for a triple $(r, a,
 b)$ that $r = a - b$.
 If we have bounds on $a$ and $b$, we can take advantage of our invariant.
-Simplifying for presentational purposes, we can obtain interval bounds on $r$ by
-extending the type system to be able to perform an interval analysis on the
-paired components. In our running example, we have that $x \in [1, 100]$ and $y
-\in [1000, 10000]$. 
-The bounds analysis in our type inference algorithm will assign the type $M_u
-\textbf{num}_{\bnd{(900, 9999)}}$ to the program, where the subscript denotes
-the interval the output will belong to.
-Further, we can duduce from the inferred grade of our monad that for all inputs
+Simplifying for presentational purposes, we perform an interval-style analysis.
+In our running example, we have that $x \in [-1, 1] \times [0, 1] \times [0, 1]$
+and $y \in [-1, 1] \times [0, 1] \times [0, 1]$. 
+
+The bounds analysis in our type inference algorithm will assign the type 
+$M_{3 \cdot u} \textbf{num}_{\bnd{(-4, 4), (0, 4), (0, 4)}}$ 
+to the program, where the subscript indicates that the result of the program
+will be inside of the set 
+$[-4, 4] \times [0, 4] \times [0, 4]$.
+Further, we can deduce from the inferred grade of our monad that for all inputs
 $x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
-\tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq u$.
-Armed with the output of type inference, we can apply our main error theorem,
-Theorem~\ref{thm:paired-a-priori}, for 32-bit floats:
-% TODO: check this calculation
-$d(r, \tilde{r}) 
-= max(|ln(e^u + \frac{100}{900}(e^{-u}-e^u))|, |ln(e^{-u} + \frac{100}{900}(e^u-e^{-u}))|) 
-= 4.635916 \times 10^{-8}$. 
-% https://www.wolframalpha.com/input?i2d=true&i=max%5C%2840%29%7Cln%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2844%29%7Cln%5C%2840%29Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D+%2B+Divide%5B10%2C900%5D%5C%2840%29Power%5Be%2C-%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D-Power%5Be%2C%5C%2840%29Power%5B2%2C-24%5D%5C%2841%29%5D%5C%2841%29%5C%2841%29%7C%5C%2841%29
-% Another piece of information that tightens our error analysis is knowing how big
-% our output value is. For example, if we knew that $\tilde{r} = 1000$, then we
-% can apply Theorem~\ref{thm:paired-a-posteriori} and obtain the following tighter
-% \textit{a posterori} bound: TODO.
+\tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq 3 \cdot u$.
+With this, we can apply our main absolute error theorem,
+Theorem~\ref{thm:paired-a-priori}, for 64-bit floats and obtain: $r - \tilde{r}
+= 1.7763568394002505e-15$. 
+%
 In Section~\ref{sec:encoding}, we present a more generalized and sophisticated
 version of the bounds analysis given in the example above.
 
