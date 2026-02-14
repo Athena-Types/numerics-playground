@@ -1,12 +1,12 @@
 \section{Type inference} \label{sec:inference}
 Our type inference algorithm computes the type sensitivity and inference
-analysis developed in \cite{numfuzz} in addition to inferring polymoprhic bound
-to generate a valid typing derivation of the program in \bnd{\Lang}.
-Automatically inferring polymorphic bounds reduces the user annotation burden.
+analysis developed in Numerical Fuzz. Simulatenously, we automatically infer
+polymoprhic bounds to generate a valid typing derivation of the program in
+\bnd{\Lang} to reduce the user annotation burden of adopting our approach.
 To define the type inference problem, we first define a sensitivity erasure
 $-^{\bullet}$ over typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over
-types and terms. We will then define type inference as inferring sensitivities
-and bounds over erased, well-typed terms.
+types and terms. We then define type inference as inferring sensitivities and
+bounds over erased, well-typed terms.
 
 \begin{definition}[Sensitivity erasure]
 For a fully annotated typing context $\Gamma$, a fully erased typing context
