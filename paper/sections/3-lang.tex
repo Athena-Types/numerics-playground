@@ -1,12 +1,10 @@
 \section{Language} \label{sec:lang}
-Our language is an extension of the Numerical Fuzz \cite{numfuzz} language, a
-call-by-value affine lambda calculus.
-We are interested in developing a modular family of languages for analyzing
-numerical round-off error.
-Modularity enables differing floating-point bit precisions (e.g. 32-bit floats,
-64-bit floats) and floating-point operations to be soundly instantiated. 
-In Section~\ref{sec:encoding}, we will instantiate our family of languages and
-demonstrate how to read a type as a floating-point error bound.
+Our language is an extension of the Numerical Fuzz \cite{numfuzz} family of
+call-by-value affine lambda calculi.
+% We are interested in developing a modular family of languages for analyzing
+% numerical round-off error.
+% Modularity enables differing floating-point bit precisions (e.g. 32-bit floats,
+% 64-bit floats) and floating-point operations to be soundly instantiated. 
 
 In this section, we detail the construction of our modular family of languages.
 We first describe the terms (Section~\ref{sec:terms}), types and static
@@ -14,6 +12,8 @@ semantics (Section~\ref{sec:types}), operational semantics
 (Section~\ref{sec:dynamic-semantics}), and a modular interface for soundly
 instantiating the language. Finally, we define a logical relation and prove
 soundness.
+In Section~\ref{sec:encoding}, we will instantiate our family of languages and
+demonstrate how to read a type as a floating-point error bound.
 
 % and logical relation for the family of
 % languages (Section~\ref{sec:logical-relation}). Finally, using our logical relation
@@ -45,7 +45,7 @@ soundness.
 % We present the full syntax for types, terms, and evaluation contexts in
 % Figure~\ref{fig:syntax}. 
 
-Like many lambda calculi for linear type systems, our language supports
+Like many lambda calculi for linear type systems, Numerical Fuzz supports
 variables, function abstraction and application, $\pi_i$ for projection, $in_i$
 for injection, and two different types of products.
 Our term syntax has explicit terms to represent our effectful computation

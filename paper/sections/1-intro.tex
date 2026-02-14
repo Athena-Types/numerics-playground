@@ -82,7 +82,7 @@ There are two limitations of Numerical Fuzz that our work addresses:
 To support subtraction, we first introduce a \textit{paired
 representation} that simulates the floating-point error of the standard,
 unpaired program representation.
-We demonstrate how to encode subtraction as a finitely-sensitive operation.
+We demonstrate how to model subtraction as a finitely-sensitive operation.
 Then, we encorporate an interval-style analysis in the type system to translate
 the simulated error on the paired representation into floating-point error on
 the standard representation.
@@ -102,7 +102,7 @@ real $r$ in our semantics with a pair of non-negative $(a, b)$ such that $r = a
 - b$.
 % Then, we can translate the error over
 % $a, b$ to be error over $r$.
-We can encode our operations, including subtraction, in this representation in a
+We can model our operations, including subtraction, in this representation in a
 finitely-sensitive manner.
 To reason about the unpaired and paired representations side-by-side, we use a
 triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in \mathbb{R}^{+}$ and $r
@@ -140,18 +140,19 @@ show how to use the primitive in Section~\ref{sec:structure}.
 Concretely, our contributions are as follows:
 \begin{itemize}
   \item We extend the Numerical Fuzz family of languages by incorporating an
-    bounds analysis into the type system using \textit{bound polymorphism}. We
-    further extend Numerical Fuzz to enable expressions in more places. We prove
-    the soundness of our extensions to Numerical Fuzz in
-    (Section~\ref{sec:lang}).
+    bounds analysis into the type system using \textit{bound polymorphism}. To
+    make programs easier and more concise to write, we further extend Numerical
+    Fuzz to enable expressions in more places. We prove the soundness of our
+    extensions to Numerical Fuzz in (Section~\ref{sec:lang}).
 
   \item We instantiate Numerical Fuzz to use a \textit{paired representation}
-    that allows for subtraction and negative numbers to be soundly represented
-    in a finitely-sensitive manner (Section~\ref{sec:instantiation}). 
-    We instantiate our bounds domain to reason about our paired represenation.
-    We provide error soundness theorems to allow the type to be understood in
-    terms of floating-point error on the standard, unpaired program
-    representation.
+    that allows for modeling subtraction and negative numbers in a
+    finitely-sensitive manner (Section~\ref{sec:instantiation}). 
+    We provide a polymorphic bounds analysis in the type system to reason about
+    our paired represenation.
+    We provide error soundness theorems to allow the error grade and bounds
+    analysis from program type to be translated into a floating-point error
+    bound on the standard, unpaired program representation.
     % TODO: how do we show that this is non-trivial without talking too much
     % about type inference and bound polymorphism. does this do the job? feels a
     % bit understated here
@@ -167,12 +168,12 @@ Concretely, our contributions are as follows:
     % \textit{a posterori} compositional error bounds in the presence of
     % subtraction and negative numbers (Section~\ref{sec:application}). 
 
-  \item We improve the expressiveness of Numerical Fuzz by allowing allowing
-    error grades and sensitivities in rounded terms to be shared. This enables
-    our error analysis to distinguish between reassociated floating-point
-    computation with different error bounds, for example, the following two
-    addition computations: \lstinline{((a + b) + c) + d = (a + b) + (c + d)}. We
-    accomplish this through the addition of a previously-untypable primitive
+  \item We improve the precision of Numerical Fuzz by allowing the analysis to
+    more efficiently reason about addition and subtraction. This lets us achieve
+    a log-factor improvement on the error bounds of a program representing
+    pariwise summation. We accomplish this by introducting a
+    previously-untypable primitive that can more accurately capture different
+    techniques for sequencing addition and subtraction operations
     (Section~\ref{sec:structure}).
 
   % \item We enable the precise structuring and seqeuncing of arithmetic by
@@ -193,9 +194,10 @@ Concretely, our contributions are as follows:
     Our approach is faster than competing approaches, mostly automatic with low
     type annotation overhead, and competitive on precision with other
     state-of-the-art techniques.
-    When compared against FPTaylor and Gappa and Satire on a suite of benchmarks
-    translated into our core language, we obtain useful and competitive error
-    bounds with faster and more scalable performance (Section~\ref{sec:eval}).
+    When compared against competing approaches (FPTaylor, Gappa and Satire) on a
+    suite of benchmarks translated into our core language, we obtain useful and
+    competitive error bounds with faster and more scalable performance
+    (Section~\ref{sec:eval}).
     % TODO: put in hard numbers
 \end{itemize}
 

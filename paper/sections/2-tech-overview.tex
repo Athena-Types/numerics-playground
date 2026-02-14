@@ -17,13 +17,17 @@ is the precision. A specific floating-point number system fixes a particular
 precision $p$ and represents a subset of the reals, for example
 $\textsc{binary32}$ and $\textsc{binary64}$ which fix $p = 32$ and $p = 64$
 respectively.
-Operations over the reals can be represented in a floating-point system as the
-exact operation followed by rounding by a function $\rho$ to a float. The error
-introduced by the rounding function $\rho$ is known as \textit{round-off error}.
+Arithmetic operations with round-off error can be represented in a
+floating-point system as the exact operation followed by rounding by a rounding
+function (written $\rho$) to a float.
+The error introduced by the rounding function $\rho$ is known as
+\textit{round-off error}.
+The choice of rounding function will vary depending on the rounding mode (e.g.
+round-to-nearest, round-towards-infinity, etc.) and the precision used.
 
 For this paper, we assume the absence of overflow and underflow. Then, the
-standard rounding error model assumes $\rho$ will observe round-off error in at
-most the last bit:
+standard rounding error model assumes $\rho$ will observe round-off error
+bounded in the following way:
 \begin{equation}
   \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
 \end{equation}
@@ -40,12 +44,12 @@ precision} metric for measuring round-off error.
   d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|
 \end{equation}
 
-Our approach relies on triangle inequality for the soundness of the error grades
-for our charateristic monadic bind rule.
-As relative precision forms a true metric and satisfies triangle equality, we
-are able to relative precision to compositionally reason about repeated
-applications of the monadic bind rule.
-Importantly, triangle inequality does not hold for \textit{relative error}.
+% Our approach relies on triangle inequality for the soundness of the error grades
+% for our charateristic monadic bind rule.
+% As relative precision forms a true metric and satisfies triangle equality, we
+% are able to relative precision to compositionally reason about repeated
+% applications of the monadic bind rule.
+% Importantly, triangle inequality does not hold for \textit{relative error}.
 
 \subsection{Running example: pairwise summation}
 We consider the well-known pairwise summation (sometimes referred to as cascade
@@ -66,28 +70,29 @@ $w, x, y, z \in [-1, 1]$ via pairwise summation:
 \end{equation}
 
 Numerical Fuzz cannot handle negative numbers, which leads us to our first new
-major language feature:
+major technical contribution 
 
-
-\subsection{Language Feature: Supporting Subtraction and Negative Numbers}
+\subsection{Supporting Subtraction and Negative Numbers}
 % TODO: mention that this is forwards error above maybe? in contrast with bean?
 % maybe explain fowards vs backwards
-We wish to support a forwards error analysis on programs containing subtraction
+We wish to support a error analysis on programs containing subtraction
 or negative numbers. 
-Unforutantely, Numerical Fuzz cannot assign a type to infinitely sensitive
-functions and subtraction over the reals is infinitely sensitive. 
-Stated in terms of numerical analysis, subtraction between two possibly close
-numbers is ill-conditioned. 
+Unforutantely, subtraction in Numerical Fuzz is infinitely sensitive. 
+% Stated in terms of numerical analysis, subtraction between two possibly close
+% numbers is ill-conditioned. 
 The core problem is that relatively small peturbations in the
 input of subtraction can lead to hard-to-bound relatively large perturbations in
-the output. As an illustrative toy example, suppose we have two large numbers
-like 1,000,001 and 1,000,000 that we wish to subtract. If we perturb the input
-by a small amount, for example, by 1 per-cent, we can observe quite large
-\textit{relative} changes in the output. 
-In other words, subtracting two large nearby numbers could obtain a small number
-with arbitrarily high relative error. This feature of subtraction is sometimes
-referred to as \textit{catestrophic cancelation} and forms one of the primary
-technical obstacles to verifying our running example. 
+the output. 
+As an illustrative toy example, suppose we have two large numbers
+like 1,000,001 and 1,000,000 that we wish to subtract. 
+If we perturb the input by a small amount, for example, by 1 per-cent, we can
+observe quite large \textit{relative} changes in the output. 
+In other words, subtracting two large nearby numbers with small round-off error
+in its inputs could obtain a small number with arbitrarily high round-off error,
+as measured using relative precision.
+This feature of subtraction is sometimes referred to as \textit{catestrophic
+cancelation} and forms one of the primary technical obstacles to verifying our
+running example. 
 
 % \begin{enumerate}
 %   \item A way to ``simulate" round-off error on $r$ as error on the pair $(a,
@@ -103,9 +108,10 @@ technical obstacles to verifying our running example.
 %     We do this by integrating an interval-style bounds analysis into the type
 %     system. 
 % \end{enumerate}
-
-Considering addition with negative numbers and subtraction are effective the
-same problem, so we first try to support the paper's running example:
+Note that supporting addition with negative numbers is effectively the same
+problem as supporting subtraction.
+To understand the problem posed by an infintely-sensitive operation, consider
+our running example:
 % TODO: make program formatting consistent
 \begin{equation}
 \begin{aligned}[c]
@@ -166,35 +172,35 @@ $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 components; subtraction is represented implictly. 
 By ensuring that each operation in the paired representation is always-growing,
 we can encode addition and subtraction in a finitely-sensitive manner. 
-
-We can ``simulate" error on the paired representation by defining a
-paired version of our rounding function $\rho$:
-\begin{definition}[Rounding over pairs] \label{def:rounding-p}
-$\rho_{\mathbb{P}}((r, a, b)) = 
-\begin{cases}
-  (0, a, b)  & r = 0\\
-(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
-  \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
-\end{cases}
-$
-\end{definition}
-which satisfies the constraint that $r = a - b$ at all times.
-This constraint is useful for letting us relate error over the unpaired
-components to error on the paired component.
+%
+% We can ``simulate" error on the paired representation by defining a
+% paired version of our rounding function $\rho$:
+% \begin{definition}[Rounding over pairs] \label{def:rounding-p}
+% $\rho_{\mathbb{P}}((r, a, b)) = 
+% \begin{cases}
+%   (0, a, b)  & r = 0\\
+% (\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
+%   \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
+% \end{cases}
+% $
+% \end{definition}
+% which satisfies the constraint that $r = a - b$ at all times.
+% This constraint is useful for letting us relate error over the unpaired
+% components to error on the paired component.
 
 Under the paired representation, we can implement and faitfully type addition,
 subtraction, and multiplication in terms of finitely-sensitive operations over
-the paired components:
+the paired components. Addition is defined below:
 \begin{equation}
   \begin{aligned}[c]
     add((r, a, b), (r', a', b')) &\mapsto (r + r', a + a', b + b') \\
     sub((r, a, b), (r', a', b')) &\mapsto (r - r', a + b', a' + b) \\
-    mul((r, a, b), (r', a', b')) 
-      &\mapsto 
-    (r * r', a * a' + b * b', a * b' + a' * b)
+    % mul((r, a, b), (r', a', b')) 
+    %   &\mapsto 
+    % (r * r', a * a' + b * b', a * b' + a' * b)
   \end{aligned}
 \end{equation}
-In this manner, we can bound the sensitivity of each operation and soundly
+In this manner, we can bound the sensitivity of addition and subtraction and soundly
 assign a type. 
 $\textbf{add}$ and $\textbf{mul}$ 
 have the same type as in Numerical Fuzz. Subtraction has type as
@@ -207,8 +213,8 @@ where $u$ is the unit round-off constant.
 
 \paragraph{Bound polymorphism.}
 % TODO: how exactly do we type add?
-Now that we have a way to bound error on the paired components, we need to
-translate these bounds into something useful over the unpaired component.
+Now we wish to translate these bounds into something useful over the unpaired
+component.
 % Unfortuantely, the error bounds obtained through the paired representation only
 % bound the maximum error on the \textit{paired} components. 
 % To be useful, we wish to relate error on the paired components $a$, $b$ with the
@@ -226,7 +232,7 @@ $M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$
 to the program, where the subscript indicates that the result of the program
 will be inside of the set 
 $[-4, 4] \times [0, 4] \times [0, 4]$.
-Further, we can deduce from the inferred grade of our monad that for all inputs
+Further, we can deduce from the grade of our monad that for all inputs
 $x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
 \tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq 3 \cdot u$.
 With this, we can apply our main absolute error theorem,
@@ -272,21 +278,8 @@ $$
 $$
 To reduce annotation overhead, we provide a type inference algorithm that can
 automatically infer bound polymorphism abstraction and instantiation sites. We
-prove our type inference algorithm sound in Section~\ref{sec:inference}. 
-
-% TODO: awk phrasing I think, can be tighter. forwards reference to section
-% where we do this once this is written
-One might wonder if using a paired representation, then running a bounds
-analysis to recover the error on the original unpaired representation hurts the
-precision of our analysis on programs. Interestingly, we do not lose any
-precision. We provide several examples showing that our bounds analysis is
-capable of reasoning that programs containing only-growing functions on
-non-negative numbers can only produce non-negative numbers. Therefore, on the
-programs supported by both Negative Fuzz and Numerical Fuzz, the maximum
-round-off error obtained by Negative Fuzz is simply the inferred grade of the
-monad and is no looser than the bound obtained by Numerical Fuzz. Negative Fuzz
-is therefore a strict improvement on Numerical Fuzz: our approach can analyze
-more programs with possibly tighter bounds on previously supported programs.
+prove our type inference algorithm sound in Section~\ref{sec:inference} and
+provide an evaluation in Section~\ref{sec:eval}.
 
 \subsection{Language Feature: Precise Structuring and Sequencing of Arithmetic} 
 \label{sec:factor}
@@ -306,8 +299,9 @@ and to obtain tighter error bounds that grow linearly in size of the \textit{hei
 the tree.
 We accomplish this by including a special primitive $\textbf{factor}$ in our
 term language inspired by linear logic. Stucturing the example arithmetic into a
-program below, we can see that using factor results in a 50\% smaller error
-bound for a program representing the same association and order of operations.
+program below, we can see that using factor results in a significantly smaller
+error bound for a program representing the same association and order of
+operations.
 
 \begin{figure}[ht] \label{fig:factor-cmp-overview}
 \centering
