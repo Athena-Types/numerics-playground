@@ -1,6 +1,6 @@
 \section{Type inference} \label{sec:inference}
 Our type inference algorithm computes the type sensitivity and inference
-analysis developed in Numerical Fuzz. Simulatenously, we automatically infer
+analysis developed in Numerical Fuzz. Simultaneously, we automatically infer
 polymoprhic bounds to generate a valid typing derivation of the program in
 \bnd{\Lang} to reduce the user annotation burden of adopting our approach.
 To define the type inference problem, we first define a sensitivity erasure
@@ -9,10 +9,10 @@ types and terms. We then define type inference as inferring sensitivities and
 bounds over erased, well-typed terms.
 
 \begin{definition}[Sensitivity erasure]
-For a fully annotated typing context $\Gamma$, a fully erased typing context
-$\Gamma^{\bnd{\bullet}} = \Gamma \circ (map \ \pi_2)$ with all sensitivity and
-information erased.
-% TODO: find a better way to define sensitivty erasure 
+  For a fully annotated typing context 
+  $\Gamma : \textit{variables} \to \textit{sensitivites} \  \times \ \textit{types}$,
+  a fully erased typing context $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$
+  with all sensitivity information erased and only returning the type.
 \end{definition}
 
 \begin{definition}[Bound erasure]

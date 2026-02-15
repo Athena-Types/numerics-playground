@@ -110,7 +110,6 @@ Note that supporting addition with negative numbers is effectively the same
 problem as supporting subtraction.
 To understand the problem posed by an infinitely-sensitive operation, consider
 our running example:
-% TODO: make program formatting consistent
 \begin{equation}
 \begin{aligned}[c]
 \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -306,24 +305,29 @@ A smaller monadic error grade results in a smaller floating-point error bound.
 \centering
 
 \begin{subfigure}[t]{0.48\textwidth}
-\begin{lstlisting}
-// (w + x) + (y + z) : M[3*u] num 
-let-bind a = rnd (add <w, x>) in
-let-bind b = rnd (add <y, z>) in
-rnd (addfp <a, b>)
-\end{lstlisting}
-\caption{Without factor: error grade is $3u$.}
+  \vspace{0.6em}
+  \begin{equation*}
+    \begin{aligned}[c]
+      \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
+      \textbf{let-bind} \ p \ = \ \textbf{rnd} \ (\textbf{add} \ \langle y, z \rangle) \ \textbf{in} \  \\
+      \textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
+    \end{aligned}
+  \end{equation*}
+\caption{Without factor: the type assigned is $M_{3u} \ \textbf{num}$.}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.48\textwidth}
-\begin{lstlisting}
-// (w + x) + (y + z) : M[2*u] num 
-let-bind a =
-  factor 
-    <rnd (add <w, x>), rnd (add <y, z>)> 
-  in rnd (add a)
-\end{lstlisting}
-\caption{With factor: error grade is $2u$.}
+  \begin{equation*}
+    \begin{aligned}[c]
+      \textbf{let-bind} \ a \ = \\ \textbf{factor} \
+        \langle 
+        \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
+        \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
+        \rangle \ \textbf{in} \\
+        \textbf{rnd} \ (\textbf{add} \ a)
+    \end{aligned}
+  \end{equation*}
+\caption{Without factor: the type assigned is $M_{2u} \ \textbf{num}$.}
 \end{subfigure}
 
 \caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
