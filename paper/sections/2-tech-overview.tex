@@ -234,7 +234,7 @@ $x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
 \tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq 3 \cdot u$.
 With this, we can apply our main absolute error theorem,
 Theorem~\ref{thm:paired-a-priori}, for 64-bit floats and obtain: $r - \tilde{r}
-= 1.7763568394002505 \times 10^{-15}$. 
+= 2.6645352591003757 \times 10^{-15}$. 
 %
 
 % TODO: justin says "go slower here, connect to numfuzz type, space out, break
@@ -299,7 +299,9 @@ term language inspired by linear logic. Rewriting our running example with our
 special primitive below, we can see that using factor results in a significantly
 smaller error grade for a program representing the same association and order of
 operations. 
-A smaller monadic error grade results in a smaller floating-point error bound.
+A smaller monadic error grade results in a smaller floating-point error bound,
+reducing the error of our running example by approximately one-third from
+$2.6645352591003757 \times 10^{-15}$ to $1.7763568394002505 \times 10^{-15}$.
 
 \begin{figure}[ht] \label{fig:factor-cmp-overview}
 \centering
@@ -330,7 +332,9 @@ A smaller monadic error grade results in a smaller floating-point error bound.
 \caption{Without factor: the type assigned is $M_{2u} \ \textbf{num}$.}
 \end{subfigure}
 
-\caption{Side-by-side comparison with and without the \textbf{factor} primitive.}
+\caption{Side-by-side comparison of addition with and without the
+\textbf{factor} primitive. Note that we omit the bounds subscripts for
+presentational purposes.}
 \label{fig:factor-side-by-side}
 \end{figure}
 
