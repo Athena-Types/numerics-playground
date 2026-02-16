@@ -7,4 +7,4 @@ function add_4_factor
   addfp64(a)
 }
 
-add_4_factor[1,1000][1,1000][1,1000][1,1000]
+add_4_factor[-1,1][-1,1][-1,1][-1,1]
