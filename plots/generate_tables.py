@@ -59,6 +59,13 @@ def is_small_benchmark(name):
     return not name.startswith('large/')
 
 
+def bold_if_best(text, name, best_name):
+    """The best value in each row is wrapped in \\textbf{} for emphasis."""
+    if name == best_name:
+        return f"\\textbf{{{text}}}"
+    return text
+
+
 def generate_precision_table(results, standalone=True):
     """Generate LaTeX table for precision comparison."""
     lines = []
@@ -72,7 +79,7 @@ def generate_precision_table(results, standalone=True):
     lines.append("\\centering")
     lines.append("\\caption{Absolute error bounds on small benchmarks.")
     lines.append("  Ratios show how many times tighter than NegFuzz (higher is better).")
-    lines.append("  }")
+    lines.append("  The best value in each row is bolded.}")
     lines.append("\\label{tab:small-precision-abs}")
     lines.append("\\small")
     lines.append("\\begin{tabular}{@{}lcccc@{}}")
@@ -94,6 +101,11 @@ def generate_precision_table(results, standalone=True):
         if negfuzz is None:
             continue  # Skip if no baseline
         
+        # Find best (lowest) value for precision
+        values = [('negfuzz', negfuzz), ('factor', negfuzz_factor), ('gappa', gappa), ('fptaylor', fptaylor)]
+        valid_values = [(n, v) for n, v in values if v is not None]
+        best = min(valid_values, key=lambda x: x[1])[0] if valid_values else None
+        
         # Compute ratios (how many times tighter than NegFuzz)
         ratio_negfuzz = 1.0
         ratio_factor = negfuzz / negfuzz_factor if negfuzz_factor else None
@@ -101,10 +113,10 @@ def generate_precision_table(results, standalone=True):
         ratio_fptaylor = negfuzz / fptaylor if fptaylor else None
         
         # Format cells
-        cell_negfuzz = f"{format_sci(negfuzz)} (1.0$\\times$)"
-        cell_factor = f"{format_sci(negfuzz_factor)} {format_ratio(ratio_factor)}" if negfuzz_factor else "---"
-        cell_gappa = f"{format_sci(gappa)} {format_ratio(ratio_gappa)}" if gappa else "---"
-        cell_fptaylor = f"{format_sci(fptaylor)} {format_ratio(ratio_fptaylor)}" if fptaylor else "---"
+        cell_negfuzz = bold_if_best(f"{format_sci(negfuzz)} (1.0$\\times$)", 'negfuzz', best)
+        cell_factor = bold_if_best(f"{format_sci(negfuzz_factor)} {format_ratio(ratio_factor)}", 'factor', best) if negfuzz_factor else "---"
+        cell_gappa = bold_if_best(f"{format_sci(gappa)} {format_ratio(ratio_gappa)}", 'gappa', best) if gappa else "---"
+        cell_fptaylor = bold_if_best(f"{format_sci(fptaylor)} {format_ratio(ratio_fptaylor)}", 'fptaylor', best) if fptaylor else "---"
         
         # Escape underscores in benchmark name
         benchmark_escaped = benchmark.replace('_', '\\_')
@@ -131,7 +143,8 @@ def generate_timing_table(timings, standalone=True):
     lines.append("\\begin{table}[htbp]")
     lines.append("\\centering")
     lines.append("\\caption{Execution time (seconds) on small benchmarks.")
-    lines.append("  Ratios show slowdown relative to NegFuzz (lower is better).}")
+    lines.append("  Ratios show slowdown relative to NegFuzz (higher is slower).")
+    lines.append("  The best value in each row is bolded.}")
     lines.append("\\label{tab:small-timing}")
     lines.append("\\small")
     lines.append("\\begin{tabular}{@{}lcccc@{}}")
@@ -168,6 +181,11 @@ def generate_timing_table(timings, standalone=True):
         if fptaylor:
             all_fptaylor.append(fptaylor)
         
+        # Find best (lowest) value for timing
+        values = [('negfuzz', negfuzz), ('factor', negfuzz_factor), ('gappa', gappa), ('fptaylor', fptaylor)]
+        valid_values = [(n, v) for n, v in values if v is not None]
+        best = min(valid_values, key=lambda x: x[1])[0] if valid_values else None
+        
         # Compute ratios (slowdown relative to NegFuzz)
         ratio_negfuzz = 1.0
         ratio_factor = negfuzz_factor / negfuzz if negfuzz_factor else None
@@ -175,10 +193,10 @@ def generate_timing_table(timings, standalone=True):
         ratio_fptaylor = fptaylor / negfuzz if fptaylor else None
         
         # Format cells
-        cell_negfuzz = f"{negfuzz:.4f} (1.0$\\times$)"
-        cell_factor = f"{negfuzz_factor:.4f} {format_ratio(ratio_factor)}" if negfuzz_factor else "---"
-        cell_gappa = f"{gappa:.4f} {format_ratio(ratio_gappa)}" if gappa else "---"
-        cell_fptaylor = f"{fptaylor:.3f} {format_ratio(ratio_fptaylor)}" if fptaylor else "---"
+        cell_negfuzz = bold_if_best(f"{negfuzz:.4f} (1.0$\\times$)", 'negfuzz', best)
+        cell_factor = bold_if_best(f"{negfuzz_factor:.4f} {format_ratio(ratio_factor)}", 'factor', best) if negfuzz_factor else "---"
+        cell_gappa = bold_if_best(f"{gappa:.4f} {format_ratio(ratio_gappa)}", 'gappa', best) if gappa else "---"
+        cell_fptaylor = bold_if_best(f"{fptaylor:.3f} {format_ratio(ratio_fptaylor)}", 'fptaylor', best) if fptaylor else "---"
         
         # Escape underscores in benchmark name
         benchmark_escaped = benchmark.replace('_', '\\_')
