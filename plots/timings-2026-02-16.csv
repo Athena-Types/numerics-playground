@@ -1,5 +1,5 @@
 benchmark,satire-noAbs,satire-10_20,satire-15_25,satire-20_40,gappa-abs,gappa-rel,numfuzz,numfuzz-factor,fptaylor-rel,fptaylor-abs,gappa-abs-memory-kb,gappa-rel-memory-kb,numfuzz-memory-kb,numfuzz-factor-memory-kb,fptaylor-memory-kb,gappa-abs-status,gappa-rel-status,numfuzz-status,numfuzz-factor-status,fptaylor-status,satire-noAbs-status,satire-10_20-status,satire-15_25-status,satire-20_40-status
-add-assoc,,,,,0.015780823540000002,,0.001490575,0.0013883665,0.00697315824,0.00682553298,7160.0,7064.0,3756.0,3640.0,5556.0,failed,failed,failed,failed,failed,success,success,success,success
+add-assoc,,,,,0.01585038202,,0.0014722795000000001,0.0013868755000000003,0.20260595776,0.20095769114,7224.0,6868.0,3680.0,3784.0,24760.0,failed,failed,failed,failed,failed,success,success,success,success
 delta4,,,,,0.22133590504000003,,0.0019378995,0.0035392415,1.11720587088,0.5110050796,18568.0,17776.0,3184.0,3120.0,24972.0,failed,failed,failed,failed,failed,success,success,success,success
 himmilbeau,,,,,0.05215270326,,0.001452806,0.0018180635000000001,0.02348553172,0.022943682640000004,7764.0,9316.0,3172.0,3196.0,6964.0,failed,failed,failed,failed,failed,success,success,success,success
 kepler0,,,,,0.16983168606,,,0.0029169465,2.37655310016,15.15947484934,16300.0,16244.0,3136.0,3116.0,146176.0,failed,failed,failed,failed,failed,success,success,success,success
@@ -47,4 +47,4 @@ rigidBody2,,,,,0.08238894804000002,,0.0020068630000000002,0.00282609,0.208176015
 sineOrder3,,,,,0.02163752068,,0.0013864095,0.0013529650000000002,0.0206770649,0.020122233720000004,7052.0,7048.0,3136.0,3212.0,6192.0,failed,failed,failed,failed,failed,success,success,success,success
 sqroot,,,,,0.10909868418000002,0.10550680826,0.0018423280000000003,0.0027368505000000005,0.026517105060000004,0.02771138964,12420.0,12416.0,3172.0,3152.0,6992.0,failed,failed,failed,failed,failed,success,success,success,success
 sum,,,,,0.06132589156,,0.0015235130000000002,0.001978082,0.65440521372,0.39139291740000004,10184.0,10100.0,3228.0,3124.0,24196.0,failed,failed,failed,failed,failed,success,success,success,success
-test01_sum3,,,,,0.0604060323,,0.001698055,0.0019382225,0.6789998058400001,0.41912538066000005,10868.0,10728.0,3584.0,3592.0,24780.0,failed,failed,failed,failed,failed,success,success,success,success
+test01_sum3,,,,,0.06065765178,,0.00174433,0.0019404230000000001,0.6769833433000001,0.41669597668,10796.0,10728.0,3792.0,3652.0,24760.0,failed,failed,failed,failed,failed,success,success,success,success

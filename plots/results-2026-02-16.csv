@@ -1,5 +1,5 @@
 benchmark,pre-rel,pre-abs,pre-rel-factor,pre-abs-factor,gappa-abs,gappa-rel,fptaylor-abs,fptaylor-rel,satire-abs-noAbs,satire-abs-10_20,satire-abs-15_25,satire-abs-20_40
-add-assoc,,2.665e-15,,1.776e-15,1.221e-15,,,,,,,
+add-assoc,,2.665e-15,,1.776e-15,1.221e-15,,1.332e-15,,,,,
 delta4,,1.087e-12,,4.756e-13,2.123e-13,,1.154e-13,,,,,
 himmilbeau,,1.615e-11,,8.615e-12,2e-12,,1.18e-12,,,,,
 kepler0,,9.534e-13,,6.81e-13,1.982e-13,,1.171e-13,2.434e-15,,,,
