@@ -106,10 +106,11 @@ def add_timeout_markers(ax, df_subset):
 
 def setup_axes(ax, ylabel, title=None):
     """Configure axes for log-log plot."""
-    ax.set_xlabel('Parameter (N)')
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel('Parameter (N)', fontsize=14)
+    ax.set_ylabel(ylabel, fontsize=14)
+    ax.tick_params(axis='both', labelsize=13)
     if title:
-        ax.set_title(title)
+        ax.set_title(title, fontsize=15)
     ax.set_xscale('log', base=2)
     ax.set_yscale('log')
     ax.grid(True, alpha=0.3)
@@ -141,7 +142,7 @@ def create_plots(df, output_dir):
             plot_lines(ax, df_subset)
             setup_axes(ax, ylabel, f'{title} - {suffix.title()}')
             add_timeout_markers(ax, df_subset)
-            ax.legend(handles=make_legend_handles(), loc='best')
+            ax.legend(handles=make_legend_handles(), loc='best', fontsize=13)
             plt.tight_layout()
             plt.savefig(output_dir / f'{family}_{suffix}.pdf', bbox_inches='tight')
             plt.savefig(output_dir / f'{family}_{suffix}.png', dpi=150, bbox_inches='tight')
@@ -160,7 +161,7 @@ def create_plots(df, output_dir):
             setup_axes(ax, ylabel, FAMILIES[family] if row == 0 else None)
             add_timeout_markers(ax, df_subset)
     
-    fig.legend(handles=make_legend_handles(), loc='lower center', ncol=5, fontsize=10, bbox_to_anchor=(0.5, -0.02))
+    fig.legend(handles=make_legend_handles(), loc='lower center', ncol=5, fontsize=13, bbox_to_anchor=(0.5, -0.02))
     plt.tight_layout(rect=[0, 0.05, 1, 1])
     plt.savefig(output_dir / 'large_benchmarks_combined.pdf', bbox_inches='tight')
     plt.savefig(output_dir / 'large_benchmarks_combined.png', dpi=150, bbox_inches='tight')
