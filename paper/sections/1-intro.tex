@@ -108,7 +108,7 @@ triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in \mathbb{R}^{+}$ and $r
 = a - b$. For our paired approach to be useful in bounding the round-off
 error on the unpaired $r$ representing real-world floating-point programs, we
 need to be able to (1) ``simulate" floating-point round-off error on $r$ using
-the paired represenation, (2) measure error on the paired represenation, and (3)
+the paired representation, (2) measure error on the paired representation, and (3)
 ``translate" error bounds on paired representation to be back on the unpaired $r$
 representing the real-world program.
 
@@ -148,7 +148,7 @@ Concretely, our contributions are as follows:
     that allows for modeling subtraction and negative numbers in a
     finitely-sensitive manner (Section~\ref{sec:instantiation}). 
     We provide a polymorphic bounds analysis in the type system to reason about
-    our paired represenation.
+    our paired representation.
     We provide error soundness theorems to allow the error grade and bounds
     analysis from program type to be translated into a floating-point error
     bound on the standard, unpaired program representation.
@@ -170,7 +170,7 @@ Concretely, our contributions are as follows:
   \item We improve the precision of Numerical Fuzz by allowing the analysis to
     more efficiently reason about addition and subtraction. This lets us achieve
     a log-factor improvement on the error bounds of a program representing
-    pairwise summation. We accomplish this by introducting a
+    pairwise summation. We accomplish this by introducing a
     previously-untypable primitive that can more accurately capture different
     techniques for sequencing addition and subtraction operations
     (Section~\ref{sec:structure}).

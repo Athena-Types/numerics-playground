@@ -3,7 +3,7 @@ We wish to have a practical technique for bounding floating-point round-off
 error. To evaluate our approach, we implement the type inference algorithm
 detailed in this paper in Rust.
 We evaluate our implementation on speed and precision of the analysis against
-competiting tools on benchmarks in the FPBench benchmark suite \cite{fpbench}
+competing tools on benchmarks in the FPBench benchmark suite \cite{fpbench}
 and select programs from the Satire benchmark suite \cite{satire}.
 Since we are extending Numerical Fuzz and are not interested in duplicating
 Numerical Fuzz's evaluation, we only use benchmark programs that are newly
@@ -50,12 +50,12 @@ observe that NegFuzz (with factor) obtains competitive bounds within an order of
 magnitude with Gappa and FPTaylor.
 We also compare the performance of our NegFuzz implementation on small
 benchmarks in Figure~\ref{tab:small-timing}. Negative Fuzz is frequently orders
-of mangitude faster than Gappa and FPTaylor.
+of magnitude faster than Gappa and FPTaylor.
 
 \input{../plots/small-benchmarks-tables.tex}
 
 \paragraph{Large benchmark programs.}
-To understand how Negative Fuzz scales, we run three paramterized benchmarks and
+To understand how Negative Fuzz scales, we run three parameterized benchmarks and
 double the program size until a 450 second timeout is reached or over 64 GB of
 RAM is used. We plot the results in Figure~\ref{fig:large-plots}. Failures due
 to timeout or OOM are marked as a point on the uppermost edge of each plot. Both
@@ -84,7 +84,7 @@ From our evaluation tables and figures, we make four claims:
 \paragraph{Our type-based approach is faster than competing approaches.} 
 On both the small benchmarks taken from FPBench that our tool supports as well
 as large benchmarks taken from Satire's artifact evaluation, our approach is
-signficantly faster than competing approaches, often outperforming by an order
+significantly faster than competing approaches, often outperforming by an order
 of magnitude. 
 
 \paragraph{Our type-based approach yields useful a priori bounds that are

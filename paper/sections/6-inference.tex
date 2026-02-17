@@ -1,7 +1,7 @@
 \section{Type inference} \label{sec:inference}
 Our type inference algorithm computes the type sensitivity and inference
 analysis developed in Numerical Fuzz. Simultaneously, we automatically infer
-polymoprhic bounds to generate a valid typing derivation of the program in
+polymorphic bounds to generate a valid typing derivation of the program in
 \bnd{\Lang} to reduce the user annotation burden of adopting our approach.
 To define the type inference problem, we first define a sensitivity erasure
 $-^{\bullet}$ over typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over
@@ -10,7 +10,7 @@ bounds over erased, well-typed terms.
 
 \begin{definition}[Sensitivity erasure]
   For a fully annotated typing context 
-  $\Gamma : \textit{variables} \to \textit{sensitivites} \  \times \ \textit{types}$,
+  $\Gamma : \textit{variables} \to \textit{sensitivities} \  \times \ \textit{types}$,
   a fully erased typing context $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$
   with all sensitivity information erased and only returning the type.
 \end{definition}
@@ -74,7 +74,7 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 \subsection{Subtyping for type inference}
 Before we provide the algorithm, we extend the subtyping and supertyping
 relations used in Numerical Fuzz for type inference. In particular, we add the
-following cases to deal with bounds and bound polymoprhism.
+following cases to deal with bounds and bound polymorphism.
 $$
 \begin{aligned}[c]
   \textbf{num}_{b_0} \sqsubseteq \textbf{num}_{b'_0} &\triangleq b_0 \leq b'_0
@@ -148,7 +148,7 @@ $$
 
 \begin{theorem}[Admissibility of subtyping] \label{thm:subtyping}
   If $\Delta \ | \ \Gamma \vdash e : \tau$ has a derivation 
-  and $\tau' \sqsubseteq \tau'$
+  and $\tau' \sqsubseteq \tau$
   then typing judgement $\Delta \ | \ \Gamma \vdash e : \tau'$ is derivable.
 \end{theorem}
 \begin{proof}
@@ -184,7 +184,7 @@ e and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
 is derivable for some $\Delta$ (our soundness criterion). 
 Note that we leave the $\Delta$ out of our type inference algorithm and
-implicitly reconstruct an appropraite $\Delta$ inside our constructive soundness
+implicitly reconstruct an appropriate $\Delta$ inside our constructive soundness
 proof.
 
 We start type inference by passing the empty context (written ``."), along with
@@ -200,7 +200,7 @@ Conceptually, our type inference algorithm does three things:
 
   \item At the same time as our sensitivity inference, we infer our bounds. We
     rely on helper functions $I$ and $E$
-    (Figure~\label{fig:helper_type_inference}) to automatically instantiate and
+    (Figure~\ref{fig:helper_type_inference}) to automatically instantiate and
     eliminate polymorphic bound variables. 
 
   \item Finally, we evaluate our bound expresions via $\llbracket - \rrbracket$. 
@@ -570,7 +570,7 @@ would be relevant for a completeness argument.
 
 Note that we have that $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and
 $e^{\bnd{\bullet}} = e'^{\bnd{\bullet}}$ as we do not prove that our type
-inferencde algorithm infers the tightest possible sensitivity or round-off
+inference algorithm infers the tightest possible sensitivity or round-off
 grades.
 % TODO: prove that we infer the tighest possible sens + round-off error grades
 % (or provide counterexample).
@@ -691,7 +691,7 @@ To handle such cases, we extend the $\bnd{\llbracket - \rrbracket}$
 (Definition~\ref{def:interval-exp-eval}) evaluating bound expressions to also
 evaluate types that possibly contain bound expressions. Importantly our
 soundness theorem proved below, the logical relation corresponding to the
-evalauted type should be the same logical relation as the original type. This is
+evaluated type should be the same logical relation as the original type. This is
 a semantic notion of soundness, which is why we present the evaluation of types
 and bound expressions separately from our syntax-directed type inference
 algorithm.
@@ -734,7 +734,7 @@ Note that for simplicity, we only halt evaluation when we see a $\forall$.
 \end{proof}
 
 \subsection{Example programs and types}
-We now demonstrate to run set up and run the type inference problem from start
+We now demonstrate how to set up and run the type inference problem from start
 to finish on an example FPCore benchmark.
 We also remark on several observations that match our intuition on how the
 algorithm behaves.

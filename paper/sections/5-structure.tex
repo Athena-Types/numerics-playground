@@ -1,4 +1,4 @@
-\section{More precise treatement of addition and subtraction} \label{sec:structure}
+\section{More precise treatment of addition and subtraction} \label{sec:structure}
 % Outline:
 % 1. Associativity, minimal example on add. (Running example)
 % 2. Zoom back out, also bad for sub (give example)
@@ -32,7 +32,7 @@ relevant portions of the typing trees for the above two programs in
 Figure~\ref{fig:partial-typing-trees}. 
 In subfigure (a), we show the typing tree corresponding to the pairwise
 summation algorithm on four numbers. In subfigure (b), we show the typing tree
-corresponding to the iterateive summation algorithm on four numbers. In
+corresponding to the iterative summation algorithm on four numbers. In
 subfigure (c) we highlight that the error grade for both algorithms are the same
 due to structural limitations of the $\textbf{let-bind}$ typing rule.
 Note that although the underlying arithmetic computation of our pairwise
@@ -144,7 +144,7 @@ corresponding typing tree itself does not reflect this.
 }
 \end{subfigure}
 \caption{
-  For presentational purposes, we remove polymoprhic bound annotations from the
+  For presentational purposes, we remove polymorphic bound annotations from the
   $\textbf{num}$ type and $\textbf{add}$ operation and also omit the
   applications of the polymorphic typing rules.
 }
@@ -161,7 +161,7 @@ running example and provide a partial typing tree for the pairwise summation
 algorithm using the \textbf{factor} primitive in
 Figure~\ref{fig:factor-example}. 
 The type of the pairwise summation program with $\textbf{factor}$ is $M_{2\cdot
-u} \ \textbf{num}$, lower than the $2 \cdot u$ error grade of the iterative
+u} \ \textbf{num}$, lower than the $3 \cdot u$ error grade of the iterative
 summation program.
 \begin{figure}
   \scriptsize
@@ -198,7 +198,7 @@ summation program.
 }
 \label{fig:factor-example}
 \end{figure}
-As \textbf{add} and \textbf{sub} have the same type, the same proceses of
+As \textbf{add} and \textbf{sub} have the same type, the same processes of
 rewriting with \textbf{factor} can be accomplished in the same manner with
 $\textbf{sub}$. In Figure~\ref{fig:factor-sub-example}, we demonstrate how to
 use $\textbf{factor}$ to achieve tighter error bounds for programs with
@@ -232,7 +232,7 @@ error bounds.
         \textbf{rnd} \ (\textbf{sub} \ a)
     \end{aligned}
   \end{equation*}
-\caption{Without factor: the type assigned is $M_{2u} \ \textbf{num}$.}
+\caption{With factor: the type assigned is $M_{2u} \ \textbf{num}$.}
 \end{subfigure}
 
 \caption{Side-by-side comparison of subtraction with and without the

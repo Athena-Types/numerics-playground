@@ -197,7 +197,7 @@ and scaling and then context summing and scaling below.
 \end{definition}
 
 % describe rules, harp on linearity
-The introduction and elimaination rules for $\otimes$, $\times$, and $\multimap$
+The introduction and elimination rules for $\otimes$, $\times$, and $\multimap$
 mirror Numerical Fuzz and correspond to the standard introduction and
 elimination rules in linear logic.
 We are also able to scale typing contexts through the (! I) rule. This is useful
@@ -537,11 +537,11 @@ separate lemma in our soundness proof.
 
 % \subsection{Equivalence class of interval expressions.}
 \subsection{Modular Interface} \label{sec:interface}
-Numerical Fuzz is a modular family of programming languages paramterized
+Numerical Fuzz is a modular family of programming languages parameterized
 by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
 numeric computations $\Sigma$.  
 It is the proof obligation for any language designer instantiating the language
-to demonstrate that these properties hold in order for our paramterized
+to demonstrate that these properties hold in order for our parameterized
 soundness theorems to follow.
 
 \begin{samepage}
@@ -662,7 +662,7 @@ syntactic values as follows:
       &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_0}(v_1, w_1))
     \\
     \mathcal{SDV}_{\tau_0 \otimes \tau_1}((v_0, v_1), (w_0, w_1)) 
-      &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_0}(v_1, w_1))
+      &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_0}(v_1, w_1)
     \\
     \mathcal{SDV}_{\tau_0 + \tau_1}(\tin_i~v, \tin_i~w) 
       &\triangleq \mathcal{SDV}_{\tau_i}(v, w)

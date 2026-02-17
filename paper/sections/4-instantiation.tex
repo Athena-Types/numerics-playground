@@ -11,7 +11,7 @@ triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+
 \triangleq \mathbb{P} = \mathit{num}$ under the $\leq$ relation over the first
 component such that $r = a - b$. 
 Accordingly, we equip our set $\mathbb{P}$ with a distance function
-$d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maxmimum distance over
+$d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maximum distance over
 the paired components (Definition~\ref{def:distance-p}).
 Instead of reasoning over the real component, we instantiate our graded type
 system to track distances and error over the always-growing paired components.
@@ -106,7 +106,7 @@ $emax$ &   $+127$  & $+1023$ & $+16383$ \\
 \subsubsection{Defining our operations over the paired representation}
 \label{sec:paired-ops}
 We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
-compute and are typed over our paired representationn in the following way:
+compute and are typed over our paired representation in the following way:
 \begin{equation}
 \begin{aligned}[c]
   &\textit{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
@@ -285,7 +285,7 @@ the same round-off constant as the grade used in Numerical Fuzz over an unpaired
 representation.
 
 Given a rounding function $\rho_\mathbb{R}$ over the real with up to $u$
-round-off error, recall that we define a ``simualted" rounding function
+round-off error, recall that we define a ``simulated" rounding function
 $\rho_{\mathbb{P}}$ over the paired representation
 (Definition~\ref{def:rounding-p})
 which satisfies the constraint that $r = a - b$ at all times. We need to show

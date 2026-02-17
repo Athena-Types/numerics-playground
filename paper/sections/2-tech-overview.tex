@@ -75,7 +75,7 @@ major technical contribution
 \subsection{Supporting Subtraction and Negative Numbers}
 We wish to support a error analysis on programs containing subtraction
 or negative numbers. 
-Unforutantely, subtraction in Numerical Fuzz is infinitely sensitive. 
+Unfortunately, subtraction in Numerical Fuzz is infinitely sensitive. 
 % Stated in terms of numerical analysis, subtraction between two possibly close
 % numbers is ill-conditioned. 
 The core problem is that relatively small perturbations in the
@@ -88,7 +88,7 @@ observe quite large \textit{relative} changes in the output.
 In other words, subtracting two large nearby numbers with small round-off error
 in its inputs could obtain a small number with arbitrarily high round-off error,
 as measured using relative precision.
-This feature of subtraction is sometimes referred to as \textit{catestrophic
+This feature of subtraction is sometimes referred to as \textit{catastrophic
 cancellation} and forms one of the primary technical obstacles to verifying our
 running example. 
 
@@ -143,19 +143,19 @@ Secondly, since the $add$ function may amplify error in its input by up to
 $\infty$, the round-off error of the whole program is $\infty \cdot u = \infty$
 where $u$ is our unit-roundoff constant.
 Therefore, we know that our example program is both infinitely-sensitive in its
-free variables and has infintely-bounded error.
+free variables and has infinitely-bounded error.
 This is not a useful error bound.
 
 \paragraph{Paired representation.}
 As addition and subtraction over the unrestricted reals is infinitely-sensitive,
 we first deal with the problem of infinite sensitivity.
 We develop a paired representation where unrestricted addition and subtraction
-have finitely-bounded sensitivty. The trick is to associate for each
+have finitely-bounded sensitivity. The trick is to associate for each
 real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
 \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
-Our error function $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b}))$
+Our error function $d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b}))$
 over $\mathbb{P}$ is defined below:
 \begin{definition}[Distance over pairs] \label{def:distance-p}
 $d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
@@ -166,7 +166,7 @@ problem of catastrophic cancellation in the paired representation.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 (a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs to add
-components; subtraction is represented implictly. 
+components; subtraction is represented implicitly. 
 By ensuring that each operation in the paired representation is always-growing,
 we can encode addition and subtraction in a finitely-sensitive manner. 
 %
@@ -329,7 +329,7 @@ $2.6645352591003757 \times 10^{-15}$ to $1.7763568394002505 \times 10^{-15}$.
         \textbf{rnd} \ (\textbf{add} \ a)
     \end{aligned}
   \end{equation*}
-\caption{Without factor: the type assigned is $M_{2u} \ \textbf{num}$.}
+\caption{With factor: the type assigned is $M_{2u} \ \textbf{num}$.}
 \end{subfigure}
 
 \caption{Side-by-side comparison of addition with and without the
