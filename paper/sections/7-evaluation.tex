@@ -1,9 +1,10 @@
 \section{Implementation and evaluation} \label{sec:eval}
 We wish to have a practical technique for bounding floating-point round-off
-error. To evaluate the practicality of our approach, we implement the type
-inference algorithm detailed in this paper in Rust.
+error. To evaluate our approach, we implement the type inference algorithm
+detailed in this paper in Rust.
 We evaluate our implementation on speed and precision of the analysis against
-competiting tools on benchmarks in the FPBench benchmark suite \cite{fpbench}.
+competiting tools on benchmarks in the FPBench benchmark suite \cite{fpbench}
+and select programs from the Satire benchmark suite \cite{satire}.
 Since we are extending Numerical Fuzz and are not interested in duplicating
 Numerical Fuzz's evaluation, we only use benchmark programs that are newly
 supported, e.g. contain subtraction or range over negative numbers.
@@ -65,13 +66,14 @@ benchmark variants with \textbf{factor}.
 On the Horner and serial summation benchmarks, Negative Fuzz has comparable
 precision at faster performance than competing tools. On the matrix
 multiplication benchmark, Negative Fuzz with \textbf{factor} outperforms Satire
-on precision and timing performance. 
+on both precision and timing performance. 
 
 \includegraphics[width=1\textwidth]{../plots/figures/large_benchmarks_combined.pdf}
 \begin{figure}
 \caption{
   Log-scale growth plots of absolute error and execution time of Negative Fuzz
-  (with and without \textbf{factor}), Gappa, FPTaylor, and Satire.
+  (with and without \textbf{factor}), Gappa, FPTaylor, and Satire on large
+  benchmarks.
 }
 \label{fig:large-plots}
 \end{figure}
