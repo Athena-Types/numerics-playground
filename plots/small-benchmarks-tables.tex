@@ -4,27 +4,28 @@
 \begin{table}[htbp]
 \centering
 \caption{Absolute error bounds on small benchmarks.
-  Ratios show how many times tighter than NegFuzz (higher is better).
-  The best value in each row is bolded.}
+  Ratio is the ratio of the bound produced by NegFuzz to the
+  tool under test (lower is better). The best value in each 
+  row is bolded.}
 \label{tab:small-precision-abs}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Benchmark & NegFuzz & NegFuzz (factor) & Gappa & FPTaylor \\
 \midrule
-add-assoc & 2.67e-15 (1.0$\times$) & 1.78e-15 (1.5$\times$) & \textbf{1.22e-15 (2.2$\times$)} & 1.33e-15 (2.0$\times$) \\
-delta4 & 1.09e-12 (1.0$\times$) & 4.76e-13 (2.3$\times$) & 2.12e-13 (5.1$\times$) & \textbf{1.15e-13 (9.4$\times$)} \\
-himmilbeau & 1.62e-11 (1.0$\times$) & 8.62e-12 (1.9$\times$) & 2.00e-12 (8.1$\times$) & \textbf{1.18e-12 (14$\times$)} \\
-kepler0 & 9.53e-13 (1.0$\times$) & 6.81e-13 (1.4$\times$) & 1.98e-13 (4.8$\times$) & \textbf{1.17e-13 (8.1$\times$)} \\
-kepler1 & 5.94e-12 (1.0$\times$) & 2.84e-12 (2.1$\times$) & 7.46e-13 (8.0$\times$) & \textbf{3.92e-13 (15$\times$)} \\
-matrixDeterminant & 2.27e-11 (1.0$\times$) & 6.66e-12 (3.4$\times$) & 5.98e-12 (3.8$\times$) & \textbf{3.13e-12 (7.2$\times$)} \\
-matrixDeterminant2 & 2.27e-11 (1.0$\times$) & 6.66e-12 (3.4$\times$) & 5.98e-12 (3.8$\times$) & \textbf{3.13e-12 (7.2$\times$)} \\
-rigidBody1 & 9.39e-13 (1.0$\times$) & 7.83e-13 (1.2$\times$) & 5.01e-13 (1.9$\times$) & \textbf{4.26e-13 (2.2$\times$)} \\
-rigidBody2 & 1.83e-10 (1.0$\times$) & 9.13e-11 (2.0$\times$) & 6.49e-11 (2.8$\times$) & \textbf{4.54e-11 (4.0$\times$)} \\
-sineOrder3 & 4.57e-15 (1.0$\times$) & 3.27e-15 (1.4$\times$) & 1.27e-15 (3.6$\times$) & \textbf{9.20e-16 (5.0$\times$)} \\
-sqroot & 4.86e-15 (1.0$\times$) & 1.73e-15 (2.8$\times$) & 1.04e-15 (4.7$\times$) & \textbf{9.71e-16 (5.0$\times$)} \\
-sum & 2.67e-14 (1.0$\times$) & 1.33e-14 (2.0$\times$) & 6.66e-15 (4.0$\times$) & \textbf{4.44e-15 (6.0$\times$)} \\
-test01\_sum3 & 2.67e-14 (1.0$\times$) & 1.33e-14 (2.0$\times$) & 6.66e-15 (4.0$\times$) & \textbf{4.44e-15 (6.0$\times$)} \\
+add-assoc & 2.67e-15 (1.0$\times$) & 1.78e-15 (0.7$\times$) & \textbf{1.22e-15 (0.5$\times$)} & 1.33e-15 (0.5$\times$) \\
+delta4 & 1.09e-12 (1.0$\times$) & 4.76e-13 (0.4$\times$) & 2.12e-13 (0.2$\times$) & \textbf{1.15e-13 (0.1$\times$)} \\
+himmilbeau & 1.62e-11 (1.0$\times$) & 8.62e-12 (0.5$\times$) & 2.00e-12 (0.1$\times$) & \textbf{1.18e-12 (0.1$\times$)} \\
+kepler0 & 9.53e-13 (1.0$\times$) & 6.81e-13 (0.7$\times$) & 1.98e-13 (0.2$\times$) & \textbf{1.17e-13 (0.1$\times$)} \\
+kepler1 & 5.94e-12 (1.0$\times$) & 2.84e-12 (0.5$\times$) & 7.46e-13 (0.1$\times$) & \textbf{3.92e-13 (0.1$\times$)} \\
+matrixDeterminant & 2.27e-11 (1.0$\times$) & 6.66e-12 (0.3$\times$) & 5.98e-12 (0.3$\times$) & \textbf{3.13e-12 (0.1$\times$)} \\
+matrixDeterminant2 & 2.27e-11 (1.0$\times$) & 6.66e-12 (0.3$\times$) & 5.98e-12 (0.3$\times$) & \textbf{3.13e-12 (0.1$\times$)} \\
+rigidBody1 & 9.39e-13 (1.0$\times$) & 7.83e-13 (0.8$\times$) & 5.01e-13 (0.5$\times$) & \textbf{4.26e-13 (0.5$\times$)} \\
+rigidBody2 & 1.83e-10 (1.0$\times$) & 9.13e-11 (0.5$\times$) & 6.49e-11 (0.4$\times$) & \textbf{4.54e-11 (0.2$\times$)} \\
+sineOrder3 & 4.57e-15 (1.0$\times$) & 3.27e-15 (0.7$\times$) & 1.27e-15 (0.3$\times$) & \textbf{9.20e-16 (0.2$\times$)} \\
+sqroot & 4.86e-15 (1.0$\times$) & 1.73e-15 (0.4$\times$) & 1.04e-15 (0.2$\times$) & \textbf{9.71e-16 (0.2$\times$)} \\
+sum & 2.67e-14 (1.0$\times$) & 1.33e-14 (0.5$\times$) & 6.66e-15 (0.2$\times$) & \textbf{4.44e-15 (0.2$\times$)} \\
+test01\_sum3 & 2.67e-14 (1.0$\times$) & 1.33e-14 (0.5$\times$) & 6.66e-15 (0.2$\times$) & \textbf{4.44e-15 (0.2$\times$)} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -35,7 +36,7 @@ test01\_sum3 & 2.67e-14 (1.0$\times$) & 1.33e-14 (2.0$\times$) & 6.66e-15 (4.0$\
 \begin{table}[htbp]
 \centering
 \caption{Execution time (seconds) on small benchmarks.
-  Ratios show slowdown relative to NegFuzz (higher is slower).
+  Ratios show slowdown relative to NegFuzz (lower is better).
   The best value in each row is bolded.}
 \label{tab:small-timing}
 \small
