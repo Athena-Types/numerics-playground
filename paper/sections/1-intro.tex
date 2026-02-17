@@ -7,6 +7,15 @@ Towards this end, we develop automated numerical analyses to bound the error
 introduced by our floating-point approximations. We wish for our analyses to be
 efficient, as automatic as possible, and precise.
 
+A major challenge in the automated numerical analysis literature is scalability.
+Many existing approaches rely on global optimization \cite{fptaylor}
+\cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
+\cite{rosa}. However, as programs scale, these analysis approaches frequently
+time-out. Type-based approaches offer an alternative approach to automated
+numerical analysis.
+With type checking, there is no need to perform global optimization, run an
+algorithm to convergence, saturate rewrites, or bit-blast.
+
 In this paper, we extend Numerical Fuzz, an affine call-by-value graded type
 system for bounding round-off error.
 The advantage of a type-based method is that it is inherently compositional and
@@ -14,10 +23,9 @@ scalable: all of the information necessary to perform an error analysis on a
 function is contained within the type. 
 The core idea of Numerical Fuzz is to track two key properties of each function:
 how a function magnifies error in its inputs (function sensitivity), and the
-maximum error introduced by the function. By simultaneously bounding these two
-properties, Numerical Fuzz is able to compositionally bound the maximum
-accumulated error in a program via a graded monad.
-
+maximum error introduced by the function. This allows Numerical Fuzz to
+compositionally bound the maximum accumulated error in a program via a graded
+monad.
 
 % \paragraph{Prior type-based work and limitations.} 
 % For the remainder of this paper, $\tilde{\phi}$ corresponds to the

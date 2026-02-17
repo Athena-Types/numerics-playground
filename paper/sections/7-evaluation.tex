@@ -27,10 +27,9 @@ under or overflow in the program. Further, the error metric (relative precision)
 used in our type system is only well-defined when the floating-point computation
 and the exact computation are always non-zero and the same sign. Therefore, even
 though we report absolute error for an apples-to-apples comparison against
-competing tools, our analysis additionally assumes that the floating-point
-computation and exact computation are non-zero and the same sign. We do not
-support division or taking square roots; we leave this as a potential future
-direction.
+competing tools, our analysis requires that the floating-point computation and
+exact computation are non-zero and the same sign. We do not support division or
+taking square roots; we leave this as a potential future direction.
 
 % TODO: mention relative error
 
@@ -87,10 +86,10 @@ that makes rewriting with \textbf{factor} unhelpful, so we do not bother writing
 benchmark variants with \textbf{factor}. 
 We plot the results in Figure~\ref{fig:large-plots}. Each column represents a
 set of paramterized benchmarks. The top row represents the absolute error bound
-achieved by each tool. The bottom row repreesents the median execution time of
+achieved by each tool. The bottom row represents the median execution time of
 each program (across 6 runs). If any of the 6 runs failed due to timeout or OOM,
 we marked the result as a point on the uppermost edge of each plot. We discuss
-the benchmarks results below:
+the benchmarks below:
 \begin{enumerate}
   \item We evaluate the Horner polynomial evaluation scheme from $2^2 (4)$ to
     $2^{11} (2048)$ and we observe that Negative Fuzz has comparable precision
