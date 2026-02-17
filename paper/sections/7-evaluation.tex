@@ -2,15 +2,17 @@
 To evaluate our approach, we implement the type inference algorithm detailed in
 this paper in Rust.
 We evaluate the speed and precision of our implementation against competing
-tools in the FPBench benchmark suite \cite{fpbench}.
+tools in the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
 Since we are extending Numerical Fuzz and are not interested in duplicating
 Numerical Fuzz's evaluation, we only include FPBench programs that are newly
 supported, e.g. contain subtraction or range over negative numbers.
 Many of the programs in the FPBench benchmark suite are too small to draw
-conclusions about the scability of our approach. So, we include select programs
-from the Satire benchmark suite \cite{satire} that were easy to translate into
-Negative Fuzz, Gappa, and FPTaylor. We found many of the programs from the
-Satire benchmark suite to be difficult to translate due to the program size.
+conclusions about the scability of our approach. Therefore, we draw upon
+programs from the Satire benchmark suite \cite{satire} that were straightforward
+to translate into Negative Fuzz, Gappa, and FPTaylor; we found many of the
+programs from the Satire benchmark suite to be difficult to translate due to the
+enormous program size.
+
 For all of our benchmarks, we use the \textsc{binary64} precision mode and set
 the rounding mode to round towards infinity.
 On some benchmarks, our tool is able to produce a relative precision bound.
@@ -122,10 +124,9 @@ Our work is also the first type-based approach that is able to reason about
 round-off error in the presence of subtraction and negative numbers. 
 Since Negative Fuzz uses a type-based approach to numerical analysis, our
 approach also offers several qualitative advantages over competing tools. For
-example, each function in a library of numerical analysis algorithms could be
-typed once. Programs that call a library function would not need to type-check
+example, programs that call a library function would not need to type-check
 the underlying library code and could instead rely on the function type as an
-interface specfication. As opposed to a global optimization approach to
-numerical analysis, type checking could also happen in parallel over the
-dependency graph of the program. Type checking could also be performed
-incrementally to eliminate rendundant computation.
+interface specfication, saving type checking time. 
+As another example of the potential benefit of avoiding a global optimziation
+problem, type checking could also be performed in parallel or incrementally over
+the dependency graph of the program.
