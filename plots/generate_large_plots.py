@@ -31,7 +31,7 @@ TOOL_NAMES = [t[1] for t in TOOL_CONFIG]
 COLORS = {t[1]: t[2] for t in TOOL_CONFIG}
 MARKERS = {t[1]: t[3] for t in TOOL_CONFIG}
 
-FAMILIES = {'horner': 'Horner Polynomial', 'matmul': 'Matrix Multiplication', 'serialsum': 'Serial Summation'}
+FAMILIES = {'horner': 'Horner Polynomial', 'matmul': 'Matrix Multiplication', 'serialsum': 'Iterative Summation'}
 
 # CSV column mappings
 PRECISION_COLS = {'negfuzz': 'pre-abs', 'factor': 'pre-abs-factor', 'gappa': 'gappa-abs', 'fptaylor': 'fptaylor-abs', 'satire': 'satire-abs-15_25'}
