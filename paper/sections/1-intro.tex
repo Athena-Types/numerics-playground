@@ -11,22 +11,20 @@ A major challenge in the automated numerical analysis literature is scalability.
 Many existing approaches rely on global optimization \cite{fptaylor}
 \cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
 \cite{rosa}. However, as programs scale, these analysis approaches frequently
-time-out. Type-based approaches offer an alternative approach to automated
-numerical analysis.
-With type checking, there is no need to perform global optimization, run an
-algorithm to convergence, saturate rewrites, or bit-blast.
+time-out. Type-based techniques offer an alternative approach to automated
+numerical analysis that is inherently compositional and scalable: all of the
+information necessary to perform an error analysis on a function is contained
+within the type. 
+% With type checking, there is no need to perform global optimization, run an
+% algorithm to convergence, saturate rewrites, or bit-blast.
 
-In this paper, we extend Numerical Fuzz, an affine call-by-value graded type
-system for bounding round-off error.
-The advantage of a type-based method is that it is inherently compositional and
-scalable: all of the information necessary to perform an error analysis on a
-function is contained within the type. 
+In this paper, we extend Numerical Fuzz \cite{numfuzz}, an affine call-by-value
+graded type system for bounding round-off error.
 The core idea of Numerical Fuzz is to track two key properties of each function:
 how a function magnifies error in its inputs (function sensitivity), and the
 maximum error introduced by the function. This allows Numerical Fuzz to
 compositionally bound the maximum accumulated error in a program via a graded
 monad.
-
 There are two limitations of Numerical Fuzz that our work addresses:
 \begin{enumerate}
   \item \textbf{Lack of support for negative numbers or subtraction:} Subtraction over the
@@ -77,8 +75,11 @@ of 1-3 to the technical sections of this paper.
 
 Our bounds analysis occurs purely in the type system. To aid usability, we
 support analyzing functions via \textit{bound polymorphism}, which allows
-functions to be polymorphic in the bounds assigned to the inputs. To reduce the
-user type annotation burden, we also provide a type inference algorithm that can
+functions to be polymorphic in the bounds assigned to the inputs and to be
+type-checked independently. 
+% TODO: hammer the previous point a few more times throughout the paper
+To reduce the user type annotation burden, we also
+provide a type inference algorithm that can
 automatically generalize and instantiate bound-polymorphic functions. We prove
 the soundness of our type inference algorithm and evaluate its utility and
 performance in Section~\ref{sec:inference}.
