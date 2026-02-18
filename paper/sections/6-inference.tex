@@ -229,7 +229,9 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \end{center}
     \caption{Ancillary functions defining algorithmic type inference. I
     introduces bounds for an type with erased bounds. E extracts the bounds used
-  in an unerased type.}
+    in an unerased type. For type checking to succeed on many real-world
+    programs, it is important for I and E to align in the production and
+    extraction of bound variables. }
     \label{fig:helper_type_inference}
 \end{figure}
 
@@ -435,7 +437,9 @@ $}
     \label{fig:type_inference}
 \end{figure}
 
-
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ and $\multimap E$ cases for the type inference soundness
+proof.
 \begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
   For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
   $FTV(\Gamma) \subseteq \Delta$ and $FTV(\tau) \subseteq \Delta$.
@@ -444,6 +448,8 @@ $}
   By induction over the $\vdash$ relation.
 \end{proof}
 
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ case for the type inference soundness proof.
 \begin{lemma}[Free vars in I.] \label{thm:free-var-i}
   For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \ldots \epsilon_n$, we have
   that $FTV(\tau') = \{ \epsilon_0, \ldots, \epsilon_n \}$.
@@ -452,6 +458,8 @@ $}
   By induction over the definition of $I$.
 \end{proof}
 
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap E$ case for the type inference soundness proof.
 \begin{lemma}[Well-formedness of bounds produced by $E$.] \label{thm:wff-var-e}
   For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
   $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
@@ -484,7 +492,9 @@ e'^{\bnd{\bullet}}$.
 We induct over each typing / case in the type inference algorithm. 
 \begin{description}
   \item[$\textbf{unit}$.] Holds trivially.
-  \item[Var.] Holds trivially.
+  \item[Var.] Let $\Delta$ contain all the bound variables mentioned by $\Gamma$
+    and $\tau$. Then we trivially have a typing derivation for $\bnd{\Delta \ |
+    \ } \Gamma, x : \tau \vdash x : \tau$.
   \item[Const.] Holds trivially. 
   % TODO: spell out delta
   \item[! I.] Holds trivially. Note that our sensitivity scaling factor
@@ -496,8 +506,9 @@ We induct over each typing / case in the type inference algorithm.
     $\forall$ I rule to $d$. 
     \par\bigskip
     For each application of our $\forall$ I rule using variable $\epsilon_i$, we
-    must satisfy that:
-    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$.
+    must satisfy, from the premisses, that:
+    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$:
+    \bigskip
 
     Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \ldots, \epsilon_n\}$ by
     Lemma~\ref{thm:free-var-i}. 
@@ -519,8 +530,9 @@ We induct over each typing / case in the type inference algorithm.
     \par\bigskip
   % TODO: spell out delta
 
-    By weakening on our inductive hypothesis, we have a derivation for $\Delta \
-    | \ \Theta \vdash e : \tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
+    By weakening on our inductive hypothesis, there exists a $\Delta$ such that
+    we have a derivation for $\Delta \ | \ \Theta \vdash e : \tau_0[\epsilon_0 /
+    i_0, \ldots, \epsilon_n / i_n]$.
     Then we are able to iteratively apply the $\forall \text{ E}$ typing rule to
     our derivation $d_0$ for each
     $\epsilon_0, \ldots, \epsilon_n$, obtaining
@@ -577,7 +589,7 @@ Semantically, this type represents the same relation as:
 $. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \text{True})}$
 
 To handle such cases, we extend the $\bnd{\llbracket - \rrbracket}$
-(Definition~\ref{def:interval-exp-eval}) evaluating bound expressions to also
+(Definition~\ref{def:bound-exp-eval}) evaluating bound expressions to also
 evaluate types that possibly contain bound expressions. Importantly our
 soundness theorem proved below, the logical relation corresponding to the
 evaluated type should be the same logical relation as the original type. This is
@@ -614,13 +626,12 @@ Note that for simplicity, we only halt evaluation when we see a $\forall$.
   \label{thm:eval-bounds}
 \end{theorem} 
 \begin{proof}
-  We induct over the definition of $\llbracket - \rrbracket$ to show that
-  $\mathbb{R}_\tau = \mathbb{R}_{\tau'}$ at each step.
-  The structural cases are immediate.
-  The only non-structural case evaluates $\textbf{num}_{\bnd{b}}$ to
-  $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$. Since $\bnd{b \sim \llbracket b
-  \rrbracket}$, they are in the same equivalence class and thus the same logical
-  relation.
+  We induct over our type $\tau$ to show that $\mathbb{R}_\tau =
+  \mathbb{R}_{\tau'}$ at each step.
+  The structural cases are immediate. The only non-structural case evaluates
+  $\textbf{num}_{\bnd{b}}$ to $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$.
+  Since $\mathcal{R}_{\bnd{b}} = \mathcal{R}_{\bnd{\llbracket b \rrbracket}}$
+  refer to the same underlying set, we are done.
 \end{proof}
 
 \subsection{Example programs and types}
