@@ -205,9 +205,9 @@ for instantiating functions with finitely scaled sensitivity.
 % todo: check that we can't be infinite and that this is up-to-date everywhere
 
 The monadic grade upper-bounds the maximum possible round-off error possible.
-Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E),
-(Subsumption) are taken from Numerical Fuzz and are our core reasoning
-principles for reasoning about round-off error. Intuitively, (Ret) introduces no
+Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E), are taken
+from Numerical Fuzz and are our core reasoning principles for reasoning about
+round-off error. Intuitively, (Ret) introduces no
 round-off error and (Rnd) introduces round-off error $u$ corresponding to the
 unit round-off constant. Note that $M_u E$ is the characteristic rule for
 \textbf{let-bind} that incorporates sensitivity and round-off information.
@@ -215,6 +215,12 @@ Our language also introduces a new (Factor) rule for reasoning about monadic
 computations with round-off error, which allows for tighter error analyses. We
 detail the (Factor) rule and walk through an example in
 Section~\ref{sec:structure}.
+
+% TODO: confer with Justin to make sure I'm not overclaiming or overhyping here
+We also introduce a subtyping rule which is necessary for subtyping to be
+admissible and for type checking to be sound. Prior papers on Fuzz that rely on
+subtyping for type inference do not have subtyping in the core language and
+contained false theorems for the admissibility of subtyping.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
 polymorphism. In the (\bnd{Widen}), (\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$
@@ -380,11 +386,11 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 
 %%% ROW 7
 
-%% subsumption
-\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  M_q \tau$}
-\AXC{$r \ge q$}
-\RightLabel{(Subsumption)}
-\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  M_{r} \tau$}
+%% subtyping
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  \tau$}
+\AXC{$\tau \sqsubseteq \tau'$}
+\RightLabel{(Subtyping)}
+\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau'$}
 \bottomAlignProof
 \DisplayProof
 \hskip 0.5em
@@ -895,7 +901,7 @@ $r$-sensitive substitution lemma.
       necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
       \cap \Delta_1 = \emptyset$ condition.
     \item[Remaining inductive cases.] The remaining cases ($\multimap$ E,
-      $\times$ I, $\times$ E, $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption,
+      $\times$ I, $\times$ E, $\otimes$ I, $+$ $I_i$, Widen, ! I, Subtyping,
       Factor, Ret, Rnd, $\forall$ E) follow immediately by application of the
       inductive hypothesis.
   \end{description}
@@ -968,11 +974,11 @@ Finally, we can prove our big error soundness theorem.
 \end{theorem} \label{thm:metric-preservation}
 \begin{proof}
   We induct over our typing derivation. The base cases (Var,
-  \bnd{\textbf{bvar}}, Unit, Const) follow trivially. The subsumption and
-  widening cases also follow trivially. We detail the remaining cases here. Note
-  that the distance between $\bnd{\textbf{bnd}}$ vars in $\Delta$ is $\infty$ if
-  they correspond to different bounds. Therefore for the following cases, we
-  omit reptitively reasoning about $\Delta$ substitutions:
+  \bnd{\textbf{bvar}}, Unit, Const) follow trivially. Widening also follows
+  trivially. We detail the remaining cases here. Note that the distance between
+  $\bnd{\textbf{bnd}}$ vars in $\Delta$ is $\infty$ if they correspond to
+  different bounds. Therefore for the following cases, we omit reptitively
+  reasoning about $\Delta$ substitutions:
   \begin{description}
     \item[Case $\multimap$ I.] 
       We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
@@ -1520,6 +1526,19 @@ Finally, we can prove our big error soundness theorem.
               $s$ is allowed to be zero, this would be a problem because $0
               \cdot \infty = 0$.
           \end{description}
+
+    \item[Case (Subtyping).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          It suffices to show that if $\tau \sqsubseteq \tau'$ that the
+          underlying set $\mathcal{R}_{\tau} \subseteq \mathcal{R}_{\tau'}$.
+          This holds by induction over the $\sqsubseteq$ relation.
+        \item[\underline{Property 2.}]
+          It suffices to show that for $\tau \sqsubseteq \tau'$ that for any two
+          programs $\mathcal{SD}_{\tau}(e, e') \leq \mathcal{SD}_{\tau'}(e,
+          e')$. This also holds by induction over the $\sqsubseteq$ relation.
+      \end{description}
 
     \end{description}
 
