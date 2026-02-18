@@ -3,10 +3,10 @@ Our type inference algorithm computes the type sensitivity and inference
 analysis developed in Numerical Fuzz. Simultaneously, we automatically infer
 polymorphic bounds to generate a valid typing derivation of the program in
 \bnd{\Lang} to reduce the user annotation burden of adopting our approach.
-To define the type inference problem, we first define a sensitivity erasure
+To define the type inference problem, we first setup a sensitivity erasure
 $-^{\bullet}$ over typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over
-types and terms. We then define type inference as inferring sensitivities and
-bounds over erased, well-typed terms.
+types and terms. Type inference then infers sensitivities, grades, and bounds
+over erased, well-typed terms in contexts with erased sensitivities.
 
 \begin{definition}[Sensitivity erasure]
   For a fully annotated typing context 
