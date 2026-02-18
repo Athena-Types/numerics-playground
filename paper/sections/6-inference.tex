@@ -72,106 +72,6 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 : \tau$ for $e$ in \Lang if such a derivation exists. 
 \end{definition}
 
-\subsection{Subtyping for type inference}
-We extend the subtyping relation defined in Numerical Fuzz for type inference.
-In particular, we add the following cases to deal with bounds and bound
-polymorphism.
-$$
-\begin{aligned}[c]
-  \textbf{num}_{b_0} \sqsubseteq \textbf{num}_{b'_0} &\triangleq b_0 \leq b'_0
-  \\
-  \textbf{num}_{i} \sqsubseteq \textbf{num}_{i'} &\triangleq \forall i :
-  \Delta, \textbf{num}_{i}~[\sigma] \sqsubseteq \textbf{num}_{i'}~[\sigma] \\
-  \forall \epsilon_0. \tau \sqsubseteq \forall \epsilon_1. \tau' &\triangleq 
-  \forall i : \Delta, \tau~[i/\epsilon_0] \sqsubseteq \tau'~[i/\epsilon_1]
-\end{aligned}
-$$
-the remaining cases are unchanged and listed in Figure~\ref{fig:sub_ty}.
-% TODO: consider combining / inlining
-
-\begin{figure}[htbp]
-$$
-\begin{aligned}[c]
-  \textbf{unit} \sqsubseteq \textbf{unit} \\
-\end{aligned}
-$$
-
-%% ROW1
-\begin{center}
-%% CART PROD
-\AXC{$\sigma \sqsubseteq \sigma'$}
-\AXC{$\tau \sqsubseteq \tau'$}
-\RightLabel{$\sqsubseteq .\times$}
-\BIC{$ \sigma \times \tau \sqsubseteq \sigma' \times \tau' $}
-\DisplayProof
-\hskip 2.5em
-%% TEN PROD
-\AXC{$\sigma \sqsubseteq \sigma'$}
-\AXC{$\tau \sqsubseteq \tau'$}
-\RightLabel{$\sqsubseteq .\tensor$}
-\BIC{$ \sigma \tensor \tau \sqsubseteq \sigma' \tensor \tau' $}
-\DisplayProof
-\hskip 2.5em
-%% SUM
-\AXC{$\sigma \sqsubseteq \sigma'$}
-\AXC{$\tau \sqsubseteq \tau'$}
-\RightLabel{$\sqsubseteq .+$}
-\BIC{$ \sigma + \tau \sqsubseteq \sigma' + \tau' $}
-\DisplayProof
-\vskip 1em
-
-%% FUN
-\AXC{$\sigma' \sqsubseteq \sigma$}
-\AXC{$\tau \sqsubseteq \tau' $}
-\RightLabel{$\sqsubseteq .\multimap$}
-\BIC{$ \sigma \multimap \tau \sqsubseteq \sigma' \multimap \tau' $}
-\DisplayProof
-\hskip 2.5em
-%% MONAD
-\AXC{$\sigma \sqsubseteq \sigma'$}
-\AXC{$u \le u'$}
-\RightLabel{$\sqsubseteq .$M}
-\BIC{$ \text{M}_u \sigma \sqsubseteq \text{M}_{u'} \sigma' $}
-\DisplayProof
-\hskip 2.5em
-%% BANG
-\AXC{$\sigma \sqsubseteq \sigma'$}
-\AXC{$s \le s'$}
-\RightLabel{$\sqsubseteq .!$}
-\BIC{$ \bang{s'} \sigma \sqsubseteq !_{s} \sigma' $}
-\DisplayProof
-
-\end{center}
-    \caption{The remaining cases for the subtype relation in \Lang, with
-    $s,s',u,u' \in \NNR \cup \{\infty\}$.}
-    \label{fig:sub_ty}
-\end{figure}
-
-The proof of the admissibility of subtyping is similar to the proof given in
-Numerical Fuzz \cite{numfuzz}.
-\begin{theorem}[Admissibility of subtyping] \label{thm:subtyping}
-  If $\Delta \ | \ \Gamma \vdash e : \tau$ has a derivation 
-  and $\tau' \sqsubseteq \tau$
-  then typing judgement $\Delta \ | \ \Gamma \vdash e : \tau'$ is derivable.
-\end{theorem}
-\begin{proof}
-  We induct over the derivation $\Delta \ | \ \Gamma \vdash e : \tau$.
-% TODO: inline NumFuzz proof
-  Many cases are immediate.
-  Some require weakening, which we proved in (Theorem \ref{thm:weakening}).
-  We detail the new cases that are not immediate below:
-  \begin{description}
-    \item[Case (Widen).] Corresponds to the new \textbf{num} cases we added to
-      the subtyping relation. 
-      % TODO: spell out more
-    \item[Case $\forall \epsilon_0 . \tau$.] Follows from application of the
-      inductive hypothesis.
-      % TODO: spell out more
-  \end{description}
-\end{proof}
-
-% TODO: define supertyping, needed for ty inf
-
 \subsection{Type inference algorithm}
 We are now ready to define the type inference algorithm. Our type inference
 algorithm has the following shape:
@@ -394,7 +294,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \hskip 0.5em
 \AXC{$\begin{aligned}[t]
 E(\tau'_0) &= i_0, \ldots, i_n \\
-\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] &\sqsubseteq \tau'_0 \\
+\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] &= \tau'_0 \\
 \end{aligned}
 $}
 \RightLabel{($\multimap$ E)}
@@ -424,7 +324,8 @@ $}
 \vskip 1em
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                          Structural rules below                            %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          Structural rules below                            %% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vskip 1em
 
 %% Ret
@@ -516,14 +417,14 @@ s > 0
 $}
 \AXC{$
 \begin{aligned}[t]
-\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}} \implies \Theta_0, x :_s \tau_0; f'_1; \tau_0 \\
-\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_0; f'_2; \tau_1
+\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}} \implies \Theta_0, x :_s \tau_0; f'_1; \tau' \\
+\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_0; f'_2; \tau'
 \end{aligned}
 $}
 \BIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
 (\textbf{in}_1~x.f_1 ~ | ~ \textbf{in}_2~x.f_2))^{\bnd{\bullet}}
 \implies s \cdot \Gamma + max(\Theta_0, \Theta_1); (\textbf{case} \ e' \ \textbf{of}
-\ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; \text{max}(\tau_0, \tau_1)$}
+\ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; \tau'$}
 \bottomAlignProof
 \DisplayProof
 \end{center}
@@ -563,7 +464,7 @@ $}
 
 Now we are able to prove the soundness of our type inference algorithm. Note
 that if the ordering of the variables produced by the I and E helper functions
-do not align, the subtyping check in the $\multimap$ E case will fail. This
+do not align, the equality check in the $\multimap$ E case will fail. This
 means that the choice of ordering is not essential for our soundness proof but
 would be relevant for a completeness argument.
 
@@ -662,18 +563,7 @@ We induct over each typing / case in the type inference algorithm.
     s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
     the corresponding $\otimes \text{ E}$ rule to complete the case.
   \item[Let-bind.] Holds trivially.
-  \item[$\otimes$ E.] By the definition of $\text{max}$, we have that 
-    $\tau_0 \subseteq \text{max}(\tau_0, \tau_1)$
-    and
-    $\tau_1 \subseteq \text{max}(\tau_0, \tau_1)$.
-    
-    Applying the admissibility of subtyping (Theorem~\label{ref}) to our inductive
-    hypothesis, we obtain: 
-    $\Delta_0 \ | \ \Theta_0 x :_s \tau_0 \vdash f'_1 : \text{max}(\tau_0, \tau_1)$
-    and
-    $\Delta_1 \ | \ \Theta_1 x :_s \tau_1 \vdash f'_2 : \text{max}(\tau_0, \tau_1)$.
-    We can now finish by applying our $\otimes$ E typing rule which completes
-    the case.
+  \item[$\otimes$ E.] We finish by applying our $\otimes$ E typing rule.
 \end{description}
 \end{proof}
 
