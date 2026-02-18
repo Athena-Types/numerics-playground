@@ -17,7 +17,7 @@ For all of our benchmarks, we use the \textsc{binary64} precision mode and set
 the rounding mode to round towards infinity.
 On some benchmarks, our tool is able to produce a relative precision bound.
 However, as we are the only tool that produces a relative precision bound, we
-convert all bounds to absolute error for an apples-to-apples comparsion against
+convert all bounds to absolute error for an apples-to-apples comparison against
 competing tools.
 We run all of our benchmarks on an AWS c5.metal instance (96 vCPU, 192 GiB RAM).
 Each timing benchmark result reported is the median of 6 benchmark runs.
@@ -96,7 +96,7 @@ the benchmarks below:
     at significantly faster performance.
   \item We evaluate matrix multiplication from $2^2 (4)$ to $2^7 (128)$. On
     large inputs, we observe that Negative Fuzz (without \textbf{factor})
-    comprable precision at significantly faster performance. Rewriting the
+    comparable precision at significantly faster performance. Rewriting the
     program with \textbf{factor} allows Negative Fuzz to achieve significantly
     better precision on large inputs than competing tools.
   \item We evaluate the iterative summation algorithm (discussed in
@@ -125,7 +125,7 @@ Since Negative Fuzz uses a type-based approach to numerical analysis, our
 approach also offers several qualitative advantages over competing tools. For
 example, programs that call a library function would not need to type-check
 the underlying library code and could instead rely on the function type as an
-interface specfication, saving type checking time. 
-As another example of the potential benefit of avoiding a global optimziation
+interface specification, saving type checking time. 
+As another example of the potential benefit of avoiding a global optimization
 problem, type checking could also be performed in parallel or incrementally over
 the dependency graph of the program.

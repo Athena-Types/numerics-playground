@@ -158,7 +158,7 @@ function similar to ghost variables in other program analyses.
 Our error function $d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b}))$
 over $\mathbb{P}$ is defined below:
 \begin{definition}[Distance over pairs] \label{def:distance-p}
-$d_{\mathbb{P}}((r, a, b)(\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
+$d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
 \end{definition}
 Importantly, we can encode our operations, including addition and subtraction,
 such that both components of the pair are always-growing. This avoids the
@@ -231,7 +231,7 @@ will be inside of the set
 $[-4, 4] \times [0, 4] \times [0, 4]$.
 Further, we can deduce from the grade of our monad that for all inputs
 $x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
-\tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}) d(b, \tilde{b})) \leq 3 \cdot u$.
+\tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}), d(b, \tilde{b})) \leq 3 \cdot u$.
 With this, we can apply our main absolute error theorem,
 Theorem~\ref{thm:paired-a-priori}, for 64-bit floats and obtain: $r - \tilde{r}
 = 2.6645352591003757 \times 10^{-15}$. 
