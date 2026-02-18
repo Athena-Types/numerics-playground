@@ -2,16 +2,15 @@
 To evaluate our approach, we implement the type inference algorithm detailed in
 this paper in Rust.
 We evaluate the speed and precision of our implementation against competing
-tools in the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
-Since we are extending Numerical Fuzz and are not interested in duplicating
-Numerical Fuzz's evaluation, we only include FPBench programs that are newly
-supported, e.g. contain subtraction or range over negative numbers.
+tools on the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
+We only include FPBench programs that are newly supported, e.g. contain
+subtraction or range over negative numbers.
 Many of the programs in the FPBench benchmark suite are too small to draw
 conclusions about the scability of our approach. Therefore, we draw upon
-programs from the Satire benchmark suite \cite{satire} that were straightforward
-to translate into Negative Fuzz, Gappa, and FPTaylor; we found many of the
-programs from the Satire benchmark suite to be difficult to translate due to the
-enormous program size.
+large programs from the Satire benchmark suite \cite{satire}, which are taken
+from real-world programs. Due to the sheer size of the programs, we only
+translated three program schemas into Negative Fuzz (with and without
+\textbf{factor}), Gappa, and FPTaylor in our evaluation.
 
 For all of our benchmarks, we use the \textsc{binary64} precision mode and set
 the rounding mode to round towards infinity.

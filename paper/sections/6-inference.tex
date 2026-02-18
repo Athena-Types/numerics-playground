@@ -11,8 +11,9 @@ bounds over erased, well-typed terms.
 \begin{definition}[Sensitivity erasure]
   For a fully annotated typing context 
   $\Gamma : \textit{variables} \to \textit{sensitivities} \  \times \ \textit{types}$,
-  a fully erased typing context $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$
-  with all sensitivity information erased and only returning the type.
+  a fully erased typing context removes all sensitivty information and only
+  returns the type:
+  $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$.
 \end{definition}
 
 \begin{definition}[Bound erasure]
@@ -72,9 +73,9 @@ Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
 \end{definition}
 
 \subsection{Subtyping for type inference}
-Before we provide the algorithm, we extend the subtyping and supertyping
-relations used in Numerical Fuzz for type inference. In particular, we add the
-following cases to deal with bounds and bound polymorphism.
+We extend the subtyping relation defined in Numerical Fuzz for type inference.
+In particular, we add the following cases to deal with bounds and bound
+polymorphism.
 $$
 \begin{aligned}[c]
   \textbf{num}_{b_0} \sqsubseteq \textbf{num}_{b'_0} &\triangleq b_0 \leq b'_0
@@ -146,15 +147,18 @@ $$
     \label{fig:sub_ty}
 \end{figure}
 
+The proof of the admissibility of subtyping is similar to the proof given in
+Numerical Fuzz \cite{numfuzz}.
 \begin{theorem}[Admissibility of subtyping] \label{thm:subtyping}
   If $\Delta \ | \ \Gamma \vdash e : \tau$ has a derivation 
   and $\tau' \sqsubseteq \tau$
   then typing judgement $\Delta \ | \ \Gamma \vdash e : \tau'$ is derivable.
 \end{theorem}
 \begin{proof}
+  We induct over the derivation $\Delta \ | \ \Gamma \vdash e : \tau$.
 % TODO: inline NumFuzz proof
-  The admissibility of subtyping mostly follows from the proof in
-  \cite{numfuzz}.
+  Many cases are immediate.
+  Some require weakening, which we proved in (Theorem \ref{thm:weakening}).
   We detail the new cases that are not immediate below:
   \begin{description}
     \item[Case (Widen).] Corresponds to the new \textbf{num} cases we added to
@@ -164,34 +168,30 @@ $$
       inductive hypothesis.
       % TODO: spell out more
   \end{description}
-  and the new bound widening rule in our type
-  system, which corresponds to the $\textbf{num}$ subtyping case. 
-  Note that the proof in \cite{numfuzz} relies on
-  the admissibility of weakening, which we proved in (Theorem
-  \ref{thm:weakening}).
 \end{proof}
 
+% TODO: define supertyping, needed for ty inf
 
 \subsection{Type inference algorithm}
 We are now ready to define the type inference algorithm. Our type inference
 algorithm has the following shape:
 $$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
 where we start a program with a typing context $\Gamma^{\bullet}$ that has
-erased sensitivity information (but with polymorphic bound variables) and an
-erased program $e^{\bnd{\bullet}}$ with no polymorphic bounds, and produces a
+erased sensitivity information and an erased program $e^{\bnd{\bullet}}$ with
+no polymorphic bounds, and produces a
 typing context $\Gamma$ with sensitivity information and fully annotated program
-e and type $\tau$ such that
+$e$ and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
 is derivable for some $\Delta$ (our soundness criterion). 
 Note that we leave the $\Delta$ out of our type inference algorithm and
 implicitly reconstruct an appropriate $\Delta$ inside our constructive soundness
 proof.
 
-We start type inference by passing the empty context (written ``."), along with
-the bound-erased program (written $e^{\bnd{\bullet}}$) to the inference
-algorithm detailed in Figure~\ref{fig:inference-algo}. Finally, we evaluate our
-bound expressions using the $\llbracket - \rrbracket$ evaluation map defined
-over types.
+We start type inference by passing the empty context, along with the
+bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
+detailed in Figure~\ref{fig:inference-algo}. Finally, we evaluate our bound
+expressions using the $\llbracket - \rrbracket$ evaluation map defined over
+types.
 Conceptually, our type inference algorithm does three things: 
 \begin{enumerate}
   \item First, we infer sensitivities via the type inference algorithm provided
@@ -212,8 +212,7 @@ We prove the soundness of the fused sensitivity-and-bound pass in
 Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
 inference algorithm. 
 After running type inference, we evaluate the closed bound expressions using
-$\llbracket - \rrbracket$ and prove soundness via a semantic logical relations
-argument.
+$\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 
 \begin{figure}\label{fig:inference-algo}
 %% ROW1
@@ -722,6 +721,7 @@ Note that for simplicity, we only halt evaluation when we see a $\forall$.
 \begin{theorem}[Soundness of evaluating closed bounds]
   For any $e \in \mathbb{R}_{\tau}$ and $\tau' = \llbracket \tau \rrbracket$,
   then $e \in \mathbb{R}_{\tau'}$.
+  \label{thm:eval-bounds}
 \end{theorem} 
 \begin{proof}
   We induct over the definition of $\llbracket - \rrbracket$ to show that

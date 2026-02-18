@@ -18,16 +18,16 @@ precision $p$ and represents a subset of the reals, for example
 $\textsc{binary32}$ and $\textsc{binary64}$ which fix $p = 32$ and $p = 64$
 respectively.
 Arithmetic operations with round-off error can be represented in a
-floating-point system as the exact operation followed by rounding by a rounding
-function (written $\rho$) to a float.
+floating-point system as the exact operation followed by rounding to a float by
+a rounding function (written $\rho$).
 The error introduced by the rounding function $\rho$ is known as
 \textit{round-off error}.
 The choice of rounding function will vary depending on the rounding mode (e.g.
 round-to-nearest, round-towards-infinity, etc.) and the precision used.
 
 For this paper, we assume the absence of overflow and underflow. Then, the
-standard rounding error model assumes $\rho$ will observe round-off error
-bounded in the following way:
+standard floating-point rounding error model assumes $\rho$ will observe
+round-off error bounded in the following way:
 \begin{equation}
   \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
 \end{equation}
