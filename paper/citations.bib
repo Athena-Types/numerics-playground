@@ -135,6 +135,277 @@ eprint = {
   HAL_VERSION = {v1},
 }
 
+@InProceedings{martel,
+  author="Martel, Matthieu",
+  editor="Sun, Jing
+  and Sun, Meng",
+  title="Strongly Typed Numerical Computations",
+  booktitle="Formal Methods and Software Engineering",
+  year="2018",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="197--214",
+  abstract="It is well-known that numerical computations may sometimes lead to wrong results because of roundoff errors. We propose an ML-like type system (strong, implicit, polymorphic) for numerical computations in finite precision, in which the type of an expression carries information on its accuracy. We use dependent types and a type inference which, from the user point of view, acts like ML type inference. Basically, our type system accepts expressions for which it may ensure a certain accuracy on the result of the evaluation and it rejects expressions for which a minimal accuracy on the result of the evaluation cannot be inferred. The soundness of the type system is ensured by a subject reduction theorem and we show that our type system is able to type implementations of usual simple numerical algorithms.",
+  isbn="978-3-030-02450-5"
+}
+
+@InProceedings{fluctuat,
+author="Goubault, Eric
+and Putot, Sylvie",
+editor="Yi, Kwangkeun",
+title="Static Analysis of Numerical Algorithms",
+booktitle="Static Analysis",
+year="2006",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="18--34",
+abstract="We present a new numerical abstract domain for static analysis of the
+errors introduced by the approximation by floating-point arithmetic of real
+numbers computation, by abstract interpretation [3]. This work extends a former
+domain [4,8], with an implicitly relational domain for the approximation of the
+floating-point values of variables, based on affine arithmetic [2]. It allows us
+to analyze non trivial numerical computations, that no other abstract domain we
+know of can analyze with such precise results, such as linear recursive filters
+of different orders, Newton methods for solving non-linear equations, polynomial
+iterations, conjugate gradient algorithms.",
+isbn="978-3-540-37758-0"
+}
 
 
+@InProceedings{abbasi-darulova,
+author="Abbasi, Rosa
+and Darulova, Eva",
+editor="Hermenegildo, Manuel V.
+and Morales, Jos{\'e} F.",
+title="Modular Optimization-Based Roundoff Error Analysis of Floating-Point
+Programs",
+booktitle="Static Analysis",
+year="2023",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="41--64",
+abstract="Modular static program analyses improve over global whole-program
+analyses in terms of scalability at a tradeoff with analysis accuracy. This
+tradeoff has to-date not been explored in the context of sound floating-point
+roundoff error analyses; available analyses computing guaranteed absolute error
+bounds effectively consider only monolithic straight-line code. This paper
+extends the roundoff error analysis based on symbolic Taylor error expressions
+to non-recursive procedural floating-point programs. Our analysis achieves
+modularity and at the same time reasonable accuracy by automatically computing
+abstract procedure summaries that are a function of the input parameters. We
+show how to effectively use first-order Taylor approximations to compute precise
+procedure summaries, and how to integrate these to obtain end-to-end roundoff
+error bounds. Our evaluation shows that compared to an inlining of procedure
+calls, our modular analysis is significantly faster, while nonetheless mostly
+computing relatively tight error bounds.",
+isbn="978-3-031-44245-2"
+}
+
+@inproceedings{10.1145/2535838.2535874,
+author = {rosa1},
+title = {Sound compilation of reals},
+year = {2014},
+isbn = {9781450325448},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2535838.2535874},
+doi = {10.1145/2535838.2535874},
+abstract = {Writing accurate numerical software is hard because of many sources of unavoidable uncertainties, including finite numerical precision of implementations. We present a programming model where the user writes a program in a real-valued implementation and specification language that explicitly includes different types of uncertainties. We then present a compilation algorithm that generates a finite-precision implementation that is guaranteed to meet the desired precision with respect to real numbers. Our compilation performs a number of verification steps for different candidate precisions. It generates verification conditions that treat all sources of uncertainties in a unified way and encode reasoning about finite-precision roundoff errors into reasoning about real numbers. Such verification conditions can be used as a standardized format for verifying the precision and the correctness of numerical programs. Due to their non-linear nature, precise reasoning about these verification conditions remains difficult and cannot be handled using state-of-the art SMT solvers alone. We therefore propose a new procedure that combines exact SMT solving over reals with approximate and sound affine and interval arithmetic. We show that this approach overcomes scalability limitations of SMT solvers while providing improved precision over affine and interval arithmetic. Our implementation gives promising results on several numerical models, including dynamical systems, transcendental functions, and controller implementations.},
+booktitle = {Proceedings of the 41st ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+pages = {235–248},
+numpages = {14},
+keywords = {verification, sensitivity analysis, scientific computing, roundoff error, numerical approximation, floating-point arithmetic, fixed-point arithmetic, embedded systems, compilation},
+location = {San Diego, California, USA},
+series = {POPL '14}
+}
+
+@article{rosa2,
+author = {Darulova, Eva and Kuncak, Viktor},
+title = {Towards a Compiler for Reals},
+year = {2017},
+issue_date = {June 2017},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {39},
+number = {2},
+issn = {0164-0925},
+url = {https://doi.org/10.1145/3014426},
+doi = {10.1145/3014426},
+abstract = {Numerical software, common in scientific computing or embedded systems, inevitably uses a finite-precision approximation of the real arithmetic in which most algorithms are designed. In many applications, the roundoff errors introduced by finite-precision arithmetic are not the only source of inaccuracy, and measurement and other input errors further increase the uncertainty of the computed results. Adequate tools are needed to help users select suitable data types and evaluate the provided accuracy, especially for safety-critical applications.We present a source-to-source compiler called Rosa that takes as input a real-valued program with error specifications and synthesizes code over an appropriate floating-point or fixed-point data type. The main challenge of such a compiler is a fully automated, sound, and yet accurate-enough numerical error estimation. We introduce a unified technique for bounding roundoff errors from floating-point and fixed-point arithmetic of various precisions. The technique can handle nonlinear arithmetic, determine closed-form symbolic invariants for unbounded loops, and quantify the effects of discontinuities on numerical errors. We evaluate Rosa on a number of benchmarks from scientific computing and embedded systems and, comparing it to the state of the art in automated error estimation, show that it presents an interesting tradeoff between accuracy and performance.},
+journal = {ACM Trans. Program. Lang. Syst.},
+month = mar,
+articleno = {8},
+numpages = {28},
+keywords = {Roundoff error, compilation, discontinuity error, fixed-point arithmetic, floating-point arithmetic, loops, sensitivity analysis, verification}
+}
+
+@inproceedings{checker,
+author = {Papi, Matthew M. and Ali, Mahmood and Correa, Telmo Luis and Perkins,
+          Jeff H. and Ernst, Michael D.},
+  title = {Practical pluggable types for java},
+  year = {2008},
+  isbn = {9781605580500},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/1390630.1390656},
+  doi = {10.1145/1390630.1390656},
+  abstract = {This paper introduces the Checker Framework, which supports adding
+              pluggable type systems to the Java language in a
+              backward-compatible way. A type system designer defines type
+              qualifiers and their semantics, and a compiler plug-in enforces
+              the semantics. Programmers can write the type qualifiers in their
+              programs and use the plug-in to detect or prevent errors. The
+              Checker Framework is useful both to programmers who wish to write
+              error-free code, and to type system designers who wish to evaluate
+              and deploy their type systems.The Checker Framework includes new
+              Java syntax for expressing type qualifiers; declarative and
+              procedural mechanisms for writing type-checking rules; and support
+              for flow-sensitive local type qualifier inference and for
+              polymorphism over types and qualifiers. The Checker Framework is
+              well-integrated with the Java language and toolset.We have
+              evaluated the Checker Framework by writing 5 checkers and running
+              them on over 600K lines of existing code. The checkers found real
+              errors, then confirmed the absence of further errors in the fixed
+              code. The case studies also shed light on the type systems
+              themselves.},
+  booktitle = {Proceedings of the 2008 International Symposium on Software
+               Testing and Analysis},
+  pages = {201–212},
+  numpages = {12},
+  keywords = {annotation, bug finding, case study, compiler, flow sensitivity,
+              igj, immutable, intern, java, javac, javari, nonnull, pluggable
+              type, polymorphism, readonly, type qualifier, type system,
+              verification},
+  location = {Seattle, WA, USA},
+  series = {ISSTA '08}
+}
+
+@mastersthesis{checker-whole-interval,
+author={Xiang, Tongtong},
+title={Type Checking and Whole-program
+       Inference for Value Range Analysis},
+school={University of Waterloo},
+year={2020},
+% note={Unpublished masters thesis.}
+}
+@mastersthesis{checker-modular-interval,
+author={Wang, Di},
+title={Interval Type Inference: Improvements and Evaluations},
+school={University of Waterloo},
+year={2021},
+% note={Unpublished masters thesis.}
+}
+@inproceedings{type-to-abstract-cousot,
+author = {Cousot, Patrick},
+title = {Types as abstract interpretations},
+year = {1997},
+isbn = {0897918533},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/263699.263744},
+doi = {10.1145/263699.263744},
+abstract = {Starting from a denotational semantics of the eager untyped
+            lambda-calculus with explicit runtime errors, the standard
+            collecting semantics is defined as specifying the strongest program
+            properties. By a first abstraction, a new sound type collecting
+            semantics is derived in compositional fix-point form. Then by
+            successive (semi-dual) Galois connection based abstractions, type
+            systems and/or type inference algorithms are designed as abstract
+            semantics or abstract interpreters approximating the type collecting
+            semantics. This leads to a hierarchy of type systems, which is part
+            of the lattice of abstract interpretations of the untyped
+            lambda-calculus. This hierarchy includes two new \'{a} la
+            Church/Curry polytype systems. Abstractions of this polytype
+            semantics lead to classical Milner/Mycroft and Damas/Milner
+            polymorphic type schemes, Church/Curry monotypes and Hindley
+            principal typing algorithm. This shows that types are abstract
+            interpretations.},
+  booktitle = {Proceedings of the 24th ACM SIGPLAN-SIGACT Symposium on
+               Principles of Programming Languages},
+  pages = {316–331},
+  numpages = {16},
+  location = {Paris, France},
+  series = {POPL '97}
+}
+
+@article{abstract-to-type,
+  author = {Pavlinovic, Zvonimir and Su, Yusen and Wies, Thomas},
+  title = {Data flow refinement type inference},
+  year = {2021},
+  issue_date = {January 2021},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {5},
+  number = {POPL},
+  url = {https://doi.org/10.1145/3434300},
+  doi = {10.1145/3434300},
+  abstract = {Refinement types enable lightweight verification of functional
+              programs. Algorithms for statically inferring refinement types
+              typically work by reduction to solving systems of constrained Horn
+              clauses extracted from typing derivations. An example is Liquid
+              type inference, which solves the extracted constraints using
+              predicate abstraction. However, the reduction to constraint
+              solving in itself already signifies an abstraction of the program
+              semantics that affects the precision of the overall static
+              analysis. To better understand this issue, we study the type
+              inference problem in its entirety through the lens of abstract
+              interpretation. We propose a new refinement type system that is
+              parametric with the choice of the abstract domain of type
+              refinements as well as the degree to which it tracks
+              context-sensitive control flow information. We then derive an
+              accompanying parametric inference algorithm as an abstract
+              interpretation of a novel data flow semantics of functional
+              programs. We further show that the type system is sound and
+              complete with respect to the constructed abstract semantics. Our
+              theoretical development reveals the key abstraction steps inherent
+              in refinement type inference algorithms. The trade-off between
+              precision and efficiency of these abstraction steps is controlled
+              by the parameters of the type system. Existing refinement type
+              systems and their respective inference algorithms, such as Liquid
+              types, are captured by concrete parameter instantiations. We have
+              implemented our framework in a prototype tool and evaluated it for
+              a range of new parameter instantiations (e.g., using octagons and
+              polyhedra for expressing type refinements). The tool compares
+              favorably against other existing tools. Our evaluation indicates
+              that our approach can be used to systematically construct new
+              refinement type inference algorithms that are both robust and
+              precise.},
+  journal = {Proc. ACM Program. Lang.},
+  month = jan,
+  articleno = {19},
+  numpages = {31},
+  keywords = {Liquid types, abstract interpretation, refinement type inference}
+}
+}
+@unpublished{dedekind,
+  author = {Richard, Dedekind},
+  title = {Die Schöpfung der Null und der negativen ganzen Zahlen},
+  year = 1872
+  url = https://www.deutsche-digitale-bibliothek.de/item/MOEXSNIM4OKBERNWZYFWCWMVXQXX6SPK 
+  note = {See page 4v.}
+}
+@BOOK{algebra-serge,
+  title     = "Algebra",
+  author    = "Lang, Serge",
+  publisher = "Springer",
+  series    = "Graduate Texts in Mathematics",
+  edition   =  3,
+  month     =  nov,
+  year      =  2012,
+  address   = "New York, NY",
+  copyright = "https://www.springernature.com/gp/researchers/text-and-data-mining",
+  language  = "en"
+}
+
+@BOOK{cagegories-maclane,
+    title     = "Categories for the working mathematician",
+  author    = "Lane, Saunders Mac",
+  publisher = "Springer",
+  series    = "Graduate Texts in Mathematics",
+  edition   =  2,
+  month     =  nov,
+  year      =  2010,
+  address   = "New York, NY",
+  language  = "en"
+}
 

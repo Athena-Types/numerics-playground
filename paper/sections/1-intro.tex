@@ -9,12 +9,12 @@ efficient, as automatic as possible, and precise.
 
 A major challenge in the automated numerical analysis literature is to perform a
 scalable analysis with precise error bounds. Many existing approaches rely on
-global optimization \cite{fptaylor} \cite{satire}, rewrite saturation
+global optimization \cite{fptaylor} \cite{satire}, interval analysis
 \cite{gappa}, or SMT-based methods \cite{rosa}. However these approaches
-frequently time-out on large programs. Type-based techniques offer an
-alternative approach that is inherently compositional and scalable: all of the
-information necessary to perform an error analysis on a function is contained
-within the type.
+frequently time-out or fail to produce usable error bounds on large programs.
+Type-based techniques offer an alternative approach that is inherently
+compositional and scalable: all of the information necessary to perform an error
+analysis on a function is contained within the type.
 
 In this paper, we extend Numerical Fuzz \cite{numfuzz}, an affine call-by-value
 graded type system for bounding round-off error.

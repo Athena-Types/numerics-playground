@@ -1,4 +1,59 @@
 \section{Related Work}
+\paragraph{Automated numercial analysis techniques.}
+There are several extant type-based numerical analysis techniques. Most
+relevantly, this work extends Numerical Fuzz \cite{numfuzz} to support
+subtraction, negative numbers, and more precisely capture addition and
+subtraction. Numerical Fuzz's type system is based off the Fuzz line of work
+\cite{fuzz}, which uses sensitivities and monads for reasoning about
+differential privacy.
+Bean \cite{bean} is a typed-based approach to backwards error analysis, which is
+a different notion of numerical used in Numerical and Negative Fuzz.
+A floating-point program is backwards stable if the floating-point result is the
+correct result of running the ideal program given approximate nearby inputs.
+Backwards error analysis seeks to bound the maximum distnace between the actual
+and approximate inputs.
+Martel \cite{martel} also uses a dependent type system to track round-off error.
+However, Martel proves a weaker subject reduction theorem and does not have an
+error soundness theorem.
+% TODO: compare martel here
+
+\paragraph{Other automated numercial analysis techniques.}
+There are many non-type-based approaches to automatic numerical analysis. 
+For example, Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
+analysis and can reason about programs with conditoinals and loops. 
+However, both tools suffer from scalibility challenges.
+FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
+to estimate round-off error. 
+Both Gappa and FPTaylor are able to produce computer-checked certificates of
+their round-off error bounds.
+Abbasi and Darulova \cite{abbasi-darulova} also use taylor expanisions but take
+a more local and modular approach that allows analyses to be shared at different
+function call sites.
+Rosa \cite{rosa1} \cite{rosa2} also uses taylor expansions for handling
+propogation error.
+In contrast, our approach supports different rounding modes and higher-order
+functions. However, we do not support general recursion and restrict
+conditionals to not contain floating-point error.
+
+\paragraph{Interval-style bounds analysis in the type system.}
+The Checker framework \cite{checker} provides a modular approach to extending
+Java's type system with new typing rules. Several interval analysis checkers
+have been written \cite{checker-whole-interval} \cite{checker-modular-interval},
+but they are designed to find bugs rather than for a roundoff error
+analysis.
+There is also work to study type inference from the perspective of a generic
+abstract interpretation analysis \cite{type-to-abstract-cousot} and to be able
+to turn an abstract interpretation analysis into a type inference problem
+\cite{abstract-to-type}. 
+
+\paragraph{Grothendieck construction of the integers from the naturals.}
+The idea of constructing the integers via a pairing of the naturals has existed
+since at least an unpublished manuscript by Richard Dedekind in 1872.
+\cite{dedekind}
+The construction also appears in several introductory textbooks in algebra
+\cite{algebra-serge} and
+category theory \cite{category-maclane}.
+
 % A major challenge in the automated numerical analysis literature is scalability.
 % Many existing approaches rely on global optimization \cite{fptaylor}
 % \cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
