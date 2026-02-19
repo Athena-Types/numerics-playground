@@ -517,16 +517,16 @@ separate lemma in our soundness proof.
   \Lambda \epsilon . e~{c} &\mapsto e[c /\epsilon] \\
 \end{align*}
   \vskip -0.25em
-  \RightLabel{(Context Rule)}
-  \AXC{$e \mapsto e'$}
-  \UIC{$C[e] \mapsto C[e']$}
-	\DisplayProof
-	
-  \vskip 0.4em
   \AXC{$f[v_1/x] \mapsto^* (v_3, v_4)$}
   \AXC{$f[v_2/x] \mapsto^* (v_5, v_6)$}
   \BIC{$\letbind x = (v_1, v_2) \ \tin \ f \mapsto (v_3, v_6)$}
   \DisplayProof
+	
+  \vskip 0.4em
+  \RightLabel{(Context Rule)}
+  \AXC{$e \mapsto e'$}
+  \UIC{$C[e] \mapsto C[e']$}
+	\DisplayProof
 \end{center}
     \caption{Substitution-style evaluation rules for \Lang. Parameterized for $i
     \in \{1, 2 \}$. $op$ is a higher-order metavar. When bolded $\mathbf{op}$

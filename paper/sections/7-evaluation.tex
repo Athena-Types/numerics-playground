@@ -113,6 +113,26 @@ the benchmarks below:
 \label{fig:large-plots}
 \end{figure}
 
+\paragraph{Impact of factor.}
+We observe that rewriting a program with \textbf{factor} can only improve
+our error analysis. For a program of type $M_q \ \textbf{num}_{\bnd{b}}$, our
+analysis depends on two pieces of data obtained from our type: 
+\begin{enumerate}
+  \item The grade on the monad $q$. In our evaluation benchmarks
+    (Section~\ref{sec:eval}), we observe that rewriting a program with
+    \textbf{factor} only reduces the inferred monadic grade.
+  \item The result of the bound analysis $\bnd{b}$, which is entirely orthogonal
+    to the usage of \textbf{factor}. In fact, we observe that for each benchmark
+    in our evaluation rewritten to use \textbf{factor}, the inferred bounds
+    subscript on $\textbf{num}$ remains unchanged.
+\end{enumerate}
+Therefore, we find that each program rewritten \textbf{factor} only improved our
+grade $q$ while keeping the bound $b$ the same. By inspecting our error theorems
+(Theorem~\ref{thm:paired-a-priori-abs} and
+Theorem~\ref{thm:paired-a-priori-rel}) we note that a program rewritten to have
+a lower monadic grade $q$, all else equal, results in a strictly better final
+error bound.
+
 \paragraph{Evaluation takeaways.}
 From our evaluation tables and figures, we conclude that when compared with
 Gappa, FPTaylor, and Satire: (1) our type-based approach is faster, (2) yields

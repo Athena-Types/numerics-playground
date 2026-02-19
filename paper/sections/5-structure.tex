@@ -7,12 +7,13 @@
 In this section, we are interested in improving the precision of our analysis on
 programs that contain addition and subtraction. We first develop our motivating
 example to demonstrate the problem. Then, we introduce a new primitive
-\textbf{factor} that improves the precision of addition. We then show how to use
-\textbf{factor} with subtraction. Next, we discuss how rewriting a program to
-use \textbf{factor} is entirely orthogonal to our bounds analysis and therefore
-can only strictly improve Negative Fuzz's error bounds. Penultimately, we
-discuss the soundness and semantics of \textbf{factor}. Finally, we discuss
-whether our language is missing other related primitives. 
+\textbf{factor} that improves the precision of addition and subtraction. Next,
+we discuss how rewriting a program to use \textbf{factor} is entirely orthogonal
+to our bounds analysis and therefore can only strictly improve Negative Fuzz's
+error bounds. Finally, we discuss the soundness and semantics of
+\textbf{factor}. 
+% Finally, we discuss
+% whether our language is missing other related primitives. 
 
 \paragraph{Problem intuition.}
 We return to our example pairwise summation program ($(w \tilde{+} x) \tilde{+}
@@ -26,8 +27,9 @@ We return to our example pairwise summation program ($(w \tilde{+} x) \tilde{+}
   \end{aligned}
 \end{equation*}
 From the literature, we would expect that the more efficient pairwise summation
-algorithm to have a one-third tighter error bound than the iterative summation
-algorithm ($((w \tilde{+} x) \tilde{+} y) \tilde{+} z$) shown: 
+algorithm to have type $M_{2 \cdot u} \ \textbf{num}$, a one-third tighter error
+bound than the iterative summation algorithm ($((w \tilde{+} x) \tilde{+} y)
+\tilde{+} z$) shown: 
 \begin{equation*}
   \begin{aligned}[c]
     \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -36,10 +38,6 @@ algorithm ($((w \tilde{+} x) \tilde{+} y) \tilde{+} z$) shown:
   \end{aligned}
 \end{equation*}
 However, both programs have the same type and error bound.
-The core problem is that it is syntactically impossible to first construct
-separate typing trees for $w \tilde{+} x$ and $y \tilde{+} z$ with error grades
-$M_u \ \textbf{num}$, then combine the two results using floating-point addition
-to obtain a well-typed computation of error grade $M_{2u} \ \textbf{num}$.
 
 To better understand the restrictions imposed by the type system, we include the
 relevant portions of the typing trees for the above two programs in
@@ -156,21 +154,36 @@ Figure~\ref{fig:partial-typing-trees}:
 \label{fig:partial-typing-trees}
 \end{figure}
 
-Note that in both programs, we are forced to sequence the result of each
-\textbf{rnd} with the \textbf{let-bind} typing rule in order to use the result
-in the remainder of the computation.
+The core problem is that it is syntactically impossible to first construct
+separate typing trees for $w \tilde{+} x$ and $y \tilde{+} z$ with error grades
+$M_u \ \textbf{num}$, then combine the two results using floating-point addition
+to obtain a well-typed computation of error grade $M_{2u} \ \textbf{num}$.
+In both programs, we are forced to sequence the result of each \textbf{rnd} with
+the \textbf{let-bind} typing rule in order to use the result in the remainder of
+the computation.
 Even though the underlying arithmetic computation of pairwise summation
 corresponds to a perfect binary tree with less floating-point error, our usage
 of \textbf{let-bind} forces the typing tree and grades of our pairwise summation
-to mirror the typing tree of our iterative summation program (subfigure c). This
+to mirror (subfigure c) the typing tree of our iterative summation program. This
 means that both programs have the same $3u$ monadic error grade.
 
 \paragraph{Solution: the \textbf{factor} primitive.} 
 Adding a primitive $\textbf{factor}$ with type $(M_q \tau_0) \times (M_q \tau_1)
 \multimap M_q (\tau_0 \times \tau_1)$ allows us to rewrite our running pairwise
 summation example with $\textbf{factor}$ to have type $M_{2u} \ \textbf{num}$,
-which is lower than the $3u$ error grade of the iterative summation program
-(Figure~\ref{fig:factor-example}):
+which is lower than the $3u$ error grade of the iterative summation program,
+shown below:
+
+\begin{equation*}
+  \begin{aligned}[c]
+    \textbf{let-bind} \ a \ = \\ \textbf{factor} \
+      \langle 
+      \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
+      \rangle \ \textbf{in} \\
+      \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
+      \textbf{rnd} \ (\textbf{add} \ a)
+  \end{aligned}
+\end{equation*}
 
 \begin{figure}[htp]
   \scriptsize
@@ -214,10 +227,11 @@ which is lower than the $3u$ error grade of the iterative summation program
 \label{fig:factor-example}
 \end{figure}
 
-Observe how the \textbf{factor} primitive allows us to first ``share" the $u$
-monadic error grade and the same typing context to construct $\textbf{add}
-\langle w, x \rangle$ and $\textbf{add} \langle y, z \rangle$ on the
-left-hand-side of the typing tree.
+In the partial typing tree displayed in Figure~\ref{fig:factor-example}, observe
+how the \textbf{factor} primitive allows us to first ``share" the $u$ monadic
+error grade and the same typing context to construct $\textbf{add} \langle w, x
+\rangle$ and $\textbf{add} \langle y, z \rangle$ on the left-hand-side of the
+typing tree.
 Then, only after the contexts and grades are shared, we use a single
 \textbf{let-bind} sequencing operation to pass the floating-point result to the
 final \textbf{add}.
@@ -225,8 +239,8 @@ So, instead of having to use multiple iteratively sequenced \textbf{let-bind}s
 to sequentially \textit{add} the grades of repeated monadic computations,
 \textbf{factor} enables us to first take the \textit{maximum} of any two grades
 (i.e. share the grade) before sequencing with \textbf{let-bind}. 
-This technique scales well in our evaluations (Section~\ref{sec:eval}), reducing the monadic grade by a log-factor in size
-of the addition sequence.
+This technique scales for arbitrary sequences of addition or subtraction,
+reducing the monadic grade by a log-factor in size of the sequence.
 
 \textbf{factor} is useful for subtraction as well. As \textbf{add} and
 \textbf{sub} both map $\textbf{num} \times \textbf{num} \multimap \textbf{num}$,
@@ -271,77 +285,92 @@ presentational purposes.}
 \label{fig:factor-sub-example}
 \end{figure}
 
-We also observe that rewriting a program with \textbf{factor} can only improve
-our error analysis. For a program of type $M_q \ \textbf{num}_{\bnd{b}}$, our
-analysis depends on two pieces of data obtained from our type: 
-\begin{enumerate}
-  \item The grade on the monad $q$. In our evaluation benchmarks
-    (Section~\ref{sec:eval}), we observe that rewriting a program with
-    \textbf{factor} only reduces the inferred monadic grade.
-  \item The result of the bound analysis $\bnd{b}$, which is entirely orthogonal
-    to the usage of \textbf{factor}. In fact, we observe that for each benchmark
-    in our evaluation rewritten to use \textbf{factor}, the inferred bounds
-    subscript on $\textbf{num}$ remains unchanged.
-\end{enumerate}
-Therefore, we find that rewriting a program with \textbf{factor} can only
-improve our grade $q$ while keeping the bound $b$ the same. By inspecting our
-error theorems (Theorem~\ref{thm:paired-a-priori-abs} and
-Theorem~\ref{thm:paired-a-priori-rel}) we note that a program rewritten using
-\textbf{factor} to have a lower monadic grade $q$ results in a strictly better
-final error bound. 
-
 % is sound
 % (proved in Theorem~\ref{thm:metric-preservation}) and also allows for the grades
 % in the typing trees to be balanced by allowing the graded monad to be
 % ``factored" out of the cartesian pair.
 \paragraph{Semantics and soundness of \textbf{factor}.}
 In Negative Fuzz, we expect each step of our operational semantics to maintain
-the convention that the left-hand-side of a monadic pair represents the ideal
-computation and the right-hand-side of a monadic pair to represent the rounded
-computation. This ensures that the monad grade bounds the distance between the
+the convention that the first component of a monadic pair represents the ideal
+computation and the second component of a monadic pair represents the rounded
+computation. 
+This ensures that the monad grade bounds the distance between the
 ideal and floating-point computation.
-The operational semantics of \textbf{factor} maintains our convention by
-reassociating pairs of pairs of values $((v_0, \tilde{v_0}), (v_1, \tilde{v_1}))
-\in \mathcal{R}_{M_q \tau \times M_q \tau'}$ to  $((v_0, v_1), (\tilde{v_0},
-\tilde{v_1})) = ((v_0, v_1), \widetilde{(v_0, v_1)}) \in \mathcal{R}_{M_q (\tau
-\times \tau')}$.
-This ensures that \textbf{factor} is sound and preserves metric preservation; if
-$v_0$ and $\tilde{v_0}$ and $v_1$ and $\tilde{v_1}$ are both $q$ apart, then
-$(v_0, v_1)$ and $(\tilde{v_0}, \tilde{v_1})$ are also $q$ apart.
-
-\paragraph{Other related primitives}
-It is natural to wonder if our type system is missing similar primitives for
-sharing our monad and comonadic grades that may lead to an overly conservative
-error analysis. It appears this is not the case for we can derive them below.
-Our other typing rules can derive the inverse of \textbf{factor}, namely,
-$\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0) \times
-(M_q \tau_1)$, so no special primitive is needed to structure arithmetic in the
-reverse direction:
-\begin{equation*} \label{eq:distribute}
+In Figure~\ref{fig:rnd-ret-steps-with-types}, we can see that the
+\textbf{rnd}, \textbf{ret} stepping rules, which both produce a monadic value of
+type $M_q \ \textbf{num}$ obey this invariant.
+We can also see that the \textbf{let-bind} stepping rule maintains the invariant
+and produces a monadic pair if the premises (of type $M_q \ \textbf{num}$) also
+produce a monadic pair:
+\begin{figure}[htp]
+  \centering
+\begin{equation*}
 \begin{aligned}[c]
-\textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
- & \triangleq \lambda ~ y. ~ 
-   \langle
-     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_1 ~ x),
-     \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_2 ~ x),
-   \rangle
+  \rnd k &\mapsto (k, \rho(k))
+\end{aligned}
+\quad
+\begin{aligned}[c]
+  \ret v &\mapsto (v, v)
 \end{aligned}
 \end{equation*}
-Further, the corresponding comonadic sequencing rule \textbf{cofactor} is
-derivable:
-\begin{equation}
-  \begin{aligned}[c]
-  \textbf{cofactor} &: (!_s \tau_0) \times (!_s \tau_1) \multimap !_s (\tau_0 \times \tau_1) \\
-  \textbf{cofactor} &\triangleq \lambda e. [\langle \textbf{let-cobind} \ x \ = \ \pi_0 \ e \ \textbf{in} \ x , \textbf{let-cobind} \ y \ = \ \pi_1 \ e \ \textbf{in} \ y \rangle]\\
-  \end{aligned}
-\end{equation}
-as well as its inverse \textbf{codistribute}:
-\begin{equation}
-  \begin{aligned}[c]
-    \textbf{codistribute} &: !_s (\tau_0 \times \tau_1) \multimap (!_s \tau_0) \times (!_s \tau_1) \\
-    \textbf{codistribute} &\triangleq \lambda e. \textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ \langle [\pi_0 ~ x], [\pi_1 ~ x] \rangle \\
-  \end{aligned}
-\end{equation}
+
+\vskip 0.2em
+
+\AXC{$f[v_1/x] \mapsto^* (v_3, \tilde{v_3})$}
+\AXC{$f[v_2/x] \mapsto^* (v_4, \tilde{v_4})$}
+\BIC{$\letbind x = (v_1, v_2) \ \tin \ f \mapsto (v_3, \tilde{v_4})$}
+  \DisplayProof
+\caption{Stepping rules for \textbf{rnd}, \textbf{ret}, and \textbf{let-bind}.
+The stepping rule for \textbf{let-bind} is modified with $\sim$ annotations to
+emphasize the rounded portions of the pairs.}
+\label{fig:rnd-ret-steps-with-types}
+\end{figure}
+
+The operational semantics of \textbf{factor} respects this convention by
+reassociating pairs of pairs of values, stepping $\textbf{factor} \ ((v_0,
+\tilde{v_0}), (v_1, \tilde{v_1})) \mapsto ((v_0, v_1), (\tilde{v_0},
+\tilde{v_1}))$, which can be seen as producing a value of form $((v_0, v_1),
+\widetilde{(v_0, v_1)})$.
+This ensures that \textbf{factor} is sound: if the inputs are in
+$\mathcal{R}_{M_q \tau \times M_q \tau'}$ then the outputs are in
+$\mathcal{R}_{M_q (\tau \times \tau')}$.
+Further it obeys metric preservation: if $v_0$ and $\tilde{v_0}$ and $v_1$ and
+$\tilde{v_1}$ are both $q$ apart, then $(v_0, v_1)$ and $(\tilde{v_0},
+\tilde{v_1})$ are also $q$ apart.
+
+% \paragraph{Other related primitives}
+% It is natural to wonder if our type system is missing similar primitives for
+% sharing our monad and comonadic grades that may lead to an overly conservative
+% error analysis. It appears this is not the case for we can derive them below.
+% Our other typing rules can derive the inverse of \textbf{factor}, namely,
+% $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0) \times
+% (M_q \tau_1)$, so no special primitive is needed to structure arithmetic in the
+% reverse direction:
+% \begin{equation*} \label{eq:distribute}
+% \begin{aligned}[c]
+% \textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
+%  & \triangleq \lambda ~ y. ~ 
+%    \langle
+%      \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_1 ~ x),
+%      \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_2 ~ x),
+%    \rangle
+% \end{aligned}
+% \end{equation*}
+% Further, the corresponding comonadic sequencing rule \textbf{cofactor} is
+% derivable:
+% \begin{equation}
+%   \begin{aligned}[c]
+%   \textbf{cofactor} &: (!_s \tau_0) \times (!_s \tau_1) \multimap !_s (\tau_0 \times \tau_1) \\
+%   \textbf{cofactor} &\triangleq \lambda e. [\langle \textbf{let-cobind} \ x \ = \ \pi_0 \ e \ \textbf{in} \ x , \textbf{let-cobind} \ y \ = \ \pi_1 \ e \ \textbf{in} \ y \rangle]\\
+%   \end{aligned}
+% \end{equation}
+% as well as its inverse \textbf{codistribute}:
+% \begin{equation}
+%   \begin{aligned}[c]
+%     \textbf{codistribute} &: !_s (\tau_0 \times \tau_1) \multimap (!_s \tau_0) \times (!_s \tau_1) \\
+%     \textbf{codistribute} &\triangleq \lambda e. \textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ \langle [\pi_0 ~ x], [\pi_1 ~ x] \rangle \\
+%   \end{aligned}
+% \end{equation}
 
 % In particular, the ability for a producer to share resources interacts poorly with our
 % sequenced $\textbf{let-bind}$ and call-by-value evaluation strategy, which
