@@ -11,6 +11,15 @@ interface specification, saving type checking time.
 As another example of the potential benefit of avoiding a global optimization
 problem, type checking could also be performed in parallel or incrementally over
 the dependency graph of the program.
-Future work might be able to extend Negative Fuzz to support addition, for
-example via a four-part representation $(r, a, b, c, d)$ where $r =
-\frac{a-b}{c-d}$.
+
+There are three immediate directions we suggest for future work: Firstly, future
+work might be able to extend Negative Fuzz to support addition, for example via
+a four-part representation $(r, a, b, c, d)$ where $r = \frac{a-b}{c-d}$.
+Secondly, in the development of our bounds analysis, we discovered that the
+choice of bounds domain greatly impacted the precision of our analysis. Future
+work could use more complex bounds analyses to further improve precision.
+Thirdly, rewriting a program to use \textbf{factor} is quite rote; future work
+could automatically rewrite a program to an equivalent program with
+\textbf{factor}.
+
+
