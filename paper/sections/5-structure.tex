@@ -142,8 +142,8 @@ Figure~\ref{fig:partial-typing-trees}:
 \bottomAlignProof
 \DisplayProof
 \caption{
-  A partial typing tree matching both summation algorithms. Note the grades and
-  occurances of \textbf{let-bind} in the typing tree.
+  A partial typing tree showing the commonalties of both summation algorithms.
+  Note the grades and occurances of \textbf{let-bind} in the typing tree.
 }
 \end{subfigure}
 \caption{
@@ -158,9 +158,9 @@ The core problem is that it is syntactically impossible to first construct
 separate typing trees for $w \tilde{+} x$ and $y \tilde{+} z$ with error grades
 $M_u \ \textbf{num}$, then combine the two results using floating-point addition
 to obtain a well-typed computation of error grade $M_{2u} \ \textbf{num}$.
-In both programs, we are forced to sequence the result of each \textbf{rnd} with
-the \textbf{let-bind} typing rule in order to use the result in the remainder of
-the computation.
+In both programs (subfigures a and b), we are forced to sequence the result of
+each \textbf{rnd} with the \textbf{let-bind} typing rule in order to use the
+result in the remainder of the computation.
 Even though the underlying arithmetic computation of pairwise summation
 corresponds to a perfect binary tree with less floating-point error, our usage
 of \textbf{let-bind} forces the typing tree and grades of our pairwise summation
@@ -227,11 +227,11 @@ shown below:
 \label{fig:factor-example}
 \end{figure}
 
-In the partial typing tree displayed in Figure~\ref{fig:factor-example}, observe
-how the \textbf{factor} primitive allows us to first ``share" the $u$ monadic
-error grade and the same typing context to construct $\textbf{add} \langle w, x
-\rangle$ and $\textbf{add} \langle y, z \rangle$ on the left-hand-side of the
-typing tree.
+To understand why, consider the partial typing tree displayed in
+Figure~\ref{fig:factor-example}. Observe how the \textbf{factor} primitive
+allows us to first ``share" the $u$ monadic error grade and the same typing
+context to construct $\textbf{add} \langle w, x \rangle$ and $\textbf{add}
+\langle y, z \rangle$ on the left-hand-side of the typing tree.
 Then, only after the contexts and grades are shared, we use a single
 \textbf{let-bind} sequencing operation to pass the floating-point result to the
 final \textbf{add}.
