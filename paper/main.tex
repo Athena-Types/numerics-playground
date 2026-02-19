@@ -197,19 +197,21 @@ With Negative Numbers}
 \begin{abstract}
   Bounding floating-point error is important for many mathematical and
   scientific programs. However, many automatic approaches to verifying
-  floating-point error have scalability problems. However, Numerical Fuzz does
-  not support negative numbers or subtraction and is overly conservative with
-  its treatment of addition and subtraction. We improve the precision of
-  addition and subtraction via a new primitive and define a \textit{paired
-  model} for Numerical Fuzz that can soundly represent negative numbers and
-  subtraction.
+  floating-point error have scalability problems. Type-based approaches, such as
+  Numerical Fuzz, offer a way to scalably and precisely bound round-off error.
+  However, Numerical Fuzz does not support negative numbers or subtraction and
+  is overly conservative with its treatment of addition and subtraction. 
+  We define a \textit{paired model} for Numerical Fuzz that can soundly
+  represent negative numbers and subtraction.
+  We also improve the precision of addition and subtraction via a new primitive.
   To compute error bounds, we develop a modular interval-style bounds analysis
   in the type system. We further develop \textit{bound
   polymorphism} so that functions can be polymorphic over the intervals their
-  inputs belong to. Our bounds analysis requires little work to use; we infer
-  all interval-style bounds and instances of bound polymorphism. We find that
-  our approach is faster than competing approaches, sometimes by orders of
-  magnitude, while giving useful and competitive error bounds.
+  inputs belong to. Our bounds analysis requires little work to use; we
+  automatically infer all interval-style bounds and instances of bound
+  polymorphism. We find that our approach is faster than competing approaches,
+  sometimes by orders of magnitude, while giving useful and competitive error
+  bounds.
 \end{abstract}
 
 %%
