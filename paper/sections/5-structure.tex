@@ -25,9 +25,9 @@ We return to our example pairwise summation program ($(w \tilde{+} x) \tilde{+}
     \textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
   \end{aligned}
 \end{equation*}
-We would expect that the more efficient pairwise summation algorithm to have a
-one-third tighter error bound than the iterative summation algorithm ($((w
-\tilde{+} x) \tilde{+} y) \tilde{+} z$) shown: 
+From the literature, we would expect that the more efficient pairwise summation
+algorithm to have a one-third tighter error bound than the iterative summation
+algorithm ($((w \tilde{+} x) \tilde{+} y) \tilde{+} z$) shown: 
 \begin{equation*}
   \begin{aligned}[c]
     \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -272,7 +272,7 @@ presentational purposes.}
 \end{figure}
 
 We also observe that rewriting a program with \textbf{factor} can only improve
-our error analysis. For a program of type $M_q \textbf{num}_{\bnd{b}}$, our
+our error analysis. For a program of type $M_q \ \textbf{num}_{\bnd{b}}$, our
 analysis depends on two pieces of data obtained from our type: 
 \begin{enumerate}
   \item The grade on the monad $q$. In our evaluation benchmarks
