@@ -115,8 +115,7 @@ under the restriction that $w, x, y, z \in [-1, 1]$.
 % TODO: more intuition
 We will show how the program cannot be typed in Numerical Fuzz.
 We will first assign a type in Negative Fuzz to a simplified toy example. Then,
-we will demonstrate how to obtain a useful error bound from the program type
-from the example.
+we will demonstrate how to use the type to obtain a sound error bound.
 
 \paragraph{Standard representation.}
 Numerical Fuzz's type system relies on bounding function sensitivity. 
@@ -141,8 +140,11 @@ free variables and has infinitely-bounded error.
 This is not a useful error bound.
 
 \paragraph{Paired representation.}
+
+
 As addition and subtraction over the unrestricted reals is infinitely-sensitive,
 we first deal with the problem of infinite sensitivity.
+
 We develop a paired representation where unrestricted addition and subtraction
 have finitely-bounded sensitivity. The trick is to associate for each
 real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
@@ -202,39 +204,46 @@ $\textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$ to the program
 $\lambda x . \ \textbf{let} \ z \ = \ \textbf{sub} \ x \ \textbf{in} \ \textbf{rnd} \ z$
 where $u$ is the unit round-off constant.
 
-\paragraph{Bound polymorphism.}
-% TODO: how exactly do we type add?
-Now we wish to translate these bounds over the paired components into a error
-bound over the unpaired component.
-% Unfortuantely, the error bounds obtained through the paired representation only
-% bound the maximum error on the \textit{paired} components. 
-% To be useful, we wish to relate error on the paired components $a$, $b$ with the
-% error on the \textit{unpaired} component $r$.
-We can obtain bounds on $r$ by recalling the invariant that for a triple $(r, a,
-b)$ that $r = a - b$.
-If we have bounds on $a$ and $b$, we can take advantage of our invariant.
-Simplifying for presentational purposes, we perform an interval-style analysis.
-In our running example, we have that the paired representation of 
-$x, y \in [-1, 1] \times [0, 1] \times [0, 1]$.
+\paragraph{Using the type to assign an error bound.}
+Now we wish to translate our type over the paired model into a error bound over
+the unpaired model.
+Our type system will assign the type $M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4,
+4), (0, 4), (0, 4))}}$ to the program.
+In order to obtain a useful error bound, we need two pieces of information
+derived from the program's type: (1) the result of an interval-style analysis on
+the exact, unrounded versions of $r, a, b$, and (2) the relative precision bound
+between the exact and approximate components between $d_{\mathbb{R}}(a,
+\tilde{a})$ and $d_{\mathbb{R}}(b, \tilde{b})$, which comes from our $3u$ monad
+grade.
+%
+% $3u$ monad grade provides (1) and the subscript provides (2) by ensuring the
+% program result will be inside of the set .
 
-We'd like to have the bounds analysis in type inference algorithm to infer the
-type 
-$M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ 
-to the program, where the subscript indicates that the result of the program
-will be inside of the set 
-$[-4, 4] \times [0, 4] \times [0, 4]$.
-Further, we can deduce from the grade of our monad that for all inputs
-$x, y$ to our input program, for an output value $(r, a, b), (\tilde{r},
-\tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}), d(b, \tilde{b})) \leq 3 \cdot u$.
-With this, we can apply our main absolute error theorem,
-Theorem~\ref{thm:paired-a-priori}, for 64-bit floats and obtain: $r - \tilde{r}
-= 2.6645352591003757 \times 10^{-15}$. 
+% TODO: how exactly do we type add?
+To obtain (1), we run an interval-style analysis on the exact versions of $r, a,
+b$. We observe that in our running example, we have that the paired
+representation of $w, x, y, z \in [-1, 1] \times [0, 1] \times [0, 1]$. Our
+bounds analysis will take this input and determine that the ideal computation
+has type $\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ ensures that the
+program result will be within $[-4, 4] \times [0, 4] \times [0,
+4]$ with the invariant for every triple $(r, a, b)$ the equation $r = a - b$
+  holds.
+% If we have bounds on $a$ and $b$, we can take advantage of our invariant.
+% Simplifying for presentational purposes, we perform an interval-style analysis.
+To obtain (2), we can deduce from the $3u$ grade of our monad to conclude that
+for all inputs $w, x, y, z$ to our input program, for an output value $(r, a,
+b), (\tilde{r}, \tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}), d(b,
+\tilde{b})) \leq 3 \cdot u$. 
+Combining (1) and (2), we can apply our main absolute error theorem,
+Theorem~\ref{thm:paired-a-priori-abs}, for 64-bit floats and obtain the absolute
+error bound: $r - \tilde{r} = 2.6645352591003757 \times 10^{-15}$. 
 %
 
 % TODO: justin says "go slower here, connect to numfuzz type, space out, break
 % up paragraphs. this part is important to help readers understand how our
 % system works"
-However, there is some difficulty in assigning a single, most precise type to
+\paragraph{Bound polymorphism.}
+There is some difficulty in assigning a single, most precise type to
 $\textbf{add}$.
 The difficulty arises because $\textbf{add}$ is called multiple times in
 different contexts.
@@ -274,33 +283,24 @@ provide an evaluation in Section~\ref{sec:eval}.
 
 \subsection{Language Feature: More Precise Treatment of Addition and Subtraction} 
 \label{sec:factor}
-It is well known that round-off error grows linearly in the height of a
-summation tree. 
-Returning to our running example, pairwise summation will recursively a list of
-numbers in half and compute the sum of the halves.
-This produces a computation tree of height $\left \lceil{log_2(n)}\right \rceil$
-with error growing in $O(log(n))$.
-By contrast, naive iterative summation takes a list of numbers and sequentialy
-adds from left to right over the list. This produces a computation tree of
-height $O(n)$, with error also growing in $O(n)$.
+Returning to our running example, 
+we would expect Numerical Fuzz to infer that the error on our paired summation
+example grows in $O(log_2(n))$. However, Numerical Fuzz will infer that the
+error on our paired summation example grows in $O(n)$.
+The issue is that the monadic computation
+sequencing rule forces the error analysis to always compute the worst-case
+round-off error associated with the most error-prone addition summation
+$\rho(\rho(\rho(w~+~x)~+~y)~+~z)$, which yields an undesirable,
+overly-conservative error analysis.
 
-We'd expect Numerical Fuzz to infer that the error on our paired summation
-example grows in $log_2(n)$.
-In prior type-based work \cite{numfuzz}, the monadic computation sequencing rule
-forces the error analysis to always compute the worst-case round-off error
-associated with the pathological degenerate tree:
-$\rho(\rho(\rho(w~+~x)~+~y)~+~z)$.
-In other words, the error bound obtained by Numerical Fuzz grows linearly in
-size of the number of \textit{nodes}, which is undesirable.
-
-Our extension enables the user to associate the computation tree arbitrarily,
-and to obtain tighter error bounds that grow linearly in size of the \textit{height} of
-the tree.
-We accomplish this by including a special primitive $\textbf{factor}$ in our
-term language inspired by linear logic. Rewriting our running example with our
-special primitive below, we can see that using factor results in a significantly
-smaller error grade for a program representing the same association and order of
-operations. 
+Our extension enables the user to obtain more precise error bounds that
+grow linearly in size of the \textit{height} of the computation tree, allowing
+us to obtain a the expected $O(log_2(n))$ bound for pairwise summation.
+We accomplish this improvement by developing a special primitive
+$\textbf{factor}$ in our term language inspired. Rewriting our running example
+with our special primitive below, we can see that using factor results in a
+significantly smaller error grade for a program representing the same
+association and order of operations. 
 A smaller monadic error grade results in a smaller floating-point error bound,
 reducing the error of our running example by approximately one-third from
 $2.6645352591003757 \times 10^{-15}$ to $1.7763568394002505 \times 10^{-15}$.
@@ -346,3 +346,18 @@ a detailed explanation of \textbf{factor} and how it allows for structuring and
 sequencing arithmetic towards a more precise error analysis in
 Section~\ref{sec:structure}. We also showcase the improved precision offered by
 programs annotated with the \textbf{factor} primitive in Section~\ref{sec:eval}.
+
+% we would expect Numerical Fuzz to infer that the error on our paired summation
+% example grows in $O(log_2(n))$
+% It is well known that round-off error grows linearly in the height of a
+% summation tree. 
+% This would match our intuition 
+%
+% pairwise summation will recursively a list of numbers in half and compute the
+% sum of the halves.
+% This produces a computation tree of height $\left \lceil{log_2(n)}\right
+% \rceil$ with error growing in .
+% By contrast, naive iterative summation takes a list of numbers and sequentialy
+% adds from left to right over the list. This produces a computation tree of
+% height $O(n)$, with error also growing in $O(n)$.
+% linearly in size of the number of \textit{nodes}, which is undesirable.
