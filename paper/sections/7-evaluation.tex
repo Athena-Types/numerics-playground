@@ -8,27 +8,19 @@ subtraction or range over negative numbers.
 Many of the programs in the FPBench benchmark suite are too small to draw
 conclusions about the scability of our approach. Therefore, we draw upon
 large programs from the Satire benchmark suite \cite{satire}, which are taken
-from real-world programs. Due to the sheer size of the programs, we only
-translated three program schemas into Negative Fuzz (with and without
-\textbf{factor}), Gappa, and FPTaylor in our evaluation.
+from real-world programs. Due to the sheer size of the programs in the Satire
+suite, we only translated three program schemas into Negative Fuzz (with and
+without \textbf{factor}), Gappa, and FPTaylor in our evaluation.
 
 For all of our benchmarks, we use the \textsc{binary64} precision mode and set
 the rounding mode to round towards infinity.
-On some benchmarks, our tool is able to produce a relative precision bound.
-However, as we are the only tool that produces a relative precision bound, we
-convert all bounds to absolute error for an apples-to-apples comparison against
-competing tools.
+We convert all bounds to absolute error for an apples-to-apples comparison
+against competing tools.
 We run all of our benchmarks on an AWS c5.metal instance (96 vCPU, 192 GiB RAM).
 Each timing benchmark result reported is the median of 6 benchmark runs.
-
-Our approach has several assumptions and limitations. We assume that there is no
-under or overflow in the program. Further, the error metric (relative precision)
-used in our type system is only well-defined when the floating-point computation
-and the exact computation are always non-zero and the same sign. Therefore, even
-though we report absolute error for an apples-to-apples comparison against
-competing tools, our analysis requires that the floating-point computation and
-exact computation are non-zero and the same sign. We do not support division or
-taking square roots; we leave this as a potential future direction.
+Our approach has several assumptions and limitations. Like Numerical Fuzz, we
+assume that there is no under or overflow in the program. We do not support
+division or taking square roots; we leave this as a potential future direction.
 
 % TODO: mention relative error
 
@@ -45,25 +37,22 @@ taking square roots; we leave this as a potential future direction.
 % is therefore a strict improvement on Numerical Fuzz: our approach can analyze
 % more programs with possibly tighter bounds on previously supported programs.
 
-\subsection{Data tables and plots}
-
 \paragraph{Small benchmark programs.}
 We compare the precision and performance of our approach on small benchmark
 programs from FPBench against two alternative approaches: FPTaylor \cite{fptaylor} and Gappa
 \cite{gappa}. 
 \footnote{Note that the add-assoc benchmark is not from FPBench and is instead taken from
-our running example of pairwise summation on $w,x,y,z \in [-1, 1]$.}
-FPTaylor and Gappa occupy a different part of the performance-precision design
-space comapred to Numerical Fuzz and Negative Fuzz: both FPTaylor and Gappa aim
-for precise, sound floating-point analyses via global optimization or rewriting
-rather than speed or scalability.
+our running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} FPTaylor
+and Gappa occupy a different part of the performance-precision design space
+comapred to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
+floating-point analyses via global optimization or rewriting rather than speed
+or scalability.
 
 We observe that Negative Fuzz (with \textbf{factor}) obtains competitive bounds
 within an order of magnitude with Gappa and FPTaylor.
 We also compare the performance of our NegFuzz implementation on small
 benchmarks in Table~\ref{tab:small-timing}. 
-Like Numerical Fuzz, Negative Fuzz is frequently orders of magnitude faster than
-Gappa and FPTaylor.
+Negative Fuzz is frequently orders of magnitude faster than Gappa and FPTaylor.
 
 To understand how \textbf{factor} contributes the precision of our approach, we
 perform a simple ablation by manually translating each benchmark from FPBench
@@ -77,9 +66,14 @@ overhead.
 \input{../plots/small-benchmarks-tables.tex}
 
 \paragraph{Large benchmark programs.}
-To understand how Negative Fuzz scales, we run three parameterized benchmarks and
-double the program size until a 450 second timeout is reached or over 64 GB of
-RAM is used.
+To understand how Negative Fuzz scales, we run three large parameterized
+benchmarks, which we discuss below. Our large-scale comparions are primarly
+intended to compare against Satire, which is intended to be scalable by taking a
+global optimization approach that allows users to trade-off precision for
+analysis time. We include Gappa and FPTaylor to demonstratate that those two
+tools do not scale well and often timeout.
+We run each benchmark until a 450 second timeout is reached or over 64 GB of RAM
+is used.
 Both the Horner and iterative summation schemes have a fixed evaluation order
 that makes rewriting with \textbf{factor} unhelpful, so we do not bother writing
 benchmark variants with \textbf{factor}. 
@@ -90,17 +84,18 @@ each program (across 6 runs). If any of the 6 runs failed due to timeout or OOM,
 we marked the result as a point on the uppermost edge of each plot. We discuss
 the benchmarks below:
 \begin{enumerate}
-  \item We evaluate the Horner polynomial evaluation scheme from $2^2 (4)$ to
-    $2^{11} (2048)$ and we observe that Negative Fuzz has comparable precision
-    at significantly faster performance.
-  \item We evaluate matrix multiplication from $2^2 (4)$ to $2^7 (128)$. On
-    large inputs, we observe that Negative Fuzz (without \textbf{factor})
-    comparable precision at significantly faster performance. Rewriting the
-    program with \textbf{factor} allows Negative Fuzz to achieve significantly
-    better precision on large inputs than competing tools.
-  \item We evaluate the iterative summation algorithm (discussed in
-    Section~\ref{sec:overview}) from $2^2 (4)$ to $2^7 (128)$. We observe that
-    Negative Fuzz has comparable precision at significantly faster performance.
+  \item We evaluate the Horner polynomial evaluation scheme on polynomials of
+    degree $2^2$ to $2^{11}$ and we observe that Negative Fuzz has comparable
+    precision at significantly faster performance.
+  \item We evaluate matrix multiplication on matricies of $2^2 \times 2^2 $ to
+    $2^7 \times 2^7$. On large inputs, we observe that Negative Fuzz (without
+    \textbf{factor}) comparable precision at significantly faster performance.
+    Rewriting the program with \textbf{factor} allows Negative Fuzz to achieve
+    significantly better precision on large inputs than competing tools.
+  \item We evaluate the iterative summation algorithm (first discussed in
+    Section~\ref{sec:overview}) on sequences of addition from $2^2$ to $2^7$. We
+    observe that Negative Fuzz has comparable precision at significantly faster
+    performance.
 \end{enumerate}
 
 \begin{figure}
@@ -138,13 +133,4 @@ From our evaluation tables and figures, we conclude that when compared with
 Gappa, FPTaylor, and Satire: (1) our type-based approach is faster, (2) yields
 useful and competitive error bounds, and (3) the \textbf{factor} primitive often
 results in improved error bounds.
-Our work is also the first type-based approach that is able to reason about
-round-off error in the presence of subtraction and negative numbers. 
-Since Negative Fuzz uses a type-based approach to numerical analysis, our
-approach also offers several qualitative advantages over competing tools. For
-example, programs that call a library function would not need to type-check
-the underlying library code and could instead rely on the function type as an
-interface specification, saving type checking time. 
-As another example of the potential benefit of avoiding a global optimization
-problem, type checking could also be performed in parallel or incrementally over
-the dependency graph of the program.
+

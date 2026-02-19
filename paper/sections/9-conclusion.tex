@@ -1,4 +1,14 @@
 \section{Conclusion}
+Our work is also the first type-based approach that is able to reason about
+round-off error in the presence of subtraction and negative numbers. 
+Since Negative Fuzz uses a type-based approach to numerical analysis, our
+approach also offers several qualitative advantages over competing tools. For
+example, programs that call a library function would not need to type-check
+the underlying library code and could instead rely on the function type as an
+interface specification, saving type checking time. 
+As another example of the potential benefit of avoiding a global optimization
+problem, type checking could also be performed in parallel or incrementally over
+the dependency graph of the program.
 
 % Ideas:
 % - type checking allows for an incremental approach (we can "save" the inferred
