@@ -1,8 +1,9 @@
 \section{Technical Overview} \label{sec:overview}
 In this paper, we are primarily motivated to extend Numerical Fuzz to support
-more floating-point operations and richer ways of structuring and sequencing
-arithmetic. We provide some background and provide our motivating running
-example. Then, we overview our extensions.
+more floating-point operations and richer, more precise ways to reason about
+addition and subtraction. We call our extension Negative Fuzz because it
+supports negative numbers and subtraction. We first provide some background and
+our motivating running example. Then, we overview our extensions.
 
 % In this section, we briefly introduce floating-point round-off error and
 % outline the main technical features of our system. 
@@ -54,14 +55,6 @@ precision} metric for measuring round-off error.
 \subsection{Running example: pairwise summation}
 We consider the well-known pairwise summation (sometimes referred to as cascade
 summation) algorithm. 
-To sum up a list of numbers, pairwise summation will recursively divide the list
-in half and compute the sum of the halves.
-In other words, pairwise summation takes a flattened list of numbers to add and
-associates them into a balanced binary tree of height 
-$\left \lceil{log_2(n)}\right \rceil$. Error grows in $O(log(n))$.
-By contrast, naive iterative summation takes a flattened list of numbers and
-left-folds addition over the list. Error grows in $O(n)$.
-
 As a concrete running example, we consider adding up the floating-point numbers
 $w, x, y, z \in [-1, 1]$ via pairwise summation: 
 
@@ -69,13 +62,12 @@ $w, x, y, z \in [-1, 1]$ via pairwise summation:
   \rho(\rho((w + x)) + \rho((y + z)))
 \end{equation}
 
-Numerical Fuzz cannot handle negative numbers, which leads us to our first new
-major technical contribution 
 
 \subsection{Supporting Subtraction and Negative Numbers}
-We wish to support a error analysis on programs containing subtraction
-or negative numbers. 
-Unfortunately, subtraction in Numerical Fuzz is infinitely sensitive. 
+Numerical Fuzz can handle inputs in the range $[0, 1]$ but cannot handle our
+example which includes negative numbers. 
+This is because subtraction in Numerical Fuzz and addition over the unrestricted
+reals is infinitely sensitive. 
 % Stated in terms of numerical analysis, subtraction between two possibly close
 % numbers is ill-conditioned. 
 The core problem is that relatively small perturbations in the
@@ -83,11 +75,11 @@ input of subtraction can lead to hard-to-bound relatively large perturbations in
 the output. 
 As an illustrative toy example, suppose we have two large numbers
 like 1,000,001 and 1,000,000 that we wish to subtract. 
-If we perturb the input by a small amount, for example, by 1 per-cent, we can
-observe quite large \textit{relative} changes in the output. 
+If we perturb the input by a small amount, we can observe quite large
+\textit{relative} changes in the output. 
 In other words, subtracting two large nearby numbers with small round-off error
-in its inputs could obtain a small number with arbitrarily high round-off error,
-as measured using relative precision.
+in its inputs could obtain a small number with arbitrarily high relative
+round-off error.
 This feature of subtraction is sometimes referred to as \textit{catastrophic
 cancellation} and forms one of the primary technical obstacles to verifying our
 running example. 
@@ -108,8 +100,10 @@ running example.
 % \end{enumerate}
 Note that supporting addition with negative numbers is effectively the same
 problem as supporting subtraction.
-To understand the problem posed by an infinitely-sensitive operation, consider
-our running example:
+To understand the problem posed by an infinitely-sensitive operation, we try to
+write our running example using $\textbf{rnd}$ to represent our floating point
+rounding function $\rho$, \textbf{add} to represent exact additiion ($+$) and
+\textbf{let-bind} to sequence floating-point computation:
 \begin{equation}
 \begin{aligned}[c]
 \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -125,9 +119,9 @@ we will demonstrate how to obtain a useful error bound from the program type
 from the example.
 
 \paragraph{Standard representation.}
-Our type system relies on bounding function sensitivity. 
+Numerical Fuzz's type system relies on bounding function sensitivity. 
 We first attempt to assign a type to a hypothetical addition primitive in
-Numerical Fuzz over the reals:
+Numerical Fuzz over the unrestricted reals:
 $\textbf{add} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
 Then, the type of our running example is 
 $M_{\infty}~\textbf{num}$
@@ -210,8 +204,8 @@ where $u$ is the unit round-off constant.
 
 \paragraph{Bound polymorphism.}
 % TODO: how exactly do we type add?
-Now we wish to translate these bounds into something useful over the unpaired
-component.
+Now we wish to translate these bounds over the paired components into a error
+bound over the unpaired component.
 % Unfortuantely, the error bounds obtained through the paired representation only
 % bound the maximum error on the \textit{paired} components. 
 % To be useful, we wish to relate error on the paired components $a$, $b$ with the
@@ -280,8 +274,16 @@ provide an evaluation in Section~\ref{sec:eval}.
 
 \subsection{Language Feature: More Precise Treatment of Addition and Subtraction} 
 \label{sec:factor}
-Returning to our running example, it is well known that round-off error grows
-linearly in the height of a summation tree. 
+It is well known that round-off error grows linearly in the height of a
+summation tree. 
+Returning to our running example, pairwise summation will recursively a list of
+numbers in half and compute the sum of the halves.
+This produces a computation tree of height $\left \lceil{log_2(n)}\right \rceil$
+with error growing in $O(log(n))$.
+By contrast, naive iterative summation takes a list of numbers and sequentialy
+adds from left to right over the list. This produces a computation tree of
+height $O(n)$, with error also growing in $O(n)$.
+
 We'd expect Numerical Fuzz to infer that the error on our paired summation
 example grows in $log_2(n)$.
 In prior type-based work \cite{numfuzz}, the monadic computation sequencing rule
