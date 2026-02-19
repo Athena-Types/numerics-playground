@@ -1,12 +1,23 @@
 \section{Type inference} \label{sec:inference}
-Our type inference algorithm computes the type sensitivity and inference
-analysis developed in Numerical Fuzz. Simultaneously, we automatically infer
-polymorphic bounds to generate a valid typing derivation of the program in
-\bnd{\Lang} to reduce the user annotation burden of adopting our approach.
-To define the type inference problem, we first setup a sensitivity erasure
-$-^{\bullet}$ over typing contexts and a bound erasure $-^{\bnd{\bullet}}$ over
-types and terms. Type inference then infers sensitivities, grades, and bounds
-over erased, well-typed terms in contexts with erased sensitivities.
+The Numerical Fuzz type inference algorithm automatically infers sensitivity and
+monadic grades.
+We extend the Numerical Fuzz's type inference algorithm for our new syntax (e.g.
+\textbf{factor}) and to automatically infer polymorphic bounds.
+This fully eliminates the burden of adopting our extension; programs that
+type-check in Numerical Fuzz will type check in Negative Fuzz.
+To use our type inference algorithm, users write a program with no bound
+polymorphism (instantiation or generalization), sensitivity annotations, or
+monadic grades.
+Type inference then attempts to synthensize a new well-typed term with bound
+polymorphism while simultaneously inferring sensitivities and grades in a typing
+context with erased sensitivity annotations.
+
+To formally define the type inference problem, we first setup a sensitivity
+erasure $-^{\bullet}$ over typing contexts and a bound erasure
+$-^{\bnd{\bullet}}$ over types and terms. Our erasure functions help us to
+capture the precise relation between the (erased) term  and the new, well-typed
+synthesized term (with bound polymorphism) with inferred sensitivities and
+monadic grades.
 
 \begin{definition}[Sensitivity erasure]
   For a fully annotated typing context 
@@ -67,10 +78,10 @@ x^{\bnd{\bullet}} &\triangleq x \\
 \end{equation*}
 \end{definition}
 
-\begin{definition}[Type inference problem]
-Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
-: \tau$ for $e$ in \Lang if such a derivation exists. 
-\end{definition}
+% \begin{definition}[Type inference problem]
+% Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
+% : \tau$ for $e$ in \Lang if such a derivation exists. 
+% \end{definition}
 
 % \subsection{Type inference algorithm}
 We are now ready to define the type inference algorithm. Our type inference
@@ -82,28 +93,24 @@ no polymorphic bounds, and produces a
 typing context $\Gamma$ with sensitivity information and fully annotated program
 $e$ and type $\tau$ such that
 $\Delta \ | \ \Gamma' \vdash e' : \tau$
-is derivable for some $\Delta$ (our soundness criterion). 
+is derivable for some $\Delta$ (our soundness criterion).
 Note that we leave the $\Delta$ out of our type inference algorithm and
 implicitly reconstruct an appropriate $\Delta$ inside our constructive soundness
 proof.
 
 We start type inference by passing the empty context, along with the
 bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
-detailed in Figure~\ref{fig:inference-algo}. Finally, we evaluate our bound
-expressions using the $\llbracket - \rrbracket$ evaluation map defined over
-types.
-Conceptually, our type inference algorithm does three things: 
+detailed in Figure~\ref{fig:inference-algo}. 
+Conceptually, our syntax-directed type inference algorithm does two things: 
 \begin{enumerate}
-  \item First, we infer sensitivities via the type inference algorithm provided
+  \item We infer sensitivities via the type inference algorithm provided
     in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
     and polymorphic bounds as well as support expressions in greater places.
 
   \item At the same time as our sensitivity inference, we infer our bounds. We
     rely on helper functions $I$ and $E$
-    (Figure~\ref{fig:helper_type_inference}) to automatically instantiate and
-    eliminate polymorphic bound variables. 
-
-  \item Finally, we evaluate our bound expresions via $\llbracket - \rrbracket$. 
+    (Figure~\ref{fig:helper_type_inference}) to discover which polymorphic bound
+    variables needed to be automatically instantiated and eliminated.
 \end{enumerate}
 We present our syntax-directed type inference algorithm in
 Figure~\ref{fig:inference-algo} as a combined algorithm where the sensitivities
@@ -111,19 +118,34 @@ and bounds are inferred simultaneously in one pass.
 We prove the soundness of the fused sensitivity-and-bound pass in
 Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
 inference algorithm. 
-After running type inference, we evaluate the closed bound expressions using
-$\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
+After running type inference, we simplify the closed bound expressions in the
+type using $\llbracket - \rrbracket$. We prove the semantic soundness of our
+simplification technique in Theorem~\ref{thm:eval-bounds}.
 
-\begin{figure}\label{fig:inference-algo}
+\paragraph{The type inference algorithm}
+Our syntax-directed type inference algorithm is laid out in
+Figure~\ref{fig:inference-algo}.
+The majority of cases (Unit, Var, $!$ I, \textbf{op}, Ret, Rnd, $\times$ I,
+$\times$ E, $\otimes$ I, \textbf{let}, \textbf{let-pair}, \textbf{let-bind},
+\textbf{case}) come from Numerical Fuzz's type inference algorithm. 
+We walkthrough the remaining cases: $\multimap$ I relies on
+$I(\tau^{\bnd{\bullet}})$ to create new globally fresh bound variables.
+$\multimap$ E relies on $E(\tau)$ to extract the new bound variables and our
+type equality check to ensure that the extracted variables have been soundly
+instantiated. Both the $I$ and $E$ helper functions are fully defined in Figure
+~\ref{fig:helper_type_inference}. Finally, the \textbf{factor} case is
+straightforward.
+
+\begin{figure}
 % TODO: make this more concise
-%% ROW1
-\begin{center}
-
+\scriptsize
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
 \AXC{}
 \UIC{$I(\textbf{unit}^{\bnd{\bullet}}) \to \textbf{unit}; .$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 % \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
 \AXC{$\epsilon \text{ globally fresh}$}
 \UIC{$ I(\textbf{num}^{\bnd{\bullet}}) \to \textbf{num}_{\epsilon};
@@ -138,7 +160,7 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \tau_1; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
 \AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
 \BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}) \to \tau_0 \otimes
@@ -153,7 +175,7 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
 \AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
 \BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}) \to \tau_0 \multimap
@@ -166,20 +188,22 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \UIC{$I(!_s (\tau^{\bnd{\bullet}})) \to !_s \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
 \UIC{$I(M_u (\tau^{\bnd{\bullet}})) \to M_u \tau ; \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\end{subfigure}
 
-\vskip 2em
+\vskip 3em
 
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
 \AXC{}
 \UIC{$E(\textbf{unit}) \to .$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{}
 \UIC{$E(\textbf{num}_i) \to i$}
 \bottomAlignProof
@@ -191,7 +215,7 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \BIC{$E((\tau_0 \times \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$E(\tau_0) \to \alpha$}
 \AXC{$E(\tau_1) \to \beta$}
 \BIC{$E((\tau_0 \otimes \tau_1)) \to \alpha, \beta$}
@@ -204,7 +228,7 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \BIC{$E((\tau_0 + \tau_1)) \to \alpha, \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$E(\tau_0) \to \alpha$}
 \AXC{$E(\tau_1) \to \beta$}
 \BIC{$E((\tau_0 \multimap \tau_1)) \to \alpha, \beta$}
@@ -216,23 +240,23 @@ $\llbracket - \rrbracket$ and prove soundness (Theorem~\ref{thm:eval-bounds}).
 \UIC{$E(!_s (\tau)) \to \beta$}
 \bottomAlignProof
 \DisplayProof
-\hskip 0.5em
+\hskip 0.2em
 \AXC{$E(\tau) \to \beta$}
 \UIC{$E(M_u (\tau)) \to \beta$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
-
+\hskip 0.2em
 \AXC{$E(\tau) \to \beta$}
 \UIC{$E(\forall \epsilon. \tau) \to \beta$}
 \bottomAlignProof
 \DisplayProof
-\end{center}
-    \caption{Ancillary functions defining algorithmic type inference. I
-    introduces bounds for an type with erased bounds. E extracts the bounds used
-    in an unerased type. For type checking to succeed on many real-world
-    programs, it is important for I and E to align in the production and
-    extraction of bound variables. }
+\end{subfigure}
+
+    \caption{Ancillary functions defining algorithmic type inference. I creates
+      bounds for an type with erased bounds. E extracts the bounds used in an
+      unerased type. For type checking to succeed on many real-world programs,
+      it is important for I and E to align in the production and extraction of
+    bound variables.}
     \label{fig:helper_type_inference}
 \end{figure}
 
@@ -435,9 +459,11 @@ $}
     annotations. To help define the $\implies$ relation, we
     define a $\to$ relation that annotates (removes the bullet) for a given
     type.}
-    \label{fig:type_inference}
+  \label{fig:inference-algo}
 \end{figure}
 
+\paragraph{Type inference soundness.}
+We now prove the soundness of our type inference algorithm.
 We use the following lemma for reasoning about the bound polymorphism variables
 in the $\multimap I$ and $\multimap E$ cases for the type inference soundness
 proof.
@@ -476,14 +502,16 @@ Now we are able to prove the soundness of our type inference algorithm.
 % functions do not align, the equality check in the $\multimap$ E case will fail.
 % This means that the choice of ordering is not essential for our soundness proof
 % but would be relevant for a completeness argument.
-Note that we have that $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and
-$e^{\bnd{\bullet}} = e'^{\bnd{\bullet}}$ as we do not prove that our type
-inference algorithm infers the tightest possible sensitivity or round-off
-grades.
+Note that we do not prove that our type inference algorithm infers the tightest
+possible sensitivity or round-off grades.
+So, our soundness theorem states that the inferred type, typing contexts, and
+term, after erasing, are equal to the original erased type, erased context, and
+erased term ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$).
 % TODO: prove that we infer the tighest possible sens + round-off error grades
 % (or provide counterexample).
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
-If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there is
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
 derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 e'^{\bnd{\bullet}}$.
@@ -579,27 +607,27 @@ We induct over each typing / case in the type inference algorithm.
 \end{description}
 \end{proof}
 
+\paragraph{Simplifying the type.}
 After running type inference we obtain a result in the form: 
 $\Delta \ | \ \Gamma \vdash e : \tau$. 
 In some cases, $\tau$ might contain bound expressions.
 For example, after running type inference on the program $add \langle 1, 2 \rangle$, we might
 obtain the following type 
-$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}$
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}$.
 Semantically, this type represents the same relation as:
 $. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \text{True})}$
 
-To handle such cases, we extend the $\bnd{\llbracket - \rrbracket}$
-(Definition~\ref{def:bound-exp-eval}) evaluating bound expressions to also
-evaluate types that possibly contain bound expressions. Importantly our
-soundness theorem proved below, the logical relation corresponding to the
-evaluated type should be the same logical relation as the original type. This is
-a semantic notion of soundness, which is why we present the evaluation of types
-and bound expressions separately from our syntax-directed type inference
-algorithm.
+To simplify the type, we extend the $\bnd{\llbracket - \rrbracket}$
+(Definition~\ref{def:bound-exp-eval}) to simplify types that possibly contain
+bound expressions. 
+Importantly, the logical relation corresponding to the simplified type is the
+same logical relation as the original type. This is a semantic notion of
+soundness, which is why we present the evaluation of types and bound expressions
+separately from our syntax-directed type inference algorithm.
 
-\begin{definition}[Type evaluation]
+\begin{definition}[Semantic type simplification]
 Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
-spits out a type $\tau'$:
+returns a simplified type $\tau'$:
 \begin{equation}
   \begin{aligned}[c]
     \llbracket \textbf{unit} \rrbracket &= \textbf{unit} \\
@@ -617,12 +645,12 @@ spits out a type $\tau'$:
     \llbracket \forall \epsilon . \tau \rrbracket &= \forall \epsilon . \tau
   \end{aligned}
 \end{equation}
-Note that for simplicity, we only halt evaluation when we see a $\forall$. 
+Note that for simplicity, we halt simplification when we see a $\forall$.
 \end{definition}
 
 \begin{theorem}[Soundness of evaluating closed bounds]
-  For any $e \in \mathbb{R}_{\tau}$ and $\tau' = \llbracket \tau \rrbracket$,
-  then $e \in \mathbb{R}_{\tau'}$.
+  If $e \in \mathbb{R}_{\tau}$ then $e \in \mathbb{R}_{\llbracket \tau
+  \rrbracket}$.
   \label{thm:eval-bounds}
 \end{theorem} 
 \begin{proof}

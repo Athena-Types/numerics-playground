@@ -217,13 +217,14 @@ detail the (Factor) rule and walk through an example in
 Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
-polymorphism. In the (\bnd{Widen}), (\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$
-I}), and (\bnd{$\forall$ E}) rules, we further extend Numerical Fuzz's type
-system with an abstract interpretation-style analysis by annotating
-$\textbf{num}_{\bnd{i}}$ types with a subscript bound with the grammar $\bnd{b}$
-shown in Figure~\ref{fig:syntax}. Our type system is parametric in
-$\bnd{\mathbb{B}}$, which is a set of bounds equipped with a partial order
-$\leq$.
+polymorphism. We have a \bnd{inj} function for mapping constants $k$ into the
+corresponding interval that contains a single point. In the (\bnd{Widen}),
+(\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$ I}), and (\bnd{$\forall$ E}) rules,
+we further extend Numerical Fuzz's type system with an abstract
+interpretation-style analysis by annotating $\textbf{num}_{\bnd{i}}$ types with
+a subscript bound with the grammar $\bnd{b}$ shown in Figure~\ref{fig:syntax}.
+Our type system is parametric in $\bnd{\mathbb{B}}$, which is a set of bounds
+equipped with a partial order $\leq$.
 In Section~\ref{sec:bexp}, we define the $\bnd{\llbracket} - \bnd{\rrbracket}$
 relation interpreting bound expressions $\bnd{b}$ to a subset of
 $\bnd{\mathbb{B}}$.
