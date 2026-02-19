@@ -35,8 +35,7 @@ one-third tighter error bound than the iterative summation algorithm ($((w
     \textbf{rnd} \ (\textbf{add} \  \langle p, z \rangle  )
   \end{aligned}
 \end{equation*}
-However, this program results in the same type and error bound as the pairwise
-summation algorithm.
+However, both programs have the same type and error bound.
 The core problem is that it is syntactically impossible to first construct
 separate typing trees for $w \tilde{+} x$ and $y \tilde{+} z$ with error grades
 $M_u \ \textbf{num}$, then combine the two results using floating-point addition
@@ -146,7 +145,7 @@ Figure~\ref{fig:partial-typing-trees}:
 \DisplayProof
 \caption{
   A partial typing tree matching both summation algorithms. Note the grades and
-  occurances of the \textbf{let-bind} typing rule in the typing tree.
+  occurances of \textbf{let-bind} in the typing tree.
 }
 \end{subfigure}
 \caption{
@@ -157,12 +156,9 @@ Figure~\ref{fig:partial-typing-trees}:
 \label{fig:partial-typing-trees}
 \end{figure}
 
-In subfigure (a), we show the typing tree corresponding to the pairwise
-summation algorithm on four numbers. In subfigure (b), we show the typing tree
-corresponding to the iterative summation algorithm on four numbers. 
-Note that we are forced to sequence the result of each \textbf{rnd} with the
-\textbf{let-bind} typing rule in order to use the result in the remainder of the
-computation. 
+Note that in both programs, we are forced to sequence the result of each
+\textbf{rnd} with the \textbf{let-bind} typing rule in order to use the result
+in the remainder of the computation.
 Even though the underlying arithmetic computation of pairwise summation
 corresponds to a perfect binary tree with less floating-point error, our usage
 of \textbf{let-bind} forces the typing tree and grades of our pairwise summation
@@ -180,23 +176,30 @@ which is lower than the $3u$ error grade of the iterative summation program
   \scriptsize
   \centering
   \AXC{\ldots}
-  \UIC{$w, x, y, z :_1 \textbf{num} \vdash 
-            \langle 
-            \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
-            \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
-            \rangle
-          : (M_u \ \textbf{num}) \times (M_u \textbf{num}) $}
-  \UIC{$w, x, y, z :_1 \textbf{num} \vdash 
-  \textbf{factor} \
-            \langle 
-            \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
-            \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
-            \rangle
-          : M_u \ (\textbf{num} \times \textbf{num}) $}
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle) 
+          : M_u \textbf{num} $}
   \AXC{\ldots}
-  \UIC{$a:_{s} \textbf{num} \times \textbf{num} \vdash \textbf{rnd} \ (\textbf{add} \ a) : M_{u} \ \textbf{num}$}
-  \BIC{$w, x, y, z :_1 \textbf{num} \vdash 
-        \textbf{let-bind} \ a \ = \textbf{factor} \
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle) 
+          : M_u \textbf{num} $}
+  \BIC{$w, x, y, z : \textbf{num} \vdash 
+            \langle 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle),
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle)
+            \rangle
+          : (M_u \textbf{num}) \times (M_u \textbf{num}) $}
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+  \textbf{factor} 
+            \langle 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle),
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle)
+            \rangle
+          : M_u (\textbf{num} \times \textbf{num}) $}
+  \AXC{\ldots}
+  \UIC{$a: \textbf{num} \times \textbf{num} \vdash \textbf{rnd} (\textbf{add} \ a) : M_{u} \ \textbf{num}$}
+  \BIC{$w, x, y, z : \textbf{num} \vdash 
+        \textbf{let-bind} \ a \ = \textbf{factor} 
           \langle 
           \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
           \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
@@ -212,13 +215,18 @@ which is lower than the $3u$ error grade of the iterative summation program
 \end{figure}
 
 Observe how the \textbf{factor} primitive allows us to first ``share" the $u$
-monadic error grade between two \textbf{add}. Then, only after the error is
-shared, we use a single \textbf{let-bind} sequencing operation to pass the
-floating-point result to the final \textbf{add}.
-Instead of having to use iteratively sequenced \textbf{let-bind}s to
-sequentially \textit{add} the grades of multiple monadic computations,
+monadic error grade and the same typing context to construct $\textbf{add}
+\langle w, x \rangle$ and $\textbf{add} \langle y, z \rangle$ on the
+left-hand-side of the typing tree.
+Then, only after the contexts and grades are shared, we use a single
+\textbf{let-bind} sequencing operation to pass the floating-point result to the
+final \textbf{add}.
+So, instead of having to use multiple iteratively sequenced \textbf{let-bind}s
+to sequentially \textit{add} the grades of repeated monadic computations,
 \textbf{factor} enables us to first take the \textit{maximum} of any two grades
-(i.e. share the grade) before sequencing with \textbf{let-bind}.
+(i.e. share the grade) before sequencing with \textbf{let-bind}. 
+This technique scales well in our evaluations (Section~\ref{sec:eval}), reducing the monadic grade by a log-factor in size
+of the addition sequence.
 
 \textbf{factor} is useful for subtraction as well. As \textbf{add} and
 \textbf{sub} both map $\textbf{num} \times \textbf{num} \multimap \textbf{num}$,
