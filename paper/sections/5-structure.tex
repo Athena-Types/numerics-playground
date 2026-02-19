@@ -310,10 +310,10 @@ $v_0$ and $\tilde{v_0}$ and $v_1$ and $\tilde{v_1}$ are both $q$ apart, then
 $(v_0, v_1)$ and $(\tilde{v_0}, \tilde{v_1})$ are also $q$ apart.
 
 \paragraph{Other related primitives}
-It is natural to wonder if our type system is missing other primitives for
+It is natural to wonder if our type system is missing similar primitives for
 sharing our monad and comonadic grades that may lead to an overly conservative
-error analysis. It appears that we are not.
-Our other typing rules can derive the inverse type of \textbf{factor}, namely,
+error analysis. It appears this is not the case for we can derive them below.
+Our other typing rules can derive the inverse of \textbf{factor}, namely,
 $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0) \times
 (M_q \tau_1)$, so no special primitive is needed to structure arithmetic in the
 reverse direction:
