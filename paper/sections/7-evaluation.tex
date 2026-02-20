@@ -42,17 +42,15 @@ We compare the precision and performance of our approach on small benchmark
 programs from FPBench against two alternative approaches: FPTaylor \cite{fptaylor} and Gappa
 \cite{gappa}. 
 \footnote{Note that the add-assoc benchmark is not from FPBench and is instead taken from
-our running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} FPTaylor
-and Gappa occupy a different part of the performance-precision design space
-comapred to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
-floating-point analyses via global optimization or rewriting rather than speed
-or scalability.
-
+our running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} 
 We observe that Negative Fuzz (with \textbf{factor}) obtains competitive bounds
 within an order of magnitude with Gappa and FPTaylor.
-We also compare the performance of our NegFuzz implementation on small
-benchmarks in Table~\ref{tab:small-timing}. 
-Negative Fuzz is frequently orders of magnitude faster than Gappa and FPTaylor.
+We also observe that our NegFuzz implementation is often orders of magnitude
+faster than Gappa and FPTaylor (Table~\ref{tab:small-timing}).
+FPTaylor and Gappa occupy a different part of the performance-precision design
+space comapred to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
+floating-point analyses via global optimization or rewriting rather than speed
+or scalability.
 
 To understand how \textbf{factor} contributes the precision of our approach, we
 perform a simple ablation by manually translating each benchmark from FPBench
@@ -108,9 +106,9 @@ the benchmarks below:
 \end{figure}
 
 \paragraph{Impact of factor.}
-We observe that rewriting a program with \textbf{factor} can only improve
+We observe that using \textbf{factor} in our evaluation only improves
 our error analysis. For a program of type $M_q \ \textbf{num}_{\bnd{b}}$, our
-analysis depends on two pieces of data obtained from our type: 
+analysis depends on two parts of our type: 
 \begin{enumerate}
   \item The grade on the monad $q$. In our evaluation benchmarks
     (Section~\ref{sec:eval}), we observe that rewriting a program with
@@ -120,12 +118,11 @@ analysis depends on two pieces of data obtained from our type:
     in our evaluation rewritten to use \textbf{factor}, the inferred bounds
     subscript on $\textbf{num}$ remains unchanged.
 \end{enumerate}
-Therefore, we find that each program rewritten \textbf{factor} only improved our
-grade $q$ while keeping the bound $b$ the same. By inspecting our error theorems
+So, each program rewritten with \textbf{factor} in our evaluation only
+improved our grade $q$ while keeping the bound $b$ the same. Our error theorems
 (Theorem~\ref{thm:paired-a-priori-abs} and
-Theorem~\ref{thm:paired-a-priori-rel}) we note that a program rewritten to have
-a lower monadic grade $q$, all else equal, results in a strictly better final
-error bound.
+Theorem~\ref{thm:paired-a-priori-rel}) ensure that if a program is rewritten to
+a lower monadic grade $q$, all else equal, the final error bound will improve.
 
 \paragraph{Evaluation takeaways.}
 From all our evaluation tables and figures, we conclude that when compared with

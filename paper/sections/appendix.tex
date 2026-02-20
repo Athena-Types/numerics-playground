@@ -762,7 +762,7 @@ c_n) = c' : \textbf{bnd}$ holds.
 \end{proof}
 
 \section{Appendix: Error bound translation theorems}
-\begin{theorem}[Paired error theorem; a priori relative] \label{thm:paired-a-priori-rel}
+\begin{theorem}[Paired error theorem; relative] \label{thm:paired-a-priori-rel}
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
   $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
   the following bounds
@@ -847,7 +847,7 @@ c_n) = c' : \textbf{bnd}$ holds.
   theorem proves the corollary.
 \end{proof}
 
-\begin{theorem}[Paired error theorem; a priori absolute] \label{thm:paired-a-priori-abs}
+\begin{theorem}[Paired error theorem; absolute] \label{thm:paired-a-priori-abs}
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
   the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
   $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
@@ -857,7 +857,7 @@ c_n) = c' : \textbf{bnd}$ holds.
     \item $a \in [a^{\downarrow}, a^{\uparrow}]$
     \item $b \in [b^{\downarrow}, b^{\uparrow}]$
   \end{enumerate}
-  we have that $|r - r'|$ is the maximum of the following:
+  we have that $|r - r'|$ is less than or equal to the maximum of the following
 \begin{enumerate}
   \item[(a)] $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
   \item[(b)] $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
@@ -909,8 +909,8 @@ c_n) = c' : \textbf{bnd}$ holds.
 \begin{corollary}
   For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
   (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, 
-  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is the
-  maximum of the following:
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is
+  less than or equal to the maximum of the following:
 \begin{enumerate}
   \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
   \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
