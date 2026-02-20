@@ -50,11 +50,11 @@ $d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|$.
 % Importantly, triangle inequality does not hold for \textit{relative error}.
 
 \subsection{Running example: pairwise summation}
-We consider the well-known pairwise summation (sometimes referred to as cascade
-summation) algorithm. 
-As a concrete running example, we consider adding up the floating-point numbers
-$w, x, y, z \in [-1, 1]$ via pairwise summation: 
-$\rho(\rho((w + x)) + \rho((y + z)))$.
+We consider the well-known pairwise summation algorithm (sometimes referred to
+as cascade summation).
+As a concrete running example, we consider adding up four floating-point numbers
+$w, x, y, z \in [-1, 1]$ via pairwise summation: $\rho(\rho((w + x)) + \rho((y +
+z)))$.
 
 \subsection{Supporting Subtraction and Negative Numbers}
 Numerical Fuzz can handle inputs in the range $[0, 1]$ but cannot handle our
@@ -110,7 +110,7 @@ We will show how the program cannot be typed in Numerical Fuzz.
 We will first assign a type in Negative Fuzz to a simplified toy example. Then,
 we will demonstrate how to use the type to obtain a sound error bound.
 
-\paragraph{Standard representation.}
+\paragraph{Standard model.}
 Numerical Fuzz's type system relies on bounding function sensitivity with
 respect to Olver's relative precision metric. 
 We first attempt to assign a type to a hypothetical addition primitive in
@@ -181,7 +181,7 @@ $\textbf{num} \times \textbf{num} \multimap M_u \textbf{num}$ to the program
 $\lambda x . \ \textbf{let} \ z \ = \ \textbf{sub} \ x \ \textbf{in} \ \textbf{rnd} \ z$
 where $u$ is the unit round-off constant.
 
-\paragraph{Using the type to assign an error bound.}
+\paragraph{Using the type to assign a floating-point error bound.}
 Now we wish to translate our type over the paired model into a error bound over
 the unpaired model.
 Our type system will assign the type $M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4,
