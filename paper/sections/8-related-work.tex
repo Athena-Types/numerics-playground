@@ -24,14 +24,12 @@ analysis and can reason about programs with conditionals and loops.
 However, both tools suffer from scalability challenges.
 FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
 to estimate round-off error. 
-Both Gappa and FPTaylor are able to produce computer-checked certificates of
-their round-off error bounds.
 Abbasi and Darulova \cite{abbasi-darulova} also use taylor expansions but take
 a more local and modular approach that allows analyses to be shared at different
 function call sites.
 Rosa \cite{rosa1} \cite{rosa2} also uses taylor expansions for handling
 propagation error.
-In contrast, our approach supports different rounding modes and higher-order
+By contrast, our approach supports different rounding modes and higher-order
 functions. However, we do not support general recursion and restrict
 conditionals to not contain floating-point error.
 

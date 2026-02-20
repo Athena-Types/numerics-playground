@@ -317,9 +317,9 @@ ideal and floating-point computation.
 In Figure~\ref{fig:rnd-ret-steps-with-types}, we can see that the
 \textbf{rnd}, \textbf{ret} stepping rules, which both produce a monadic value of
 type $M_q \ \textbf{num}$ obey this invariant.
-We can also see that the \textbf{let-bind} stepping rule maintains the invariant
-and produces a monadic pair if the premises (of type $M_q \ \textbf{num}$) also
-produce a monadic pair:
+The \textbf{let-bind} stepping rule also maintains the invariant, producing a
+monadic pair if the premises (of type $M_q \ \textbf{num}$) contain a
+monadic pair.
 
 \begin{figure}[htp]
 \begin{equation*}
