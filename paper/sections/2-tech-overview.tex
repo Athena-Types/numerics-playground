@@ -119,10 +119,11 @@ $\textbf{add} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{
 Then, the type of our running example is 
 $M_{\infty}~\textbf{num}$
 in the context 
-$w : \textbf{num}, x : \textbf{num}, y : \textbf{num}, z : \textbf{num}$.
-\footnote{For presentational purposes, we elide the sensitivity co-effect
-annotation in the typing context. The program is infinitely-sensitive in
-variables $w,x,y,z$. }
+$w : \textbf{num}, x : \textbf{num}, y : \textbf{num}, z :
+\textbf{num}$.\footnote{%
+  For presentational purposes, we elide the sensitivity co-effect annotation in
+the typing context. The program is infinitely-sensitive in variables $w,x,y,z$.
+}
 Our type comes from two facts.
 Firstly, due to $\textbf{rnd}$, we know that there can be up to $u$ error
 introduced in the inputs $p$ and $q$ to the last $add$ call.
