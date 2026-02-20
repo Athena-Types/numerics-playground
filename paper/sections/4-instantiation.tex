@@ -44,8 +44,19 @@ modular interface in Definition~\ref{def:numfuzz-interface}.
 \subsubsection{Defining the rounding function and round-off parameters for the
 paired model.} \label{sec:rho-and-u}
 We set $\textit{num} = \mathbb{P}$ equipped with $\leq$ defined above.
-We also set $\rho = \rho_{\mathbb{P}}$ (Definition~\ref{def:rounding-p}) to
-``simulate" the round-off error on the unpaired component.
+Importantly, we can ``simulate" round-off error over the reals in our paired
+model by defining a paired version of our rounding function $\rho$:
+\begin{definition}[Rounding over pairs] \label{def:rounding-p}
+$\rho_{\mathbb{P}}((r, a, b)) = 
+\begin{cases}
+  (0, a, b)  & r = 0\\
+(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
+  \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
+\end{cases}$
+\end{definition}
+which satisfies the constraint that $r = a - b$ at all times.
+This constraint is useful for letting us relate error over the unpaired
+components to error on the paired component.
 Our choice of $u$ depends on the format and rounding mode used. 
 % TODO: change thm statement to reflect this, add label and ref here
 It is sound to use the corresponding choices for $u$ and $\rho$ from Numerical

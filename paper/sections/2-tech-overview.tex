@@ -157,21 +157,6 @@ $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 components; subtraction is represented implicitly. 
 By ensuring that each operation in the paired model is always-growing,
 we can encode addition and subtraction in a finitely-sensitive manner. 
-%
-% We can ``simulate" error on the paired representation by defining a
-% paired version of our rounding function $\rho$:
-% \begin{definition}[Rounding over pairs] \label{def:rounding-p}
-% $\rho_{\mathbb{P}}((r, a, b)) = 
-% \begin{cases}
-%   (0, a, b)  & r = 0\\
-% (\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
-%   \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
-% \end{cases}
-% $
-% \end{definition}
-% which satisfies the constraint that $r = a - b$ at all times.
-% This constraint is useful for letting us relate error over the unpaired
-% components to error on the paired component.
 
 In the paired model, we can implement and type addition and
 subtraction in terms of finitely-sensitive operations over
