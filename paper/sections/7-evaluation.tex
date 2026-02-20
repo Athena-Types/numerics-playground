@@ -1,16 +1,16 @@
 \section{Implementation and evaluation} \label{sec:eval}
-To evaluate our approach, we implement the type inference algorithm detailed in
-this paper in Rust.
-We evaluate the speed and precision of our implementation against competing
+To evaluate our approach, we implement our type inference algorithm in Rust.
+We evaluate the speed and precision of our implementation against existing
 tools on the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
 We only include FPBench programs that are newly supported, e.g. contain
 subtraction or range over negative numbers.
-Many of the programs in the FPBench benchmark suite are too small to draw
-conclusions about the scalability of our approach. Therefore, we draw upon
-large programs from the Satire benchmark suite \cite{satire}, which are taken
+While the programs in the FPBench benchmark suite are useful for evaluating
+precision, many are too small to draw conclusions about the scalability of our
+approach. Therefore, we draw upon
+larger programs from the Satire benchmark suite \cite{satire}, which are taken
 from real-world programs. Due to the sheer size of the programs in the Satire
-suite, we only translated three program schemas into Negative Fuzz (with and
-without \textbf{factor}), Gappa, and FPTaylor in our evaluation.
+suite and the need to hand-translate into Negative Fuzz, we focused on a subset
+of three program schemas (with and without \textbf{factor}) in our evaluation.
 
 For each benchmark, we set the precision to \textsc{binary64} and the rounding
 mode to round towards infinity.
@@ -40,17 +40,17 @@ recursion, division, or square roots.
 \paragraph{Small benchmark programs.}
 We compare the precision and performance of our approach on small benchmark
 programs from FPBench against two alternative approaches: FPTaylor \cite{fptaylor} and Gappa
-\cite{gappa}. 
-\footnote{Note that the add-assoc benchmark is not from FPBench and is instead taken from
-our running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} 
-We observe that Negative Fuzz (with \textbf{factor}) obtains competitive bounds
-within an order of magnitude with Gappa and FPTaylor.
-We also observe that our NegFuzz implementation is often orders of magnitude
-faster than Gappa and FPTaylor (Table~\ref{tab:small-timing}).
+\cite{gappa}.\footnote{%
+  The add-assoc benchmark is not from FPBench and is instead taken from our
+running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} 
 FPTaylor and Gappa occupy a different part of the performance-precision design
 space compared to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
 floating-point analyses via global optimization or rewriting rather than speed
 or scalability.
+We observe that Negative Fuzz (with \textbf{factor}) obtains competitive bounds
+within an order of magnitude with Gappa and FPTaylor.
+We also observe that our NegFuzz implementation is often orders of magnitude
+faster than Gappa and FPTaylor (Table~\ref{tab:small-timing}).
 
 \input{../plots/small-benchmarks-tables.tex}
 
@@ -123,6 +123,6 @@ performance overhead.
 
 \paragraph{Evaluation takeaways.}
 From all our evaluation tables and figures, we conclude that when compared with
-Gappa, FPTaylor, and Satire: (1) our type-based approach is faster, (2) yields
-useful and competitive error bounds, and (3) using the \textbf{factor} primitive
-often improves error bounds.
+Gappa, FPTaylor, and Satire: our type-based approach (1) yields useful and
+competitive error bounds, (2) achieves good performance, and benefits from (3)
+using the \textbf{factor} primitive.
