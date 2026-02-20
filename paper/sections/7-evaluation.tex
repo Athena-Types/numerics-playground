@@ -81,21 +81,20 @@ We plot the results in Figure~\ref{fig:large-plots}. Each column represents a
 set of paramterized benchmarks. The top row represents the absolute error bound
 achieved by each tool. The bottom row represents the median execution time of
 each program (across 6 runs). If any of the 6 runs failed due to timeout or OOM,
-we marked the result as a point on the uppermost edge of each plot. We discuss
+we marked the result as a failure on the uppermost edge of each plot. We discuss
 the benchmarks below:
 \begin{enumerate}
   \item We evaluate the Horner polynomial evaluation scheme on polynomials of
     degree $2^2$ to $2^{11}$ and we observe that Negative Fuzz has comparable
     precision at significantly faster performance.
-  \item We evaluate matrix multiplication on matricies of $2^2 \times 2^2 $ to
+  \item We evaluate matrix multiplication on inputs from $2^2 \times 2^2 $ to
     $2^7 \times 2^7$. On large inputs, we observe that Negative Fuzz (without
-    \textbf{factor}) comparable precision at significantly faster performance.
+    \textbf{factor}) has comparable precision at significantly faster performance.
     Rewriting the program with \textbf{factor} allows Negative Fuzz to achieve
     significantly better precision on large inputs than competing tools.
-  \item We evaluate the iterative summation algorithm (first discussed in
-    Section~\ref{sec:overview}) on sequences of addition from $2^2$ to $2^7$. We
-    observe that Negative Fuzz has comparable precision at significantly faster
-    performance.
+  \item We evaluate iterative summation (discussed in
+    Section~\ref{sec:overview}) on sequences of addition from $2^2$ to $2^7$.
+    Negative Fuzz has comparable precision at significantly faster performance.
 \end{enumerate}
 
 \begin{figure}
@@ -129,8 +128,7 @@ a lower monadic grade $q$, all else equal, results in a strictly better final
 error bound.
 
 \paragraph{Evaluation takeaways.}
-From our evaluation tables and figures, we conclude that when compared with
+From all our evaluation tables and figures, we conclude that when compared with
 Gappa, FPTaylor, and Satire: (1) our type-based approach is faster, (2) yields
-useful and competitive error bounds, and (3) the \textbf{factor} primitive often
-results in improved error bounds.
-
+useful and competitive error bounds, and (3) using the \textbf{factor} primitive
+often improves error bounds.

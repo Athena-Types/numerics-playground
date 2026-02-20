@@ -250,6 +250,9 @@ context to construct $\textbf{add} \langle w, x \rangle$ and $\textbf{add}
 Then, only after the contexts and grades are shared, we use a single
 \textbf{let-bind} sequencing operation to pass the floating-point result to the
 final \textbf{add}.
+\footnote{Note that our term language is more expressive than Numerical Fuzz as we do not
+restrict the bound term in our \textbf{let-bind} expressions to be values, which
+is necessary to properly take advantage of \textbf{factor} in this manner.}
 So, instead of having to use multiple iteratively sequenced \textbf{let-bind}s
 to sequentially \textit{add} the grades of repeated monadic computations,
 \textbf{factor} enables us to first take the \textit{maximum} of any two grades
@@ -352,10 +355,6 @@ $\mathcal{R}_{M_q (\tau \times \tau')}$.
 Further it obeys metric preservation: if $v_0$ and $\tilde{v_0}$ and $v_1$ and
 $\tilde{v_1}$ are both $q$ apart, then $(v_0, v_1)$ and $(\tilde{v_0},
 \tilde{v_1})$ are also $q$ apart.
-
-Note that our term language is more expressive than Numerical Fuzz as we do not
-restrict the bound term in our \textbf{let-bind} expressions to be values, which
-is necessary to properly take advantage of \textbf{factor}.
 
 % \paragraph{Other related primitives}
 % It is natural to wonder if our type system is missing similar primitives for
