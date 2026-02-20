@@ -122,10 +122,6 @@ to more precise error bounds for many programs that use addition. While we are
 primarily focused on applications to Numerical Fuzz, our primitive appears quite
 general and could be useful in other type systems that use a graded monad.
 
-% twhich more accurately
-% captures the categorical semantics of our graded monad introduced in Numerical
-% Fuzz \cite{numfuzz}. We prove that our primitive is type-sound and show how to
-% use the primitive in Section~\ref{sec:structure}.
 % TODO: provide op sem interpretation (reassoc'ing error terms)?
 
 \subsubsection*{Contributions summary.}
@@ -140,25 +136,9 @@ Concretely, our contributions are as follows:
   \item We develop a \textit{paired model} for Numerical Fuzz that allows for
     modeling subtraction and negative numbers in a finitely-sensitive manner
     (Section~\ref{sec:encoding}). 
-    % We provide a polymorphic bounds analysis in the type system to reason about
-    % our paired model.
     We provide error soundness theorems to allow the error grade and bounds
     analysis from program type to be translated into a floating-point error
     bound on the standard, unpaired program model.
-    % TODO: how do we show that this is non-trivial without talking too much
-    % about type inference and bound polymorphism. does this do the job? feels a
-    % bit understated here
-
-    % TODO: some claim about novelty is needed to put this contribution in context
-    % to develop the first type-based approach to forwards error analysis that
-    % enables
-    % Our instantiation relies on a \textit{paired numeric representation}. 
-    % To our knowledge, our approach is the first automatic general-purpose
-    % numerical analysis that can produce usable \textit{a posteori} error bounds.
-    
-    % We prove that error types can be used to provide both \textit{a priori} and
-    % \textit{a posterori} compositional error bounds in the presence of
-    % subtraction and negative numbers (Section~\ref{sec:application}). 
 
   \item We improve the precision of Numerical Fuzz by enabling the analysis to
     more efficiently reason about addition and subtraction,
@@ -167,12 +147,6 @@ Concretely, our contributions are as follows:
     operations (Section~\ref{sec:structure}).
     In every benchmark that we rewrite to use our primitive, we observe
     significant improvements on the precision of the inferred error bounds.
-
-  % \item We enable the precise structuring and seqeuncing of arithmetic by
-  %   allowing error and sensitivities in rounded terms to be shared. We
-  %   accomplish this through the addition of a previously-untypable primitive
-  %   inspired by the resource interpretation of linear logic
-  %   (Section~\ref{sec:structure}). 
 
   \item We develop a type inference algorithm for our type system that can
     automatically infer function sensitivities, round-off error bounds, and
@@ -186,5 +160,4 @@ Concretely, our contributions are as follows:
     suite of benchmarks translated into our core language, we obtain useful and
     competitive error bounds with faster and more scalable performance and low
     annotation overhead (Section~\ref{sec:eval}).
-    % TODO: put in hard numbers
 \end{itemize}
