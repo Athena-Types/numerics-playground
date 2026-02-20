@@ -1,14 +1,11 @@
 \section{Language} \label{sec:lang}
 Our language is an extension of the Numerical Fuzz \cite{numfuzz} family of
 call-by-value affine lambda calculi.
-In this section, we detail the construction of our modular family of languages.
 We first describe the terms (Section~\ref{sec:terms}), types and static
 semantics (Section~\ref{sec:types}), operational semantics
 (Section~\ref{sec:dynamic-semantics}), and a modular interface for soundly
 instantiating the language. Finally, we define a logical relation and prove
 soundness.
-In Section~\ref{sec:encoding}, we will instantiate our family of languages and
-demonstrate how to read a type as a floating-point error bound.
 
 % and logical relation for the family of
 % languages (Section~\ref{sec:logical-relation}). Finally, using our logical relation
@@ -36,33 +33,22 @@ demonstrate how to read a type as a floating-point error bound.
 % \subsection{Type-based Interval Analysis and Bound Polymorphism} \label{sec:bound-poly}
 
 \subsection{Terms} \label{sec:terms}
-% \subsection{Syntax} \label{sec:syntax}
-% We present the full syntax for types, terms, and evaluation contexts in
-% Figure~\ref{fig:syntax}. 
-
+We present the full syntax for values and terms in Figure~\ref{fig:syntax}.
 Like many lambda calculi for linear type systems, Numerical Fuzz supports
-variables, function abstraction and application, $\pi_i$ for projection, $in_i$
-for injection, and two different types of products.
+variables, cartesian and tensor pairing, $\pi_i$ for projection, $in_i$ for
+injection, and function abstraction and application.
 Our term syntax has explicit terms to represent our effectful computation
 (rounding to the nearest float: $\textbf{rnd}~e$) and coeffects (scaling
-sensitivity: $[e]$). We have several terms for sequencing and structuring
-computation. We have $\textbf{let-bind}$ for sequencing monadic computation,
-$\textbf{let-cobind}$ for sequencing comonadic computation, $\textbf{let-pair}$
-for unpacking tensors, \textbf{case \ldots of \ldots} for unpacking sum types,
-and \textbf{let} for sequencing variable assignment.
-Note that our term language is more expressive than Numerical Fuzz as we do not
-restrict the bound term in our let expressions to be values. This makes it
-easier to write more concise programs with less variables needed for storing the
-results of intermediate computations.
-% TODO: mention other things that are less restrictive, be complete here
+sensitivity: $[e]$). 
+We have several \textbf{let-bind} and \textbf{let-cobind} for sequencing and
+structuring monadic and comonadic computation respecitvely. We have \textbf{case
+\ldots of \ldots} for conditional reasoning on sum types.
 
-We also introduce a language for bounds (shown in Figure~\ref{fig:syntax}) as
+We introduce a new language for bounds (shown in Figure~\ref{fig:syntax}) as
 well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
-\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. This is useful for
-incorporating an bound analysis into the type inference algorithm, which we
-detail in Section~\ref{sec:inference}.
+\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. 
 
-\begin{figure}[tbp]
+\begin{figure}
   \begin{alignat*}{3}
     &\bnd{\text{Bounds } b, b_0, b_1} &::=~ &\bnd{\epsilon}
     \mid \bnd{c \in \mathbb{B}}
@@ -114,30 +100,6 @@ detail in Section~\ref{sec:inference}.
          & & & 
          \mid {\letbind x = e \ \tin \ f}
          \mid \letcobind x = e \ \tin \ f
-         \\
-         &\text{Evaluation contexts } C &::=~ &[.] 
-         \mid \mathbf{op}(C) 
-         \mid C~e 
-         \mid v~C 
-         \mid C~\bnd{\{b\}}
-         \mid \pi_i~C \\
-         & & &
-         \mid \mathbf{in}_i~C
-         \mid \langle C, e \rangle
-         \mid \langle v, C \rangle
-         \mid (C, e)
-         \mid (v, C)
-         \mid [ C ] \\
-         & & &
-         \mid \mathbf{rnd}~C 
-         \mid \mathbf{ret}~C 
-         \mid \mathbf{factor}~C \\ 
-         & & &
-         \mid \letassign x = C \ \tin \ f
-         \mid \letpair x = C \ \tin \ f \\
-         & & &
-         \mid \letbind x = C \ \tin \ f
-         \mid \letcobind x = C \ \tin \ f \\
   \end{alignat*}
   \caption{
     Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$.
@@ -158,27 +120,19 @@ Our language also supports linear function types $\tau_0 \multimap \tau$
 corresponding to 1-sensitive functions.
 
 Our typing judgements incorporate a graded effect and co-effect type system to
-simultaneously track round-off error and function sensitivity. For example, the
-following term with typing context and judgement indicates that the variable $x$
-is $s$-sensitive in the expression $e$ and has worst-case round-off error
-upper-bounded by $q$.
-\begin{equation}
-  x :_s \tau_0 \vdash e : M_q \tau_1
-\end{equation}
-
-
+simultaneously track round-off error and function sensitivity. 
 Typing contexts have the following grammar: 
-$\Gamma, \Delta ::= . \ | \ \Gamma, x :_s \tau$.
-Semantically, we can treat contexts $\Gamma$ as a partial map from variables $x$
-to pairs of sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we
-can sum and scale typing contexts. We represent context scaling as $\Gamma +
-\Delta$ and scaling by a real $s$ as $s \cdot \Gamma$. We define pair context
-and scaling and then context summing and scaling below.
+$\Gamma ::= . \ | \ \Gamma, x :_s \tau$ 
+We treat contexts $\Gamma$ as a partial map from variables $x$ to pairs of
+sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we can sum and
+scale typing contexts. We represent context scaling as $\Gamma + \Delta$ and
+scaling by a real $s$ as $s \cdot \Gamma$. We define pair context and scaling
+and then context summing and scaling below.
 
 \begin{definition}[Pair summing]
   We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +
   s', \tau)$. Note that this is only well-defined if the types are syntactically
-  equivalent.
+  equal.
 \end{definition}
 
 \begin{definition}[Context summing]
@@ -195,8 +149,12 @@ and scaling and then context summing and scaling below.
   A context $\Gamma' = s \cdot \Gamma$ if and only if $\forall x, \Gamma'(x) = s
   \cdot \Gamma'(x)$
 \end{definition}
+Bound contexts have the grammar $\Delta ::= . \ | \ \Delta, b : \textbf{bnd}$
+and can be viewed as set whose membership indicates whether the variable is in
+our bound context. Bound contexts can't be scaled. Adding two bound contexts is
+then union.
 
-% describe rules, harp on linearity
+We define our typing rules in Figure~\ref{fig:typing_rules}.
 The introduction and elimination rules for $\otimes$, $\times$, and $\multimap$
 mirror Numerical Fuzz and correspond to the standard introduction and
 elimination rules in linear logic.
@@ -205,16 +163,22 @@ for instantiating functions with finitely scaled sensitivity.
 % todo: check that we can't be infinite and that this is up-to-date everywhere
 
 The monadic grade upper-bounds the maximum possible round-off error possible.
-Most of the rules for controlling the grade, (Ret), (Rnd), ($M_u$ E),
-(Subsumption) are taken from Numerical Fuzz and are our core reasoning
-principles for reasoning about round-off error. Intuitively, (Ret) introduces no
-round-off error and (Rnd) introduces round-off error $u$ corresponding to the
-unit round-off constant. Note that $M_u E$ is the characteristic rule for
-\textbf{let-bind} that incorporates sensitivity and round-off information.
-Our language also introduces a new (Factor) rule for reasoning about monadic
-computations with round-off error, which allows for tighter error analyses. We
-detail the (Factor) rule and walk through an example in
-Section~\ref{sec:structure}.
+We use our typing context and judgement to indicate that the variable $x$ is
+$s$-sensitive in the expression $e$ and has worst-case round-off error
+upper-bounded by $q$.
+\begin{equation}
+  x :_s \tau_0 \vdash e : M_q \tau_1
+\end{equation}
+Most of the rules for controlling the error grade and sensitivity, (Ret), (Rnd),
+($M_u$ E), (Subsumption), and ($!$ S) are taken from Numerical Fuzz and are our
+core reasoning principles for reasoning about round-off error. Intuitively,
+(Ret) introduces no round-off error and (Rnd) introduces round-off error $u$
+corresponding to the unit round-off constant. Note that $M_u E$ is the
+characteristic rule for \textbf{let-bind} that incorporates sensitivity and
+round-off information. Our language also introduces a new (Factor) rule for
+reasoning about monadic computations with round-off error, which allows for
+tighter error analyses. We detail the (Factor) rule and walk through an example
+in Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
 polymorphism. We have a \bnd{inj} function for mapping constants $k$ into the
@@ -469,28 +433,44 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \subsection{Operational Semantics} \label{sec:dynamic-semantics}
 In Figure~\ref{fig:sub_eval_rules}, we define the operational semantics rewrite
 relation $\mapsto$ to map from closed terms in \Lang to closed terms in \Lang.
-Note that we only define our language over closed terms. 
-Rather than stapling together and reasoning about two separate semantics, an
-ideal and approximate semantics, we combine our reasoning under one rewrite
-relation. This setup simplifies the structure of our logical relation and main
-soundness theorem easier to follow.
+Note that we only define our language over closed terms. We also define
+evaluation contexts in the standard way in Figure~\ref{fig:eval-contexts} to
+make our rules more concise and easy to reason about. Our stepping rules are
+standard with the exception of \textbf{factor}, which we can view as a
+reassociation of the underlying ideal and approximate terms. We defer detailed
+discussion about \textbf{factor} to a dedicated Section~\ref{sec:structure}.
 
-Accordingly, the interesting stepping rules that differ from Numerical Fuzz are
-the $\textbf{rnd}$ rule, which steps a value to an ideal and rounded value, the
-$\textbf{ret}$ rule, which steps a value to the diagonal map, and the
-$\textbf{let-bind}$ stepping rule, which composes rounded computation. 
-For our new \textbf{factor} primitive, we can view its operational semantics as
-a reassociating of the underlying ideal and approximate terms.
+\begin{figure}
+  \begin{alignat*}{3}
+         &\text{Evaluation contexts } C &::=~ &[.] 
+         \mid \mathbf{op}(C) 
+         \mid C~e 
+         \mid v~C 
+         \mid C~\bnd{\{b\}}
+         \mid \pi_i~C \\
+         & & &
+         \mid \mathbf{in}_i~C
+         \mid \langle C, e \rangle
+         \mid \langle v, C \rangle
+         \mid (C, e)
+         \mid (v, C)
+         \mid [ C ] \\
+         & & &
+         \mid \mathbf{rnd}~C 
+         \mid \mathbf{ret}~C 
+         \mid \mathbf{factor}~C \\ 
+         & & &
+         \mid \letassign x = C \ \tin \ f
+         \mid \letpair x = C \ \tin \ f \\
+         & & &
+         \mid \letbind x = C \ \tin \ f
+         \mid \letcobind x = C \ \tin \ f \\
+  \end{alignat*}
+  \caption{Grammer for evaluation contexts.}
+  \label{fig:eval-contexts}
+\end{figure}
 
-We also extend the Numerical Fuzz language to allow expressions in more places.
-We define evaluation contexts to separate the structural plumbing of the
-operational semantics from the more interesting portions of the operational
-semantics.
-Evaluation contexts and the characteristic \textit{context rule} allow us to
-simplify reasoning about the rewrite relation, which we factor out into a
-separate lemma in our soundness proof. 
-
-\begin{figure}[]
+\begin{figure}
 \begin{center}
 \begin{equation*}
 \begin{aligned}[c]
@@ -530,7 +510,7 @@ separate lemma in our soundness proof.
 	\DisplayProof
 \end{center}
     \caption{Substitution-style evaluation rules for \Lang. Parameterized for $i
-    \in \{1, 2 \}$. $op$ is a higher-order metavar. When bolded $\mathbf{op}$
+    \in \{1, 2 \}$. $op$ is a higher-order metavar. When bolded \textbf{op}
     refers to the syntax and when italicized $op$ refers to the corresponding
     function on syntactic values (it may be a constant function).}
     \label{fig:sub_eval_rules}
@@ -538,55 +518,15 @@ separate lemma in our soundness proof.
 
 % \subsection{Equivalence class of interval expressions.}
 \subsection{Modular Interface} \label{sec:interface}
-Numerical Fuzz is a modular family of programming languages parameterized
-by the appropriate $\rho$, constant parameter $u$, and the appropriate set of
-numeric computations $\Sigma$.  
+Like Numerical Fuzz, our work is a modular family of programming languages
+parameterized by the appropriate $\rho$, constant parameter $u$, and the
+appropriate set of numeric computations $\Sigma$.  
 It is the proof obligation for any language designer instantiating the language
 to demonstrate that these properties hold in order for our parameterized
 soundness theorems to follow.
 
-\begin{samepage}
-\begin{definition}[Interface for instantiating Negative Fuzz.]
-  \label{def:numfuzz-interface}
-  The interface for Negative Fuzz consists of $\textit{num}$, $d_\textbf{num}$,
-  $\rho$, $u$, $\Sigma$, $(\bnd{\mathbb{B}}, \leq)$, and $\Sigma_{\bnd{bnd}}$
-  such that the following properties hold: 
-\begin{description}
-  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
-  metric space.]
-  \item[b) Property of $u$ and rounding function $\rho$.] We assume that the
-    $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
-    \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
-  \item[c) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
-    \footnote{Note that we could make this portion of the interface more general
-    by definining it in terms of the logical relation in
-    Section~\ref{def:logical-relation}. We have opted to keep the interface
-    minimal for presentational purposes.}
-
-    We can view $\textit{op}$ as a (possibly constant) metalevel function.
-    We also assume that for every operation has the following shape with no free
-    type variables
-    $\mathbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$ 
-    where for the corresponding $\textit{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \
-    v$ for all $\bnd{b_0}, \bnd{b_1} \in \mathbb{B}$ 
-    and for all v mapping bounds and syntactic values in
-    $(\tau_0 \to \tau_1)[b_0 / \epsilon_0, b_1 / \epsilon_1]$
-    is 1-sensitive as measured by $\mathcal{SD}$, defined below.
-  \item[d) Partial order of bounds.] The set of bounds and binary relation
-    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
-  \item[e) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
-    We further need to assume that for every operation $\mathbf{bop}(b_0,
-    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
-    \mathbb{B}$ then the corresponding
-    $\textit{bop}(c_0, \ldots, c_n) = c' : \textbf{bnd}$
-    holds.
-\end{description}
-\end{definition}
-\end{samepage}
-
-The remainder of this subsection is dedicated to defining distances between
-terms, which is necessary to understand the metric preservation property our
-interface demands on all operations.
+Before we specify the modular interface, we need to define bound evaluation and
+distances between terms.
 We first define evaluation ($\bnd{\llbracket - \rrbracket}$) of our bound expressions to $\bnd{\mathbb{B}}$ which
 we call our \textit{concrete bounds}.
 Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
@@ -606,7 +546,7 @@ the evaluation function used in the definition of our logical relations.
 
 \begin{definition}[Evaluation of closed bound expressions]
   \label{def:bound-exp-eval}
-  For an bound expression $b$,
+  For a bound expression $b$,
   \begin{equation}
     \begin{aligned}[c]
       \bnd{\llbracket} c \bnd{\rrbracket} &\triangleq c \\
@@ -699,13 +639,57 @@ e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
 \tau$ where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
 \end{definition}
 
-\subsection{Type Soundness} \label{sec:soundness}
+Now, we can state our interface:
+\begin{samepage}
+\begin{definition}[Interface for instantiating Negative Fuzz.]
+  \label{def:numfuzz-interface}
+  The interface for Negative Fuzz consists of a metric space with carrier set
+  $\textit{num}$ equipped with $d_\textbf{num}$, rounding
+  $\rho$ mapping $\textit{num} \to \textit{num}$, real constant $u$ representing
+  the unit of least precision, a set of supported arithmetic operations
+  $\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and set of supported bound
+  operations $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
+\begin{description}
+  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
+  metric space.]
+  \item[b) Property of $u$ and rounding function $\rho$.] We assume that the
+    $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
+    \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[c) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
+    The bolded \textbf{op} is our syntacic metavariable for our supported
+    operations (e.g. \textbf{add}, \textbf{sub}, \textbf{mul}).
+    The italizied $\textit{op}$ is the metavariable represents the corresponding
+    function mapping values to values.
+    We require that \textit{op} is 1-sensitive as measured by $\mathcal{SD}$.
+    To simplify our presentation, we also assume that for every operation has the following
+    shape with no free type variables:
+    $\textbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$.
+    \footnote{Note that we could make this portion of the interface more general
+    by definining it in terms of the logical relation in
+    Section~\ref{def:logical-relation}. We have opted to keep the interface
+    minimal for presentational purposes.}
+  \item[d) Partial order of bounds.] The set of bounds and binary relation
+    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
+  \item[e) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
+    Our bound operations mirror the notational convention that a \textbf{bop}
+    corresponds to the syntax whereas \textit{bop} represents a function mapping
+    $\mathbb{B}^n \to \mathbb{B}$ for some arity $n$.
+    We further need to assume that for every operation $\mathbf{bop}(b_0,
+    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
+    \mathbb{B}$ then the corresponding
+    $\textit{bop}(c_0, \ldots, c_n) \in \mathbb{B}$
+    holds.
+\end{description}
+\end{definition}
+\end{samepage}
 
-In our language, we only reason about closed types and terms. Let $CV(\tau)$ be
-the closed values of type $\tau$ and $CE(\tau)$ be the closed expressions of
-type $\tau$. Then we can define a unary logical relation over types which
-capture the core information needed to prove our error soundness theorem (Metric
-Preservation, Theorem~\ref{thm:metric-preservation}).
+\subsection{Type Soundness} \label{sec:soundness}
+In our language, we only reason about closed terms with no free program
+variables and closed types with no free polymorphic bound variables. 
+Let $CV(\tau)$ be the closed values of type $\tau$ and $CE(\tau)$ be the closed
+expressions of type $\tau$. Then we can define a unary logical relation over
+types which capture the core information needed to prove our error soundness
+theorem (Metric Preservation, Theorem~\ref{thm:metric-preservation}).
 
 \begin{definition}[Logical relation] \label{def:logical-relation}
   \begin{equation}
@@ -774,13 +758,12 @@ Preservation, Theorem~\ref{thm:metric-preservation}).
 
 \begin{lemma}[$\mathcal{SD}$ is preserved under stepping]
   If $e_0 \mapsto e'_0$, then for any $e_1$, $\mathcal{SD}(e_0, e_1) =
-  \mathcal{SD}(e'_0, e_1)$.
+  \mathcal{SD}(e'_0, e_1)$. Note that by metric symmetry, $\mathcal{SD}$ is
+  preserved under stepping on both sides.
 \end{lemma}
 \begin{proof}
   Holds by inspection of the definition of $\mathcal{SD}$.
 \end{proof}
-Note that by metric symmetry, $\mathcal{SD}$ is preserved under stepping on both
-sides.
 
 Following Fuzz, we prove the following syntactic properties relating our type
 system and operational semantics. These syntactic properties will be useful for
@@ -792,13 +775,12 @@ reasoning about type inference in Section~\ref{sec:inference}.
 \end{lemma}
 \begin{proof}
   We induct over our typing derivation. 
-  For each case, we can ignore arbitrary variables in our context (the type
-  system is affine). 
-  In particular, for the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E},
-  \textbf{$M_u$~E}, and \textbf{$\otimes$ I} rules, the enviroment must be split
-  into a $\Gamma$ (which can in some cases be scaled) and $\Delta$ (which does
-  not ever get scaled); for each of these cases we choose to push unused
-  variables into $\Delta$. 
+  Most of the cases are immediate.
+  For the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E}, \textbf{$M_u$~E}, and
+  \textbf{$\otimes$ I} rules, the enviroment must be split into a $\Gamma$
+  (which can in some cases be scaled) and $\Delta$ (which does not ever get
+  scaled); for each of these cases we choose to push unused variables into
+  $\Delta$. 
 \end{proof}
 
 \begin{lemma}[Admissibility of weakening (on bound contexts)]\label{thm:weakening-bnd}
@@ -856,21 +838,11 @@ r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
 the same as Fuzz \cite{Fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
 \end{definition}
 
-In the remainder of the paper, we'll treat and represent our distance vector
-$\gamma$ as a lookup function and assume that there is an implicit fixed
-ordering on the variables.
-\begin{definition}[Distance vector lookup.]
-  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
-  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
-  in the domain, $\gamma(x) = 0$ by default. 
-\end{definition}
-
-We have now finished defining all the components necessary to state our logical
-relation. 
 % TODO: check that we properly handle the not zero and intersection condition
 % everywhere this is used
 Now that we can talk about subsitutions, we follow Fuzz and prove a
-$r$-sensitive substitution lemma.
+$r$-sensitive substitution lemma. Note that the $r=0$ restriction helps the
+$\otimes E$ case to go through.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
   \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
@@ -920,7 +892,7 @@ $r$-sensitive substitution lemma.
   For substitutions 
   $\sigma \sim_{\alpha} \sigma' : \Delta_0 + \Delta_1 \ | \ \Gamma + \Theta$,
   there exists
-  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 | \Gamma$
+  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 \ | \ \Gamma$
   and
   $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
 \end{lemma}
@@ -961,7 +933,8 @@ The below lemma is useful towards proving metric preservation:
   $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[e] \sigma'$
   holds.
 \end{proof}
-Finally, we can prove our main error soundness theorem.
+Finally, we can state our main error soundness theorem, which we prove in the
+appendix.
 \begin{theorem}[Metric preservation]
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 

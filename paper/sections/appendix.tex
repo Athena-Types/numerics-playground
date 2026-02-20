@@ -1,4 +1,13 @@
-\section{Appendix: Metric Preservation Proof}
+\section*{Appendix: Metric Preservation Proof}
+For the metric preservation proof, we treat our distance vector $\gamma$ as a
+lookup function and assume that there is an implicit fixed ordering on the
+variables.
+\begin{definition}[Distance vector lookup.]
+  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+  in the domain, $\gamma(x) = 0$ by default. 
+\end{definition}
+
 \begin{theorem}[Metric preservation]
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
