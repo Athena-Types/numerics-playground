@@ -18,12 +18,11 @@ corresponding error soundness theorem.
 % TODO: compare martel here
 
 \paragraph{Other automated numerical analysis techniques.}
-There are non-type-based approaches to automatic numerical analysis. For
+There are other approaches to automatic numerical analysis. For
 example, Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
 analysis and can reason about programs with conditionals and loops. 
-However, both tools suffer from scalability challenges.
 FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
-to estimate round-off error. 
+to estimate round-off error.
 Abbasi and Darulova \cite{abbasi-darulova} also use taylor expansions but take
 a more local and modular approach that allows analyses to be shared at different
 function call sites.

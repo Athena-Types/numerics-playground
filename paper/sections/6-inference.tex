@@ -418,10 +418,11 @@ Note that for simplicity, we halt simplification when we see a $\forall$.
 \begin{proof}
   We induct over our type $\tau$ to show that $\mathbb{R}_\tau =
   \mathbb{R}_{\tau'}$ at each step.
-  The structural cases are immediate. The only non-structural case evaluates
-  $\textbf{num}_{\bnd{b}}$ to $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$.
-  Since $\mathcal{R}_{\bnd{b}} = \mathcal{R}_{\bnd{\llbracket b \rrbracket}}$
-  refer to the same underlying set, we are done.
+  The only non-immediate case evaluates
+  $\textbf{num}_{\bnd{b}}$ to $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$ 
+  and 
+  $\mathcal{R}_{\bnd{b}} = \mathcal{R}_{\bnd{\llbracket b \rrbracket}}$
+  refer to the same underlying set.
 \end{proof}
 
 % TODO: add tightness by example argument:
