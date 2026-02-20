@@ -1,25 +1,19 @@
 \section{Conclusion}
-Our work is also the first type-based approach that is able to reason about
+Our work is the first type-based approach that is able to reason about
 forwards round-off error in the presence of subtraction and negative numbers. 
 It is faster than comparable approaches, often by orders of magnitude, and
-offers competitive precision on a wide range of small and large benchmarks.
-Further, since Negative Fuzz uses a type-based approach to numerical analysis,
-our approach also offers several qualitative advantages over competing tools.
-For example, programs that call a library function would not need to type-check
-the underlying library code and could instead rely on the function type as an
-interface specification, saving type checking time. 
-As another example of the potential benefit of avoiding a global optimization
-problem, type checking could also be performed in parallel or incrementally over
-the dependency graph of the program.
-
-There are three immediate directions we suggest for future work. Firstly, future
-work might extend Negative Fuzz to support division, for example via a four-part
-representation $(r, a, b, c, d)$ where $r = \frac{a-b}{c-d}$. Secondly,  we
+offers competitive precision.
+We see several directions for future work. Firstly, it would be interesting to
+extend Negative Fuzz to support more operations, like division. Secondly, we
 noticed that the choice of bounds domain greatly impacted the precision of our
-analysis. Future work could likely improve the analysis precision by using a
-more sophisticated bounds domain.
-Thirdly, rewriting a program to use \textbf{factor} is quite rote; future work
-could automatically rewrite a program to an equivalent program with
-\textbf{factor}.
+analysis, and the analysis precision might be improved by using a more
+sophisticated bounds domain. Finally, rewriting a program to use
+\textbf{factor} is quite tedious; it would be useful to automatically infer where
+to insert our \textbf{factor} operations.
 
-
+Overall, we believe that a type-based approach has additional qualitative
+benefits. For instance, programs that call a library
+function would not need to type-check the underlying library code and could
+instead rely on the function type as an interface specification.  Type checking
+could also be performed in parallel or incrementally over the dependency graph
+of the program. It would be interesting to explore these aspects in future work.
