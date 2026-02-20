@@ -5,7 +5,7 @@ We first describe the terms (Section~\ref{sec:terms}), types and static
 semantics (Section~\ref{sec:types}), operational semantics
 (Section~\ref{sec:dynamic-semantics}), and a modular interface for soundly
 instantiating the language. Finally, we define a logical relation and prove
-soundness.
+soundness (Metric Preservation; Theorem~\ref{thm:metric-preservation}).
 
 % and logical relation for the family of
 % languages (Section~\ref{sec:logical-relation}). Finally, using our logical relation
@@ -34,22 +34,20 @@ soundness.
 
 \subsection{Terms} \label{sec:terms}
 We present the full syntax for values and terms in Figure~\ref{fig:syntax}.
+We introduce a new language for bounds as
+well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
+\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. 
 Like many lambda calculi for linear type systems, Numerical Fuzz supports
 variables, cartesian and tensor pairing, $\pi_i$ for projection, $in_i$ for
 injection, and function abstraction and application.
-Our term syntax has explicit terms to represent our effectful computation
-(rounding to the nearest float: $\textbf{rnd}~e$) and coeffects (scaling
-sensitivity: $[e]$). 
-We have several \textbf{let-bind} and \textbf{let-cobind} for sequencing and
-structuring monadic and comonadic computation respectively. We have \textbf{case
-\ldots of \ldots} for conditional reasoning on sum types.
-
-We introduce a new language for bounds (shown in Figure~\ref{fig:syntax}) as
-well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
-\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. 
+Our term syntax has terms to perform effectful computation ($\textbf{rnd}~e$ and
+$\textbf{ret}~e$) and coeffects ($[e]$). 
+We have \textbf{let-bind} and \textbf{let-cobind} for sequencing and structuring
+monadic and comonadic computation respectively. We also have \textbf{case \ldots
+of \ldots} for conditional reasoning on sum types.
 
 \begin{figure}
-  \begin{alignat*}{3}
+  \begin{alignat*}{2}
     &\bnd{\text{Bounds } b, b_0, b_1} &::=~ &\bnd{\epsilon}
     \mid \bnd{c \in \mathbb{B}}
          \mid \bnd{\mathbf{bop_c(b_0, \ldots, b_c)}} \\
@@ -86,14 +84,14 @@ well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
          \mid \bnd{e~\{i\}}
          \mid {\pi}_i\ e
          \mid \langle e,f \rangle 
-         \mid (e, f) \\
+         \mid (e, f)
+         \mid \tin_i \ e \\
          & & & \mid \letpair \ (x,y) = e \ \tin \ f
-         \mid \letassign x  = e \ \tin \ f \\
-         & & & \mid \tin_i \ e
+         \mid \letassign x  = e \ \tin \ f 
+         \mid [e] \\
+         & & & 
          \mid 
-          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2) \\
-         & & &
-         \mid [e]
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)
          \mid \rnd e
          \mid {\ret e} 
          \mid \factor e \\
@@ -169,7 +167,7 @@ Most of the rules for controlling the error grade and sensitivity, (Ret), (Rnd),
 ($M_u$ E), (Subsumption), and ($!$ S) are taken from Numerical Fuzz and are our
 core reasoning principles for reasoning about round-off error. Intuitively,
 (Ret) introduces no round-off error and (Rnd) introduces round-off error $u$
-corresponding to the unit round-off constant. Note that $M_u E$ is the
+corresponding to the unit round-off constant. $M_u E$ is the
 characteristic rule for \textbf{let-bind} that incorporates sensitivity and
 round-off information. Our language also introduces a new (Factor) rule for
 reasoning about monadic computations with round-off error, which allows for
@@ -429,7 +427,7 @@ $\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
 \subsection{Operational Semantics} \label{sec:dynamic-semantics}
 In Figure~\ref{fig:sub_eval_rules}, we define the operational semantics rewrite
 relation $\mapsto$ to map from closed terms in \Lang to closed terms in \Lang.
-Note that we only define our language over closed terms. We also define
+We only define our language over closed terms. We also define
 evaluation contexts in the standard way in Figure~\ref{fig:eval-contexts} to
 make our rules more concise and easy to reason about. Our stepping rules are
 standard with the exception of \textbf{factor}, which we can view as a
@@ -437,7 +435,7 @@ reassociation of the underlying ideal and approximate terms. We defer detailed
 discussion about \textbf{factor} to a dedicated Section~\ref{sec:structure}.
 
 \begin{figure}
-  \begin{alignat*}{3}
+  \begin{alignat*}{2}
          &\text{Evaluation contexts } C &::=~ &[.] 
          \mid \mathbf{op}(C) 
          \mid C~e 
@@ -754,8 +752,8 @@ theorem (Metric Preservation, Theorem~\ref{thm:metric-preservation}).
 
 \begin{lemma}[$\mathcal{SD}$ is preserved under stepping]
   If $e_0 \mapsto e'_0$, then for any $e_1$, $\mathcal{SD}(e_0, e_1) =
-  \mathcal{SD}(e'_0, e_1)$. Note that by metric symmetry, $\mathcal{SD}$ is
-  preserved under stepping on both sides.
+  \mathcal{SD}(e'_0, e_1)$. By metric symmetry, $\mathcal{SD}$ is preserved
+  under stepping on both sides.
 \end{lemma}
 \begin{proof}
   Holds by inspection of the definition of $\mathcal{SD}$.
@@ -812,7 +810,7 @@ build up to the definition of distance between substitutions below.
     ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
     $$
     where $\sigma_{\Delta}$ is a bound vector with no free variables.
-    Note that the distance between expression vectors are undefined when the
+    Note that the distance between expression vectors is undefined when the
     bound vector $\sigma_{\Delta}$ differs between substitutions.
 \end{definition}
 

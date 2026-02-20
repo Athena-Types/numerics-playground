@@ -320,6 +320,18 @@ The \textbf{let-bind} stepping rule also maintains the invariant, producing a
 monadic pair if the premises (of type $M_q \ \textbf{num}$) contain a
 monadic pair.
 
+The operational semantics of \textbf{factor} respects this convention by
+reassociating pairs of pairs of values, stepping $\textbf{factor} \ ((v_0,
+\tilde{v_0}), (v_1, \tilde{v_1}))$ to $((v_0, v_1), (\tilde{v_0},
+\tilde{v_1}))$, which viewed as a value of form $((v_0, v_1), \widetilde{(v_0,
+v_1)})$.
+This ensures that \textbf{factor} is sound: if the inputs are in
+$\mathcal{R}_{M_q \tau \times M_q \tau'}$ then the outputs are in
+$\mathcal{R}_{M_q (\tau \times \tau')}$.
+% Further it obeys metric preservation: if $v_0$ and $\tilde{v_0}$ and $v_1$ and
+% $\tilde{v_1}$ are both $q$ apart, then $(v_0, v_1)$ and $(\tilde{v_0},
+% \tilde{v_1})$ are also $q$ apart.
+
 \begin{figure}[htp]
 \begin{equation*}
 \begin{aligned}[c]
@@ -343,17 +355,6 @@ emphasize the rounded portions of the pairs.}
 \label{fig:rnd-ret-steps-with-types}
 \end{figure}
 
-The operational semantics of \textbf{factor} respects this convention by
-reassociating pairs of pairs of values, stepping $\textbf{factor} \ ((v_0,
-\tilde{v_0}), (v_1, \tilde{v_1})) \mapsto ((v_0, v_1), (\tilde{v_0},
-\tilde{v_1}))$, which can be seen as producing a value of form $((v_0, v_1),
-\widetilde{(v_0, v_1)})$.
-This ensures that \textbf{factor} is sound: if the inputs are in
-$\mathcal{R}_{M_q \tau \times M_q \tau'}$ then the outputs are in
-$\mathcal{R}_{M_q (\tau \times \tau')}$.
-Further it obeys metric preservation: if $v_0$ and $\tilde{v_0}$ and $v_1$ and
-$\tilde{v_1}$ are both $q$ apart, then $(v_0, v_1)$ and $(\tilde{v_0},
-\tilde{v_1})$ are also $q$ apart.
 
 % \paragraph{Other related primitives}
 % It is natural to wonder if our type system is missing similar primitives for

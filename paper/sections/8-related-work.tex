@@ -1,31 +1,27 @@
 \section{Related Work}
 \paragraph{Type-based numerical analysis techniques.}
-There are several extant type-based numerical analysis techniques. Most
-relevantly, this work extends Numerical Fuzz \cite{numfuzz} to support
-subtraction, negative numbers, and more precisely capture addition and
-subtraction. Numerical Fuzz's type system is based off the Fuzz line of work
-\cite{fuzz}, which uses sensitivities and monads for reasoning about
-differential privacy.
-Bean \cite{bean} is a typed-based approach to backwards error analysis, which is
-a different notion of numerical used in Numerical and Negative Fuzz.
+This work extends Numerical Fuzz \cite{numfuzz}, which is based off the Fuzz line
+of work \cite{fuzz} that uses sensitivities and monads for reasoning about
+differential privacy. Relatedly, Bean \cite{bean} is a typed-based approach to
+backwards error analysis, which is a different notion of error than in Numerical
+and Negative Fuzz.
 A floating-point program is backwards stable if the floating-point result is the
 correct result of running the ideal program given approximate nearby inputs.
 Backwards error analysis seeks to bound the maximum distance between the actual
 and approximate inputs.
-Martel \cite{martel} also uses a dependent type system to track round-off error.
-However, Martel proves a weaker subject reduction theorem and does not have an
-corresponding error soundness theorem.
+Martel \cite{martel} uses a dependent type system to track forwards error.
+However, Martel proves a weaker subject reduction theorem and does not prove an
+error soundness theorem.
 % TODO: compare martel here
 
 \paragraph{Other automated numerical analysis techniques.}
-There are other approaches to automatic numerical analysis. For
-example, Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
+Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
 analysis and can reason about programs with conditionals and loops. 
 FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
 to estimate round-off error.
 Abbasi and Darulova \cite{abbasi-darulova} also use taylor expansions but take
-a more local and modular approach that allows analyses to be shared at different
-function call sites.
+a more modular approach that allows analyses to be shared at different function
+call sites.
 Rosa \cite{rosa1} \cite{rosa2} also uses taylor expansions for handling
 propagation error.
 By contrast, our approach supports different rounding modes and higher-order
@@ -43,13 +39,11 @@ abstract interpretation analysis \cite{type-to-abstract-cousot} and to be able
 to turn an abstract interpretation analysis into a type inference problem
 \cite{abstract-to-type}. 
 
-\paragraph{Grothendieck construction of the integers from the naturals.}
-The idea of constructing the integers via a pairing of the naturals has existed
-since at least Dedekind's work in 1872.
-The construction also appears in several introductory textbooks in algebra and
-category theory.
-% \cite{algebra-serge}
-% \cite{category-maclane}.
+% \paragraph{Grothendieck construction of the integers from the naturals.}
+% The idea of constructing the integers via a pairing of the naturals has existed
+% since at least Dedekind's work in 1872.
+% The construction also appears in several introductory textbooks in algebra and
+% category theory.
 
 % A major challenge in the automated numerical analysis literature is scalability.
 % Many existing approaches rely on global optimization \cite{fptaylor}

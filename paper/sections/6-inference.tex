@@ -96,10 +96,10 @@ x^{\bnd{\bullet}} &\triangleq x \\
 % \end{definition}
 
 % \subsection{Type inference algorithm}
-We are now ready to define the type inference algorithm. Our type inference
-algorithm has the following shape:
-$$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$$
-where we start a program with a typing context $\Gamma^{\bullet}$ that has
+We are now ready to define the type inference algorithm, which has the following
+shape:
+$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$.
+Type checking takes a typing context $\Gamma^{\bullet}$ that has
 erased sensitivity information and an erased program $e^{\bnd{\bullet}}$ with
 no polymorphic bounds, and produces a
 typing context $\Gamma$ with sensitivity information and fully annotated program
@@ -113,11 +113,11 @@ proof.
 We start type inference by passing the empty context, along with the
 bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
 detailed in Figure~\ref{fig:inference-algo}. 
-Conceptually, our syntax-directed type inference algorithm does two things: 
+We compute two things:
 \begin{enumerate}
-  \item We infer sensitivities via the type inference algorithm provided
-    in \cite{numfuzz}, extended to deal with our new $\mathbf{factor}$ primitive
-    and polymorphic bounds as well as support expressions in greater places.
+  \item We infer co-monadic sensitivities and monadic grades via the type
+    inference algorithm provided in \cite{numfuzz}, extended to deal with our
+    new $\mathbf{factor}$ primitive. 
 
   \item At the same time as our sensitivity inference, we infer our bounds. We
     use helper functions $I$ and $E$ (defined in the appendix in
@@ -350,8 +350,8 @@ $}
 \paragraph{Soundness of type inference.}
 We now state type soundness for our type inference algorithm, which we prove in
 the appendix.
-Note that we do not prove that our type inference algorithm infers the tightest
-possible sensitivity or round-off grades.
+We do not prove that our type inference algorithm infers the tightest possible
+sensitivity or round-off grades.
 So, we only prove that that the inferred type, typing contexts, and term, after
 erasing, are equal to the original erased type, context, and term: 
 % ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
@@ -376,14 +376,13 @@ $. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \t
 To simplify the type, we extend the $\bnd{\llbracket - \rrbracket}$
 (Definition~\ref{def:bound-exp-eval}) to simplify types that possibly contain
 bound expressions. 
-Importantly, the logical relation corresponding to the simplified type is the
-same logical relation as the original type. This is a semantic notion of
-soundness, which is why we present the evaluation of types and bound expressions
-separately from our syntax-directed type inference algorithm.
+For soundness, we prove a semantic property the logical relation corresponding
+to the simplified type is the same logical relation as the original type. 
 
 \begin{definition}[Semantic type simplification]
 Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
-returns a simplified type $\tau'$:
+returns a simplified type $\tau'$. For simplicity, we halt simplification when
+we see a $\forall$:
 \begin{equation*}
   \begin{aligned}[c]
     \llbracket \textbf{unit} \rrbracket &= \textbf{unit} \\
@@ -407,7 +406,6 @@ returns a simplified type $\tau'$:
 \end{equation*}
 \begin{equation*}
 \end{equation*}
-Note that for simplicity, we halt simplification when we see a $\forall$.
 \end{definition}
 
 \begin{theorem}[Soundness of evaluating closed bounds]
