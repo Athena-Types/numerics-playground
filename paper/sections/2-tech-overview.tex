@@ -236,20 +236,20 @@ error bound: $r - \tilde{r} = 2.6645352591003757 \times 10^{-15}$.
 % up paragraphs. this part is important to help readers understand how our
 % system works"
 \paragraph{Bound polymorphism.}
-There is some difficulty in assigning a single, most precise type to
+It is challenging to assign a single, most precise type to
 $\textbf{add}$.
 The difficulty arises because $\textbf{add}$ is called multiple times in
 different contexts.
 If we look at the first two add calls, we would try to assign the type: 
-$$\textbf{add} : \textbf{num}_{\bnd{((-1, 1), (0, 1), (0, 1))}} \times
+$\textbf{add} : \textbf{num}_{\bnd{((-1, 1), (0, 1), (0, 1))}} \times
 \textbf{num}_{\bnd{((-1, 1), (0, 1), (0, 1))}} \multimap
-\textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}}$$
-However, this would make it impossible to type the second add call.
+\textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}}$.
+This type would make it impossible to type the second add call.
 On the other hand, if we look at the last add call, we would try to assign the
 type: 
-$$\textbf{add} : \textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \times
+$\textbf{add} : \textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \times
 \textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \multimap
-\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$$
+\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$
 However, this would make our analysis imprecise in our first two calls to
 $\textbf{add}$.
 

@@ -20,8 +20,8 @@ synthesized term (with bound polymorphism) with inferred sensitivities and
 monadic grades.
 
 \begin{definition}[Sensitivity erasure]
-  For a fully annotated typing context 
-  $\Gamma : \textit{variables} \to \textit{sensitivities} \  \times \ \textit{types}$,
+  For a typing context $\Gamma : \textit{vars} \to \textit{sensitivities} \
+  \times \ \textit{types}$, 
   a fully erased typing context removes all sensitivty information and only
   returns the type:
   $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$.
@@ -147,7 +147,7 @@ $\multimap$ E relies on $E(\tau)$ to extract the new bound variables and our
 type equality check to ensure that the extracted variables have been soundly
 instantiated. Both the $I$ and $E$ helper functions are fully defined in the
 appendix in Figure~\ref{fig:helper_type_inference}. Finally, the \textbf{factor}
-case is straightforward.
+case is new but straightforward.
 
 \begin{figure}
 \small
@@ -352,10 +352,10 @@ We now state type soundness for our type inference algorithm, which we prove in
 the appendix.
 Note that we do not prove that our type inference algorithm infers the tightest
 possible sensitivity or round-off grades.
-So, our soundness theorem states that the inferred type, typing contexts, and
-term, after erasing, are equal to the original erased type, erased context, and
-erased term ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
-e'^{\bnd{\bullet}}$).
+So, we only prove that that the inferred type, typing contexts, and term, after
+erasing, are equal to the original erased type, context, and term: 
+% ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+% e'^{\bnd{\bullet}}$)
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
 If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing

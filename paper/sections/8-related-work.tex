@@ -18,8 +18,8 @@ corresponding error soundness theorem.
 % TODO: compare martel here
 
 \paragraph{Other automated numerical analysis techniques.}
-There are many non-type-based approaches to automatic numerical analysis. 
-For example, Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
+There are non-type-based approaches to automatic numerical analysis. For
+example, Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
 analysis and can reason about programs with conditionals and loops. 
 However, both tools suffer from scalability challenges.
 FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
@@ -30,8 +30,8 @@ function call sites.
 Rosa \cite{rosa1} \cite{rosa2} also uses taylor expansions for handling
 propagation error.
 By contrast, our approach supports different rounding modes and higher-order
-functions. However, we do not support general recursion and restrict
-conditionals to not contain floating-point error.
+functions. However, we do not support recursion and restrict conditionals from
+casing on floating-point computations.
 
 \paragraph{Interval-style bounds analysis in the type system.}
 The Checker framework \cite{checker} provides a modular approach to extending

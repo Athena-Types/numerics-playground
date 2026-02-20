@@ -13,11 +13,11 @@ problem, type checking could also be performed in parallel or incrementally over
 the dependency graph of the program.
 
 There are three immediate directions we suggest for future work. Firstly, future
-work might be able to extend Negative Fuzz to support division, for example via
-a four-part representation $(r, a, b, c, d)$ where $r = \frac{a-b}{c-d}$.
-Secondly, in the development of our bounds analysis, we discovered that the
-choice of bounds domain greatly impacted the precision of our analysis. Future
-work could use more complex bounds analyses to further improve precision.
+work might extend Negative Fuzz to support division, for example via a four-part
+representation $(r, a, b, c, d)$ where $r = \frac{a-b}{c-d}$. Secondly,  we
+noticed that the choice of bounds domain greatly impacted the precision of our
+analysis. Future work could likely improve the analysis precision by using a
+more sophisticated bounds domain.
 Thirdly, rewriting a program to use \textbf{factor} is quite rote; future work
 could automatically rewrite a program to an equivalent program with
 \textbf{factor}.

@@ -20,7 +20,7 @@ We run our benchmarks on an AWS c5.metal instance (96 vCPU, 192 GiB RAM).
 Each timing benchmark result reported is the median of 6 benchmark runs.
 Our approach has several assumptions and limitations. Like Numerical Fuzz, we
 assume that there is no under or overflow in the program. We do not support
-division or taking square roots.
+recursion, division, or square roots.
 
 % TODO: mention relative error
 
@@ -79,12 +79,12 @@ We plot the results in Figure~\ref{fig:large-plots}. Each column represents a
 set of paramterized benchmarks. The top row represents the absolute error bound
 achieved by each tool. The bottom row represents the median execution time of
 each program (across 6 runs). If any of the 6 runs failed due to timeout or OOM,
-we marked the result as a failure on the uppermost edge of each plot. We discuss
+we mark the result as a failure on the uppermost edge of each plot. We discuss
 the benchmarks below:
 \begin{enumerate}
-  \item We evaluate the Horner polynomial evaluation scheme on polynomials of
-    degree $2^2$ to $2^{11}$ and we observe that Negative Fuzz has comparable
-    precision at significantly faster performance.
+  \item We evaluate the polynomials of degree $2^2$ to $2^{11}$ using Horner's
+    scheme and we observe that Negative Fuzz has comparable precision at
+    significantly faster performance.
   \item We evaluate matrix multiplication on inputs from $2^2 \times 2^2 $ to
     $2^7 \times 2^7$. On large inputs, we observe that Negative Fuzz (without
     \textbf{factor}) has comparable precision at significantly faster performance.

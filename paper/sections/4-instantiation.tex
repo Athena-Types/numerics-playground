@@ -195,9 +195,9 @@ syntax of the language. The correctness of the definition of each bound
 operation is ensured by the interface requirement that that each primitive
 operation's corresponding type obeys metric preservation.
 Importantly, we case our analysis for the multiplication operation depending on
-whether the boolean condition is true for both input numbers. This dramatically
-improves the precision of our analysis; on one of our large-scale benchmarks, we
-saw that this minor change tightened the final error bound from $1.11 \times
+whether the boolean condition is true for both input numbers. This can
+dramatically improve our analysis precision; on one of our large-scale
+benchmarks, this change tightened the final error bound from $1.11 \times
 10^{139}$ to $5.66 \times 10^{-13}$.
 \begin{equation}
   \begin{aligned}[c]
