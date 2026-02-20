@@ -730,6 +730,133 @@ c_n) = c' : \textbf{bnd}$ holds.
   Follows by inspection of the definition of our three supported operations.
 \end{proof}
 
+\section{Appendix: Helper functions for defining type inference.}
+\begin{figure}
+% TODO: make this more concise
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
+\AXC{}
+\UIC{$I(\textbf{unit}^{\bnd{\bullet}}) \to \textbf{unit}; .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+% \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
+\AXC{$\epsilon \text{ globally fresh}$}
+\UIC{$ I(\textbf{num}^{\bnd{\bullet}}) \to \textbf{num}_{\epsilon};
+\epsilon $}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}) \to \tau_0 \times
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}) \to \tau_0 \otimes
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}) \to \tau_0 + \tau_1; \alpha,
+\beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}) \to \tau_0 \multimap
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(!_s (\tau^{\bnd{\bullet}})) \to !_s \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(M_u (\tau^{\bnd{\bullet}})) \to M_u \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\end{subfigure}
+
+\vskip 3em
+
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
+\AXC{}
+\UIC{$E(\textbf{unit}) \to .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{}
+\UIC{$E(\textbf{num}_i) \to i$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \times \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \otimes \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 + \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \multimap \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(!_s (\tau)) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(M_u (\tau)) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(\forall \epsilon. \tau) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\end{subfigure}
+
+    \caption{Ancillary functions defining algorithmic type inference. I creates
+      bounds for an type with erased bounds. E extracts the bounds used in an
+      unerased type. For type checking to succeed on many real-world programs,
+      it is important for I and E to align in the production and extraction of
+    bound variables.}
+    \label{fig:helper_type_inference}
+\end{figure}
+
+\newpage
+
+
 \section{Appendix: Soundness proof for algorithmic type inference} 
 We use the following lemma for reasoning about the bound polymorphism variables
 in the $\multimap I$ and $\multimap E$ cases for the type inference soundness

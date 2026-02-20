@@ -108,9 +108,10 @@ Conceptually, our syntax-directed type inference algorithm does two things:
     and polymorphic bounds as well as support expressions in greater places.
 
   \item At the same time as our sensitivity inference, we infer our bounds. We
-    rely on helper functions $I$ and $E$
-    (Figure~\ref{fig:helper_type_inference}) to discover which polymorphic bound
-    variables needed to be automatically instantiated and eliminated.
+    use helper functions $I$ and $E$ (defined in the appendix in
+    Figure~\ref{fig:helper_type_inference}) to extract from a type which
+    polymorphic bound variables needed to be automatically instantiated and
+    eliminated.
 \end{enumerate}
 We present our syntax-directed type inference algorithm in
 Figure~\ref{fig:inference-algo} as a combined algorithm where the sensitivities
@@ -132,135 +133,9 @@ We walkthrough the remaining cases: $\multimap$ I relies on
 $I(\tau^{\bnd{\bullet}})$ to create new globally fresh bound variables.
 $\multimap$ E relies on $E(\tau)$ to extract the new bound variables and our
 type equality check to ensure that the extracted variables have been soundly
-instantiated. Both the $I$ and $E$ helper functions are fully defined in Figure
-~\ref{fig:helper_type_inference}. Finally, the \textbf{factor} case is
-straightforward.
-
-\begin{figure}
-% TODO: make this more concise
-\scriptsize
-\begin{subfigure}[t]{1.0\textwidth}
-\centering
-\AXC{}
-\UIC{$I(\textbf{unit}^{\bnd{\bullet}}) \to \textbf{unit}; .$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-% \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
-\AXC{$\epsilon \text{ globally fresh}$}
-\UIC{$ I(\textbf{num}^{\bnd{\bullet}}) \to \textbf{num}_{\epsilon};
-\epsilon $}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}) \to \tau_0 \times
-\tau_1; \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}) \to \tau_0 \otimes
-\tau_1; \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}) \to \tau_0 + \tau_1; \alpha,
-\beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
-\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
-\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}) \to \tau_0 \multimap
-\tau_1; \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
-\UIC{$I(!_s (\tau^{\bnd{\bullet}})) \to !_s \tau ; \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
-\UIC{$I(M_u (\tau^{\bnd{\bullet}})) \to M_u \tau ; \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\end{subfigure}
-
-\vskip 3em
-
-\begin{subfigure}[t]{1.0\textwidth}
-\centering
-\AXC{}
-\UIC{$E(\textbf{unit}) \to .$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{}
-\UIC{$E(\textbf{num}_i) \to i$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$E(\tau_0) \to \alpha$}
-\AXC{$E(\tau_1) \to \beta$}
-\BIC{$E((\tau_0 \times \tau_1)) \to \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$E(\tau_0) \to \alpha$}
-\AXC{$E(\tau_1) \to \beta$}
-\BIC{$E((\tau_0 \otimes \tau_1)) \to \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$E(\tau_0) \to \alpha$}
-\AXC{$E(\tau_1) \to \beta$}
-\BIC{$E((\tau_0 + \tau_1)) \to \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$E(\tau_0) \to \alpha$}
-\AXC{$E(\tau_1) \to \beta$}
-\BIC{$E((\tau_0 \multimap \tau_1)) \to \alpha, \beta$}
-\bottomAlignProof
-\DisplayProof
-\vskip 1em
-
-\AXC{$E(\tau) \to \beta$}
-\UIC{$E(!_s (\tau)) \to \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$E(\tau) \to \beta$}
-\UIC{$E(M_u (\tau)) \to \beta$}
-\bottomAlignProof
-\DisplayProof
-\hskip 0.2em
-\AXC{$E(\tau) \to \beta$}
-\UIC{$E(\forall \epsilon. \tau) \to \beta$}
-\bottomAlignProof
-\DisplayProof
-\end{subfigure}
-
-    \caption{Ancillary functions defining algorithmic type inference. I creates
-      bounds for an type with erased bounds. E extracts the bounds used in an
-      unerased type. For type checking to succeed on many real-world programs,
-      it is important for I and E to align in the production and extraction of
-    bound variables.}
-    \label{fig:helper_type_inference}
-\end{figure}
-
-\newpage
+instantiated. Both the $I$ and $E$ helper functions are fully defined in the
+appendix in Figure~\ref{fig:helper_type_inference}. Finally, the \textbf{factor}
+case is straightforward.
 
 \begin{figure}
 \begin{center}
