@@ -131,14 +131,14 @@ where $u$ is our unit-roundoff constant.
 Therefore, we have that our example program has infinitely-bounded error, which
 is not a useful error bound.
 
-\paragraph{Paired representation.}
+\paragraph{Paired model.}
 
 As addition and subtraction over the unrestricted reals is infinitely-sensitive,
 we first deal with the problem of infinite sensitivity.
-We develop a paired representation where unrestricted addition and subtraction
-have finitely-bounded sensitivity. The trick is to associate for each
-real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
-\mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
+We develop a paired model for arithmetic where unrestricted addition and
+subtraction have finitely-bounded sensitivity. The trick is to associate for
+each real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R}
+\times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
 Our error function $d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b}))$
@@ -148,12 +148,12 @@ $d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) \triangleq max(d_{
 % \end{definition}
 Importantly, we can encode our operations, including addition and subtraction,
 such that both components of the pair are always-growing. This avoids the
-problem of catastrophic cancellation in the paired representation.
+problem of catastrophic cancellation in the paired model.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
 (a_0 + b_1, b_0 + a_1)$, our paired type representation only needs to add
 components; subtraction is represented implicitly. 
-By ensuring that each operation in the paired representation is always-growing,
+By ensuring that each operation in the paired model is always-growing,
 we can encode addition and subtraction in a finitely-sensitive manner. 
 %
 % We can ``simulate" error on the paired representation by defining a
@@ -171,7 +171,7 @@ we can encode addition and subtraction in a finitely-sensitive manner.
 % This constraint is useful for letting us relate error over the unpaired
 % components to error on the paired component.
 
-Under the paired representation, we can implement and type addition and
+In the paired model, we can implement and type addition and
 subtraction in terms of finitely-sensitive operations over
 the paired components:
 \begin{equation}

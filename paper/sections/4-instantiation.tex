@@ -24,7 +24,7 @@ The remainder of this section is organized as follows. In
 Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
 interface (Definition~\ref{def:numfuzz-interface}) with our $\textit{paired
 representation}$. In particular, we define and type our supported operations
-including subtraction under the paired representation. We describe our bounds
+including subtraction under the paired model. We describe our bounds
 analysis setup and provide intuition for our choice of domain. In
 Section~\ref{sec:application}, we use the results of our automatic type-based
 bounds analysis to translate the monadic grade over the paired components into
@@ -46,7 +46,7 @@ inference to Section~\ref{sec:inference}.
 % - reading out things (technical but mixed with some explanation)
 
 \subsection{Instantiating the modular interface} \label{sec:instantiation}
-To soundly use the paired representation, we must instantiate the modular
+To soundly use the paired model, we must instantiate the modular
 interface defined in Definition~\ref{def:numfuzz-interface} and show that it
 satisfies the properties specified. In the subsequent subsections, we
 instantiate the interface with the appropriate rounding functions and round-off
@@ -58,7 +58,7 @@ instantation adheres to the spec demanded by Negative Fuzz
 (Sections~\ref{sec:prop-a}-\ref{sec:prop-e}).
 
 \subsubsection{Defining the rounding function and round-off parameters for the
-paired representation.} \label{sec:rho-and-u}
+paired model.} \label{sec:rho-and-u}
 We set $\textit{num} = \mathbb{P}$ equipped with $\leq$ defined above.
 We also set $\rho = \rho_{\mathbb{P}}$ (Definition~\ref{def:rounding-p}) to
 ``simulate" the round-off error on the unpaired component.
@@ -102,13 +102,13 @@ $emax$ &   $+127$  & $+1023$ & $+16383$ \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Defining our operations over the paired representation}
+\subsubsection{Defining our operations over the paired model}
 \label{sec:paired-ops}
 We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
-compute and are typed over our paired representation. Addition is defined as
-addition over each of the components in the pair. Subtraction is defined by
-swapping the paired components. Multiplication is defined by distributing each
-of the paired components.
+compute and can be typed in our paired model. Addition is defined as addition
+over each of the components in the pair. Subtraction is defined by swapping the
+paired components. Multiplication is defined by distributing each of the paired
+components.
 Importantly, each operation maintains the invariant of the paired model that
 $r=a-b$.
 \begin{equation}
