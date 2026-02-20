@@ -147,7 +147,7 @@ one of the paired components is greater than zero. In fact, an inspection of our
 supported operations shows that $a > 0 \land b > 0$ can only be true when
 either: (1) the program contains subtraction, or (2) the program contains
 negative numbers. Further, we observe that when the ($a > 0 \land b > 0$)
-condition holds, the bound drastically tightens.
+condition holds, the our interval bound for multiplication drastically tightens.
 % TODO: brag about Horner being much tighter (do we foreshadow or just drop some
 % random eval claim here?)
 
@@ -196,65 +196,93 @@ Each bound operation corresponds to the primitive operation in the surface
 syntax of the language. The correctness of the definition of each bound
 operation is ensured by the interface requirement that that each primitive
 operation's corresponding type obeys metric preservation.
+Importantly, we case our analysis for the multiplication operation depending on
+whether the boolean condition is true for both input numbers. This dramatically
+improves the precision of our analysis; on one of our large-scale benchmarks, we
+saw that this minor change tightened the final error bound from $1.11 \times
+10^{139}$ to $5.66 \times 10^{-13}$.
 \begin{equation}
   \begin{aligned}[c]
-    ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) + 
-    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
-    &= \\
-    ((r^{\downarrow}_{add}, 
-    r^{\uparrow}_{add}), 
+    \begin{aligned}[c]
+      (r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
+      \hfill &+ \hfill \\ 
+      ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    \end{aligned}
+    \hfill
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{add}, 
+    r^{\uparrow}_{add}) \\
       (a^{\downarrow} + a'^{\downarrow}, 
-      a^{\uparrow} + a'^{\uparrow}),
+      a^{\uparrow} + a'^{\uparrow}) \\
       (b^{\downarrow} + b'^{\downarrow},
-      b^{\uparrow} + b'^{\uparrow}),
-      (d \land d' \land 
-      ((0 \leq r^{\downarrow} \land 0 \leq r'^{\downarrow}) 
+      b^{\uparrow} + b'^{\uparrow}) \\
+      d \land d' \land 
+      (0 \leq r^{\downarrow} \land 0 \leq r'^{\downarrow}) 
         \lor
-    (r^{\uparrow} \leq 0 \land r'^{\uparrow} \leq 0)))) & \\
-    ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) -
-    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
-    &= \\
-    ((r^{\downarrow}_{sub}, r^{\uparrow}_{sub}),
-    (a^{\downarrow} + b'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}),
-    (b^{\downarrow} + a'^{\downarrow}, b^{\uparrow} + a'^{\uparrow}),
-      (d \land d' \land 
-      ((0 \leq r^{\downarrow} \land r'^{\uparrow} \leq 0) 
+    (r^{\uparrow} \leq 0 \land r'^{\uparrow} \leq 0)
+    \end{cases} \\
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
+    \hfill &- \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{sub}, r^{\uparrow}_{sub}) \\
+    (a^{\downarrow} + b'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}) \\
+    (b^{\downarrow} + a'^{\downarrow}, b^{\uparrow} + a'^{\uparrow}) \\
+      d \land d' \land 
+      (0 \leq r^{\downarrow} \land r'^{\uparrow} \leq 0) 
         \lor
-    (r^{\uparrow} \leq 0 \land 0 \leq r'^{\downarrow})))) &\\
-    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
-    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) 
-    &= \\
-    ((r^{\downarrow}_{mul}, r^{\uparrow}_{mul}),
+    (r^{\uparrow} \leq 0 \land 0 \leq r'^{\downarrow})
+    \end{cases} \\ 
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}&), (b^{\downarrow}, b^{\uparrow}), \textbf{True})  \\
+    \hfill &\cdot \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}&), (b'^{\downarrow}, b'^{\uparrow}), \textbf{True}) 
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{mul}, r^{\uparrow}_{mul}) \\
     (
     \text{min}(a^{\downarrow} a'^{\downarrow}, b^{\downarrow} b'^{\downarrow})
     , 
     \text{min}(a^{\uparrow} a'^{\uparrow}, b^{\uparrow} b'^{\uparrow})
-    ), 
+    ) \\
     (
     \text{max}(a^{\downarrow} b'^{\downarrow}, b^{\downarrow} a'^{\downarrow})
     , 
-    \text{max}(a^{\uparrow} b'^{\uparrow}, b^{\uparrow} a'^{\uparrow}), 
-    d \land d')) \\ 
-    \text{if $d \land d'$}\\ 
-    ((r^{\downarrow}, a^{\downarrow}, b^{\downarrow}),(r^{\uparrow}, a^{\uparrow}, b^{\uparrow})) \cdot
-    ((r'^{\downarrow}, a'^{\downarrow}, b'^{\downarrow}),(r'^{\uparrow}, a'^{\uparrow}, b'^{\uparrow})) 
-    &= \\
-    ((r^{\downarrow}_{mul}, r^{\uparrow}_{mul}),
-    (a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, 
-    a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow}), 
-    (a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}, 
-    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow}), d \land d') \\
-    \text{otherwise}\\ 
+    \text{max}(a^{\uparrow} b'^{\uparrow}, b^{\uparrow} a'^{\uparrow})  \\
+    \textbf{True}
+    \end{cases} \\
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)  \\
+    \hfill &\cdot \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d') 
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{mul}, r^{\uparrow}_{mul}) \\
+    a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, 
+    a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow} \\
+    a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}, 
+    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow} \\
+    \textbf{False}
+    \end{cases}
   \end{aligned}
 \end{equation}
 where 
-$$r^{\downarrow}_{add} = min(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\uparrow}_{add} = max(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
-$$r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow},
-r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
+\begin{equation*}
+  \begin{aligned}[c]
+r^{\downarrow}_{add} = min(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{add} = max(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+\end{aligned}
+\end{equation*}
 % TODO: do we need more intuition here? maybe connect to abstract transformers?
 % TODO: add intuition on logic for the bit, maybe break up and define each op
 % one-by-one? maybe also tease horner pathological example?
