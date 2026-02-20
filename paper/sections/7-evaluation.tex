@@ -6,7 +6,7 @@ tools on the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
 We only include FPBench programs that are newly supported, e.g. contain
 subtraction or range over negative numbers.
 Many of the programs in the FPBench benchmark suite are too small to draw
-conclusions about the scability of our approach. Therefore, we draw upon
+conclusions about the scalability of our approach. Therefore, we draw upon
 large programs from the Satire benchmark suite \cite{satire}, which are taken
 from real-world programs. Due to the sheer size of the programs in the Satire
 suite, we only translated three program schemas into Negative Fuzz (with and
@@ -48,7 +48,7 @@ within an order of magnitude with Gappa and FPTaylor.
 We also observe that our NegFuzz implementation is often orders of magnitude
 faster than Gappa and FPTaylor (Table~\ref{tab:small-timing}).
 FPTaylor and Gappa occupy a different part of the performance-precision design
-space comapred to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
+space compared to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
 floating-point analyses via global optimization or rewriting rather than speed
 or scalability.
 
@@ -65,10 +65,10 @@ overhead.
 
 \paragraph{Large benchmark programs.}
 To understand how Negative Fuzz scales, we run three large parameterized
-benchmarks, which we discuss below. Our large-scale comparions are primarly
+benchmarks, which we discuss below. Our large-scale comparisons are primarily
 intended to compare against Satire, which is intended to be scalable by taking a
 global optimization approach that allows users to trade-off precision for
-analysis time. We include Gappa and FPTaylor to demonstratate that those two
+analysis time. We include Gappa and FPTaylor to demonstrate that those two
 tools do not scale well and often timeout.
 We run each benchmark until a 450 second timeout is reached or over 64 GB of RAM
 is used.

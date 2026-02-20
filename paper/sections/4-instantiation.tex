@@ -13,12 +13,12 @@ triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ $ unde
 component such that $r = a - b$. 
 We write the set modeling our paired representation as $\mathbb{P}$.
 Accordingly, we equip our set $\mathbb{P}$ with a distance function
-$d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maximum distance over
+$d_{\textit{num}}((r, a, b), (r', a', b'))$ defined as the maximum distance over
 the paired components.
 Instead of reasoning over the real component, we instantiate our graded type
 system to track distances and error over the always-growing paired components.
 We then instantiate our bounds analysis and apply our main error theorem to
-translate our error bound back over the unpaired component of the triple,.
+translate our error bound back over the unpaired component of the triple.
 
 The remainder of this section is organized as follows. In
 Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
@@ -65,7 +65,7 @@ We also set $\rho = \rho_{\mathbb{P}}$ (Definition~\ref{def:rounding-p}) to
 Our choice of $u$ depends on the format and rounding mode used. 
 % TODO: change thm statement to reflect this, add label and ref here
 It is sound to use the corresponding choices for $u$ and $\rho$ from Numerical
-Fuzz for eachby floating-point format and rounding mode shown in
+Fuzz for each floating-point format and rounding mode shown in
 Table~\ref{tab:formats} and Table~\ref{tab:rnd_modes} respectively. 
 We define our operations $\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and
 bound operations $\Sigma_{\bnd{bnd}}$ below.
@@ -349,7 +349,7 @@ cannot produce a relative error bound.
     \item $a \in [a^{\downarrow}, a^{\uparrow}]$
     \item $b \in [b^{\downarrow}, b^{\uparrow}]$
   \end{enumerate}
-  we have that $|r - r'|$ is less than or eqaul to the maximum of the following:
+  we have that $|r - r'|$ is less than or equal to the maximum of the following:
 \begin{enumerate}
   \item[(a)] $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
   \item[(b)] $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
@@ -362,7 +362,7 @@ cannot produce a relative error bound.
   For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
   (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, 
   we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is
-  less than or eqaul to the maximum of the following:
+  less than or equal to the maximum of the following:
 \begin{enumerate}
   \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
   \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$

@@ -95,7 +95,7 @@ Note that supporting addition with negative numbers is effectively the same
 problem as supporting subtraction.
 To understand the problem posed by an infinitely-sensitive operation, we try to
 write our running example using $\textbf{rnd}$ to represent our floating point
-rounding function $\rho$, \textbf{add} to represent exact additiion ($+$) and
+rounding function $\rho$, \textbf{add} to represent exact addition ($+$) and
 \textbf{let-bind} to sequence floating-point computation:
 \begin{equation}
 \begin{aligned}[c]
@@ -154,7 +154,7 @@ such that both components of the pair are always-growing. This avoids the
 problem of catastrophic cancellation in the paired representation.
 When our semantics adds $r_0 = (a_0, b_0)$ and $r_1 = (a_1, b_1)$, we produce
 $r_0 + r_1 = (a_0 + a_1, b_0 + b_1)$. When we subtract two numbers $r_0 - r_1 =
-(a_0 + b_1, b_0 + a_1)$, our paired type represenation only needs to add
+(a_0 + b_1, b_0 + a_1)$, our paired type representation only needs to add
 components; subtraction is represented implicitly. 
 By ensuring that each operation in the paired representation is always-growing,
 we can encode addition and subtraction in a finitely-sensitive manner. 
@@ -289,7 +289,7 @@ More generally, we would expect Numerical Fuzz to infer that a binary tree of
 height $h$ where each leaf contains a number that the sum of numbers over the
 tree computed by recursively adding the children of each parent has
 floating-point error growing in $O(h)$.
-For example, consider the pairwise summation algorithm which will recursively a
+For example, consider the pairwise summation algorithm which will recursively divide a
 list of numbers in half and compute the sum of the halves. This produces a
 computation tree of height $\left \lceil{log_2(n)}\right \rceil$. We would
 expect Numerical Fuzz's inferred error to grow in $O(log_2(n))$.
