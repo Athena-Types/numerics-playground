@@ -239,15 +239,15 @@ typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
 \multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
 polymorphism via $\forall$ introduction and elimination rules.
 % provided in Figure~\ref{fig:typing_rules}.
-We also introduce \textit{bound operations}, which are meta-level operations
-that let us type:
+We also introduce \textit{bound operations} (e.g. $+$, $-$, and $-$), which are
+meta-level operations mapping bounds to bounds that enable us to type:
 $$
 \textbf{add} : \bnd{\forall \epsilon_1, \epsilon_2}, \mathbf{num}_{\bnd{\epsilon_1}} \times
 \mathbf{num}_{\bnd{\epsilon_2}} \multimap \mathbf{num}_{\bnd{\epsilon_1 + \epsilon_2}}
 $$
-To reduce annotation overhead, we provide a type inference algorithm that can
-automatically infer bound polymorphism abstraction and instantiation sites. We
-prove our type inference algorithm sound in Section~\ref{sec:inference} and
+To reduce the user annotation burden, we provide a type inference algorithm that
+can automatically infer bound polymorphism abstraction and instantiation sites.
+We prove our type inference algorithm sound in Section~\ref{sec:inference} and
 provide an evaluation in Section~\ref{sec:eval}.
 
 \subsection{Language Feature: More Precise Treatment of Addition and Subtraction} 
