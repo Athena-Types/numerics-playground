@@ -174,9 +174,9 @@ we can encode addition and subtraction in a finitely-sensitive manner.
 % This constraint is useful for letting us relate error over the unpaired
 % components to error on the paired component.
 
-Under the paired representation, we can implement and faithfully type addition,
-subtraction, and multiplication in terms of finitely-sensitive operations over
-the paired components. Addition is defined below:
+Under the paired representation, we can implement and type addition and
+subtraction in terms of finitely-sensitive operations over
+the paired components:
 \begin{equation}
   \begin{aligned}[c]
     add((r, a, b), (r', a', b')) &\mapsto (r + r', a + a', b + b') \\
@@ -236,8 +236,7 @@ error bound: $r - \tilde{r} = 2.6645352591003757 \times 10^{-15}$.
 % up paragraphs. this part is important to help readers understand how our
 % system works"
 \paragraph{Bound polymorphism.}
-It is challenging to assign a single, most precise type to
-$\textbf{add}$.
+It is challenging to assign a single, most precise type to $\textbf{add}$.
 The difficulty arises because $\textbf{add}$ is called multiple times in
 different contexts.
 If we look at the first two add calls, we would try to assign the type: 
@@ -337,8 +336,8 @@ error bound, reducing the error of our running example from $2.66 \times
 \end{subfigure}
 
 \caption{Side-by-side comparison of addition with and without the
-\textbf{factor} primitive. Note that we omit the bounds subscripts for
-presentational purposes.}
+\textbf{factor} primitive. We omit the bounds subscripts for presentational
+purposes.}
 \label{fig:factor-side-by-side}
 \end{figure}
 

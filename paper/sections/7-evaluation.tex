@@ -65,22 +65,19 @@ overhead.
 
 \paragraph{Large benchmark programs.}
 To understand how Negative Fuzz scales, we run three large parameterized
-benchmarks, which we discuss below. Our large-scale comparisons are primarily
-intended to compare against Satire, which is intended to be scalable by taking a
-global optimization approach that allows users to trade-off precision for
-analysis time. We include Gappa and FPTaylor to demonstrate that those two
-tools do not scale well and often timeout.
-We run each benchmark until a 450 second timeout is reached or over 64 GB of RAM
-is used.
-Both the Horner and iterative summation schemes have a fixed evaluation order
-that makes rewriting with \textbf{factor} unhelpful, so we do not bother writing
-benchmark variants with \textbf{factor}. 
-We plot the results in Figure~\ref{fig:large-plots}. Each column represents a
-set of paramterized benchmarks. The top row represents the absolute error bound
-achieved by each tool. The bottom row represents the median execution time of
-each program (across 6 runs). If any of the 6 runs failed due to timeout or OOM,
-we mark the result as a failure on the uppermost edge of each plot. We discuss
-the benchmarks below:
+benchmarks, which we plot in Figure~\ref{fig:large-plots}. and discuss below.
+Our large-scale comparisons are primarily intended to compare against Satire,
+which is intended to be scalable by taking a global optimization approach that
+allows users to trade-off precision for analysis time. We include Gappa and
+FPTaylor to show how they scale against Negative Fuzz and Satire.
+We run each benchmark until a 450 second timeout or over 64 GB of RAM is used.
+Both the Horner and summation benchmarks have a fixed evaluation order that
+makes \textbf{factor} unhelpful, so we do not attempt to use \textbf{factor}.
+Each column represents a set of paramterized benchmarks. The top row represents
+the absolute error bound achieved by each tool. The bottom row represents the
+median execution time of each program (across 6 runs). If any of the 6 runs
+failed due to timeout or OOM, we mark the result as a failure on the uppermost
+edge of each plot. We discuss the benchmarks below:
 \begin{enumerate}
   \item We evaluate the polynomials of degree $2^2$ to $2^{11}$ using Horner's
     scheme and we observe that Negative Fuzz has comparable precision at

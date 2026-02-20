@@ -8,9 +8,11 @@ type-check in Numerical Fuzz will type check in Negative Fuzz.
 To use our type inference algorithm, users write a program with no bound
 polymorphism (instantiation or generalization), sensitivity annotations, or
 monadic grades.
-Type inference then attempts to synthensize a new well-typed term with bound
-polymorphism while simultaneously inferring sensitivities and grades in a typing
-context with erased sensitivity annotations.
+Type inference then syntactically synthesizes the corresponding well-typed term,
+type, and context with bound polymorphism with the appropriate sensitivities and
+grade annotations.
+Finally, we provide a method to ``simplify" the bound expressions in our type
+using the semantic logical relation.
 
 To formally define the type inference problem, we first setup a sensitivity
 erasure $-^{\bullet}$ over typing contexts and a bound erasure
@@ -96,24 +98,18 @@ x^{\bnd{\bullet}} &\triangleq x \\
 % \end{definition}
 
 % \subsection{Type inference algorithm}
-We are now ready to define the type inference algorithm, which has the following
-shape:
-$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$.
-Type checking takes a typing context $\Gamma^{\bullet}$ that has
-erased sensitivity information and an erased program $e^{\bnd{\bullet}}$ with
-no polymorphic bounds, and produces a
-typing context $\Gamma$ with sensitivity information and fully annotated program
-$e$ and type $\tau$ such that
-$\Delta \ | \ \Gamma' \vdash e' : \tau$
-is derivable for some $\Delta$ (our soundness criterion).
-Note that we leave the $\Delta$ out of our type inference algorithm and
-implicitly reconstruct an appropriate $\Delta$ inside our constructive soundness
-proof.
 
+\paragraph{The type inference algorithm}
+Type inference has the following shape: 
+$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$.
+In other words, we take a erased typing context $\Gamma^{\bullet}$  and an
+erased program $e^{\bnd{\bullet}}$ and produce a
+typing context $\Gamma$ with sensitivity information and fully annotated program
+$e$ and type $\tau$ such that there exists a $\Delta$ such that
+$\Delta \ | \ \Gamma' \vdash e' : \tau$
+is derivable.
 We start type inference by passing the empty context, along with the
-bound-erased program (written $e^{\bnd{\bullet}}$) to the inference algorithm
-detailed in Figure~\ref{fig:inference-algo}. 
-We compute two things:
+bound-erased program (written $e^{\bnd{\bullet}}$) and compute two things:
 \begin{enumerate}
   \item We infer co-monadic sensitivities and monadic grades via the type
     inference algorithm provided in \cite{numfuzz}, extended to deal with our
@@ -127,27 +123,16 @@ We compute two things:
 \end{enumerate}
 We present our syntax-directed type inference algorithm in
 Figure~\ref{fig:inference-algo} as a combined algorithm where the sensitivities
-and bounds are inferred simultaneously in one pass.
-We prove the soundness of the fused sensitivity-and-bound pass in
-Theorem~\ref{thm:algo-soundness} with a syntactic argument inducting over the
-inference algorithm. 
-After running type inference, we simplify the closed bound expressions in the
-type using $\llbracket - \rrbracket$. We prove the semantic soundness of our
-simplification technique in Theorem~\ref{thm:eval-bounds}.
-
-\paragraph{The type inference algorithm}
-Our syntax-directed type inference algorithm is laid out in
-Figure~\ref{fig:inference-algo}.
-The majority of cases (Unit, Var, $!$ I, \textbf{op}, Ret, Rnd, $\times$ I,
-$\times$ E, $\otimes$ I, \textbf{let}, \textbf{let-pair}, \textbf{let-bind},
-\textbf{case}) come from Numerical Fuzz's type inference algorithm. 
-We walkthrough the remaining cases: $\multimap$ I relies on
-$I(\tau^{\bnd{\bullet}})$ to create new globally fresh bound variables.
-$\multimap$ E relies on $E(\tau)$ to extract the new bound variables and our
-type equality check to ensure that the extracted variables have been soundly
-instantiated. Both the $I$ and $E$ helper functions are fully defined in the
-appendix in Figure~\ref{fig:helper_type_inference}. Finally, the \textbf{factor}
-case is new but straightforward.
+and bounds are inferred simultaneously.
+The Unit, Var, $!$ I, \textbf{op}, Ret, Rnd, $\times$ I, $\times$ E, $\otimes$
+I, \textbf{let}, \textbf{let-pair}, \textbf{let-bind}, \textbf{case} cases come
+from Numerical Fuzz. 
+We outline the remaining cases: $\multimap$ I uses 
+$I(\tau^{\bnd{\bullet}})$ to create globally fresh bound variables. $\multimap$
+E uses $E(\tau)$ to extract appropriate bound variables and the type
+equality check for soundness. \footnote{Both the $I$ and $E$ helper functions are fully
+defined in the appendix in Figure~\ref{fig:helper_type_inference}.} The
+\textbf{factor} case is new but straightforward.
 
 \begin{figure}
 \small
@@ -167,7 +152,7 @@ case is new but straightforward.
 :_1 \tau; x; \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 %% const
 \AXC{}
 \RightLabel{(Const)}
@@ -183,7 +168,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 * \Gamma'; [e']_{\annotate{s}}; !_s~\tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 %% fun
 \AXC{$I(\tau_0^{\bnd{\bullet}}) = \annotate{\tau_0}; \epsilon_0, \ldots, \epsilon_n$}
@@ -197,7 +182,7 @@ k; \textbf{num}_{\bnd{inj(k)}}$}
 \annotate{\tau_0} \multimap \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 %% imp elim, forall
 \AXC{$
@@ -217,7 +202,7 @@ $}
 \Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 % todo: evaluating the liftted iops happen after we complete inference
 
 % todo: require that ops are closed at the bound polymorphism level
@@ -227,7 +212,7 @@ $}
 \textbf{op}; \forall \epsilon_0, \epsilon_1, \tau_0 \multimap \tau_1$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 \RightLabel{(\textbf{factor})}
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; (M_q
@@ -240,7 +225,7 @@ $}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                          Structural rules below                            %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vskip 1em
+\vskip 0.5em
 
 %% Ret
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
@@ -257,7 +242,7 @@ $}
 \textbf{rnd}~e'; M_q~\tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 %% times intro 
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_0; e'; \tau_0$}
@@ -275,7 +260,7 @@ $}
 \Gamma'; \pi_i~e'; \tau_i$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 %% otimes intro 
 \AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_0; f'; \tau_1$}
@@ -285,7 +270,7 @@ $}
 \implies \Gamma_0 + \Gamma_1; (f', e'); \tau_0 \otimes \tau_1$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 \RightLabel{(\textbf{let})}
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau_0$}
@@ -296,7 +281,7 @@ f)^{\bnd{\bullet}} \implies s \cdot \Gamma + \Theta;
 \textbf{let} \ x \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 \RightLabel{(\textbf{let-pair})}
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
@@ -308,7 +293,7 @@ f)^{\bnd{\bullet}} \implies max(s, s') \cdot \Gamma' + \Theta;
 \textbf{let-pair} \ (x, y) \ = \ e' \ \textbf{in} \ f'; \tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 \RightLabel{(\textbf{let-bind})}
 \AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
@@ -320,7 +305,7 @@ f)^{\bnd{\bullet}} \implies s \cdot \Gamma' + \Theta;
 \textbf{let-bind} \ x \ = \ e' \ \textbf{in} \ f'; M_{s \cdot r + q}~\tau$}
 \bottomAlignProof
 \DisplayProof
-\vskip 1em
+\vskip 0.5em
 
 \RightLabel{(\textbf{case})}
 \AXC{$
@@ -352,7 +337,7 @@ We now state type soundness for our type inference algorithm, which we prove in
 the appendix.
 We do not prove that our type inference algorithm infers the tightest possible
 sensitivity or round-off grades.
-So, we only prove that that the inferred type, typing contexts, and term, after
+We only prove that that the inferred type, typing contexts, and term, after
 erasing, are equal to the original erased type, context, and term: 
 % ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 % e'^{\bnd{\bullet}}$)
@@ -363,15 +348,15 @@ derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 e'^{\bnd{\bullet}}$.
 \end{theorem}
 
-\paragraph{Simplifying the type.}
+\paragraph{Simplifying the inferred type.}
 After running type inference we obtain a result in the form: 
 $\Delta \ | \ \Gamma \vdash e : \tau$. 
 In some cases, $\tau$ might contain bound expressions.
 For example, after running type inference on the program $add \langle 1, 2 \rangle$, we might
 obtain the following type 
-$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}$.
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{\bnd{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}}$.
 Semantically, this type represents the same relation as:
-$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{(3, 3, 0, \text{True})}$
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{\bnd{(3, 3, 0, \text{True})}}$
 
 To simplify the type, we extend the $\bnd{\llbracket - \rrbracket}$
 (Definition~\ref{def:bound-exp-eval}) to simplify types that possibly contain
