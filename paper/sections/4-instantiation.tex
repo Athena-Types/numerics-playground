@@ -24,7 +24,7 @@ translate our error bound back over the unpaired component of the triple.
 The remainder of this section is organized as follows. In
 Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
 interface (Definition~\ref{def:numfuzz-interface}) with our $\textit{paired
-representation}$. In particular, we define and type our supported operations
+model}$. In particular, we define and type our supported operations
 including subtraction under the paired model. We describe our bounds
 analysis setup and provide intuition for our choice of domain. In
 Section~\ref{sec:application}, we use the results of our automatic type-based
@@ -66,14 +66,13 @@ bound operations $\Sigma_{\bnd{bnd}}$ below.
 
 \begin{table}
 \caption{Parameters for floating-point number sets in the IEEE 754-2008
-standard. For each, $emin = 1 - emax$.}
+standard.}
 \label{tab:formats}
 \begin{tabular}{ c c c c }
  \hline
-\textbf{Parameter}& \textbf{binary32} & \textbf{binary64} &\textbf{binary128} \\
+ \textbf{Parameter}& \textbf{\textsc{binary32}} & \textbf{\textsc{binary64}} &\textbf{\textsc{binary128}} \\
  \hline
  $p$   & 24    & 53 & 113     \\
-$emax$ &   $+127$  & $+1023$ & $+16383$ \\
  \hline
 \end{tabular}
 \end{table}
