@@ -17,7 +17,7 @@ using the semantic logical relation.
 To formally define the type inference problem, we first setup a sensitivity
 erasure $-^{\bullet}$ over typing contexts and a bound erasure
 $-^{\bnd{\bullet}}$ over types and terms. Our erasure functions help us to
-capture the precise relation between the (erased) term  and the new, well-typed
+capture the precise relation between the (erased) term and the new, well-typed
 synthesized term (with bound polymorphism) with inferred sensitivities and
 monadic grades.
 
@@ -59,8 +59,8 @@ We similarly define an erasure operation for terms:
 \begin{aligned}[c]
 v^{\bnd{\bullet}} &\triangleq v \\
 (e \ f)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \ f^{\bnd{\bullet}} \\
-(e \{ i \})^{\bnd{\bullet}} &\triangleq e  \\
-(\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e \\
+(e \{ i \})^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}}  \\
+(\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \\
 % TODO: double check cases and make sure nothing is missing
 \end{aligned}
 \begin{aligned}[c]
@@ -317,7 +317,7 @@ $}
 \AXC{$
 \begin{aligned}[t]
 \Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}} \implies \Theta_0, x :_s \tau_0; f'_1; \tau' \\
-\Gamma^{\bullet}, x : \tau_0 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_0; f'_2; \tau'
+\Gamma^{\bullet}, x : \tau_1 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_1; f'_2; \tau'
 \end{aligned}
 $}
 \BIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
@@ -361,7 +361,7 @@ $. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{\bnd{(3, 3, 
 To simplify the type, we extend the $\bnd{\llbracket - \rrbracket}$
 (Definition~\ref{def:bound-exp-eval}) to simplify types that possibly contain
 bound expressions. 
-For soundness, we prove a semantic property the logical relation corresponding
+For soundness, we prove a semantic property that the logical relation corresponding
 to the simplified type is the same logical relation as the original type. 
 
 \begin{definition}[Semantic type simplification]

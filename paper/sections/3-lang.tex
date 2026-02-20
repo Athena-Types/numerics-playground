@@ -122,7 +122,7 @@ Typing contexts have the following grammar:
 $\Gamma ::= . \ | \ \Gamma, x :_s \tau$.
 We treat contexts $\Gamma$ as a partial map from variables $x$ to pairs of
 sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we can sum and
-scale typing contexts. We represent context scaling as $\Gamma + \Delta$ and
+scale typing contexts. We represent context summing as $\Gamma + \Delta$ and
 scaling by a real $s$ as $s \cdot \Gamma$. We define pair context and scaling
 and then context summing and scaling below.
 
@@ -172,7 +172,7 @@ in Section~\ref{sec:structure}.
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
 polymorphism. 
 Bound contexts have the grammar $\bnd{\Delta} ::= \bnd{. \ | \ \Delta, b : \textbf{bnd}}$
-and can be viewed as set whose membership indicates whether the variable is in
+and can be viewed as a set whose membership indicates whether the variable is in
 our bound context. Bound contexts can't be scaled. Adding two bound contexts is
 then union.
 We have a \bnd{inj} function for mapping constants $k$ into the
@@ -533,7 +533,7 @@ the evaluation function used in the definition of our logical relations.
   A bound expression $b$ is a closed bound expression iff either:
   \begin{itemize}
     \item $b = c \in \bnd{\mathbb{B}}$. In other words, $b$ is a constant.
-    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_1)$ where $b_0, \ldots, b_1$
+    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_n)$ where $b_0, \ldots, b_n$
       are all closed bound expressions. $b$ is made up of constants.
   \end{itemize}
 \end{definition}
@@ -594,10 +594,10 @@ syntactic values as follows:
     \mathcal{SDV}_{\mathbf{num_{b}}}(c_0, c_1) &\triangleq 
       d_\mathbf{num} &\text{ for } c_0, c_1 \in \llbracket b \rrbracket \\
     \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
-      &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_0}(v_1, w_1))
+      &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_1}(v_1, w_1))
     \\
     \mathcal{SDV}_{\tau_0 \otimes \tau_1}((v_0, v_1), (w_0, w_1)) 
-      &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_0}(v_1, w_1)
+      &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_1}(v_1, w_1)
     \\
     \mathcal{SDV}_{\tau_0 + \tau_1}(\tin_i~v, \tin_i~w) 
       &\triangleq \mathcal{SDV}_{\tau_i}(v, w)
@@ -620,7 +620,7 @@ syntactic values as follows:
     \\
     \mathcal{SDV}_{\forall \epsilon . \tau}(v_0, v_1) 
       &\triangleq \text{sup}_{c \in \mathbb{B}} 
-      \mathcal{SD}_{\tau[w / \epsilon]}(v_0~\{c\},~v_1~\{c\})
+      \mathcal{SD}_{\tau[c / \epsilon]}(v_0~\{c\},~v_1~\{c\})
     \\
     \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
   \end{aligned}

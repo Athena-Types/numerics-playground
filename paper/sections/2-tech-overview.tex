@@ -33,7 +33,7 @@ round-off error bounded like so:
   \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
 \end{equation}
 where $u$ is the \textit{unit round-off} value representing the maximum error
-possible in the last bit for the floating point format (e.g. $2^{-24}$ and
+possible in the last bit for the floating-point format (e.g. $2^{-24}$ and
 $2^{-53}$ for 32 and 64-bit floating-point numbers respectively).
 
 We are interested in bounding round-off error. 
@@ -94,7 +94,7 @@ running example.
 Note that supporting addition with negative numbers is effectively the same
 problem as supporting subtraction.
 To understand the problem posed by an infinitely-sensitive operation, we try to
-write our running example using $\textbf{rnd}$ to represent our floating point
+write our running example using $\textbf{rnd}$ to represent our floating-point
 rounding function $\rho$, \textbf{add} to represent exact addition ($+$) and
 \textbf{let-bind} to sequence floating-point computation:
 \begin{equation}
@@ -133,7 +133,7 @@ Therefore, we can only show that our example program has infinitely-bounded
 error, which is not a useful error bound.
 
 \paragraph{Paired model.}
-As addition and subtraction over the unrestricted reals is infinitely-sensitive
+As addition and subtraction over the unrestricted reals are infinitely-sensitive
 with respect to Olver's relative precision metric, we first deal with the
 problem of infinite sensitivity.
 We develop a paired model for arithmetic where unrestricted addition and
@@ -229,7 +229,7 @@ $\textbf{add} : \textbf{num}_{\bnd{((-2, 2), (0, 2), (0, 2))}} \times
 But now our analysis is imprecise in our first two calls to
 $\textbf{add}$.
 
-To ensure that our bounds analysis is scalable and that functions types can be
+To ensure that our bounds analysis is scalable and that function types can be
 reused, we support \textit{bound polymorphism}, which allows functions to be
 specialized with different concrete bounds $\bnd{b}$ at each call site. We write
 types $\tau$ polymorphic in bound variable $\bnd{\epsilon}$ as $\bnd{\forall
