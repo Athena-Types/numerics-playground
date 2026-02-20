@@ -32,30 +32,13 @@ useful bounds over the underlying unpaired real. We present our main error
 theorem over the unpaired real. We defer introducing our approach to type
 inference to Section~\ref{sec:inference}.
 
-
-% In the remainder of this section, we demonstrate how to use Negative Fuzz to
-% provide error bounds in the presence of subtraction and negative numbers. 
-% Then, in Section~\ref{sec:application} we use the bounds analysis to translate
-% the grade on the paired representation into useful error bounds for the
-% standard, unpaired, floating-point arithmetic.
-% TODO: signpost more detailed
-
-% outline:
-% - explanation, signpost
-% - instantiating modular interfacde (direct, concise, and technical)
-% - reading out things (technical but mixed with some explanation)
-
 \subsection{Instantiating the modular interface} \label{sec:instantiation}
-To soundly use the paired model, we must instantiate the modular
-interface defined in Definition~\ref{def:numfuzz-interface} and show that it
-satisfies the properties specified. In the subsequent subsections, we
-instantiate the interface with the appropriate rounding functions and round-off
-parameters
-(Section~\ref{sec:rho-and-u}), supported arithmetic operations
-(Section~\ref{sec:paired-ops}), bounds domain and bounds operations
-(Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
-instantiation adheres to the spec demanded by Negative Fuzz
-(Sections~\ref{sec:prop-a}-\ref{sec:prop-e}).
+In the subsequent subsections, we instantiate the interface with the appropriate
+rounding functions and round-off parameters (Section~\ref{sec:rho-and-u}),
+supported arithmetic operations (Section~\ref{sec:paired-ops}), bounds domain
+and bounds operations (Section~\ref{sec:bnd-domain-and-op}). Finally, we prove
+that our instantiation adheres to the speciciation demanded by Negative Fuzz's
+modular interface in Definition~\ref{def:numfuzz-interface}.
 
 \subsubsection{Defining the rounding function and round-off parameters for the
 paired model.} \label{sec:rho-and-u}

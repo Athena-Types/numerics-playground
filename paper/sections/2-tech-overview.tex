@@ -105,7 +105,7 @@ rounding function $\rho$, \textbf{add} to represent exact addition ($+$) and
 \end{aligned}
 \end{equation}
 under the restriction that $w, x, y, z \in [-1, 1]$. 
-% TODO: more intuition
+% TODO: more intuition if possible
 We will show how the program cannot be typed in Numerical Fuzz.
 We will first assign a type in Negative Fuzz to a simplified toy example. Then,
 we will demonstrate how to use the type to obtain a sound error bound.
@@ -132,7 +132,6 @@ Therefore, we have that our example program has infinitely-bounded error, which
 is not a useful error bound.
 
 \paragraph{Paired model.}
-
 As addition and subtraction over the unrestricted reals is infinitely-sensitive,
 we first deal with the problem of infinite sensitivity.
 We develop a paired model for arithmetic where unrestricted addition and
