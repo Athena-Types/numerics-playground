@@ -9,16 +9,16 @@ subtraction and negative numbers.
 
 To avoid this problem, we translate our semantics to a \textit{paired
 representation} where we associate for each real $r \in \mathbb{R}$ a lattice of
-triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+
-\triangleq \mathbb{P} = \mathit{num}$ under the $\leq$ relation over the first
+triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ $ under the $\leq$ relation over the first
 component such that $r = a - b$. 
+We write the set modeling our paired representation as $\mathbb{P}$.
 Accordingly, we equip our set $\mathbb{P}$ with a distance function
 $d_{\textit{num}}((r, a, b)(r', a', b'))$ defined as the maximum distance over
 the paired components (Definition~\ref{def:distance-p}).
 Instead of reasoning over the real component, we instantiate our graded type
 system to track distances and error over the always-growing paired components.
-We then instantiate our automatic typed-based bounds analysis and apply our main
-error theorem to translate our error bound back over the unpaired component.
+We then instantiate our bounds analysis and apply our main error theorem to
+translate our error bound back over the unpaired component of the triple,.
 
 The remainder of this section is organized as follows. In
 Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
@@ -47,11 +47,10 @@ type inference to Section~\ref{sec:inference}.
 
 \subsection{Instantiating the modular interface} \label{sec:instantiation}
 To soundly use the paired representation, we must instantiate the modular
-interface ($\textit{num}$, $d_\textbf{num}$, $\rho$, $u$, $\Sigma$,
-$(\bnd{\mathbb{B}}, \leq)$, $\Sigma_{\bnd{bnd}}$) defined in
-Definition~\ref{def:numfuzz-interface} and show that it satisfies the properties
-specified. In the subsequent subsections, we instantiate the interface with the
-appropriate rounding functions and round-off parameters
+interface defined in Definition~\ref{def:numfuzz-interface} and show that it
+satisfies the properties specified. In the subsequent subsections, we
+instantiate the interface with the appropriate rounding functions and round-off
+parameters
 (Section~\ref{sec:rho-and-u}), supported arithmetic operations
 (Section~\ref{sec:paired-ops}), bounds domain and bounds operations
 (Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
@@ -108,7 +107,12 @@ $emax$ &   $+127$  & $+1023$ & $+16383$ \\
 \subsubsection{Defining our operations over the paired representation}
 \label{sec:paired-ops}
 We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
-compute and are typed over our paired representation in the following way:
+compute and are typed over our paired representation. Addition is defined as
+addition over each of the components in the pair. Subtraction is defined by
+swapping the paired components. Multiplication is defined by distributing each
+of the paired components.
+Importantly, each operation maintains the invariant of the paired model that
+$r=a-b$.
 \begin{equation}
 \begin{aligned}[c]
   &\textit{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
@@ -149,12 +153,14 @@ condition holds, the bound drastically tightens.
 
 % TODO: intuition on the bit, why we have it and what it tracks. emp on common
 % case
-Accordingly, for a concrete tuple 
-$(r, a, b) \in \mathbb{P}$
-we set our bound domain $\bnd{\mathbb{B}}$ to track seven things:
+We set our bound domain $\bnd{\mathbb{B}} = (\mathbb{R} \times \mathbb{R})
+\times (\mathbb{R}^+ \times \mathbb{R}^+) \times (\mathbb{R}^+ \times
+\mathbb{R}^+) \times \textbf{Bool}$ such that each element of
+$\bnd{\mathbb{B}}$, written
 $((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
-(b^{\downarrow}, b^{\uparrow}), d)$
-under the following constraints:
+(b^{\downarrow}, b^{\uparrow}), d)$ represents a set of tuples 
+$(r, a, b) \in \mathbb{P}$
+satisfiying the following constraints:
 \begin{enumerate}
   \item Lower and upper bounds on $r$, with the following constraints $r^{\downarrow} \leq r \leq r^{\uparrow}$
   \item Lower and upper bounds on $a$, with the following constraints $a^{\downarrow} \leq a \leq a^{\uparrow}$
@@ -173,8 +179,7 @@ Our mapping from bounds to sets $\textbf{toSet} : \bnd{\mathbb{B}} \to
     (r^{\downarrow} \leq r \leq r^{\uparrow}) \land
       (a^{\downarrow} \leq a \leq a^{\uparrow}) 
       \land (b^{\downarrow} \leq b \leq b^{\uparrow})
-      \land ((a > 0 \land b > 0) = d) \\
-    \forall (r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+\}
+      \land ((a > 0 \land b > 0) = d) \}
   \end{aligned}
 \end{equation}
 \end{definition}
@@ -182,7 +187,7 @@ Our mapping from bounds to sets $\textbf{toSet} : \bnd{\mathbb{B}} \to
 Then, our $\leq$ relation over $\bnd{\mathbb{B}}$ is simply the $\subseteq$
 relation over the \textbf{toSet} interpretation of each bound:
 \begin{definition}[$\leq$ over $\bnd{\mathbb{B}}$.]
-  $b_0 \leq b_1 \iff \textbf{toSet} b_0 \subseteq \textbf{toSet} b_1$
+  $b_0 \leq b_1 \triangleq \textbf{toSet} (b_0) \subseteq \textbf{toSet} (b_1)$.
 \end{definition}
 
 Finally, we define our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
@@ -254,94 +259,10 @@ r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\})$$
 % TODO: add intuition on logic for the bit, maybe break up and define each op
 % one-by-one? maybe also tease horner pathological example?
 
-We now prove that our instantation adheres to the properties demanded by the
-interface spec of Negative Fuzz. By stapling together the following lemmas, the
-interface ($\mathbb{P}, d_{\mathbb{P}}, \rho_{\mathbb{P}}, u, \Sigma,
-(\mathbb{B}, \leq), \Sigma_{\mathbf{num}}$) satisfies the spec for instantiating
-Negative Fuzz specified in Definition~\ref{def:numfuzz-interface}.
-
-\subsubsection{Property A: The \textit{num} and distance function
-$d_\textbf{num}$ form a metric space.} \label{sec:prop-a}
-\begin{lemma}[Metric space]
-  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
-\end{lemma}
-\begin{proof}
-Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
-and application of triangle inequality with respect to $d_{\mathbb{R}}$.
-\end{proof}
-
-Our operations and bounds operate over the paired representation
-$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
-using bounded-sensitivity operations over the non-negative reals, avoiding the
-problem of infinite sensitivity.
-
-
-\subsubsection{Property B: Property of $u$ and rounding function $\rho$.}
-
-% TODO: keep the below
-To show a correspondance with the constants for $u$ given in Numerical Fuzz and
-Negative Fuzz, we show that it is sound to use the same round-off error bound
-$u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
-In other words, we wish to show that the translated rounding function can share
-the same round-off constant as the grade used in Numerical Fuzz over an unpaired
-representation.
-
-Given a rounding function $\rho_\mathbb{R}$ over the real with up to $u$
-round-off error, recall that we define a ``simulated" rounding function
-$\rho_{\mathbb{P}}$ over the paired representation
-(Definition~\ref{def:rounding-p})
-which satisfies the constraint that $r = a - b$ at all times. We need to show
-that our round-off constants $u$ still work for our new paired representation
-and paired rounding function $\rho_{\mathbb{P}}$.
-\begin{lemma}[Property of rounding and constant parameter $u$]
-We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
-$\forall r \in \mathbb{R}, d_\mathbb{R} (\rho(r), r) \leq u$, then
-    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
-    \leq u$. 
-\end{lemma}
-\begin{proof}
-$(\rho_{\mathbb{P}}((r, a, b)), (r, a, b)) = 
-(\rho_{\mathbb{R}}(r), a
-\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
-So, 
-$
-d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
-\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r}), (r, a, b)) = max(\rho_{\mathbb{R}}(r), \rho_{\mathbb{R}}(r)) = \rho_{\mathbb{R}} (r)
-$.
-\end{proof}
-
-\subsubsection{Property C: Property of $\mathbf{op} \in \Sigma$: metric preservation.}
-Our operations satisfy metric preservation.
-% TODO: elaborate some more?
-
-\begin{lemma}[Operations satisfy metric preservation]
-Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
-\end{lemma}
-\begin{proof}
-Holds by a case analysis for each operation in $\Sigma$ and unfolding the
-definition of our metric function.
-\end{proof}
-
-\subsubsection{Property D: Partial order of bounds.}
-\begin{lemma}[Partial order of $\bnd{\mathbb{B}}$.]
-  $(\mathbb{B}, \leq)$ form a partial order.
-\end{lemma}
-\begin{proof}
-  Follows from the fact that $\subseteq$ forms a partial order over
-  $\mathbb{Set}$.
-\end{proof}
-
-\subsubsection{Property E: Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$:
-closure over bounds ($\bnd{\mathbb{B}}$).} \label{sec:prop-e}
-
-\begin{lemma}[Closure over bounds]
-For every operation $\mathbf{bop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
-have that if $c_0, \ldots, c_n \in \mathbb{B}$ are $\textit{bop}(c_0, \ldots,
-c_n) = c' : \textbf{bnd}$ holds.
-\end{lemma}
-\begin{proof}
-  Follows by inspection of the definition of our three supported operations.
-\end{proof}
+We prove in the appendix that our instantation ($\mathbb{P}, d_{\mathbb{P}},
+\rho_{\mathbb{P}}, u, \Sigma, (\mathbb{B}, \leq), \Sigma_{\mathbf{num}}$)
+satisfies the spec for instantiating Negative Fuzz specified in
+Definition~\ref{def:numfuzz-interface}.
 
 \subsection{Translating our error bounds from the paired to the unpaired
 representation} \label{sec:application} 

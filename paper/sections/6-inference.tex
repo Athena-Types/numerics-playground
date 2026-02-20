@@ -462,150 +462,21 @@ $}
   \label{fig:inference-algo}
 \end{figure}
 
-\paragraph{Type inference soundness.}
-We now prove the soundness of our type inference algorithm.
-We use the following lemma for reasoning about the bound polymorphism variables
-in the $\multimap I$ and $\multimap E$ cases for the type inference soundness
-proof.
-\begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
-  For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
-  $FTV(\Gamma) \subseteq \Delta$ and $FTV(\tau) \subseteq \Delta$.
-\end{lemma}
-\begin{proof}
-  By induction over the $\vdash$ relation.
-\end{proof}
-
-We use the following lemma for reasoning about the bound polymorphism variables
-in the $\multimap I$ case for the type inference soundness proof.
-\begin{lemma}[Free vars in I.] \label{thm:free-var-i}
-  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \ldots \epsilon_n$, we have
-  that $FTV(\tau') = \{ \epsilon_0, \ldots, \epsilon_n \}$.
-\end{lemma}
-\begin{proof}
-  By induction over the definition of $I$.
-\end{proof}
-
-We use the following lemma for reasoning about the bound polymorphism variables
-in the $\multimap E$ case for the type inference soundness proof.
-\begin{lemma}[Well-formedness of bounds produced by $E$.] \label{thm:wff-var-e}
-  For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
-  $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
-\end{lemma}
-\begin{proof}
-  We apply weakening (over bound contexts, Lemma~\ref{thm:weakening-bnd}) to the
-  conclusion. So it suffices to prove that $FTV(\tau) \vdash i_j$. We complete
-  the proof by induction over $\tau$.
-\end{proof}
-
-Now we are able to prove the soundness of our type inference algorithm. 
-% Note that if the ordering of the variables produced by the I and E helper
-% functions do not align, the equality check in the $\multimap$ E case will fail.
-% This means that the choice of ordering is not essential for our soundness proof
-% but would be relevant for a completeness argument.
+\paragraph{Soundness of type inference.}
+We now state type soundness for our type inference algorithm, which we prove in
+the appendix.
 Note that we do not prove that our type inference algorithm infers the tightest
 possible sensitivity or round-off grades.
 So, our soundness theorem states that the inferred type, typing contexts, and
 term, after erasing, are equal to the original erased type, erased context, and
 erased term ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 e'^{\bnd{\bullet}}$).
-% TODO: prove that we infer the tighest possible sens + round-off error grades
-% (or provide counterexample).
 \begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
 If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
 derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 e'^{\bnd{\bullet}}$.
 \end{theorem}
-\begin{proof}
-We induct over each typing / case in the type inference algorithm. 
-\begin{description}
-  \item[$\textbf{unit}$.] Holds trivially.
-  \item[Var.] Let $\Delta$ contain all the bound variables mentioned by $\Gamma$
-    and $\tau$. Then we trivially have a typing derivation for $\bnd{\Delta \ |
-    \ } \Gamma, x : \tau \vdash x : \tau$.
-  \item[Const.] Holds trivially. 
-  % TODO: spell out delta
-  \item[! I.] Holds trivially. Note that our sensitivity scaling factor
-    $\annotate{s}$ is user-annotated.
-  \item[$\multimap$ I.] By our inductive hypothesis, we know that there exists a
-    $\Delta'$ such that we have a typing derivation $d$ for 
-    $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
-    We wish for each $\epsilon_0, \ldots , \epsilon_n$ to apply our
-    $\forall$ I rule to $d$. 
-    \par\bigskip
-    For each application of our $\forall$ I rule using variable $\epsilon_i$, we
-    must satisfy, from the premisses, that:
-    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$:
-    \bigskip
-
-    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \ldots, \epsilon_n\}$ by
-    Lemma~\ref{thm:free-var-i}. 
-    Then, we have that $\Delta \subseteq \Delta'$ by
-    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \ldots,
-    \epsilon_n \not\in \Delta'$.
-    We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
-    generates fresh vars. 
-    So both of our two conditions have been satisifed for all $\epsilon_i$.
-  \item[$\multimap$ E.] By our inductive hypothesis, we know that there exist
-    derivations:
-    \begin{itemize}
-      \item $d_0$ where $\Delta' \ | \ \Gamma' \vdash f : \forall
-        \epsilon_0, \ldots, \epsilon_n, \tau_0 \multimap \tau$
-      \item $d_1$ where $\Delta'' \ | \ \Theta \vdash e : \tau_0'$
-    \end{itemize}
-    Note that $\epsilon_0, \ldots, \epsilon_n$ are fresh from $\Delta''$ as each
-    $\epsilon$ generated is globally fresh in our type inference algorithm.
-    \par\bigskip
-  % TODO: spell out delta
-
-    By weakening on our inductive hypothesis, there exists a $\Delta$ such that
-    we have a derivation for $\Delta \ | \ \Theta \vdash e : \tau_0[\epsilon_0 /
-    i_0, \ldots, \epsilon_n / i_n]$.
-    Then we are able to iteratively apply the $\forall \text{ E}$ typing rule to
-    our derivation $d_0$ for each
-    $\epsilon_0, \ldots, \epsilon_n$, obtaining
-    us the following intermediate typing derivation $d_3$: 
-    $\Delta' - \{\epsilon_0, \ldots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
-    \vdash f' \ \{i_0\} \ldots \{i_n\} : 
-    (\tau_0 \multimap \tau) [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ 
-    whose type is the same as the following
-    $\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \multimap \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
-    \par\bigskip
-
-    Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
-    of the $\forall E$ rule is satisfied by applying Lemma~\ref{thm:wff-var-e}
-    and Lemma~\ref{thm:free-var-gamma} on the polymorphic bound judgements.
-    In particular, by Lemma~\ref{thm:free-var-gamma}, we have that
-    $FTV(\tau'_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]) \subseteq FTV(\tau'_0)
-    \subseteq FTV(\Theta) \subseteq \Delta''$. 
-    Applying Lemma~\ref{thm:wff-var-e} and our inductive hypothesis finishes
-    each proof obligation.
-    Now we are ready to apply our $\multimap E$ typing rule with derivation
-    $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
-    \ldots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
-  \item[Op.] Holds trivially.
-  \item[Factor.] Holds trivially.
-  \item[Ret.] Holds trivially.
-  \item[Rnd.] Holds trivially.
-  \item[$\times$ I.] Like Numerical Fuzz, we define \text{max} as the least
-    upper bound of $\Gamma_0$ and $\Gamma_1$. Let $\Delta_0$ and $\Delta_1$ be
-    the (implicit) polymorphic bound contexts generated by our inductive
-    hypothesis.
-    By weakening, we can produce a typing derivation for the following
-    judgement:
-    $\Delta_0 \cup \Delta_1 \ | \ \text{max}(\Gamma_0, \Gamma_1) \vdash \langle
-    f', e' \rangle; \tau_0 \times \tau_1$ which completes the case.
-  \item[$\times$ E.] Holds trivially.
-  \item[$\otimes$ I.] Holds trivially.
-  \item[Let.] Holds trivially.
-  \item[Let-pair.] Holds by applying weakening to the second inductive
-    hypothesis to obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s,
-    s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
-    the corresponding $\otimes \text{ E}$ rule to complete the case.
-  \item[Let-bind.] Holds trivially.
-  \item[$\otimes$ E.] We finish by applying our $\otimes$ E typing rule.
-\end{description}
-\end{proof}
 
 \paragraph{Simplifying the type.}
 After running type inference we obtain a result in the form: 

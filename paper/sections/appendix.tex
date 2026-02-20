@@ -1,4 +1,4 @@
-\section*{Appendix: Metric Preservation Proof}
+\section{Appendix: Metric Preservation Lemmas and Proof}
 For the metric preservation proof, we treat our distance vector $\gamma$ as a
 lookup function and assume that there is an implicit fixed ordering on the
 variables.
@@ -644,4 +644,233 @@ The below two lemmas are helpful towards proving metric preservation:
       distance is $\infty$ and we are done. Unfolding our logical relation and
       applying our inductive hypothesis finishes the case.
   \end{description}
+\end{proof}
+
+\section{Appendix: Proof that Negative Fuzz adheres to the modular interface} 
+\subsubsection{Property A: The \textit{num} and distance function
+$d_\textbf{num}$ form a metric space.} \label{sec:prop-a}
+\begin{lemma}[Metric space]
+  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
+\end{lemma}
+\begin{proof}
+Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
+and application of triangle inequality with respect to $d_{\mathbb{R}}$.
+\end{proof}
+
+Our operations and bounds operate over the paired representation
+$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
+using bounded-sensitivity operations over the non-negative reals, avoiding the
+problem of infinite sensitivity.
+
+
+\subsubsection{Property B: Property of $u$ and rounding function $\rho$.}
+
+% TODO: keep the below
+To show a correspondance with the constants for $u$ given in Numerical Fuzz and
+Negative Fuzz, we show that it is sound to use the same round-off error bound
+$u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
+In other words, we wish to show that the translated rounding function can share
+the same round-off constant as the grade used in Numerical Fuzz over an unpaired
+representation.
+
+Given a rounding function $\rho_\mathbb{R}$ over the real with up to $u$
+round-off error, recall that we define a ``simulated" rounding function
+$\rho_{\mathbb{P}}$ over the paired representation
+(Definition~\ref{def:rounding-p})
+which satisfies the constraint that $r = a - b$ at all times. We need to show
+that our round-off constants $u$ still work for our new paired representation
+and paired rounding function $\rho_{\mathbb{P}}$.
+\begin{lemma}[Property of rounding and constant parameter $u$]
+We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
+$\forall r \in \mathbb{R}, d_\mathbb{R} (\rho(r), r) \leq u$, then
+    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
+    \leq u$. 
+\end{lemma}
+\begin{proof}
+$(\rho_{\mathbb{P}}((r, a, b)), (r, a, b)) = 
+(\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
+So, 
+$
+d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r}), (r, a, b)) = max(\rho_{\mathbb{R}}(r), \rho_{\mathbb{R}}(r)) = \rho_{\mathbb{R}} (r)
+$.
+\end{proof}
+
+\subsubsection{Property C: Property of $\mathbf{op} \in \Sigma$: metric preservation.}
+Our operations satisfy metric preservation.
+% TODO: elaborate some more?
+
+\begin{lemma}[Operations satisfy metric preservation]
+Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
+\end{lemma}
+\begin{proof}
+Holds by a case analysis for each operation in $\Sigma$ and unfolding the
+definition of our metric function.
+\end{proof}
+
+\subsubsection{Property D: Partial order of bounds.}
+\begin{lemma}[Partial order of $\bnd{\mathbb{B}}$.]
+  $(\mathbb{B}, \leq)$ form a partial order.
+\end{lemma}
+\begin{proof}
+  Follows from the fact that $\subseteq$ forms a partial order over
+  $\mathbb{Set}$.
+\end{proof}
+
+\subsubsection{Property E: Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$:
+closure over bounds ($\bnd{\mathbb{B}}$).} \label{sec:prop-e}
+
+\begin{lemma}[Closure over bounds]
+For every operation $\mathbf{bop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
+have that if $c_0, \ldots, c_n \in \mathbb{B}$ are $\textit{bop}(c_0, \ldots,
+c_n) = c' : \textbf{bnd}$ holds.
+\end{lemma}
+\begin{proof}
+  Follows by inspection of the definition of our three supported operations.
+\end{proof}
+
+\section{Appendix: Soundness proof for algorithmic type inference} 
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ and $\multimap E$ cases for the type inference soundness
+proof.
+\begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
+  For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
+  $FTV(\Gamma) \subseteq \Delta$ and $FTV(\tau) \subseteq \Delta$.
+\end{lemma}
+\begin{proof}
+  By induction over the $\vdash$ relation.
+\end{proof}
+
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ case for the type inference soundness proof.
+\begin{lemma}[Free vars in I.] \label{thm:free-var-i}
+  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \ldots \epsilon_n$, we have
+  that $FTV(\tau') = \{ \epsilon_0, \ldots, \epsilon_n \}$.
+\end{lemma}
+\begin{proof}
+  By induction over the definition of $I$.
+\end{proof}
+
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap E$ case for the type inference soundness proof.
+\begin{lemma}[Well-formedness of bounds produced by $E$.] \label{thm:wff-var-e}
+  For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
+  $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
+\end{lemma}
+\begin{proof}
+  We apply weakening (over bound contexts, Lemma~\ref{thm:weakening-bnd}) to the
+  conclusion. So it suffices to prove that $FTV(\tau) \vdash i_j$. We complete
+  the proof by induction over $\tau$.
+\end{proof}
+
+Now we are able to prove the soundness of our type inference algorithm. 
+% Note that if the ordering of the variables produced by the I and E helper
+% functions do not align, the equality check in the $\multimap$ E case will fail.
+% This means that the choice of ordering is not essential for our soundness proof
+% but would be relevant for a completeness argument.
+% TODO: prove that we infer the tighest possible sens + round-off error grades
+% (or provide counterexample).
+\begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
+\end{theorem}
+
+\begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
+\end{theorem}
+\begin{proof}
+We induct over each typing / case in the type inference algorithm. 
+\begin{description}
+  \item[$\textbf{unit}$.] Holds trivially.
+  \item[Var.] Let $\Delta$ contain all the bound variables mentioned by $\Gamma$
+    and $\tau$. Then we trivially have a typing derivation for $\bnd{\Delta \ |
+    \ } \Gamma, x : \tau \vdash x : \tau$.
+  \item[Const.] Holds trivially. 
+  % TODO: spell out delta
+  \item[! I.] Holds trivially. Note that our sensitivity scaling factor
+    $\annotate{s}$ is user-annotated.
+  \item[$\multimap$ I.] By our inductive hypothesis, we know that there exists a
+    $\Delta'$ such that we have a typing derivation $d$ for 
+    $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
+    We wish for each $\epsilon_0, \ldots , \epsilon_n$ to apply our
+    $\forall$ I rule to $d$. 
+    \par\bigskip
+    For each application of our $\forall$ I rule using variable $\epsilon_i$, we
+    must satisfy, from the premisses, that:
+    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$:
+    \bigskip
+
+    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \ldots, \epsilon_n\}$ by
+    Lemma~\ref{thm:free-var-i}. 
+    Then, we have that $\Delta \subseteq \Delta'$ by
+    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \ldots,
+    \epsilon_n \not\in \Delta'$.
+    We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
+    generates fresh vars. 
+    So both of our two conditions have been satisifed for all $\epsilon_i$.
+  \item[$\multimap$ E.] By our inductive hypothesis, we know that there exist
+    derivations:
+    \begin{itemize}
+      \item $d_0$ where $\Delta' \ | \ \Gamma' \vdash f : \forall
+        \epsilon_0, \ldots, \epsilon_n, \tau_0 \multimap \tau$
+      \item $d_1$ where $\Delta'' \ | \ \Theta \vdash e : \tau_0'$
+    \end{itemize}
+    Note that $\epsilon_0, \ldots, \epsilon_n$ are fresh from $\Delta''$ as each
+    $\epsilon$ generated is globally fresh in our type inference algorithm.
+    \par\bigskip
+  % TODO: spell out delta
+
+    By weakening on our inductive hypothesis, there exists a $\Delta$ such that
+    we have a derivation for $\Delta \ | \ \Theta \vdash e : \tau_0[\epsilon_0 /
+    i_0, \ldots, \epsilon_n / i_n]$.
+    Then we are able to iteratively apply the $\forall \text{ E}$ typing rule to
+    our derivation $d_0$ for each
+    $\epsilon_0, \ldots, \epsilon_n$, obtaining
+    us the following intermediate typing derivation $d_3$: 
+    $\Delta' - \{\epsilon_0, \ldots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
+    \vdash f' \ \{i_0\} \ldots \{i_n\} : 
+    (\tau_0 \multimap \tau) [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ 
+    whose type is the same as the following
+    $\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \multimap \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
+    \par\bigskip
+
+    Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
+    of the $\forall E$ rule is satisfied by applying Lemma~\ref{thm:wff-var-e}
+    and Lemma~\ref{thm:free-var-gamma} on the polymorphic bound judgements.
+    In particular, by Lemma~\ref{thm:free-var-gamma}, we have that
+    $FTV(\tau'_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]) \subseteq FTV(\tau'_0)
+    \subseteq FTV(\Theta) \subseteq \Delta''$. 
+    Applying Lemma~\ref{thm:wff-var-e} and our inductive hypothesis finishes
+    each proof obligation.
+    Now we are ready to apply our $\multimap E$ typing rule with derivation
+    $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
+    \ldots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
+  \item[Op.] Holds trivially.
+  \item[Factor.] Holds trivially.
+  \item[Ret.] Holds trivially.
+  \item[Rnd.] Holds trivially.
+  \item[$\times$ I.] Like Numerical Fuzz, we define \text{max} as the least
+    upper bound of $\Gamma_0$ and $\Gamma_1$. Let $\Delta_0$ and $\Delta_1$ be
+    the (implicit) polymorphic bound contexts generated by our inductive
+    hypothesis.
+    By weakening, we can produce a typing derivation for the following
+    judgement:
+    $\Delta_0 \cup \Delta_1 \ | \ \text{max}(\Gamma_0, \Gamma_1) \vdash \langle
+    f', e' \rangle; \tau_0 \times \tau_1$ which completes the case.
+  \item[$\times$ E.] Holds trivially.
+  \item[$\otimes$ I.] Holds trivially.
+  \item[Let.] Holds trivially.
+  \item[Let-pair.] Holds by applying weakening to the second inductive
+    hypothesis to obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s,
+    s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
+    the corresponding $\otimes \text{ E}$ rule to complete the case.
+  \item[Let-bind.] Holds trivially.
+  \item[$\otimes$ E.] We finish by applying our $\otimes$ E typing rule.
+\end{description}
 \end{proof}
