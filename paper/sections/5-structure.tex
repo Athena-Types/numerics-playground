@@ -19,7 +19,7 @@ error bounds. Finally, we discuss the soundness and semantics of
 In Figure~\ref{fig:pairwise-iterative-side-by-side}, we return to our example
 pairwise summation program ( subfigure a) from
 Section~\ref{sec:overview} whose type is $M_{3 \cdot u} \ \textbf{num}$.
-From the numerical analysis literature, we the more efficient pairwise summation
+From the numerical analysis literature, we expect the more efficient pairwise summation
 algorithm to have type $M_{2 \cdot u} \ \textbf{num}$, a one-third tighter bound
 than the iterative summation algorithm (subfigure b).
 However, both programs have the same type.
@@ -168,7 +168,7 @@ means that both programs have the same $3u$ monadic error grade.
 \bottomAlignProof
 \DisplayProof
 \caption{
-  A partial typing tree showing the commonalties of both summation algorithms.
+  A partial typing tree showing the commonalities of both summation algorithms.
   Note the grades and occurrences of \textbf{let-bind} in the typing tree.
 }
 \end{subfigure}

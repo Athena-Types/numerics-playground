@@ -54,7 +54,7 @@ parameters
 (Section~\ref{sec:rho-and-u}), supported arithmetic operations
 (Section~\ref{sec:paired-ops}), bounds domain and bounds operations
 (Section~\ref{sec:bnd-domain-and-op}), and finally prove the that our
-instantation adheres to the spec demanded by Negative Fuzz
+instantiation adheres to the spec demanded by Negative Fuzz
 (Sections~\ref{sec:prop-a}-\ref{sec:prop-e}).
 
 \subsubsection{Defining the rounding function and round-off parameters for the
@@ -145,7 +145,7 @@ one of the paired components is greater than zero. In fact, an inspection of our
 supported operations shows that $a > 0 \land b > 0$ can only be true when
 either: (1) the program contains subtraction, or (2) the program contains
 negative numbers. Further, we observe that when the ($a > 0 \land b > 0$)
-condition holds, the our interval bound for multiplication drastically tightens.
+condition holds, our interval bound for multiplication drastically tightens.
 % TODO: brag about Horner being much tighter (do we foreshadow or just drop some
 % random eval claim here?)
 
@@ -283,7 +283,7 @@ r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\up
 % TODO: add intuition on logic for the bit, maybe break up and define each op
 % one-by-one? maybe also tease horner pathological example?
 
-We prove in the appendix that our instantation ($\mathbb{P}, d_{\mathbb{P}},
+We prove in the appendix that our instantiation ($\mathbb{P}, d_{\mathbb{P}},
 \rho_{\mathbb{P}}, u, \Sigma, (\mathbb{B}, \leq), \Sigma_{\mathbf{num}}$)
 satisfies the spec for instantiating Negative Fuzz specified in
 Definition~\ref{def:numfuzz-interface}.

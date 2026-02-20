@@ -649,16 +649,16 @@ Now, we can state our interface:
     $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
     \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
   \item[c) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
-    The bolded \textbf{op} is our syntacic metavariable for our supported
+    The bolded \textbf{op} is our syntactic metavariable for our supported
     operations (e.g. \textbf{add}, \textbf{sub}, \textbf{mul}).
-    The italizied $\textit{op}$ is the metavariable represents the corresponding
+    The italicized $\textit{op}$ is the metavariable represents the corresponding
     function mapping values to values.
     We require that \textit{op} is 1-sensitive as measured by $\mathcal{SD}$.
     To simplify our presentation, we also assume that for every operation has the following
     shape with no free type variables:
     $\textbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$.
     \footnote{Note that we could make this portion of the interface more general
-    by definining it in terms of the logical relation in
+    by defining it in terms of the logical relation in
     Section~\ref{def:logical-relation}. We have opted to keep the interface
     minimal for presentational purposes.}
   \item[d) Partial order of bounds.] The set of bounds and binary relation
@@ -770,7 +770,7 @@ reasoning about type inference in Section~\ref{sec:inference}.
   We induct over our typing derivation. 
   Most of the cases are immediate.
   For the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E}, \textbf{$M_u$~E}, and
-  \textbf{$\otimes$ I} rules, the enviroment must be split into a $\Gamma$
+  \textbf{$\otimes$ I} rules, the environment must be split into a $\Gamma$
   (which can in some cases be scaled) and $\Delta$ (which does not ever get
   scaled); for each of these cases we choose to push unused variables into
   $\Delta$. 
@@ -833,10 +833,10 @@ the same as Fuzz \cite{fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
 
 % TODO: check that we properly handle the not zero and intersection condition
 % everywhere this is used
-Now that we can talk about subsitutions, we follow Fuzz and state a
+Now that we can talk about substitutions, we follow Fuzz and state a
 $r$-sensitive substitution lemma with the proof in the appendix. Note that the
 $r=0$ restriction helps the $\otimes E$ case to go through.
-\begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
+\begin{lemma}[$r$-sensitive substitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
   \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
   \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
