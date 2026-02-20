@@ -16,9 +16,18 @@ error bounds. Finally, we discuss the soundness and semantics of
 % whether our language is missing other related primitives. 
 
 \paragraph{Problem intuition.}
-We return to our example pairwise summation program ($(w \tilde{+} x) \tilde{+}
-(y \tilde{+} z)$) from Section~\ref{sec:overview} whose type is $M_{3 \cdot u} \
-\textbf{num}$:
+In Figure~\ref{fig:pairwise-iterative-side-by-side}, we return to our example
+pairwise summation program ( subfigure a) from
+Section~\ref{sec:overview} whose type is $M_{3 \cdot u} \ \textbf{num}$.
+From the numerical analysis literature, we would expect that the more
+efficient pairwise summation algorithm to have type $M_{2 \cdot u} \
+\textbf{num}$, a one-third tighter error bound than the iterative summation
+algorithm (subfigure b).
+However, both programs have the same type and error bound.
+
+\begin{figure}[htp] 
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
 \begin{equation*}
   \begin{aligned}[c]
     \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -26,10 +35,10 @@ We return to our example pairwise summation program ($(w \tilde{+} x) \tilde{+}
     \textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
   \end{aligned}
 \end{equation*}
-From the literature, we would expect that the more efficient pairwise summation
-algorithm to have type $M_{2 \cdot u} \ \textbf{num}$, a one-third tighter error
-bound than the iterative summation algorithm ($((w \tilde{+} x) \tilde{+} y)
-\tilde{+} z$) shown: 
+\caption{Pairwise summation ($(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$) on
+four variables}
+\end{subfigure}
+\begin{subfigure}[t]{0.48\textwidth}
 \begin{equation*}
   \begin{aligned}[c]
     \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
@@ -37,7 +46,13 @@ bound than the iterative summation algorithm ($((w \tilde{+} x) \tilde{+} y)
     \textbf{rnd} \ (\textbf{add} \  \langle p, z \rangle  )
   \end{aligned}
 \end{equation*}
-However, both programs have the same type and error bound.
+\caption{Iterative summation ($((w \tilde{+} x) \tilde{+} y) \tilde{+} z$) on
+four variables}
+\end{subfigure}
+\caption{Side-by-side comparison of pairwise summation and iterative summation
+on four variables.}
+\label{fig:pairwise-iterative-side-by-side}
+\end{figure}
 
 To better understand the restrictions imposed by the type system, we include the
 relevant portions of the typing trees for the above two programs in

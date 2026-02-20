@@ -162,13 +162,9 @@ We are also able to scale typing contexts through the (! I) rule. This is useful
 for instantiating functions with finitely scaled sensitivity.
 % todo: check that we can't be infinite and that this is up-to-date everywhere
 
-The monadic grade upper-bounds the maximum possible round-off error possible.
-We use our typing context and judgement to indicate that the variable $x$ is
-$s$-sensitive in the expression $e$ and has worst-case round-off error
-upper-bounded by $q$.
-\begin{equation}
-  x :_s \tau_0 \vdash e : M_q \tau_1
-\end{equation}
+For a typing judgement $x :_s \tau_0 \vdash e : M_q \tau_1$, our variable $s$
+bounds the sensitivity of $x$ in $e$ and $q$ bounds the maximum round-off error
+observable by the expression $e$.
 Most of the rules for controlling the error grade and sensitivity, (Ret), (Rnd),
 ($M_u$ E), (Subsumption), and ($!$ S) are taken from Numerical Fuzz and are our
 core reasoning principles for reasoning about round-off error. Intuitively,
