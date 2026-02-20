@@ -1,10 +1,11 @@
 \section{A Paired Model of Negative Fuzz} \label{sec:encoding}
 In this section, we will instantiate our family of languages and demonstrate how
-to read a type as a floating-point error bound.
+to obtain a usable floating-point error bound from a program type.
 Numerical Fuzz's error analysis relies on bounding Lipschitz function
-sensitivity. However, subtraction, and by extension addition with negative
-numbers, has unbounded Lipschitz sensitivity over the reals. This poses a
-challenge to a compositional type-based analysis of programs involving
+sensitivity with respect to the relative precision metric. However, subtraction,
+and by extension addition with negative numbers, has unbounded Lipschitz
+sensitivity with respect to the relative precision metric over the reals. This
+poses a challenge to a compositional type-based analysis of programs involving
 subtraction and negative numbers.
 
 To avoid this problem, we translate our semantics to a \textit{paired

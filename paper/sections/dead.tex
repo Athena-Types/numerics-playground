@@ -187,3 +187,18 @@
 %    At each function call site, we specialize the polymorphic function to the
 %    appropriate bounds. 
 
+
+% we would expect Numerical Fuzz to infer that the error on our paired summation
+% example grows in $O(log_2(n))$
+% It is well known that round-off error grows linearly in the height of a
+% summation tree. 
+% This would match our intuition 
+%
+% pairwise summation will recursively a list of numbers in half and compute the
+% sum of the halves.
+% This produces a computation tree of height $\left \lceil{log_2(n)}\right
+% \rceil$ with error growing in .
+% By contrast, naive iterative summation takes a list of numbers and sequentialy
+% adds from left to right over the list. This produces a computation tree of
+% height $O(n)$, with error also growing in $O(n)$.
+% linearly in size of the number of \textit{nodes}, which is undesirable.

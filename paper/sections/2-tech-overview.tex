@@ -111,7 +111,8 @@ We will first assign a type in Negative Fuzz to a simplified toy example. Then,
 we will demonstrate how to use the type to obtain a sound error bound.
 
 \paragraph{Standard representation.}
-Numerical Fuzz's type system relies on bounding function sensitivity. 
+Numerical Fuzz's type system relies on bounding function sensitivity with
+respect to Olver's relative precision metric. 
 We first attempt to assign a type to a hypothetical addition primitive in
 Numerical Fuzz over the unrestricted reals:
 $\textbf{add} : !_{\infty} (\textbf{num} \times \textbf{num}) \multimap \textbf{num}$.
@@ -128,15 +129,17 @@ introduced in the inputs $p$ and $q$ to the last $add$ call.
 Secondly, since the $add$ function may amplify error in its input by up to
 $\infty$, the round-off error of the whole program is $\infty \cdot u = \infty$
 where $u$ is our unit-roundoff constant.
-Therefore, we have that our example program has infinitely-bounded error, which
-is not a useful error bound.
+Therefore, we can only show that our example program has infinitely-bounded
+error, which is not a useful error bound.
 
 \paragraph{Paired model.}
-As addition and subtraction over the unrestricted reals is infinitely-sensitive,
-we first deal with the problem of infinite sensitivity.
+As addition and subtraction over the unrestricted reals is infinitely-sensitive
+with respect to Olver's relative precision metric, we first deal with the
+problem of infinite sensitivity.
 We develop a paired model for arithmetic where unrestricted addition and
-subtraction have finitely-bounded sensitivity. The trick is to associate for
-each real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R}
+subtraction have finitely-bounded sensitivity with respect to relative
+precision. The trick is to associate for each real $r \in \mathbb{R}$ a triple
+$(r, a, b) \in \mathbb{P} = \mathbb{R}
 \times \mathbb{R}^+ \times \mathbb{R}^+ = \mathit{num}$ such that $r = a - b$.
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
@@ -204,32 +207,26 @@ the exact, unrounded versions of $r, a, b$, and (2) the relative precision bound
 between the exact and approximate components between $d_{\mathbb{R}}(a,
 \tilde{a})$ and $d_{\mathbb{R}}(b, \tilde{b})$, which comes from our $3u$ monad
 grade.
-%
-% $3u$ monad grade provides (1) and the subscript provides (2) by ensuring the
-% program result will be inside of the set .
 
-% TODO: how exactly do we type add?
 To obtain (1), we run an interval-style analysis on the exact versions of $r, a,
 b$. We observe that in our running example, we have that the paired
-representation of $w, x, y, z \in [-1, 1] \times [0, 1] \times [0, 1]$. Our
-bounds analysis will take this input and determine that the ideal computation
-has type $\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ ensures that the
-program result will be within $[-4, 4] \times [0, 4] \times [0,
+representation of $w, x, y, z \in [-1, 1] \times [0, 1] \times [0, 1]$. 
+Our bounds analysis will take this input and determine that the ideal
+computation has type $\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ ensures
+that the program result will be within $[-4, 4] \times [0, 4] \times [0,
 4]$ with the invariant for every triple $(r, a, b)$ the equation $r = a - b$
   holds.
 % If we have bounds on $a$ and $b$, we can take advantage of our invariant.
 % Simplifying for presentational purposes, we perform an interval-style analysis.
-To obtain (2), we can deduce from the $3u$ grade of our monad to conclude that
-for all inputs $w, x, y, z$ to our input program, for an output value $(r, a,
-b), (\tilde{r}, \tilde{a}, \tilde{b})$, that $max(d(a, \tilde{a}), d(b,
-\tilde{b})) \leq 3 \cdot u$. 
+To obtain (2), we can deduce from the $3u$ grade of our monad that for all
+inputs $w, x, y, z$ to our input program, for an output value $(r, a, b),
+(\tilde{r}, \tilde{a}, \tilde{b})$, that $d(a, \tilde{a}) \leq 3u$ and $d(b,
+\tilde{b}) \leq 3 u$. 
 Combining (1) and (2), we can apply our main absolute error theorem,
 Theorem~\ref{thm:paired-a-priori-abs}, for 64-bit floats and obtain the absolute
 error bound: $r - \tilde{r} = 2.6645352591003757 \times 10^{-15}$. 
 
-% TODO: justin says "go slower here, connect to numfuzz type, space out, break
-% up paragraphs. this part is important to help readers understand how our
-% system works"
+% TODO: can I go even slower here and explain things better?
 \paragraph{Bound polymorphism.}
 It is challenging to assign a single, most precise type to $\textbf{add}$.
 The difficulty arises when $\textbf{add}$ is called multiple times in
@@ -342,18 +339,3 @@ a detailed explanation of \textbf{factor} and how it allows for structuring and
 sequencing arithmetic towards a more precise error analysis in
 Section~\ref{sec:structure}. We also showcase the improved precision offered by
 programs annotated with the \textbf{factor} primitive in Section~\ref{sec:eval}.
-
-% we would expect Numerical Fuzz to infer that the error on our paired summation
-% example grows in $O(log_2(n))$
-% It is well known that round-off error grows linearly in the height of a
-% summation tree. 
-% This would match our intuition 
-%
-% pairwise summation will recursively a list of numbers in half and compute the
-% sum of the halves.
-% This produces a computation tree of height $\left \lceil{log_2(n)}\right
-% \rceil$ with error growing in .
-% By contrast, naive iterative summation takes a list of numbers and sequentialy
-% adds from left to right over the list. This produces a computation tree of
-% height $O(n)$, with error also growing in $O(n)$.
-% linearly in size of the number of \textit{nodes}, which is undesirable.
