@@ -52,15 +52,6 @@ space compared to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
 floating-point analyses via global optimization or rewriting rather than speed
 or scalability.
 
-To understand how \textbf{factor} contributes the precision of our approach, we
-perform a simple ablation by manually translating each benchmark from FPBench
-into Negative Fuzz with and without the \textbf{factor} primitive.
-In all of the examples in Table~\ref{tab:small-precision-abs}, we
-can see that using the \textbf{factor} strictly improves the precision of our
-analysis. We did not specifically optimize our implementation of \textbf{factor}
-so it is difficult to draw any conclusions about \textbf{factor}'s performance
-overhead.
-
 \input{../plots/small-benchmarks-tables.tex}
 
 \paragraph{Large benchmark programs.}
@@ -102,24 +93,33 @@ edge of each plot. We discuss the benchmarks below:
 \label{fig:large-plots}
 \end{figure}
 
-\paragraph{Impact of factor.}
-We observe that using \textbf{factor} in our evaluation only improves
-our error analysis. For a program of type $M_q \ \textbf{num}_{\bnd{b}}$, our
-analysis depends on two parts of our type: 
-\begin{enumerate}
-  \item The grade on the monad $q$. In our evaluation benchmarks
-    (Section~\ref{sec:eval}), we observe that rewriting a program with
-    \textbf{factor} only reduces the inferred monadic grade.
-  \item The result of the bound analysis $\bnd{b}$, which is entirely orthogonal
-    to the usage of \textbf{factor}. In fact, we observe that for each benchmark
-    in our evaluation rewritten to use \textbf{factor}, the inferred bounds
-    subscript on $\textbf{num}$ remains unchanged.
-\end{enumerate}
-So, each program rewritten with \textbf{factor} in our evaluation only
-improved our grade $q$ while keeping the bound $b$ the same. Our error theorems
-(Theorem~\ref{thm:paired-a-priori-abs} and
-Theorem~\ref{thm:paired-a-priori-rel}) ensure that if a program is rewritten to
-a lower monadic grade $q$, all else equal, the final error bound will improve.
+\paragraph{Factor ablation.}
+To understand how \textbf{factor} contributes the precision of our approach, we
+perform a simple ablation by manually translating each benchmark from FPBench
+into Negative Fuzz with and without the \textbf{factor} primitive. We also
+translate one benchmark from the Satire suite. In all of the examples in
+Table~\ref{tab:small-precision-abs} and Figure~\ref{fig:large-plots}, we can see
+that using the \textbf{factor} strictly improves the precision of our analysis. 
+Moreover using \textbf{factor} only improved the monadic grade while keeping the
+bound analysis the same.
+Note that we did not specifically optimize our implementation of \textbf{factor}
+so it is difficult to draw any conclusions about \textbf{factor}'s runtime
+performance overhead.
+% This makes sense because for a program of type $M_q \ \textbf{num}_{\bnd{b}}$,
+% our analysis depends on two parts of our type: 
+% \begin{enumerate}
+%   \item The grade on the monad $q$. In our evaluation benchmarks
+%     (Section~\ref{sec:eval}), we observe that rewriting a program with
+%     \textbf{factor} only reduces the inferred monadic grade.
+%   \item The result of the bound analysis $\bnd{b}$, which is entirely orthogonal
+%     to the usage of \textbf{factor}. In fact, we observe that for each benchmark
+%     in our evaluation rewritten to use \textbf{factor}, the inferred bounds
+%     subscript on $\textbf{num}$ remains unchanged.
+% \end{enumerate}
+% Our error theorems
+% (Theorem~\ref{thm:paired-a-priori-abs} and
+% Theorem~\ref{thm:paired-a-priori-rel}) ensure that if a program is rewritten to
+% a lower monadic grade $q$, all else equal, the final error bound will improve.
 
 \paragraph{Evaluation takeaways.}
 From all our evaluation tables and figures, we conclude that when compared with
