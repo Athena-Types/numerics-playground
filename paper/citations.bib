@@ -376,40 +376,8 @@ abstract = {Starting from a denotational semantics of the eager untyped
   numpages = {31},
   keywords = {Liquid types, abstract interpretation, refinement type inference}
 }
-}
-@unpublished{dedekind,
-  author = {Richard, Dedekind},
-  title = {Die Schöpfung der Null und der negativen ganzen Zahlen},
-  year = 1872
-  url = https://www.deutsche-digitale-bibliothek.de/item/MOEXSNIM4OKBERNWZYFWCWMVXQXX6SPK 
-  note = {See page 4v.}
-}
-@BOOK{algebra-serge,
-  title     = "Algebra",
-  author    = "Lang, Serge",
-  publisher = "Springer",
-  series    = "Graduate Texts in Mathematics",
-  edition   =  3,
-  month     =  nov,
-  year      =  2012,
-  address   = "New York, NY",
-  copyright = "https://www.springernature.com/gp/researchers/text-and-data-mining",
-  language  = "en"
-}
 
-@BOOK{cagegories-maclane,
-    title     = "Categories for the working mathematician",
-  author    = "Lane, Saunders Mac",
-  publisher = "Springer",
-  series    = "Graduate Texts in Mathematics",
-  edition   =  2,
-  month     =  nov,
-  year      =  2010,
-  address   = "New York, NY",
-  language  = "en"
-}
-
-@inproceedings{10.1145/1863543.1863568,
+@inproceedings{fuzz,
 author = {Reed, Jason and Pierce, Benjamin C.},
 title = {Distance makes the types grow stronger: a calculus for differential
          privacy},
@@ -447,44 +415,4 @@ title = {Distance makes the types grow stronger: a calculus for differential
   keywords = {differential privacy, type systems},
   location = {Baltimore, Maryland, USA},
   series = {ICFP '10}
-}
-
-@article{fuzz,
-  author = {Reed, Jason and Pierce, Benjamin C.},
-  title = {Distance makes the types grow stronger: a calculus for differential
-           privacy},
-  year = {2010},
-  issue_date = {September 2010},
-  publisher = {Association for Computing Machinery},
-  address = {New York, NY, USA},
-  volume = {45},
-  number = {9},
-  issn = {0362-1340},
-  url = {https://doi.org/10.1145/1932681.1863568},
-  doi = {10.1145/1932681.1863568},
-  abstract = {We want assurances that sensitive information will not be disclosed
-              when aggregate data derived from a database is published.
-              Differential privacy offers a strong statistical guarantee that the
-              effect of the presence of any individual in a database will be
-              negligible, even when an adversary has auxiliary knowledge. Much of
-              the prior work in this area consists of proving algorithms to be
-              differentially private one at a time; we propose to streamline this
-              process with a functional language whose type system automatically
-              guarantees differential privacy, allowing the programmer to write
-              complex privacy-safe query programs in a flexible and compositional
-              way.The key novelty is the way our type system captures function
-              sensitivity, a measure of how much a function can magnify the
-              distance between similar inputs: well-typed programs not only can't
-              go wrong, they can't go too far on nearby inputs. Moreover, by
-              introducing a monad for random computations, we can show that the
-              established definition of differential privacy falls out naturally
-              as a special case of this soundness principle. We develop examples
-              including known differentially private algorithms, privacy-aware
-              variants of standard functional programming idioms, and
-              compositionality principles for differential privacy.},
-  journal = {SIGPLAN Not.},
-  month = sep,
-  pages = {157–168},
-  numpages = {12},
-  keywords = {differential privacy, type systems}
 }
