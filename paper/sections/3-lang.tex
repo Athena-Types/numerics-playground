@@ -2,7 +2,7 @@
 Our language is an extension of the Numerical Fuzz \cite{numfuzz} family of
 call-by-value affine lambda calculi.
 We first describe the terms (Section~\ref{sec:terms}), types and static
-semantics (Section~\ref{sec:types}), operational semantics
+semantics (Section~\ref{sec:static-semantics}), operational semantics
 (Section~\ref{sec:dynamic-semantics}), and a modular interface for soundly
 instantiating the language. Finally, we define a logical relation and prove
 soundness (Metric Preservation; Theorem~\ref{thm:metric-preservation}).
@@ -183,9 +183,9 @@ interpretation-style analysis by annotating $\textbf{num}_{\bnd{i}}$ types with
 a subscript bound with the grammar $\bnd{b}$ shown in Figure~\ref{fig:syntax}.
 Our type system is parametric in $\bnd{\mathbb{B}}$, which is a set of bounds
 equipped with a partial order $\leq$.
-In Section~\ref{sec:bexp}, we define the $\bnd{\llbracket} - \bnd{\rrbracket}$
-relation interpreting bound expressions $\bnd{b}$ to a subset of
-$\bnd{\mathbb{B}}$.
+In Definition~\ref{def:bound-exp-eval}, we define the $\bnd{\llbracket} -
+\bnd{\rrbracket}$ relation interpreting bound expressions $\bnd{b}$ to a subset
+of $\bnd{\mathbb{B}}$.
 We additionally extend Numerical Fuzz by adding expressions in more places (e.g.
 the application rule) and a $\textbf{factor}$ primitive to enable tighter error
 bounds. To support operations that have polymorphic bounds, we additionally
@@ -789,8 +789,9 @@ reasoning about type inference in Section~\ref{sec:inference}.
 
 We now define vectors of expressions, and substitutions which will also be
 useful later for stating and proving our main type soundness proof (Metric
-Preservation, Theorem~\ref{thm:type-soundness}). We proceed to incrementally
-build up to the definition of distance between substitutions below.
+Preservation, Theorem~\ref{thm:metric-preservation}). We proceed to
+incrementally build up to the definition of distance between substitutions
+below.
 
 \begin{definition}[Distance between expression vectors.]
     We write vectors of expressions $\sigma$, $\sigma'$ are $\gamma$ apart for a
@@ -862,4 +863,5 @@ provide lemmas for in the appendix.
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
   $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
-\end{theorem} \label{thm:metric-preservation}
+\label{thm:metric-preservation}
+\end{theorem} 

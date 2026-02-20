@@ -1,5 +1,5 @@
 \section{Appendix: Subsitution lemma and metric preservation proof}
-\begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
+\begin{lemma}[$r$-sensitive subsitution]
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
   \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
   \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
@@ -41,13 +41,13 @@ variables.
 
 The below two lemmas are helpful towards proving metric preservation:
 \begin{lemma}[Subsitution decomposition]
-  \label{thm:sub-decomp}
   For substitutions 
   $\sigma \sim_{\alpha} \sigma' : \Delta_0 + \Delta_1 \ | \ \Gamma + \Theta$,
   there exists
   $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 \ | \ \Gamma$
   and
   $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
+  \label{thm:sub-decomp}
 \end{lemma}
 \begin{proof}
   Follows by induction over the length of the relation $\sigma \sim_{\alpha}
@@ -55,7 +55,6 @@ The below two lemmas are helpful towards proving metric preservation:
 \end{proof}
 
 \begin{lemma}[Metric preservation under context evaluation stepping]
-  \label{thm:ctx-stepping}
   For a well-typed $\Delta \ | \ \Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
   \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ and
   $e~\sigma \mapsto^{*} v$ and
@@ -63,6 +62,7 @@ The below two lemmas are helpful towards proving metric preservation:
   If $C[v] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[v'] \sigma' : \tau$ 
   then
   $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C [e] \sigma' : \tau$.
+  \label{thm:ctx-stepping}
 \end{lemma}
 \begin{proof}
   By inspection of our stepping relation, we can tell that stepping is
@@ -90,7 +90,7 @@ The below two lemmas are helpful towards proving metric preservation:
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
   $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
-\end{theorem} \label{thm:metric-preservation}
+\end{theorem} 
 \begin{proof}
   We induct over our typing derivation. The base cases (Var,
   \bnd{\textbf{bvar}}, Unit, Const) follow trivially. The subsumption and
@@ -762,7 +762,7 @@ c_n) = c' : \textbf{bnd}$ holds.
 \end{proof}
 
 \section{Appendix: Error bound translation theorems}
-\begin{theorem}[Paired error theorem; relative] \label{thm:paired-a-priori-rel}
+\begin{theorem}[Paired error theorem; relative]
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
   $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
   the following bounds
@@ -849,7 +849,7 @@ c_n) = c' : \textbf{bnd}$ holds.
   theorem proves the corollary.
 \end{proof}
 
-\begin{theorem}[Paired error theorem; absolute] \label{thm:paired-a-priori-abs}
+\begin{theorem}[Paired error theorem; absolute] 
   For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
   the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
   $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
@@ -1102,7 +1102,7 @@ Now we are able to prove the soundness of our type inference algorithm.
 % but would be relevant for a completeness argument.
 % TODO: prove that we infer the tighest possible sens + round-off error grades
 % (or provide counterexample).
-\begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
+\begin{theorem}[Algorithmic Soundness] 
 If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
 some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
 derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
