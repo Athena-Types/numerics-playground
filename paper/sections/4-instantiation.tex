@@ -151,20 +151,18 @@ condition holds, the our interval bound for multiplication drastically tightens.
 
 % TODO: intuition on the bit, why we have it and what it tracks. emp on common
 % case
-We set our bound domain $\bnd{\mathbb{B}} = (\mathbb{R} \times \mathbb{R})
+Our bound domain $\bnd{\mathbb{B}} \triangleq (\mathbb{R} \times \mathbb{R})
 \times (\mathbb{R}^+ \times \mathbb{R}^+) \times (\mathbb{R}^+ \times
-\mathbb{R}^+) \times \textbf{Bool}$ such that each element of
+\mathbb{R}^+) \times \textbf{Bool}$ where each element of
 $\bnd{\mathbb{B}}$, written
 $((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
 (b^{\downarrow}, b^{\uparrow}), d)$ represents a set of tuples 
 $(r, a, b) \in \mathbb{P}$
-satisfiying the following constraints:
-\begin{enumerate}
-  \item Lower and upper bounds on $r$, with the following constraints $r^{\downarrow} \leq r \leq r^{\uparrow}$
-  \item Lower and upper bounds on $a$, with the following constraints $a^{\downarrow} \leq a \leq a^{\uparrow}$
-  \item Lower and upper bounds on $b$, with the following constraints $b^{\downarrow} \leq b \leq b^{\uparrow}$
-  \item A boolean $d$ tracking whether the condition $a > 0 \land b > 0$ is true.
-\end{enumerate}
+such that following constraints hold:
+(1) $r^{\downarrow} \leq r \leq r^{\uparrow}$;
+(2) $a^{\downarrow} \leq a \leq a^{\uparrow}$;
+(3) $b^{\downarrow} \leq b \leq b^{\uparrow}$; and
+(4) $d = a > 0 \land b > 0$.
 To define $\leq$ over our bounds domain, we first define a mapping of bounds to
 sets:
 \begin{definition}[Mapping of bounds to sets.]
