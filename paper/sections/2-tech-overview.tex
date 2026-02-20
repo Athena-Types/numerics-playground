@@ -239,7 +239,7 @@ typed like so: $id : \bnd{\forall \epsilon.} ~ \textbf{num}_{\bnd{\epsilon}}
 \multimap \textbf{num}_{\bnd{\epsilon}}$. We can introduce and eliminate
 polymorphism via $\forall$ introduction and elimination rules.
 % provided in Figure~\ref{fig:typing_rules}.
-We also introduce \textit{bound operations} (e.g. $+$, $-$, and $-$), which are
+We also introduce \textit{bound operations} (e.g. $+$, $-$, and $\cdot$), which are
 meta-level operations mapping bounds to bounds that enable us to type:
 $$
 \textbf{add} : \bnd{\forall \epsilon_1, \epsilon_2}, \mathbf{num}_{\bnd{\epsilon_1}} \times
@@ -274,7 +274,7 @@ size $O(n)$.
 
 Our extension enables the user to obtain more precise error bounds that
 grow linearly in size of the \textit{height} of the computation tree, allowing
-us to obtain a the expected $O(log_2(n))$ bound for pairwise summation.
+us to obtain the expected $O(log_2(n))$ bound for pairwise summation.
 We accomplish this by developing a special primitive $\textbf{factor}$ in our
 term language. Rewriting our running example with our special primitive
 below, we can see that using \textbf{factor} results in a significantly smaller
