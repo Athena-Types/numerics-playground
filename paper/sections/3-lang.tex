@@ -840,39 +840,15 @@ the same as Fuzz \cite{Fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
 
 % TODO: check that we properly handle the not zero and intersection condition
 % everywhere this is used
-Now that we can talk about subsitutions, we follow Fuzz and prove a
-$r$-sensitive substitution lemma. Note that the $r=0$ restriction helps the
-$\otimes E$ case to go through.
+Now that we can talk about subsitutions, we follow Fuzz and state a
+$r$-sensitive substitution lemma with the proof in the appendix. Note that the
+$r=0$ restriction helps the $\otimes E$ case to go through.
 \begin{lemma}[$r$-sensitive subsitution]\label{thm:substitution}
   Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
   \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
   \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
   e'[e/x] : \tau'$.
 \end{lemma}
-\begin{proof}
-  We first induct over the height of the final typing derivation with
-  substitution. Note that the $\bnd{Bvar}$ and $\bnd{Bop}$ rules are rules for a
-  different typing judgement from our main judgement $\vdash$. The Unit, Const,
-  and Op base cases are immediate. We detail the remaining cases here:
-  \begin{description}
-    \item[Var.] In the case that $s=1$, holds immediately. Otherwise, we apply
-      weakening.
-    \item[Inductive cases with possible variable capture $\multimap$ I, $\otimes E$,
-      $+$ E, $!$ E, Let, $M_u$ E] 
-      We case: if $x$ is immediately captured by the expression (e.g. $\lambda$ for
-      $\multimap$ I or $x$ and $y$ for the \textbf{let-pair} expression, etc.), we can
-      apply our inductive hypothesis.
-      Otherwise, it holds immediately.
-    \item[Inductive case: $\forall$ - I.]
-      Holds by our inductive hypothesis and observing that the side condition
-      necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
-      \cap \Delta_1 = \emptyset$ condition.
-    \item[Remaining inductive cases.] The remaining cases ($\multimap$ E,
-      $\times$ I, $\times$ E, $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption,
-      Factor, Ret, Rnd, $\forall$ E) follow immediately by application of the
-      inductive hypothesis.
-  \end{description}
-\end{proof}
 
 % todo: put it in here
 

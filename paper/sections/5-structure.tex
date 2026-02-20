@@ -302,13 +302,13 @@ type $M_q \ \textbf{num}$ obey this invariant.
 We can also see that the \textbf{let-bind} stepping rule maintains the invariant
 and produces a monadic pair if the premises (of type $M_q \ \textbf{num}$) also
 produce a monadic pair:
+
 \begin{figure}[htp]
-  \centering
 \begin{equation*}
 \begin{aligned}[c]
   \rnd k &\mapsto (k, \rho(k))
 \end{aligned}
-\quad
+\quad\quad\quad
 \begin{aligned}[c]
   \ret v &\mapsto (v, v)
 \end{aligned}
