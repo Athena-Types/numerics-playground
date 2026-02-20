@@ -8,6 +8,53 @@ variables.
   in the domain, $\gamma(x) = 0$ by default. 
 \end{definition}
 
+The below two lemmas are helpful towards proving metric preservation:
+\begin{lemma}[Subsitution decomposition]
+  \label{thm:sub-decomp}
+  For substitutions 
+  $\sigma \sim_{\alpha} \sigma' : \Delta_0 + \Delta_1 \ | \ \Gamma + \Theta$,
+  there exists
+  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 \ | \ \Gamma$
+  and
+  $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
+\end{lemma}
+\begin{proof}
+  Follows by induction over the length of the relation $\sigma \sim_{\alpha}
+  \sigma'$.
+\end{proof}
+
+\begin{lemma}[Metric preservation under context evaluation stepping]
+  \label{thm:ctx-stepping}
+  For a well-typed $\Delta \ | \ \Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
+  \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ and
+  $e~\sigma \mapsto^{*} v$ and
+  $e~\sigma' \mapsto^{*} v'$.
+  If $C[v] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[v'] \sigma' : \tau$ 
+  then
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C [e] \sigma' : \tau$.
+\end{lemma}
+\begin{proof}
+  By inspection of our stepping relation, we can tell that stepping is
+  deterministic. Further, since we only define our rewrite relation over closed
+  terms, we know that $e~\sigma, e~\sigma'$ is closed and therefore constant
+  under all substitutions. 
+  So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, and context stepping,
+  we know that both 
+  $$
+  C[e~\sigma]~\sigma, C[e~\sigma']~\sigma' \in \mathcal{R}_{\tau}
+  $$ 
+  and that 
+  $$
+  \mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = 
+  \mathcal{SD}_{\tau}(C[e~\sigma]\sigma, C[e~\sigma']\sigma') = 
+  \mathcal{SD}_{\tau}(C[v]\sigma, C[v']\sigma') = 
+  \gamma \cdot (\Delta \ | \ \Gamma)
+  $$
+  respectively and therefore 
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[e] \sigma'$
+  holds.
+\end{proof}
+
 \begin{theorem}[Metric preservation]
   For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
   $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
