@@ -113,11 +113,11 @@ $r=a-b$.
   &\textit{sub} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
   \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 - \epsilon_2} \\
   &\textit{sub} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a, b),
-  (r, a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
+  (r', a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
   \\
   &\textit{mul} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
   \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 \cdot \epsilon_2} \\
-  &\textit{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r, a',
+  &\textit{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r', a',
   b'))) \mapsto (r * r', a * b + b * b', b * a' + a * b') \\
 \end{aligned}
 \end{equation}
@@ -192,7 +192,7 @@ benchmarks, final error bound reduced from $1.11 \times 10^{139}$ to $5.66
 \begin{equation}
   \begin{aligned}[c]
     \begin{aligned}[c]
-      (r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
       \hfill &+ \hfill \\ 
       ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
     \end{aligned}

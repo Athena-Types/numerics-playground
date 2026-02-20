@@ -71,7 +71,7 @@ like 1,000,001 and 1,000,000 that we wish to subtract.
 If we perturb the input by a small amount, we can observe quite large
 \textit{relative} changes in the output. 
 In other words, subtracting two large nearby numbers with small round-off error
-in its inputs could obtain a small number with arbitrarily high relative
+in their inputs could obtain a small number with arbitrarily high relative
 round-off error.
 This feature of subtraction is sometimes referred to as \textit{catastrophic
 cancellation} and forms one of the primary technical obstacles to verifying our
@@ -197,7 +197,7 @@ To obtain (1), we run an interval-style analysis on the exact versions of $r, a,
 b$. We observe that in our running example, we have that the paired
 representation of $w, x, y, z \in [-1, 1] \times [0, 1] \times [0, 1]$. 
 Our bounds analysis will take this input and determine that the ideal
-computation has type $\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$ ensures
+computation has type $\textbf{num}_{\bnd{((-4, 4), (0, 4), (0, 4))}}$, ensuring
 that the program result will be within $[-4, 4] \times [0, 4] \times [0,
 4]$ with the invariant for every triple $(r, a, b)$ the equation $r = a - b$
   holds.
