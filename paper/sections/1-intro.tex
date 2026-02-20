@@ -1,34 +1,40 @@
 \section{Introduction}
-It is natural for users such as mathematicians and scientists to desire
-programs that operate over the reals. 
-As language designers, we wish to show that the floating-point semantics we have
-provided is ``close enough".
-Towards this end, we develop automated numerical analyses to bound the error
-introduced by our floating-point approximations. We wish for our analyses to be
-efficient, as automatic as possible, and precise.
+Mathematicians and scientists use floating-point computations to approximate
+ideal, real-valued quantities. A central question is how much error is
+introduced: how far does the floating-point result differ from the ideal one? 
 
-A major challenge in the automated numerical analysis literature is to perform a
-scalable analysis with precise error bounds. Many existing approaches rely on
-global optimization \cite{fptaylor} \cite{satire}, interval analysis
-\cite{gappa}, or SMT-based methods \cite{rosa}. However these approaches
-frequently time-out or fail to produce usable error bounds on large programs.
+% It is natural for users such as mathematicians and scientists to desire
+% programs that operate over the reals. 
+% As language designers, we wish to show that the floating-point semantics we have
+% provided is ``close enough".
+% Towards this end, we develop automated numerical analyses to bound the error
+% introduced by our floating-point approximations. We wish for our analyses to be
+% efficient, as automatic as possible, and precise.
+
+Researchers have developed a variety of automatic tools to answer this question.
+However, designing a scalable analysis that can achieve precise error bounds is
+a significant challenge. Many existing approaches rely on
+global optimization \cite{fptaylor,satire}, interval analysis
+\cite{gappa}, or SMT-based methods \cite{rosa}. However, these approaches
+often time-out or fail to produce usable error bounds on large programs.
+
 Type-based techniques offer an alternative approach that is inherently
 compositional and scalable: all of the information necessary to perform an error
 analysis on a function is contained within the type.
-
-In this paper, we extend Numerical Fuzz \cite{numfuzz}, an affine call-by-value
-graded type system for bounding round-off error.
-The core idea of Numerical Fuzz is to track two key properties of each function:
-how a function magnifies error in its inputs (function sensitivity), and the
-maximum error introduced by the function. This allows Numerical Fuzz to
-compositionally bound the maximum accumulated error in a program via a graded
-monad.
-There are two limitations of Numerical Fuzz that our work addresses:
+Recent work proposes
+Numerical Fuzz \cite{numfuzz}, a functional language and
+type system for bounding round-off error.
+The core idea is to use a graded type system to track two key properties of each
+function: how a function magnifies error in its inputs (function sensitivity),
+and the maximum error introduced by the function. This allows Numerical Fuzz to
+compositionally bound the maximum accumulated error, and enables scaling to
+large programs.
+However, there are two significant limitations of Numerical Fuzz:
 \begin{enumerate}
   \item \textbf{Lack of support for negative numbers or subtraction:} Subtraction over the
    reals is infinitely-sensitive, which leads Numerical Fuzz to conservatively
    conclude that any use of subtraction might lead to infinite round-off error.
-   Since many programs use subtraction or have negative numbers, this limitation
+   Since almost all numerical programs use subtraction or negative numbers, this limitation
    severely restricts the practical utility of Numerical Fuzz in modeling
    real-world programs.
  \item \textbf{Conservative treatment of addition and subtraction:}
@@ -37,13 +43,13 @@ There are two limitations of Numerical Fuzz that our work addresses:
    of a sequence of additions grows in the \textit{number of nodes} in the
    corresponding computation tree. For perfect binary computation trees, this
    leads to a log-factor difference in the obtained error bound. As many
-   programs use addition or subtraction, this limits the precision of the
-   Numerical Fuzz analysis.
+   programs use addition or subtraction, this loss of precision leads Numerical
+   Fuzz to derive overly conservative bounds in many situations.
 \end{enumerate}
 
 \subsection*{Our approach: Negative Fuzz} 
-Supporting subtraction and improving the precision of addition are orthogonal
-contributions, so we describe them separately:
+We develop a significant extension of Numerical Fuzz aimed at addressing these
+two shortcomings.
 % TODO: signpost this approach:
 % - sensitivity concern
 %   - but wait, we broke it! (how to translate bounds?)
@@ -52,36 +58,51 @@ contributions, so we describe them separately:
 % TODO: call things the paired model instead of paired representation?
 \subsubsection*{Supporting subtraction and negative numbers.} 
 To support subtraction and negative numbers, we first introduce a \textit{paired
-model} that simulates the floating-point error of the standard,
-unpaired program model.
-Our paired model associates each possibly negative real $r$ in our
-semantics with a pair of non-negative $(a, b)$ such that $r = a - b$.
+model} that simulates standard floating-point operations by operating on a pair
+of \emph{non-negative} numbers.
+In brief, our paired model associates each possibly negative real $r$ in our
+semantics with a pair of non-negative numbers $(a, b)$ such that $r = a - b$.
 % Then, we can translate the error over
 % $a, b$ to be error over $r$.
-Addition and subtraction over the reals can be modeled as always-growing and
-finitely-sensitive additions over the paired components.
-To reason about the unpaired and paired models side-by-side, we use a
-triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in \mathbb{R}^{+}$ and $r
-= a - b$. For our paired approach to be useful in bounding the round-off
-error on the unpaired $r$ representing real-world floating-point programs, we
-need to be able to (1) ``simulate" floating-point round-off error on $r$ a
-special error-preserving paired rounding function, (2) measure error on the
-paired model, and (3) use our interval-style bounds analysis to
-``translate" error bounds on the paired model to be back on the
-unpaired $r$ representing the real-world program. We defer detailed discussion
-of 1-3 to the technical sections of this paper.
+The key idea is that operations like addition, subtraction, and multiplication
+can be modeled using finitely-sensitive additions and multiplications over the
+paired components.
+To reason about the unpaired and paired models side-by-side, we interpret our
+numeric type as a triple $(r, a, b)$ where $r \in \mathbb{R}$ and $a, b \in
+\mathbb{R}^{+}$ and $r = a - b$, and we define a rounding operation on triples
+that rounds $r$ to the nearest floating-point number, while rounding $a$ and $b$
+to maintain the invariant $r = a - b$.
+
+Then, the main challenge is to convert our type-based error bounds in the paired
+model (i.e., on $(r, a, b)$) to floating-point error bounds on floating-point
+result under standard, unpaired operations (i.e., on $r$). In general this is
+not possible, but we show that if we have \emph{bounds on the magnitude} of the
+paired results $a$ and $b$, then we can derive useful error bounds on the
+unpaired result $r$.
+
+% For our paired approach to be useful in bounding the round-off
+% error on the unpaired $r$ representing real-world floating-point programs, we
+% need to be able to (1) ``simulate" floating-point round-off error on $r$ a
+% special error-preserving paired rounding function, (2) measure error on the
+% paired model, and (3) use our interval-style bounds analysis to
+% ``translate" error bounds on the paired model to be back on the
+% unpaired $r$ representing the real-world program. We defer detailed discussion
+% of 1-3 to the technical sections of this paper.
 % TODO: is the prev line a cop-out?
 
-Our bounds analysis occurs purely in the type system. To aid usability, we
-support analyzing functions via \textit{bound polymorphism}, which allows
-functions to be polymorphic in the bounds assigned to the inputs and to be
-type-checked independently. 
+To bound the magnitude of the unpaired results $a$ and $b$, we extend Numerical
+Fuzz with a type-based \emph{bounds analysis}, augmenting numeric types with
+interval-style bounds, which are propagated through arithmetic operations. To
+aid usability, our type system supports \textit{bound polymorphism},
+which allows functions to be polymorphic in the bounds assigned to the inputs
+and to be type-checked independently. 
 % TODO: hammer the previous point a few more times throughout the paper
-To reduce the user type annotation burden, we also
-provide a type inference algorithm that can
-automatically generalize and instantiate bound-polymorphic functions. We prove
-the soundness of our type inference algorithm and evaluate its utility and
-performance in Section~\ref{sec:inference}.
+To reduce the user type annotation burden, we also develop a type inference
+algorithm that can automatically generalize and instantiate bound-polymorphic
+functions, while also inferring bounds on floating-point roundoff error.
+
+% We prove the soundness of our type inference algorithm and evaluate its utility
+% and performance in Section~\ref{sec:inference}.
 
 % We additionally show that our approach provides no looser error bounds than
 % prior type-based approaches while covering many more programs, including those
@@ -93,13 +114,18 @@ performance in Section~\ref{sec:inference}.
 % TODO: fill in factor stuff, intuition and forwards ref
 Floating-point addition and subtraction are not associative. In fact, different
 associations of the same computation can result in drastically different error
-terms. Unfortunately, Numerical Fuzz is not capable of distinguishing between
-different associations. We address this limitation by introducing a primitive
-that allows error on a cartesian pair to be computed as the maximum error on the
-components, which more accurately captures the categorial semantics of our
-graded monad introduced in Numerical Fuzz \cite{numfuzz}. We prove that our
-primitive is type-sound and show how to use the primitive in
-Section~\ref{sec:structure}.
+terms. Numerical Fuzz is not capable of distinguishing between different
+associations, leading to overly conservative error bounds for programs that use
+addition. We address this limitation by introducing a primitive that allows
+error on a pair to be computed as the maximum error on the components, leading
+to more precise error bounds for many programs that use addition. While we are
+primarily focused on applications to Numerical Fuzz, our primitive appears quite
+general and could be useful in other type systems that use a graded monad.
+
+% twhich more accurately
+% captures the categorical semantics of our graded monad introduced in Numerical
+% Fuzz \cite{numfuzz}. We prove that our primitive is type-sound and show how to
+% use the primitive in Section~\ref{sec:structure}.
 % TODO: provide op sem interpretation (reassoc'ing error terms)?
 
 \subsubsection*{Contributions summary.}
@@ -109,13 +135,13 @@ Concretely, our contributions are as follows:
     bounds analysis into the type system using \textit{bound polymorphism}. To
     make programs easier and more concise to write, we further extend Numerical
     Fuzz to enable expressions in more places. We prove the soundness of our
-    extensions to Numerical Fuzz in (Section~\ref{sec:lang}).
+    extensions to Numerical Fuzz (Section~\ref{sec:lang}).
 
   \item We develop a \textit{paired model} for Numerical Fuzz that allows for
     modeling subtraction and negative numbers in a finitely-sensitive manner
     (Section~\ref{sec:encoding}). 
-    We provide a polymorphic bounds analysis in the type system to reason about
-    our paired model.
+    % We provide a polymorphic bounds analysis in the type system to reason about
+    % our paired model.
     We provide error soundness theorems to allow the error grade and bounds
     analysis from program type to be translated into a floating-point error
     bound on the standard, unpaired program model.
@@ -135,8 +161,8 @@ Concretely, our contributions are as follows:
     % subtraction and negative numbers (Section~\ref{sec:application}). 
 
   \item We improve the precision of Numerical Fuzz by enabling the analysis to
-    more efficiently reason about addition and subtraction. 
-    We accomplish this by introducing a new primitive that can more expressively
+    more efficiently reason about addition and subtraction,
+    by introducing a new primitive that can more expressively
     capture different techniques for sequencing addition and subtraction
     operations (Section~\ref{sec:structure}).
     In every benchmark that we rewrite to use our primitive, we observe
@@ -152,14 +178,13 @@ Concretely, our contributions are as follows:
     automatically infer function sensitivities, round-off error bounds, and
     bound polymorphism in many useful programs; the user merely supplies a
     program without bound polymorphism, sensitivity annotations, or round-off
-    grades. We prove the soundness of our type inference algorithm.
+    grades. We prove the soundness of our type inference algorithm (Section
+    \ref{sec:inference}).
 
   \item We implement our type-based approach for error analysis. 
-    When compared against competing approaches (FPTaylor, Gappa and Satire) on a
+    When compared against existing approaches (FPTaylor, Gappa and Satire) on a
     suite of benchmarks translated into our core language, we obtain useful and
     competitive error bounds with faster and more scalable performance and low
     annotation overhead (Section~\ref{sec:eval}).
     % TODO: put in hard numbers
 \end{itemize}
-
-
