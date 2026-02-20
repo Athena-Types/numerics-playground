@@ -28,7 +28,7 @@ round-to-nearest, round-towards-infinity, etc.) and the precision used.
 
 For this paper, we assume the absence of overflow and underflow. Then, the
 standard floating-point rounding error model assumes $\rho$ will observe
-round-off error bounded in the following way:
+round-off error bounded like so: 
 \begin{equation}
   \rho(x) = x (1 + \delta) \quad \quad |\delta| \leq u
 \end{equation}
@@ -39,11 +39,8 @@ $2^{-53}$ for 32 and 64-bit floating-point numbers respectively).
 We are interested in bounding round-off error. 
 To bound error, one must first have a suitable definition for measuring error.
 Following Numerical Fuzz, we rely on Olver's \cite{olver} \textit{relative
-precision} metric for measuring round-off error. 
-
-\begin{equation}
-  d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|
-\end{equation}
+precision} metric for measuring round-off error:
+$d_{\mathbb{R}}(r, \tilde{r}) = | ln(\frac{r}{\tilde{r}})|$.
 
 % Our approach relies on triangle inequality for the soundness of the error grades
 % for our charateristic monadic bind rule.
@@ -57,11 +54,7 @@ We consider the well-known pairwise summation (sometimes referred to as cascade
 summation) algorithm. 
 As a concrete running example, we consider adding up the floating-point numbers
 $w, x, y, z \in [-1, 1]$ via pairwise summation: 
-
-\begin{equation}
-  \rho(\rho((w + x)) + \rho((y + z)))
-\end{equation}
-
+$\rho(\rho((w + x)) + \rho((y + z)))$.
 
 \subsection{Supporting Subtraction and Negative Numbers}
 Numerical Fuzz can handle inputs in the range $[0, 1]$ but cannot handle our
@@ -152,10 +145,10 @@ real $r \in \mathbb{R}$ a triple $(r, a, b) \in \mathbb{P} = \mathbb{R} \times
 The paired components $a$ and $b$ are only used for error analysis and serve a
 function similar to ghost variables in other program analyses.
 Our error function $d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b}))$
-over $\mathbb{P}$ is defined below:
-\begin{definition}[Distance over pairs] \label{def:distance-p}
-$d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) = max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
-\end{definition}
+over $\mathbb{P}$ is defined as
+$d_{\mathbb{P}}((r, a, b), (\tilde{r}, \tilde{a}, \tilde{b})) \triangleq max(d_{\mathbb{R}}(a, \tilde{a}), d_{\mathbb{R}}(b, \tilde{b}))$.
+% \begin{definition}[Distance over pairs] \label{def:distance-p}
+% \end{definition}
 Importantly, we can encode our operations, including addition and subtraction,
 such that both components of the pair are always-growing. This avoids the
 problem of catastrophic cancellation in the paired representation.
