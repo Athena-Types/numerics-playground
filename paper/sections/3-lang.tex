@@ -110,15 +110,14 @@ of \ldots} for conditional reasoning on sum types.
 \end{figure}
 
 \subsection{Types and static semantics}  \label{sec:static-semantics}
-Following Numerical Fuzz, our type system has graded monad types $M_q \tau$ for
-bounding the round-off error in $\tau$ by a real, non-negative grade $q$, scaled
-metric types. We also have graded comonadic types $!_s \tau$ for bounding the
-sensitivity of a type $\tau$ by a real, non-negative grade $s$.
-Our language also supports linear function types $\tau_0 \multimap \tau$
-corresponding to 1-sensitive functions.
+Following Numerical Fuzz, our typing judgements incorporate a graded effect and
+co-effect type system to simultaneously track round-off error and function
+sensitivity. We have graded monad types $M_q \tau$ for bounding the round-off
+error in $\tau$ by a real, non-negative grade $q$. We also have graded comonadic
+types $!_s \tau$ for scaling sensitivity of a type $\tau$ by a real,
+non-negative factor $s$. Our language also supports linear function types
+$\tau_0 \multimap \tau$ corresponding to 1-sensitive functions.
 
-Our typing judgements incorporate a graded effect and co-effect type system to
-simultaneously track round-off error and function sensitivity. 
 Typing contexts have the following grammar: 
 $\Gamma ::= . \ | \ \Gamma, x :_s \tau$.
 We treat contexts $\Gamma$ as a partial map from variables $x$ to pairs of
@@ -147,10 +146,6 @@ and then context summing and scaling below.
   A context $\Gamma' = s \cdot \Gamma$ if and only if $\forall x, \Gamma'(x) = s
   \cdot \Gamma(x)$
 \end{definition}
-Bound contexts have the grammar $\Delta ::= . \ | \ \Delta, b : \textbf{bnd}$
-and can be viewed as a set whose membership indicates whether the variable is in
-our bound context. Bound contexts can't be scaled. Adding two bound contexts is
-then union.
 
 We define our typing rules in Figure~\ref{fig:typing_rules}.
 The introduction and elimination rules for $\otimes$, $\times$, and $\multimap$
@@ -175,7 +170,12 @@ tighter error analyses. We detail the (Factor) rule and walk through an example
 in Section~\ref{sec:structure}.
 
 In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
-polymorphism. We have a \bnd{inj} function for mapping constants $k$ into the
+polymorphism. 
+Bound contexts have the grammar $\bnd{\Delta} ::= \bnd{. \ | \ \Delta, b : \textbf{bnd}}$
+and can be viewed as set whose membership indicates whether the variable is in
+our bound context. Bound contexts can't be scaled. Adding two bound contexts is
+then union.
+We have a \bnd{inj} function for mapping constants $k$ into the
 corresponding interval that contains a single point. In the (\bnd{Widen}),
 (\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$ I}), and (\bnd{$\forall$ E}) rules,
 we further extend Numerical Fuzz's type system with an abstract
@@ -186,6 +186,7 @@ equipped with a partial order $\leq$.
 In Definition~\ref{def:bound-exp-eval}, we define the $\bnd{\llbracket} -
 \bnd{\rrbracket}$ relation interpreting bound expressions $\bnd{b}$ to a subset
 of $\bnd{\mathbb{B}}$.
+
 We additionally extend Numerical Fuzz by adding expressions in more places (e.g.
 the application rule) and a $\textbf{factor}$ primitive to enable tighter error
 bounds. To support operations that have polymorphic bounds, we additionally
@@ -540,12 +541,12 @@ the evaluation function used in the definition of our logical relations.
 \begin{definition}[Evaluation of closed bound expressions]
   \label{def:bound-exp-eval}
   For a bound expression $b$,
-  \begin{equation}
+  \begin{equation*}
     \begin{aligned}[c]
       \bnd{\llbracket} c \bnd{\rrbracket} &\triangleq c \\
       \bnd{\llbracket} \bnd{\textbf{bop}}(b_0, \ldots, b_n) \bnd{\rrbracket} &\triangleq \textit{bop}(b_0, \ldots, b_n)
     \end{aligned}
-  \end{equation}
+  \end{equation*}
 \end{definition}
 
 % \begin{definition}[Bound expression equivalence class]
