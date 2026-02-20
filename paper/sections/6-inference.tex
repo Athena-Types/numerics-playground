@@ -499,23 +499,29 @@ separately from our syntax-directed type inference algorithm.
 \begin{definition}[Semantic type simplification]
 Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
 returns a simplified type $\tau'$:
-\begin{equation}
+\begin{equation*}
   \begin{aligned}[c]
     \llbracket \textbf{unit} \rrbracket &= \textbf{unit} \\
     \llbracket \textbf{num}_{\bnd{b}} \rrbracket &= \textbf{num}_{\bnd{\llbracket b \rrbracket}} \\
     \llbracket \tau_0 \times \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
       \times \llbracket \tau_1 \rrbracket \\
-    \llbracket \tau_0 \otimes \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
-      \otimes \llbracket \tau_1 \rrbracket \\
-    \llbracket \tau_0 + \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
-      + \llbracket \tau_1 \rrbracket \\
+  \end{aligned}
+  \begin{aligned}[c]
     \llbracket \tau_0 \multimap \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
-      \multimap \llbracket \tau_1 \rrbracket \\
+    \multimap \llbracket \tau_1 \rrbracket  \\
     \llbracket !_s \tau \rrbracket &= !_s \llbracket \tau \rrbracket \\
     \llbracket M_u \tau \rrbracket &= M_u \llbracket \tau \rrbracket \\
-    \llbracket \forall \epsilon . \tau \rrbracket &= \forall \epsilon . \tau
   \end{aligned}
-\end{equation}
+  \begin{aligned}[c]
+    \llbracket \forall \epsilon . \tau \rrbracket &= \forall \epsilon . \tau \\
+    \llbracket \tau_0 + \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      + \llbracket \tau_1 \rrbracket \\
+    \llbracket \tau_0 \otimes \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \otimes \llbracket \tau_1 \rrbracket \\
+  \end{aligned}
+\end{equation*}
+\begin{equation*}
+\end{equation*}
 Note that for simplicity, we halt simplification when we see a $\forall$.
 \end{definition}
 
