@@ -145,10 +145,10 @@ and then context summing and scaling below.
 
 \begin{definition}[Context scaling]
   A context $\Gamma' = s \cdot \Gamma$ if and only if $\forall x, \Gamma'(x) = s
-  \cdot \Gamma'(x)$
+  \cdot \Gamma(x)$
 \end{definition}
 Bound contexts have the grammar $\Delta ::= . \ | \ \Delta, b : \textbf{bnd}$
-and can be viewed as set whose membership indicates whether the variable is in
+and can be viewed as a set whose membership indicates whether the variable is in
 our bound context. Bound contexts can't be scaled. Adding two bound contexts is
 then union.
 
@@ -654,7 +654,7 @@ Now, we can state our interface:
     The italicized $\textit{op}$ is the metavariable represents the corresponding
     function mapping values to values.
     We require that \textit{op} is 1-sensitive as measured by $\mathcal{SD}$.
-    To simplify our presentation, we also assume that for every operation has the following
+    To simplify our presentation, we also assume that every operation has the following
     shape with no free type variables:
     $\textbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in \ \Sigma$.
     \footnote{Note that we could make this portion of the interface more general

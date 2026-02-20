@@ -1,7 +1,7 @@
 \section{Type inference} \label{sec:inference}
 The Numerical Fuzz type inference algorithm automatically infers sensitivity and
 monadic grades.
-We extend the Numerical Fuzz's type inference algorithm for our new syntax (e.g.
+We extend Numerical Fuzz's type inference algorithm for our new syntax (e.g.
 \textbf{factor}) and to automatically infer polymorphic bounds.
 This fully eliminates the burden of adopting our extension; programs that
 type-check in Numerical Fuzz will type check in Negative Fuzz.
@@ -102,7 +102,7 @@ x^{\bnd{\bullet}} &\triangleq x \\
 \paragraph{The type inference algorithm}
 Type inference has the following shape: 
 $\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$.
-In other words, we take a erased typing context $\Gamma^{\bullet}$  and an
+In other words, we take an erased typing context $\Gamma^{\bullet}$  and an
 erased program $e^{\bnd{\bullet}}$ and produce a
 typing context $\Gamma$ with sensitivity information and fully annotated program
 $e$ and type $\tau$ such that there exists a $\Delta$ such that
@@ -337,7 +337,7 @@ We now state type soundness for our type inference algorithm, which we prove in
 the appendix.
 We do not prove that our type inference algorithm infers the tightest possible
 sensitivity or round-off grades.
-We only prove that that the inferred type, typing contexts, and term, after
+We only prove that the inferred type, typing contexts, and term, after
 erasing, are equal to the original erased type, context, and term: 
 % ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
 % e'^{\bnd{\bullet}}$)

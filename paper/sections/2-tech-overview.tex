@@ -173,7 +173,7 @@ the paired components:
 In this manner, we can bound the sensitivity of addition and subtraction and soundly
 assign a type. 
 $\textbf{add}$ and $\textbf{mul}$ 
-have the same type as in Numerical Fuzz. Subtraction has type as
+have the same type as in Numerical Fuzz. Subtraction has the same type as
 addition: $\textbf{sub} : \textbf{num} \times \textbf{num} \multimap
 \textbf{num}$. 
 Returning to our running example, we can assign the type 
@@ -182,7 +182,7 @@ $\lambda x . \ \textbf{let} \ z \ = \ \textbf{sub} \ x \ \textbf{in} \ \textbf{r
 where $u$ is the unit round-off constant.
 
 \paragraph{Using the type to assign a floating-point error bound.}
-Now we wish to translate our type over the paired model into a error bound over
+Now we wish to translate our type over the paired model into an error bound over
 the unpaired model.
 Our type system will assign the type $M_{3 \cdot u} \ \textbf{num}_{\bnd{((-4,
 4), (0, 4), (0, 4))}}$ to the program.

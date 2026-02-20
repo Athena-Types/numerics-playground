@@ -49,7 +49,7 @@ model by defining a paired version of our rounding function $\rho$:
 $\rho_{\mathbb{P}}((r, a, b)) = 
 \begin{cases}
   (0, a, b)  & r = 0\\
-(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r}  b \cdot
+(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r},  b \cdot
   \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
 \end{cases}$
 \end{definition}
@@ -182,7 +182,7 @@ Finally, we define our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
 mapping $\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$.
 Each bound operation corresponds to the primitive operation in the surface
 syntax of the language. The correctness of the definition of each bound
-operation is ensured by the interface requirement that that each primitive
+operation is ensured by the interface requirement that each primitive
 operation's corresponding type obeys metric preservation.
 Importantly, we case our analysis for the multiplication operation depending on
 whether the boolean condition is true for both input numbers. This can
