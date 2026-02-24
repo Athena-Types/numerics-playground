@@ -1,0 +1,494 @@
+\section{Type inference} \label{sec:inference}
+The Numerical Fuzz type inference algorithm automatically infers sensitivity and
+monadic grades.
+We extend Numerical Fuzz's type inference algorithm for our new syntax (e.g.
+\textbf{factor}) and to automatically infer polymorphic bounds.
+This fully eliminates the burden of adopting our extension; programs that
+type-check in Numerical Fuzz will type check in Negative Fuzz.
+To use our type inference algorithm, users write a program with no bound
+polymorphism (instantiation or generalization), sensitivity annotations, or
+monadic grades.
+Type inference then syntactically synthesizes the corresponding well-typed term,
+type, and context with bound polymorphism with the appropriate sensitivities and
+grade annotations.
+Finally, we provide a method to ``simplify" the bound expressions in our type
+using the semantic logical relation.
+
+To formally define the type inference problem, we first setup a sensitivity
+erasure $-^{\bullet}$ over typing contexts and a bound erasure
+$-^{\bnd{\bullet}}$ over types and terms. Our erasure functions help us to
+capture the precise relation between the (erased) term and the new, well-typed
+synthesized term (with bound polymorphism) with inferred sensitivities and
+monadic grades.
+
+\begin{definition}[Sensitivity erasure]
+  For a typing context $\Gamma : \textit{vars} \to \textit{sensitivities} \
+  \times \ \textit{types}$, 
+  a fully erased typing context removes all sensitivity information and only
+  returns the type:
+  $\Gamma^{\bnd{\bullet}} = \Gamma \circ \pi_2$.
+\end{definition}
+
+\begin{definition}[Bound erasure]
+We define bound erasure ($-^{\bnd{\bullet}}$) over types and terms below:
+\begin{equation}
+\begin{aligned}[c]
+\textbf{unit}^{\bnd{\bullet}} &\triangleq \textbf{unit} \\
+(\forall \epsilon . \tau)^{\bnd{\bullet}} &\triangleq \tau^{\bnd{\bullet}} \\
+\end{aligned}
+\hskip 1em
+\begin{aligned}[c]
+(!_s \tau)^{\bnd{\bullet}} &\triangleq !_s \tau^{\bnd{\bullet}} \\
+(\tau_0 \otimes \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \otimes \tau_1^{\bnd{\bullet}}) \\
+\end{aligned}
+\hskip 1em
+\begin{aligned}[c]
+\textbf{num}_i^{\bnd{\bullet}} &\triangleq \textbf{num} \\
+(\tau_0 \multimap \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \multimap \tau_1^{\bnd{\bullet}}) \\
+\end{aligned}
+\hskip 1em
+\begin{aligned}[c]
+(M_u \tau)^{\bnd{\bullet}} &\triangleq M_u \tau^{\bnd{\bullet}} \\
+(\tau_0 \times \tau_1)^{\bnd{\bullet}} &\triangleq (\tau_0^{\bnd{\bullet}} \times \tau_1^{\bnd{\bullet}}) \\
+\end{aligned}
+\end{equation}
+
+We similarly define an erasure operation for terms:
+
+\begin{equation*}
+\begin{aligned}[c]
+v^{\bnd{\bullet}} &\triangleq v \\
+(e \ f)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \ f^{\bnd{\bullet}} \\
+(e \{ i \})^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}}  \\
+(\Lambda \epsilon . e)^{\bnd{\bullet}} &\triangleq e^{\bnd{\bullet}} \\
+% TODO: double check cases and make sure nothing is missing
+\end{aligned}
+\begin{aligned}[c]
+[e]^{\bnd{\bullet}} &\triangleq [e^{\bnd{\bullet}}] \\
+(\textbf{in}_i \ e)^{\bnd{\bullet}} &\triangleq \textbf{in}_i \ e^{\bnd{\bullet}} \\
+(\pi_i \ e)^{\bnd{\bullet}} &\triangleq \pi_i \ e^{\bnd{\bullet}} \\
+\langle e, f \rangle ^{\bnd{\bullet}} &\triangleq \langle e^{\bnd{\bullet}}, f^{\bnd{\bullet}} \rangle \\
+\end{aligned}
+\begin{aligned}[c]
+(\textbf{op} \ e)^{\bnd{\bullet}} &\triangleq \textbf{op} \ e^{\bnd{\bullet}} \\
+(\textbf{factor} \ e)^{\bnd{\bullet}} &\triangleq \textbf{factor} \ e^{\bnd{\bullet}} \\
+(e, f) ^{\bnd{\bullet}} &\triangleq (e^{\bnd{\bullet}}, f^{\bnd{\bullet}}) \\
+\end{aligned}
+\hskip 1em
+\begin{aligned}[c]
+x^{\bnd{\bullet}} &\triangleq x \\
+(\textbf{ret} \ e)^{\bnd{\bullet}} &\triangleq \textbf{ret} \ e^{\bnd{\bullet}} \\
+(\textbf{rnd} \ e)^{\bnd{\bullet}} &\triangleq \textbf{rnd} \ e^{\bnd{\bullet}} \\
+\end{aligned}
+\end{equation*}
+\begin{equation*}
+\begin{aligned}
+(\textbf{case} \ e \ \textbf{of} \ (\textbf{in}_1 x. f_1 \ | \textbf{in}_2 x. f_2 ))^{\bnd{\bullet}} &\triangleq (\textbf{case} \ e^{\bnd{\bullet}} \ \textbf{of} \ (\textbf{in}_1 x. f_1^{\bnd{\bullet}} \ | \textbf{in}_2 x. f_2^{\bnd{\bullet}} )) \\
+(\textbf{let} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-bind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-cobind} \ x \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+(\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \ f) ^{\bnd{\bullet}} &\triangleq (\textbf{let-pair} \ (x, y) \ = \ e^{\bnd{\bullet}} \ \textbf{in} \ f^{\bnd{\bullet}}) \\
+\end{aligned}
+\end{equation*}
+\end{definition}
+
+% \begin{definition}[Type inference problem]
+% Given an erased program $e^{\bnd{\bullet}}$, produce a derivation of $. \vdash e
+% : \tau$ for $e$ in \Lang if such a derivation exists. 
+% \end{definition}
+
+% \subsection{Type inference algorithm}
+
+\paragraph{The type inference algorithm}
+Type inference has the following shape: 
+$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$.
+In other words, we take an erased typing context $\Gamma^{\bullet}$  and an
+erased program $e^{\bnd{\bullet}}$ and produce a
+typing context $\Gamma$ with sensitivity information and fully annotated program
+$e$ and type $\tau$ such that there exists a $\Delta$ such that
+$\Delta \ | \ \Gamma' \vdash e' : \tau$
+is derivable.
+We start type inference by passing the empty context, along with the
+bound-erased program (written $e^{\bnd{\bullet}}$) and compute two things:
+\begin{enumerate}
+  \item We infer co-monadic sensitivities and monadic grades via the type
+    inference algorithm provided in \cite{numfuzz}, extended to deal with our
+    new $\mathbf{factor}$ primitive. 
+
+  \item At the same time as our sensitivity inference, we infer our bounds. We
+    use helper functions $I$ and $E$ (defined in the appendix in
+    Figure~\ref{fig:helper_type_inference}) to extract from a type which
+    polymorphic bound variables needed to be automatically instantiated and
+    eliminated.
+\end{enumerate}
+We present our syntax-directed type inference algorithm in
+Figure~\ref{fig:inference-algo} as a combined algorithm where the sensitivities
+and bounds are inferred simultaneously.
+The Unit, Var, $!$ I, \textbf{op}, Ret, Rnd, $\times$ I, $\times$ E, $\otimes$
+I, \textbf{let}, \textbf{let-pair}, \textbf{let-bind}, \textbf{case} cases come
+from Numerical Fuzz. 
+We outline the remaining cases: $\multimap$ I uses 
+$I(\tau^{\bnd{\bullet}})$ to create globally fresh bound variables. $\multimap$
+E uses $E(\tau)$ to extract appropriate bound variables and the type
+equality check for soundness.\footnote{%
+  Both the $I$ and $E$ helper functions are fully
+defined in the appendix in Figure~\ref{fig:helper_type_inference}.}
+The \textbf{factor} case is new but straightforward.
+
+\begin{figure}
+\small
+\begin{center}
+%% unit
+\AXC{}
+\RightLabel{(Unit)}
+\UIC{$\Gamma^{\bullet}; \langle \rangle^{\bnd{\bullet}}; \implies \Gamma^{0};
+\langle \rangle; \textbf{unit}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% var
+\AXC{}
+\RightLabel{(Var)}
+\UIC{$\Gamma^{\bullet}, x : \tau, x^{\bnd{\bullet}} \implies \Gamma^{0}, x
+:_1 \tau; x; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+%% const
+\AXC{}
+\RightLabel{(Const)}
+\UIC{$\Gamma^{\bullet}; k^{\bnd{\bullet}}; \implies \Gamma^{0};
+k; \textbf{num}_{\bnd{inj(k)}}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% bang intro
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
+\RightLabel{($!$ I)}
+\UIC{$\Gamma^{\bullet}; [e]_{\annotate{s}}^{\bnd{\bullet}} \implies \annotate{s}
+* \Gamma'; [e']_{\annotate{s}}; !_s~\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+%% fun
+\AXC{$I(\tau_0^{\bnd{\bullet}}) = \annotate{\tau_0}; \epsilon_0, \ldots, \epsilon_n$}
+\AXC{$\Gamma^{\bullet}, x : \annotate{\tau_0}; e^{\bnd{\bullet}} \implies \Gamma', x
+:_s \annotate{\tau_0}; e'; \tau$}
+\AXC{$s \geq 1$}
+\RightLabel{($\multimap$ I)}
+\TIC{$\Gamma^{\bullet}; \lambda (x : \annotate{\tau_0^{\bnd{\bullet}}}). e^{\bnd{\bullet}}
+\implies \Gamma'; \Lambda \epsilon_0, \ldots, \epsilon_n
+(\lambda (x : \annotate{\tau_0}) . e'); \forall \epsilon_0, \ldots, \epsilon_n . \
+\annotate{\tau_0} \multimap \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+%% imp elim, forall
+\AXC{$
+\begin{aligned}[t]
+\Gamma^{\bullet}; f^{\bnd{\bullet}} &\implies \Gamma'; f'; \forall
+\epsilon_0, \ldots, \epsilon_n \ . \ \tau_0 \multimap \tau \\
+\Gamma^{\bullet}; e^{\bnd{\bullet}} &\implies \Theta; e'; \tau'_0 \\
+\end{aligned} $}
+\hskip 0.5em
+\AXC{$\begin{aligned}[t]
+E(\tau'_0) &= i_0, \ldots, i_n \\
+\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] &= \tau'_0 \\
+\end{aligned}
+$}
+\RightLabel{($\multimap$ E)}
+\BIC{$\Gamma^{\bullet}; (f~e)^{\bnd{\bullet}} \implies \Gamma' +
+\Theta; (f'~\{ i_0 \}~\ldots~\{ i_n \})~e'; \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+% todo: evaluating the liftted iops happen after we complete inference
+
+% todo: require that ops are closed at the bound polymorphism level
+\RightLabel{(\textbf{op})}
+\AXC{$\{\textbf{op} : \forall \epsilon_0, \epsilon_1, \tau_0 \multimap \tau_1 \} \in \Sigma$}
+\UIC{$\Gamma^{\bullet}; \textbf{op}^{\bnd{\bullet}} \implies \Gamma;
+\textbf{op}; \forall \epsilon_0, \epsilon_1, \tau_0 \multimap \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+\RightLabel{(\textbf{factor})}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; (M_q
+\tau_0 \times M_r \tau_1)$}
+\UIC{$\Gamma^{\bullet}; \textbf{factor}~e^{\bnd{\bullet}} \implies
+\Gamma'; \textbf{factor}~e'; M_{max(q, r)} (\tau_0 \times \tau_1)$}
+\bottomAlignProof
+\DisplayProof
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          Structural rules below                            %% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip 0.5em
+
+%% Ret
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
+\RightLabel{(\textbf{Ret})}
+\UIC{$\Gamma^{\bullet}; \textbf{ret}~e^{\bnd{\bullet}} \implies \Gamma';
+\textbf{ret}~e'; M_0~\tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% Rnd
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau$}
+\RightLabel{(\textbf{Rnd})}
+\UIC{$\Gamma^{\bullet}; \textbf{rnd}~e^{\bnd{\bullet}} \implies \Gamma';
+\textbf{rnd}~e'; M_q~\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+%% times intro 
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_0; e'; \tau_0$}
+\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_1; f'; \tau_1$}
+\RightLabel{($\times$ I)}
+\BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}} \implies
+\text{max}(\Gamma_0, \Gamma_1); \langle f', e' \rangle; \tau_0 \times \tau_1$}
+% todo: check that max is defined
+\bottomAlignProof
+\DisplayProof
+\RightLabel{($\times$ E)}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau_0
+\times \tau_1$}
+\UIC{$\Gamma^{\bullet}; (\pi_i~e)^{\bnd{\bullet}} \implies
+\Gamma'; \pi_i~e'; \tau_i$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+%% otimes intro 
+\AXC{$\Gamma^{\bullet}; f^{\bnd{\bullet}} \implies \Gamma_0; f'; \tau_1$}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma_1; e'; \tau_0$}
+\RightLabel{($\otimes$ I)}
+\BIC{$\Gamma^{\bullet}; \langle f, e \rangle^{\bnd{\bullet}}
+\implies \Gamma_0 + \Gamma_1; (f', e'); \tau_0 \otimes \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+\RightLabel{(\textbf{let})}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e'; \tau_0$}
+\AXC{$\Gamma^{\bullet}, x : \tau_0; f^{\bnd{\bullet}} \implies \Theta, x :_s
+\tau_0; f'; \tau$}
+\BIC{$\Gamma^{\bullet}; (\textbf{let} \ x \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \implies s \cdot \Gamma + \Theta;
+\textbf{let} \ x \ = \ e' \ \textbf{in} \ f'; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+\RightLabel{(\textbf{let-pair})}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
+\tau_0 \otimes \tau_1$}
+\AXC{$\Gamma^{\bullet}, x: \tau_0, y : \tau_1; f^{\bnd{\bullet}}
+\implies \Theta, x :_s \tau_0, y :_{s'} \tau_1; f'; \tau$}
+\BIC{$\Gamma^{\bullet}; (\textbf{let-pair} \ (x, y) \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \implies max(s, s') \cdot \Gamma' + \Theta;
+\textbf{let-pair} \ (x, y) \ = \ e' \ \textbf{in} \ f'; \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+\RightLabel{(\textbf{let-bind})}
+\AXC{$\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma'; e';
+M_r~\tau_0$}
+\AXC{$\Gamma^{\bullet}, x: \tau_0; f^{\bnd{\bullet}} \implies \Theta, x
+:_s \tau_0; f; M_q~\tau$}
+\BIC{$\Gamma^{\bullet}; (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \
+f)^{\bnd{\bullet}} \implies s \cdot \Gamma' + \Theta;
+\textbf{let-bind} \ x \ = \ e' \ \textbf{in} \ f'; M_{s \cdot r + q}~\tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 0.5em
+
+\RightLabel{(\textbf{case})}
+\AXC{$
+\begin{aligned}[t]
+\Gamma^{\bullet}; e^{\bnd{\bullet}} \implies \Gamma; e'; \tau_0 + \tau_1 \\
+s > 0
+\end{aligned}
+$}
+\AXC{$
+\begin{aligned}[t]
+\Gamma^{\bullet}, x : \tau_0 ; f_1^{\bnd{\bullet}} \implies \Theta_0, x :_s \tau_0; f'_1; \tau' \\
+\Gamma^{\bullet}, x : \tau_1 ; f_2^{\bnd{\bullet}} \implies \Theta_1, x :_s \tau_1; f'_2; \tau'
+\end{aligned}
+$}
+\BIC{$\Gamma^{\bullet}; (\textbf{case} \ e \ \textbf{of} \
+(\textbf{in}_1~x.f_1 ~ | ~ \textbf{in}_2~x.f_2))^{\bnd{\bullet}}
+\implies s \cdot \Gamma + max(\Theta_0, \Theta_1); (\textbf{case} \ e' \ \textbf{of}
+\ (\textbf{in}_1~x.f'_1 ~ | ~ \textbf{in}_2~x.f'_2)) ; \tau'$}
+\bottomAlignProof
+\DisplayProof
+\end{center}
+  \caption{Algorithmic type inference rules. \annotate{Red text} represents
+  user-required annotations.}
+  \label{fig:inference-algo}
+\end{figure}
+
+\paragraph{Soundness of type inference.}
+We now state type soundness for our type inference algorithm, which we prove in
+the appendix.
+We do not prove that our type inference algorithm infers the tightest possible
+sensitivity or round-off grades.
+We only prove that the inferred type, typing contexts, and term, after
+erasing, are equal to the original erased type, context, and term: 
+% ($\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+% e'^{\bnd{\bullet}}$)
+\begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
+\end{theorem}
+
+\paragraph{Simplifying the inferred type.}
+After running type inference we obtain a result in the form: 
+$\Delta \ | \ \Gamma \vdash e : \tau$. 
+In some cases, $\tau$ might contain bound expressions.
+For example, after running type inference on the program $add \langle 1, 2 \rangle$, we might
+obtain the following type 
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{\bnd{(1, 1, 0, \text{True}) + (2, 2, 0, \text{True})}}$.
+Semantically, this type represents the same relation as:
+$. \vdash \textbf{add} \ \langle 1, 2 \rangle : M_u \ \textbf{num}_{\bnd{(3, 3, 0, \text{True})}}$
+
+To simplify the type, we extend the $\bnd{\llbracket - \rrbracket}$
+(Definition~\ref{def:bound-exp-eval}) to simplify types that possibly contain
+bound expressions. 
+For soundness, we prove a semantic property that the logical relation corresponding
+to the simplified type is the same logical relation as the original type. 
+
+\begin{definition}[Semantic type simplification]
+Our type evaluation scheme $\llbracket - \rrbracket$ takes in a type $\tau$ and
+returns a simplified type $\tau'$. For simplicity, we halt simplification when
+we see a $\forall$:
+\begin{equation*}
+  \begin{aligned}[c]
+    \llbracket \textbf{unit} \rrbracket &= \textbf{unit} \\
+    \llbracket \textbf{num}_{\bnd{b}} \rrbracket &= \textbf{num}_{\bnd{\llbracket b \rrbracket}} \\
+    \llbracket \tau_0 \times \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \times \llbracket \tau_1 \rrbracket \\
+  \end{aligned}
+  \begin{aligned}[c]
+    \llbracket \tau_0 \multimap \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+    \multimap \llbracket \tau_1 \rrbracket  \\
+    \llbracket !_s \tau \rrbracket &= !_s \llbracket \tau \rrbracket \\
+    \llbracket M_u \tau \rrbracket &= M_u \llbracket \tau \rrbracket \\
+  \end{aligned}
+  \begin{aligned}[c]
+    \llbracket \forall \epsilon . \tau \rrbracket &= \forall \epsilon . \tau \\
+    \llbracket \tau_0 + \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      + \llbracket \tau_1 \rrbracket \\
+    \llbracket \tau_0 \otimes \tau_1 \rrbracket &= \llbracket \tau_0 \rrbracket
+      \otimes \llbracket \tau_1 \rrbracket \\
+  \end{aligned}
+\end{equation*}
+\begin{equation*}
+\end{equation*}
+\end{definition}
+
+\begin{theorem}[Soundness of evaluating closed bounds]
+  If $e \in \mathbb{R}_{\tau}$ then $e \in \mathbb{R}_{\llbracket \tau
+  \rrbracket}$.
+  \label{thm:eval-bounds}
+\end{theorem} 
+\begin{proof}
+  We induct over our type $\tau$ to show that $\mathbb{R}_\tau =
+  \mathbb{R}_{\tau'}$ at each step.
+  The only non-immediate case evaluates
+  $\textbf{num}_{\bnd{b}}$ to $\textbf{num}_{\llbracket \bnd{b} \rrbracket}$ 
+  and 
+  $\mathcal{R}_{\bnd{b}} = \mathcal{R}_{\bnd{\llbracket b \rrbracket}}$
+  refer to the same underlying set.
+\end{proof}
+
+% TODO: add tightness by example argument:
+% \subsection{Example programs and types}
+% We now demonstrate how to set up and run the type inference problem from start
+% to finish on an example FPCore benchmark.
+% We also remark on several observations that match our intuition on how the
+% algorithm behaves.
+
+
+% \subsection{Tightness} \label{sec:tightness}
+% A natural question to ask is whether the paired representation introduced in the
+% proceeding section leads to looser error bounds on programs that could have been
+% typed using the standard, unpaired representation. In the following section, we
+% demonstrate that for the programs obtained using the unpaired representation in
+% Numerical Fuzz, our bounds inferred through type inference and obtained through
+% our paired representation are no looser.
+%
+% To demonstrate this, we instantiate our language with the following interface
+% $(\mathbb{P}^{+}, d, \rho_{\mathbb{P}}, u, \Sigma = \{ \mathbf{add},
+% \mathbf{mul} \}, \Sigma_{\mathbf{num}})$, where 
+% $\mathbb{P}^+ = \{(r, r, 0) \ | \ \forall r \in \mathbb{R}^{+} \}$ 
+% and 
+% $d((r, a, b), (r', a', b')) = d_{\mathbb{R}}(r, r')$.
+% Note that we do not modify our modular type inference algorithm and leave the
+% instantiation the same.
+% Let us write programs derivable in this type system using the
+% $\vdash_{\mathbb{R}}$ judgement and $\vdash_{\mathbb{P}}$ for the
+% paired representation instantiated previously. % todo: add backref
+% We observe that programs step the same in both instantiations of the language
+% and also that programs derivable in $\vdash_{\mathbb{R}}$ have the same type
+% with $\vdash_{\mathbb{P}}$:
+% \begin{lemma}[Derivablity]
+% If $\Delta \ | \ \Gamma \vdash_{\mathbb{R}} e : \tau$,
+% then
+% $\Delta \ | \ \Gamma \vdash_{\mathbb{P}} e : \tau$ 
+% \end{lemma}
+% \begin{proof}
+%   Proof by induction. $\vdash_{\mathbb{R}}$ has strictly less operations and the
+%   associated rounding functions $\rho_{\mathbb{P}}$ and $u$ bounds are the same.
+% \end{proof}
+%
+% We also observe that for a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, $q$ suffices to bound the
+% maximum permitted round-off error.
+%
+% \begin{theorem}[Unpaired error soundness theorem]
+% For a program $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we have that $ e \mapsto^{*} ((r, a,
+% b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r') \leq q$.
+% \end{theorem}
+% \begin{proof}
+%   Holds by applying our metric preservation theorem and unfolding our logical
+%   relation and error metric.
+% \end{proof}
+%
+% We are now ready to state our tightness theorem which guarantees that the paired
+% representation produced error bounds no looser than the unpaired representation.
+%
+% \begin{lemma}[Tightness type inference lemma]\label{thm:tightness-helper}
+%   If $b$ is always zero in our concrete domain and our program does not contain
+%   subtraction, our type inference algorithm always infers that $b^{\uparrow} =
+%   b^{\downarrow} = 0$.
+% \end{lemma}
+% \begin{proof}
+%   We track all the intervals produced by the type inference algorithm. Intervals
+%   are produced by $inj$ (base case) or by applying our lifted operations $op^{\#}$ (inductive case).
+%   By induction, in both cases, our invariant $b^{\uparrow} = b^{\downarrow} =
+%   0$ holds.
+% \end{proof}
+%
+% \begin{theorem}[Tightness]
+% For a $. \vdash_{\mathbb{R}} e :  M_q \mathbf{num}_i$, we know that $. \vdash e
+% :  M_q \mathbf{num}_i$ and $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where 
+% $d_{\mathbb{R}}(r, r') \leq q$.
+% \end{theorem}
+% \begin{proof}
+%   Unfold our logical relation and error metric. Note that our underlying carrier
+%   set of $\mathbb{P}$ is zeroed out in the last component. By
+%   Lemma~\ref{thm:tightness-helper}, we know that our type inference algorithm
+%   will produce $b = b^{\uparrow} = b^{\downarrow} = 0$. 
+%   By applying our a priori error theorem
+%   (Theorem~\ref{thm:paired-a-priori-rel}), we have our terms neatly zero out and
+%   simplify such that $d_{\mathbb{R}}(r, r') = ln(e^q) = q$.
+% \end{proof}
+
+% TODO: clarify how to start / use interval analysis, stitch together theorems

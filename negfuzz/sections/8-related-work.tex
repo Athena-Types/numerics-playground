@@ -1,0 +1,64 @@
+\section{Related Work}
+\paragraph{Type-based numerical analysis techniques.}
+Our work extends Numerical Fuzz \cite{numfuzz}, which is based off the Fuzz line
+of work \cite{fuzz} that uses sensitivities and monads for reasoning about
+differential privacy. Like Numerical Fuzz, and most existing systems for
+roundoff error analysis, our type system establishes \emph{forward} error bounds
+that bound the difference between the floating-point and ideal results.
+In prior work, Martel \cite{martel} develops a dependent type system to track
+forwards error.  However, Martel proves a weaker subject reduction theorem and
+does not prove an error soundness theorem.
+% TODO: compare martel here
+
+The only other type system for error analysis we are aware of is Bean
+\cite{bean}, a typed-based approach to backwards error analysis, which is a
+different notion of error.  A floating-point program is backwards stable if the
+floating-point result is the correct result of running the ideal program given
+approximate nearby inputs.  Backwards error analysis seeks to bound the maximum
+distance between the actual and approximate inputs.
+
+\paragraph{Other automated roundoff error analysis techniques.}
+There is a long history of formal verification and static analysis work on
+bounding roundoff error.
+Fluctuat \cite{fluctuat} and Gappa \cite{gappa} both use interval
+analysis and can reason about programs with conditionals and loops. 
+FPTaylor \cite{fptaylor} uses symbolic taylor expansions and global optimization
+to estimate round-off error.
+Abbasi and Darulova \cite{abbasi-darulova} also use Taylor expansions but take
+a more modular approach that allows analyses to be shared at different function
+call sites.
+Rosa \cite{rosa1} \cite{rosa2} also uses Taylor expansions for handling
+propagation error.
+Compared to these works, our approach targets an expressive, functional
+programming language with a rich type system; for instance, our language
+supports higher-order functions. However, we do not support recursion and
+restrict conditionals from casing on floating-point computations.
+
+\paragraph{Interval-style bounds analysis in the type system.}
+Our type-based bounds analysis is inspired by prior work in interval analysis
+and abstract interpretation.
+The Checker framework \cite{checker} provides a modular approach to extending
+Java's type system with new typing rules. Several interval analysis checkers
+have been written \cite{checker-whole-interval} \cite{checker-modular-interval},
+but they are designed to find bugs rather than for a roundoff error
+analysis.
+There is also work to study type inference from the perspective of a generic
+abstract interpretation analysis \cite{type-to-abstract-cousot} and to be able
+to turn an abstract interpretation analysis into a type inference problem
+\cite{abstract-to-type}. 
+
+% \paragraph{Grothendieck construction of the integers from the naturals.}
+% The idea of constructing the integers via a pairing of the naturals has existed
+% since at least Dedekind's work in 1872.
+% The construction also appears in several introductory textbooks in algebra and
+% category theory.
+
+% A major challenge in the automated numerical analysis literature is scalability.
+% Many existing approaches rely on global optimization \cite{fptaylor}
+% \cite{satire}, rewrite saturation \cite{gappa}, or SMT-based methods
+% \cite{rosa}. However, as programs scale, these analysis approaches frequently
+% time-out. Recent work has applied typed-based analysis approaches to error
+% analysis, such as Numerical Fuzz \cite{numfuzz} and Bean \cite{bean}. There is
+% no need to perform global optimization, run an algorithm to convergence,
+% saturate rewrites, or bit-blast.
+%

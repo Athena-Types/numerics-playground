@@ -1,0 +1,513 @@
+\section{More precise treatment of addition and subtraction} \label{sec:structure}
+% Outline:
+% 1. Associativity, minimal example on add. (Running example)
+% 2. Zoom back out, also bad for sub (give example)
+% 3. Generalize towards arbitrary trees (by example)
+% 4. Concluding remarks for arbitrary programs
+In this section, we are interested in improving the precision of our analysis on
+programs that contain addition and subtraction. We first develop our motivating
+example to demonstrate the problem. Then, we introduce a new primitive
+\textbf{factor} that improves the precision of addition and subtraction. Next,
+we discuss how rewriting a program to use \textbf{factor} is entirely orthogonal
+to our bounds analysis and therefore can only strictly improve Negative Fuzz's
+error bounds. Finally, we discuss the soundness and semantics of
+\textbf{factor}. 
+% Finally, we discuss
+% whether our language is missing other related primitives. 
+
+\paragraph{Problem intuition.}
+In Figure~\ref{fig:pairwise-iterative-side-by-side}, we return to our example
+pairwise summation program (subfigure a) from
+Section~\ref{sec:overview} whose type is $M_{3 \cdot u} \ \textbf{num}$.
+From the numerical analysis literature, we expect the more efficient pairwise summation
+algorithm to have type $M_{2 \cdot u} \ \textbf{num}$, a one-third tighter bound
+than the iterative summation algorithm (subfigure b).
+However, both programs have the same type.
+\begin{figure}[htp] 
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{equation*}
+  \begin{aligned}[c]
+    \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
+    \textbf{let-bind} \ p \ = \ \textbf{rnd} \ (\textbf{add} \ \langle y, z \rangle) \ \textbf{in} \  \\
+    \textbf{rnd} \ (\textbf{add} \  \langle q, p \rangle  )
+  \end{aligned}
+\end{equation*}
+\caption{Pairwise summation ($(w \tilde{+} x) \tilde{+} (y \tilde{+} z)$) on
+four variables}
+\end{subfigure}
+\begin{subfigure}[t]{0.48\textwidth}
+\begin{equation*}
+  \begin{aligned}[c]
+    \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \  \\
+    \textbf{let-bind} \ p \ = \ \textbf{rnd} \ (\textbf{add} \ \langle q, y \rangle) \ \textbf{in} \  \\
+    \textbf{rnd} \ (\textbf{add} \  \langle p, z \rangle  )
+  \end{aligned}
+\end{equation*}
+\caption{Iterative summation ($((w \tilde{+} x) \tilde{+} y) \tilde{+} z$) on
+four variables}
+\end{subfigure}
+\caption{Side-by-side comparison of pairwise summation and iterative summation
+on four variables.}
+\label{fig:pairwise-iterative-side-by-side}
+\end{figure}
+
+To better understand the restrictions imposed by the type system, we include the
+relevant portions of the typing trees for the above two programs in
+Figure~\ref{fig:partial-typing-trees}.
+The core problem is that it is syntactically impossible to first construct
+separate typing trees for $w \tilde{+} x$ and $y \tilde{+} z$ with error grades
+$M_u \ \textbf{num}$, then combine the two results using floating-point addition
+to obtain a well-typed computation of error grade $M_{2u} \ \textbf{num}$.
+In both programs (subfigures a and b), we are forced to sequence the result of
+each \textbf{rnd} with the \textbf{let-bind} typing rule in order to use the
+result in the remainder of the computation.
+Even though the underlying arithmetic computation of pairwise summation
+corresponds to a perfect binary tree with less floating-point error, our usage
+of \textbf{let-bind} forces the typing tree and grades of our pairwise summation
+to mirror (subfigure c) the typing tree of our iterative summation program. This
+means that both programs have the same $3u$ monadic error grade.
+
+\begin{figure}[hbtp]
+  \scriptsize
+  % \footnotesize
+  % \small
+\centering
+\vspace{1em}
+
+\begin{subfigure}[t]{1.0\textwidth}
+  \centering
+%   \AXC{\ldots}
+%   \UIC{$\vdash \textbf{add} : \textbf{num} \times \textbf{num} \multimap \textbf{num}$}
+%   \AXC{$\ldots$}
+% % \RightLabel{($\multimap$ E)}
+% \BIC{$w, x :_1 \textbf{num} \vdash \textbf{add} \ \langle w, x \rangle : \textbf{num}$}
+\AXC{\ldots}
+% \LeftLabel{(Rnd)}
+\UIC{$w, x :_1 \textbf{num} \ \vdash \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) : M_u \
+\textbf{num}$}
+\AXC{\ldots}
+\UIC{$y, z :_1 \textbf{num} \vdash \textbf{rnd} (\textbf{add} \ \langle y, z \rangle) : M_u \ \textbf{num}$}
+\AXC{\ldots}
+\UIC{$q, p :_{1} \textbf{num} \vdash  \textbf{rnd} (\textbf{add} \  \langle p, q \rangle) : M_{u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$y, z, q :_1 \textbf{num} \vdash
+    \textbf{let-bind} \ p \ = \ \textbf{rnd} (\textbf{add} \ \langle y, z \rangle) \ \textbf{in} \ 
+    \textbf{rnd} (\textbf{add} \  \langle p, q \rangle)
+  : M_{u + u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$w, x, y, z :_1 \textbf{num} \ \vdash 
+    \textbf{let-bind} \ q \ = \ \textbf{rnd} (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \ 
+    (\textbf{let-bind} \ p \ = \ \textbf{rnd} (\textbf{add} \ \langle y, z \rangle) \ \textbf{in} \ 
+    \textbf{rnd} (\textbf{add} \  \langle p, q \rangle  ))
+  : M_{u+2u} \ \textbf{num}$}
+\bottomAlignProof
+\DisplayProof
+\caption{
+  A partial typing tree of the program representing the pairwise summation
+  algorithm on four numbers.
+}
+\end{subfigure}
+
+% \vspace{2em}
+
+\begin{subfigure}[t]{1.0\textwidth}
+  \centering
+%   \AXC{\ldots}
+%   \UIC{$\vdash \textbf{add} : \textbf{num} \times \textbf{num} \multimap \textbf{num}$}
+%   \AXC{$\ldots$}
+% % \RightLabel{($\multimap$ E)}
+% \BIC{$w, x :_1 \textbf{num} \vdash \textbf{add} \ \langle w, x \rangle : \textbf{num}$}
+\AXC{\ldots}
+% \LeftLabel{(Rnd)}
+\UIC{$w, x :_1 \textbf{num} \ \vdash \textbf{rnd} \ (\textbf{add} \ \langle w, x \rangle) : M_u \
+\textbf{num}$}
+\AXC{\ldots}
+\UIC{$y, q :_1 \textbf{num} \vdash \textbf{rnd} (\textbf{add} \ \langle q, y \rangle) : M_u \ \textbf{num}$}
+\AXC{\ldots}
+\UIC{$z, p :_{1} \textbf{num} \vdash  \textbf{rnd} (\textbf{add} \  \langle p, z \rangle) : M_{u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$y, z, q :_1 \textbf{num} \vdash
+    \textbf{let-bind} \ p \ = \ \textbf{rnd} (\textbf{add} \ \langle q, y \rangle) \ \textbf{in} \ 
+    \textbf{rnd} (\textbf{add} \  \langle p, z \rangle)
+  : M_{u + u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$w, x, y, z :_1 \textbf{num} \ \vdash 
+    \textbf{let-bind} \ q \ = \ \textbf{rnd} (\textbf{add} \ \langle w, x \rangle) \ \textbf{in} \ 
+    (\textbf{let-bind} \ p \ = \ \textbf{rnd} (\textbf{add} \ \langle q, y \rangle) \ \textbf{in} \ 
+    \textbf{rnd} (\textbf{add} \  \langle p, z \rangle  ))
+  : M_{u+2u} \ \textbf{num}$}
+\bottomAlignProof
+\DisplayProof
+\caption{
+  A partial typing tree of the program representing the iterative summation
+  algorithm on four numbers.
+}
+\end{subfigure}
+
+\vspace{2em}
+
+\begin{subfigure}[t]{1.0\textwidth}
+  \centering
+%   \AXC{\ldots}
+%   \UIC{$\vdash \textbf{add} : \textbf{num} \times \textbf{num} \multimap \textbf{num}$}
+%   \AXC{$\ldots$}
+% % \RightLabel{($\multimap$ E)}
+% \BIC{$w, x :_1 \textbf{num} \vdash \textbf{add} \ \langle w, x \rangle : \textbf{num}$}
+\AXC{\ldots}
+% \LeftLabel{(Rnd)}
+\UIC{$\ldots \vdash M_u \ \textbf{num}$}
+\AXC{\ldots}
+\UIC{$\ldots \vdash M_u \ \textbf{num}$}
+\AXC{\ldots}
+\UIC{$\ldots \vdash M_{u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$\ldots \vdash \textbf{let-bind} \ldots : M_{u + u} \ \textbf{num}$}
+% \RightLabel{($M_u$ E)}
+\BIC{$\ldots \vdash \textbf{let-bind} \ldots : M_{u+2u} \ \textbf{num}$}
+\bottomAlignProof
+\DisplayProof
+\caption{
+  A partial typing tree showing the commonalities of both summation algorithms.
+  Note the grades and occurrences of \textbf{let-bind} in the typing tree.
+}
+\end{subfigure}
+\caption{
+  For presentational purposes, we remove polymorphic bound annotations from the
+  $\textbf{num}$ type and $\textbf{add}$ operation and also omit the
+  applications of the polymorphic typing rules.
+}
+\label{fig:partial-typing-trees}
+\end{figure}
+
+
+\paragraph{Solution: the \textbf{factor} primitive.} 
+Adding a primitive $\textbf{factor}$ with type $(M_q \tau_0) \times (M_q \tau_1)
+\multimap M_q (\tau_0 \times \tau_1)$ allows us to rewrite our running pairwise
+summation example with $\textbf{factor}$ to have type $M_{2u} \ \textbf{num}$,
+which is lower than the $3u$ error grade of the iterative summation program,
+shown below:
+
+\begin{equation*}
+  \begin{aligned}[c]
+    \textbf{let-bind} \ a \ = \\ \textbf{factor} \
+      \langle 
+      \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
+      \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
+      \rangle \ \textbf{in} \\
+      \textbf{rnd} \ (\textbf{add} \ a)
+  \end{aligned}
+\end{equation*}
+
+\begin{figure}[htp]
+  \scriptsize
+  \centering
+  \AXC{\ldots}
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle) 
+          : M_u \textbf{num} $}
+  \AXC{\ldots}
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle) 
+          : M_u \textbf{num} $}
+  \BIC{$w, x, y, z : \textbf{num} \vdash 
+            \langle 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle),
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle)
+            \rangle
+          : (M_u \textbf{num}) \times (M_u \textbf{num}) $}
+  \UIC{$w, x, y, z : \textbf{num} \vdash 
+  \textbf{factor} 
+            \langle 
+            \textbf{rnd} (\textbf{add} \langle w, x \rangle),
+            \textbf{rnd} (\textbf{add} \langle y, z \rangle)
+            \rangle
+          : M_u (\textbf{num} \times \textbf{num}) $}
+  \AXC{\ldots}
+  \UIC{$a: \textbf{num} \times \textbf{num} \vdash \textbf{rnd} (\textbf{add} \ a) : M_{u} \ \textbf{num}$}
+  \BIC{$w, x, y, z : \textbf{num} \vdash 
+        \textbf{let-bind} \ a \ = \textbf{factor} 
+          \langle 
+          \textbf{rnd} \ (\textbf{add} \langle w, x \rangle),
+          \textbf{rnd} \ (\textbf{add} \langle y, z \rangle)
+          \rangle \ \textbf{in} \
+        \textbf{rnd} \ (\textbf{add} \ a) : M_{u + u} \ \textbf{num}$}
+\bottomAlignProof
+\DisplayProof
+\caption{
+  A partial typing tree for the pairwise summation algorithm using the
+  $\textbf{factor}$ primitive. 
+}
+\label{fig:factor-example}
+\end{figure}
+
+To understand why, consider the partial typing tree displayed in
+Figure~\ref{fig:factor-example}. Observe how the \textbf{factor} primitive
+allows us to first ``share" the $u$ monadic error grade and the same typing
+context to construct $\textbf{add} \langle w, x \rangle$ and $\textbf{add}
+\langle y, z \rangle$ on the left-hand-side of the typing tree.
+Then, only after the contexts and grades are shared, we use a single
+\textbf{let-bind} sequencing operation to pass the floating-point result to the
+final \textbf{add}.
+\footnote{Note that our term language is more expressive than Numerical Fuzz as we do not
+restrict the bound term in our \textbf{let-bind} expressions to be values, which
+is necessary to properly take advantage of \textbf{factor} in this manner.}
+So, instead of having to use multiple iteratively sequenced \textbf{let-bind}s
+to sequentially \textit{add} the grades of repeated monadic computations,
+\textbf{factor} enables us to first take the \textit{maximum} of any two grades
+(i.e. share the grade) before sequencing with \textbf{let-bind}. 
+This technique scales for arbitrary sequences of addition or subtraction,
+reducing the monadic grade by a log-factor in size of the sequence.
+
+\textbf{factor} is useful for subtraction as well. As \textbf{add} and
+\textbf{sub} both map $\textbf{num} \times \textbf{num} \multimap \textbf{num}$,
+we can rewrite programs with subtraction in a similar manner as addition. For
+example, in Figure~\ref{fig:factor-sub-example} we demonstrate how to use
+$\textbf{factor}$ to achieve tighter error bounds for programs with subtraction.
+Clearly, $\textbf{factor}$ can help our analysis achieve tighter error bounds
+for both addition and subtraction.
+
+\begin{figure}[htp] 
+\centering
+
+\begin{subfigure}[t]{0.48\textwidth}
+  \vspace{0.6em}
+  \begin{equation*}
+    \begin{aligned}[c]
+      \textbf{let-bind} \ q \ = \ \textbf{rnd} \ (\textbf{sub} \ \langle w, x \rangle) \ \textbf{in} \  \\
+      \textbf{let-bind} \ p \ = \ \textbf{rnd} \ (\textbf{sub} \ \langle y, z \rangle) \ \textbf{in} \  \\
+      \textbf{rnd} \ (\textbf{sub} \  \langle q, p \rangle  )
+    \end{aligned}
+  \end{equation*}
+\caption{Without factor: the type assigned is $M_{3u} \ \textbf{num}$.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+  \begin{equation*}
+    \begin{aligned}[c]
+      \textbf{let-bind} \ a \ = \\ \textbf{factor} \
+        \langle 
+        \textbf{rnd} \ (\textbf{sub} \langle w, x \rangle),
+        \textbf{rnd} \ (\textbf{sub} \langle y, z \rangle)
+        \rangle \ \textbf{in} \\
+        \textbf{rnd} \ (\textbf{sub} \ a)
+    \end{aligned}
+  \end{equation*}
+\caption{With factor: the type assigned is $M_{2u} \ \textbf{num}$.}
+\end{subfigure}
+
+\caption{Side-by-side comparison of subtraction with and without the
+\textbf{factor} primitive. Note that we omit the bounds subscripts for
+presentational purposes.}
+\label{fig:factor-sub-example}
+\end{figure}
+
+% is sound
+% (proved in Theorem~\ref{thm:metric-preservation}) and also allows for the grades
+% in the typing trees to be balanced by allowing the graded monad to be
+% ``factored" out of the cartesian pair.
+\paragraph{Semantics and soundness of \textbf{factor}.}
+In Negative Fuzz, we expect each step of our operational semantics to maintain
+the convention that the first component of a monadic pair represents the ideal
+computation and the second component of a monadic pair represents the rounded
+computation. 
+This ensures that the monad grade bounds the distance between the
+ideal and floating-point computation.
+In Figure~\ref{fig:rnd-ret-steps-with-types}, we can see that the
+\textbf{rnd}, \textbf{ret} stepping rules, which both produce a monadic value of
+type $M_q \ \textbf{num}$ obey this invariant.
+The \textbf{let-bind} stepping rule also maintains the invariant, producing a
+monadic pair if the premises (of type $M_q \ \textbf{num}$) contain a
+monadic pair.
+
+The operational semantics of \textbf{factor} respect this convention by stepping
+$\textbf{factor} \ ((v_0, \tilde{v_0}), (v_1, \tilde{v_1}))$ to $((v_0, v_1),
+(\tilde{v_0}, \tilde{v_1}))$, which viewed as a value of form $((v_0, v_1),
+\widetilde{(v_0, v_1)})$.
+This ensures that \textbf{factor} is sound: if the inputs are in
+$\mathcal{R}_{M_q \tau \times M_q \tau'}$ then the outputs are in
+$\mathcal{R}_{M_q (\tau \times \tau')}$.
+% Further it obeys metric preservation: if $v_0$ and $\tilde{v_0}$ and $v_1$ and
+% $\tilde{v_1}$ are both $q$ apart, then $(v_0, v_1)$ and $(\tilde{v_0},
+% \tilde{v_1})$ are also $q$ apart.
+
+\begin{figure}[htp]
+\begin{equation*}
+\begin{aligned}[c]
+  \rnd k &\mapsto (k, \rho(k))
+\end{aligned}
+\quad\quad\quad
+\begin{aligned}[c]
+  \ret v &\mapsto (v, v)
+\end{aligned}
+\end{equation*}
+
+\vskip 0.2em
+
+\AXC{$f[v_1/x] \mapsto^* (v_3, \tilde{v_3})$}
+\AXC{$f[v_2/x] \mapsto^* (v_4, \tilde{v_4})$}
+\BIC{$\letbind x = (v_1, v_2) \ \tin \ f \mapsto (v_3, \tilde{v_4})$}
+  \DisplayProof
+\caption{Stepping rules for \textbf{rnd}, \textbf{ret}, and \textbf{let-bind}.
+The stepping rule for \textbf{let-bind} is modified with $\sim$ annotations to
+emphasize the rounded portions of the pairs.}
+\label{fig:rnd-ret-steps-with-types}
+\end{figure}
+
+
+% \paragraph{Other related primitives}
+% It is natural to wonder if our type system is missing similar primitives for
+% sharing our monad and comonadic grades that may lead to an overly conservative
+% error analysis. It appears this is not the case for we can derive them below.
+% Our other typing rules can derive the inverse of \textbf{factor}, namely,
+% $\textbf{distribute} : M_q (\tau_0 \times \tau_1) \multimap (M_q \tau_0) \times
+% (M_q \tau_1)$, so no special primitive is needed to structure arithmetic in the
+% reverse direction:
+% \begin{equation*} \label{eq:distribute}
+% \begin{aligned}[c]
+% \textbf{distribute} &: M_q (\tau_1 \times \tau_2) \multimap (M_q \tau_1 \times M_q \tau_2) \\
+%  & \triangleq \lambda ~ y. ~ 
+%    \langle
+%      \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_1 ~ x),
+%      \textbf{let-bind} \ x ~ = ~ y \ \textbf{in} \ \textbf{ret}(\pi_2 ~ x),
+%    \rangle
+% \end{aligned}
+% \end{equation*}
+% Further, the corresponding comonadic sequencing rule \textbf{cofactor} is
+% derivable:
+% \begin{equation}
+%   \begin{aligned}[c]
+%   \textbf{cofactor} &: (!_s \tau_0) \times (!_s \tau_1) \multimap !_s (\tau_0 \times \tau_1) \\
+%   \textbf{cofactor} &\triangleq \lambda e. [\langle \textbf{let-cobind} \ x \ = \ \pi_0 \ e \ \textbf{in} \ x , \textbf{let-cobind} \ y \ = \ \pi_1 \ e \ \textbf{in} \ y \rangle]\\
+%   \end{aligned}
+% \end{equation}
+% as well as its inverse \textbf{codistribute}:
+% \begin{equation}
+%   \begin{aligned}[c]
+%     \textbf{codistribute} &: !_s (\tau_0 \times \tau_1) \multimap (!_s \tau_0) \times (!_s \tau_1) \\
+%     \textbf{codistribute} &\triangleq \lambda e. \textbf{let-cobind} \ x \ = \ e \ \textbf{in} \ \langle [\pi_0 ~ x], [\pi_1 ~ x] \rangle \\
+%   \end{aligned}
+% \end{equation}
+
+% In particular, the ability for a producer to share resources interacts poorly with our
+% sequenced $\textbf{let-bind}$ and call-by-value evaluation strategy, which
+% pessimistically prohibits the sharing of resources between the bound argument
+% and the body. If we have two monadic types $M_q \tau_0 \times M_q \tau_1$ that
+% shared resources in their construction, we have no way of constructing $M_q
+% (\tau_0 \times \tau_1)$ with a shared error grade. A similar problem exists for
+% sharing context sensitivities. 
+
+% \subsection{Automatic inference of factor}
+% We now describe an automatic program transformation $\textsc{factorize}$ that
+% can insert $\textbf{factor}$ in a program that is strictly sequenced without
+% $\textbf{factor}$. We assume that each variable is unique (no shadowing).
+%
+% We first recusively transform the program so that it is in administrative normal
+% form. In particular, we desire that every application is of an
+% expression to a variable (e.g. $e \ x$) or operation to a variable (e.g.
+% $\textbf{op} \ y$). 
+% % The non-structural cases of the transformation are provided below:
+% %
+% % \begin{equation}
+% %   \begin{aligned}[c]
+% %     \textsc{preprocess}(e \ f) &= \textbf{let} \ x \ = \ f \ \textbf{in} \ e \ x \quad \quad &\text{ (for $f$ not a variable)} \\
+% %     \textsc{preprocess}(\textbf{op} \ e) &= \textbf{let} \ x \ = \ e \ \textbf{in} \ \textbf{op} \ x \quad \quad &\text{ (for $e$ not a variable)} 
+% %   \end{aligned}
+% % \end{equation}
+%
+% Now, we we can define $\textsc{factorize}$, which syntatically operates on pairs
+% of well-typed programs in adminstrative normal form and \textit{monadic maps}
+% $\sigma$, which maps variables to expressions of monadic type. These maps behave
+% similarly to substutiton maps. $\textsc{transform}$ returns the transformed
+% program fragment and sets of variables that have been used by factor. It has
+% type:
+% % max: hmm this last part doesn't quite make sense wrt sets of vars
+% $$
+% \textsc{factorize} : \text{program} \to (\text{var} \rightharpoonup \text{program}) \to
+% (\text{program} \times \text{sets of variables})
+% $$
+%
+% % By default, for all variables $x$, $\sigma[x] = x$ if $x$ is not
+% % otherwise defined in $\sigma$.
+%
+% % \begin{equation}
+% %   \textsc{factorize}(e) = \textsc{sequence}(\textsc{factorize-rec}(e, \emptyset))
+% % \end{equation}
+%
+% We use $V$ as a metavariable to represent a set of variables. We first detail
+% the interesting cases for our program transformation:
+%
+% \begin{equation}
+% \begin{aligned}[c]
+%   \textsc{factorize}(\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V) \ = (\textsc{factorize}(f, \sigma;[x \mapsto \text{fst} \ \textsc{factorize}(e, \sigma)])) \ \text{in} \\
+%     \text{if} \ x \in V \\
+%     \text{then} \ (g, V) \\
+%     \text{else} \ (\textbf{let-bind} \ x \ = \ e \ \textbf{in} \ g, V \cup \{x\})\\
+%   \text{(if x only occurs once in f)}
+%   \end{aligned}
+%   \\
+%   \\
+%   \textsc{factorize}(\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V) = \textsc{factorize}(f, \sigma) \ \text{in}\\
+%     \text{if} \ x, y \in DOM(\sigma) \\
+%     \text{then} \ (\textbf{let-bind} \ z = \ \textbf{factor} \ \langle \sigma[x], \sigma[y] \rangle \ \textbf{in} \ g, V \cup \{x, y\})\\
+%     \text{else} \ (\textbf{let} \ z \ = \ \langle x, y \rangle \ \textbf{in} \ g,
+%     V) \\
+%   \end{aligned} \\
+%   \\
+%   \textsc{factorize}(e \ f, \sigma) &= 
+%   \begin{aligned}
+%     \text{let} \ (g, V_0) = \textsc{factorize}(e, \sigma) \ \text{in}\\
+%     \text{let} \ (h, V_1) = \textsc{factorize}(f, \sigma) \ \text{in}\\
+%     (g \ h, V_0 \cup V_1)
+%   \end{aligned} \\
+% \end{aligned}
+% \end{equation}
+% Now, we detail our base case for variables:
+% \begin{equation}
+%   \begin{aligned}
+%     \textsc{factorize}(x, \sigma) &= (x, \{\})
+%   \end{aligned}
+% \end{equation}
+% and our base case for constants:
+% \begin{equation}
+%   \begin{aligned}
+%     \textsc{factorize}(k, \sigma) &= (k, \{\})
+%   \end{aligned}
+% \end{equation}
+% The remainder of the rules are recursive and structural. Invoking the program
+% transformation on a well-typed program transformation $. \vdash e : \tau$
+% can be done by calling: $\textsc{factorize} ~ e ~ \emptyset$.
+%
+% \subsubsection{Program transformation properties}
+% We now wish to prove that our program transformation is sound and never results
+% in looser error bounds.
+% \begin{theorem}[Factorization soundness]
+%   For any program $. \vdash e : \tau$ and $(e', \sigma) = \textsc{factorize} \ e \
+%   \emptyset$, we have that $. \vdash e' : \tau'$ where $\tau' \subseteq \tau$.
+% \end{theorem}
+% \begin{proof}
+%   We first generalize the hypothesis to be over all typing contexts $\Gamma$.
+%   We induct over the typing derivation. 
+%   We strengthen the inductive hypothesis with the assumption that our map
+%   $\sigma: \text{var} \rightharpoonup \text{program}$ only maps variables $x_0,
+%   x_1, x_n$ defined in the typing context $\Gamma$ such that $\Gamma \vdash
+%   \sigma[x] : M_u \ \Gamma[x]$ is well-typed and a output guarantee that for all
+%   $x \in DOM(\sigma)$:
+%   \begin{enumerate}
+%     \item If $x \in \sigma$, $\Gamma \vdash e' : \tau'$ for $\tau' \subseteq
+%       \tau$ (substitution occured with \textbf{factor}).
+%     \item If $x \not\in \sigma$, $\Gamma, x : \tau \vdash e' : \tau'$ for $\tau' \subseteq
+%       \tau$ (substitution did not occur, revert).
+%   \end{enumerate}
+%   We proceed with our induction: 
+%   \begin{description}
+%     \item[Base cases (variables, constants, etc.).] Holds trivially as the
+%       transformation does nothing.
+%     \item[Let.] TODO.
+%     \item[Let-bind ($M_u E$).] TODO.
+%   \end{description}
+% \end{proof}

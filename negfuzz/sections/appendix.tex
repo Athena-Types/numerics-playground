@@ -1,0 +1,1207 @@
+\section{Appendix: Subsitution lemma and metric preservation proof}
+\begin{lemma}[$r$-sensitive subsitution]
+  Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
+  \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
+  \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
+  e'[e/x] : \tau'$.
+\end{lemma}
+\begin{proof}
+  We first induct over the height of the final typing derivation with
+  substitution. Note that the $\bnd{Bvar}$ and $\bnd{Bop}$ rules are rules for a
+  different typing judgement from our main judgement $\vdash$. The Unit, Const,
+  and Op base cases are immediate. We detail the remaining cases here:
+  \begin{description}
+    \item[Var.] In the case that $s=1$, holds immediately. Otherwise, we apply
+      weakening.
+    \item[Inductive cases with possible variable capture $\multimap$ I, $\otimes E$,
+      $+$ E, $!$ E, Let, $M_u$ E] 
+      We case: if $x$ is immediately captured by the expression (e.g. $\lambda$ for
+      $\multimap$ I or $x$ and $y$ for the \textbf{let-pair} expression, etc.), we can
+      apply our inductive hypothesis.
+      Otherwise, it holds immediately.
+    \item[Inductive case: $\forall$ - I.]
+      Holds by our inductive hypothesis and observing that the side condition
+      necessary to apply the $\forall$ I rule  is satisifed by the  $\Delta_0
+      \cap \Delta_1 = \emptyset$ condition.
+    \item[Remaining inductive cases.] The remaining cases ($\multimap$ E,
+      $\times$ I, $\times$ E, $\otimes$ I, $+$ $I_i$, Widen, ! I, Subsumption,
+      Factor, Ret, Rnd, $\forall$ E) follow immediately by application of the
+      inductive hypothesis.
+  \end{description}
+\end{proof}
+
+For the metric preservation proof, we treat our distance vector $\gamma$ as a
+lookup function and assume that there is an implicit fixed ordering on the
+variables.
+\begin{definition}[Distance vector lookup.]
+  We write, for a distance vector $\gamma$ and variable $x$, $\gamma(x)$ for the
+  lookup of the distance of variable $x$ in $\gamma$. If the variable $x$ is not
+  in the domain, $\gamma(x) = 0$ by default. 
+\end{definition}
+
+The below two lemmas are helpful towards proving metric preservation:
+\begin{lemma}[Subsitution decomposition]
+  For substitutions 
+  $\sigma \sim_{\alpha} \sigma' : \Delta_0 + \Delta_1 \ | \ \Gamma + \Theta$,
+  there exists
+  $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Delta_0 \ | \ \Gamma$
+  and
+  $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Delta_1 \ | \ \Theta$.
+  \label{thm:sub-decomp}
+\end{lemma}
+\begin{proof}
+  Follows by induction over the length of the relation $\sigma \sim_{\alpha}
+  \sigma'$.
+\end{proof}
+
+\begin{lemma}[Metric preservation under context evaluation stepping]
+  For a well-typed $\Delta \ | \ \Gamma \vdash C[e] : \tau$ and substitutions $\sigma,
+  \sigma'$ such that $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$ and
+  $e~\sigma \mapsto^{*} v$ and
+  $e~\sigma' \mapsto^{*} v'$.
+  If $C[v] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[v'] \sigma' : \tau$ 
+  then
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C [e] \sigma' : \tau$.
+  \label{thm:ctx-stepping}
+\end{lemma}
+\begin{proof}
+  By inspection of our stepping relation, we can tell that stepping is
+  deterministic. Further, since we only define our rewrite relation over closed
+  terms, we know that $e~\sigma, e~\sigma'$ is closed and therefore constant
+  under all substitutions. 
+  So, by the definition of $\mathcal{R}$, $\mathcal{SD}$, and context stepping,
+  we know that both 
+  $$
+  C[e~\sigma]~\sigma, C[e~\sigma']~\sigma' \in \mathcal{R}_{\tau}
+  $$ 
+  and that 
+  $$
+  \mathcal{SD}_{\tau}(C[e]\sigma, C[e]\sigma') = 
+  \mathcal{SD}_{\tau}(C[e~\sigma]\sigma, C[e~\sigma']\sigma') = 
+  \mathcal{SD}_{\tau}(C[v]\sigma, C[v']\sigma') = 
+  \gamma \cdot (\Delta \ | \ \Gamma)
+  $$
+  respectively and therefore 
+  $C[e] \sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} C[e] \sigma'$
+  holds.
+\end{proof}
+
+\begin{theorem}[Metric preservation]
+  For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
+  $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
+  $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
+\end{theorem} 
+\begin{proof}
+  We induct over our typing derivation. The base cases (Var,
+  \bnd{\textbf{bvar}}, Unit, Const) follow trivially. The subsumption and
+  widening cases also follow trivially. We detail the remaining cases here. Note
+  that the distance between $\bnd{\textbf{bnd}}$ vars in $\Delta$ is $\infty$ if
+  they correspond to different bounds. Therefore for the following cases, we
+  omit reptitively reasoning about $\Delta$ substitutions:
+  \begin{description}
+    \item[Case $\multimap$ I.] 
+      We wish to show that for any $\Gamma \vdash \lambda x . e : \tau$ and
+      subsitutions $\sigma \sim_{\gamma} \sigma' : \Gamma$ that $\lambda x .
+      e~\sigma \sim_{\gamma \cdot \Gamma} \lambda x . e~\sigma'$. Unfolding, it
+      suffices to show that both:
+      \begin{enumerate}
+        \item $\lambda x . e~\sigma, \lambda x . e~\sigma'$ are in
+          $\mathcal{R}_{\tau_0 \multimap \tau}$
+        \item $\mathcal{SD}_{\tau_0 \multimap \tau}(\lambda x . e~\sigma,
+          \lambda x . e~\sigma') \leq \gamma \cdot \Gamma$
+      \end{enumerate}
+    
+      Observe that we have by our inductive hypothesis that for any $\Delta, x:
+      \tau' \vdash e : \tau$ and substitutions 
+      $\delta[v_0/x] \sim_{\gamma'} \delta'[v_1/x] : \Gamma,~x : \tau'$ that 
+      $e~\delta[v_0/x] \sim_{\gamma' \cdot \Gamma} e~\delta'[v_1/x]$ holds. 
+      Let us now carry on with the proof:
+
+      \begin{description}
+        \item[\underline{Property 1.}] We need to show that $(\lambda x . e)~\sigma$ and
+          $(\lambda x . e)~\sigma'$ are both in the relation $\mathcal{R}_{\tau_0 \multimap
+          \tau}$. The cases are symmetric so we only show one case. Unfolding
+          the definition of $\mathcal{R}_{\tau_0 \multimap \tau}$, let $w_0, w_1
+          \in \mathcal{VR}_{\tau_0}$. 
+          $(\lambda x . e) w_0 \mapsto e[w_0/x]$
+          and
+          $(\lambda x . e) w_1 \mapsto e[w_1/x]$
+          and so it suffices to show that
+          $e~\sigma[w_0/x], e~\sigma[w_1/x]$ 
+          are closed expressions falling in $R_{\tau_0}$.
+          This is true by our inductive hypothesis, instantiating with $\sigma =
+          \delta = \delta'$, $v_0 = w_0$, and $v_1 = w_1$.
+        \item[\underline{Property 2.}] Unfolding the definition of
+          $\mathcal{SD}_{\tau_0 \multimap \tau}$, it suffices to show that:
+          $$
+          \mathcal{SD}_{\tau}
+          ((\lambda x . e~w)~\sigma, (\lambda x . e~w)~\sigma') 
+          \leq \gamma \cdot \Gamma
+          $$
+          Stepping, it suffices to show that
+          $$
+          \mathcal{SD}_{\tau}
+          (e~\sigma[w/x], e~\sigma'[w/x]) 
+          \leq \gamma \cdot \Gamma
+          $$
+          which holds by application of our inductive hypothesis when $\delta =
+          \sigma$, $\delta' = \sigma'$, $v_0 = v_1 = w$, and $\gamma' = \gamma
+          :: 0$.
+      \end{description}
+      So, by our inductive hypothesis and unfolding the definitions of
+      $\mathcal{R}$ and $\mathcal{SD}$, we have properties (1) and (2)
+      respectively. 
+    \item[Case $\multimap$ E.] 
+      By our inductive hypothesis, it suffices
+      to prove this case for $e~f$.
+      % By inversion, we know that $v = \lambda x . e$.
+      We wish to show that for any $\Gamma + \Theta \vdash e~f : \tau$ and
+      subsitutions 
+      $\sigma \sim_{\alpha} \sigma': \Gamma + \Theta$ 
+      that 
+      $$e~f~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} e~f~\sigma'$$
+      Using Lemma \ref{thm:sub-decomp} (substitution decomposition), we
+      construct potentially overlapping substitutions
+      $\sigma_0 \sim_{\alpha} \sigma_1 : \Gamma$
+      and $\sigma_0' \sim_{\alpha} \sigma_1' : \Theta$
+      where $FV(e) \subseteq DOM(\sigma_0) = DOM(\sigma_1)$ and
+      $FV(f) \subseteq DOM(\sigma_0') = DOM(\sigma_1')$ and 
+      $\sigma_0, \sigma_0' \subseteq \sigma$ and 
+      $\sigma_1, \sigma_1' \subseteq \sigma'$ and $\gamma, \theta$ minimal.
+      In other words, $\sigma_0, \sigma_1$ correspond to the parts of $\sigma$ and $\sigma'$ 
+      respectively that are represented by $\Gamma$.
+      Similarly, $\sigma_0', \sigma_1'$ correspond to the parts of $\sigma$ and $\sigma'$ 
+      respectively that are represented by $\Theta$.
+      Note that our substitutions \textit{must} overlap in the case where $FV(e)
+      \cap FV(f)$ is non-empty.
+      By our inductive hypothesis, we know that 
+      $e~\sigma \mapsto^* \lambda x . M$ and 
+      $e'~\sigma \mapsto^* \lambda x . M'$ for some $M, M'$.
+      Since subsituting variables that are not free does not change the
+      underlying term, we know that the following equations must hold where
+      $\sigma^*, \sigma'^*$ are $\sigma$ and $\sigma'$ respectively with $x$
+      removed:
+      \begin{equation}
+        \begin{aligned}[c]
+          (\lambda x . M)~[\sigma_0]~(w[\sigma_1]) &= 
+            ((\lambda x . M[\sigma^*])~w)[\sigma] = 
+            ((\lambda x . M)~w)[\sigma] \mapsto
+            M[\sigma][w/x] \\
+          (\lambda x . M')~[\sigma_0']~(w[\sigma_1']) &= 
+            ((\lambda x . M'[\sigma'^*])~w)[\sigma'] = 
+            ((\lambda x . M')~w)[\sigma'] \mapsto
+            M'[\sigma'][w/x] \\
+        \end{aligned}
+      \end{equation}
+
+      and by stepping
+
+      \begin{equation}
+        \begin{aligned}[c]
+          (\lambda x . M)~[\sigma_0]~(w[\sigma_1]) &\mapsto M[\sigma_0][w[\sigma_1]/x] \\
+          (\lambda x . M)~[\sigma_0']~(w[\sigma_1']) &\mapsto M'[\sigma_0'][w[\sigma_1']/x] \\
+        \end{aligned}
+      \end{equation}
+
+      so by deterministic stepping
+      \begin{equation}
+        \begin{aligned}[c]
+          M[\sigma_0][w[\sigma_1]/x] &=
+            M[\sigma][w/x] \\
+          M'[\sigma_0'][w[\sigma_1']/x] &=
+            M'[\sigma'][w/x] \\
+        \end{aligned}
+      \end{equation}
+
+      By applying our inductive hypothesis and unfolding our definition of
+      $R_{\tau_0 \multimap \tau}$, we know that $M, M'$ is 
+      1-sensitive with respect to $w$ according to $\mathcal{SD}$. 
+      This gives us:
+      $$
+      \mathcal{SD}_{\tau}(M~[w[\sigma]/x][\sigma], M~[w[\sigma']/x][\sigma]) 
+      \leq 
+      \mathcal{SD}_{\tau_0}(w[\sigma], w[\sigma']) 
+      \leq 
+      \theta \cdot \Theta
+      $$
+      and we also know that by our inductive hypothesis
+      $$
+      \mathcal{SD}_{\tau}(e~[\sigma]~f~[\sigma'], e~[\sigma']~f~[\sigma']) 
+      =
+      \mathcal{SD}_{\tau}(M~[w[\sigma']/x][\sigma], M'~[w[\sigma']/x][\sigma']) 
+      \leq 
+      \gamma \cdot \Gamma
+      $$
+      So by our triangle inequality of the syntactic distance between terms:
+      $$
+      M~[w[\sigma]/x]~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta}
+      M'~[w[\sigma']/x]~\sigma'
+      $$
+
+      and therefore
+      $$
+      (\lambda x . M)~w~\sigma \sim_{\gamma \cdot \Gamma + \theta \cdot \Theta} (\lambda x . M')~w~\sigma'
+      $$
+
+      To complete the proof case, it suffices to prove 
+      $$\alpha \cdot (\Gamma + \Theta) \geq \alpha \cdot \Gamma + \alpha \cdot \Theta$$
+
+      which holds by construction (via our substitution decomposition lemma).
+    \item[Case $M_q~e$ (let-bind).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Like the $\multimap I$ case, we only need to prove one side due to
+          symmetry. So we fix a substitution $\sigma$. By Lemma
+          \ref{thm:ctx-stepping}, it suffices to prove this case for a value
+          $(v_0, v_1)$. 
+          We have by our inductive hypothesis that $(v_0, v_1) \in \mathcal{R}_{M_r
+          \tau_0}$. So $\mathcal{SD}(v_0, v_1) \leq r$. By application of our
+          inductive hypothesis, we know that (abusing notation) 
+          $f[v_1/x], f[v_2/x] \in \mathcal{R}_{M_q}$ so
+          $f[v_1/x] \mapsto^{*} (v_3, v_4), f[v_2/x] \mapsto^{*} (v_5, v_6)$ where 
+          $(v_3, v_4), (v_5, v_6) \in \mathcal{R}_{M_q}$.
+          We also know that 
+          $$\sigma[v_0/x] \sim_{\vec{0}, r} \sigma[v_1/x] : \Gamma, x : \tau_0$$
+          that
+          $$f~\sigma[v_0/x] \sim_{(\vec{0},r) \cdot (\Gamma, x \mapsto s)} f~\sigma[v_1/x] : M_q \tau$$
+          So therefore
+          \begin{equation}
+            \begin{aligned}[c]
+              (v_3, v_4)~\sigma[v_1/x] 
+                &\sim_{(\vec{0},r) \cdot (\Gamma, x \mapsto s)} 
+              (v_5, v_6)~\sigma[v_2/x] : M_q \tau \\
+              (v_3, v_4)~\sigma[v_1/x] 
+                &\sim_{r \cdot s} 
+              (v_5, v_6)~\sigma[v_2/x] : M_q \tau
+            \end{aligned}
+          \end{equation}
+          So clearly $(v_3, v_6) \in \mathcal{R}_{M_{s \cdot r + q}}$ by
+          application of triangle inequality: 
+          $$
+          r \cdot s + q \geq
+          \mathcal{SD}_{tau}(v_3, v_5) + \mathcal{SD}_{\tau}(v_5, v_6) \geq
+          \mathcal{SD}_{\tau}(v_3, v_6)
+          $$
+        \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\alpha}
+          \sigma' : s \cdot \Gamma + \Theta$:
+          \begin{equation}
+            \label{eq:lb-prop2}
+          \textbf{let-bind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (s
+          \cdot \Gamma + \Theta)} \textbf{let-bind}~x = e \ \tin \ f \sigma' :
+          M_{s \cdot r + q}
+          \end{equation}
+          By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
+          substitutions 
+          $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : s \cdot \Gamma$
+          and $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$ .
+
+          $$
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
+          e~\sigma'_{\gamma} : M_r \tau_0
+          $$
+          By our proof of \textbf{\underline{Property 1}}, we know that both
+          sides of Equation~\ref{eq:lb-prop2} are in the relation
+          $\mathcal{R}_{M_{r \cdot s + q} \tau}$ and we're not stuck. We want to
+          show both sides have syntatic distance less than $\alpha \cdot (s
+          \cdot \Gamma + \Theta)$. 
+          We apply our inductive hypothesis once more and extend the
+          $\theta$ substutitons to obtain:
+          \begin{equation} \label{eq:lb-prop2.1}
+            f~\sigma_{\theta}[e~\sigma_{\gamma}/x] 
+            \sim_{\alpha \cdot \Theta + (\alpha \cdot s \cdot \Gamma)} 
+            f~\sigma'_{\theta}[e~\sigma'_{\gamma}/x] : M_{r} \tau
+          \end{equation}
+          Since both sides are neighborhood monads, it suffices to bound
+          distances in only the first components of each side which means that
+          Equation~\ref{eq:lb-prop2.1} implies Equation~\ref{eq:lb-prop2}.
+      \end{description}
+    \item[Case (let-cobind).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We again only need to prove one side due to symmetry.
+          By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for a
+          value $[v]~\sigma$ for a $\sigma$ compatible withi $\Gamma$. 
+          We have by our inductive hypothesis that $[v]~\sigma \in \mathcal{R}_{!_s
+          \tau_0}$. Unfolding, we have that $v~\sigma \in \mathcal{R}_{\tau_0}$.
+          Stepping and applying our inductive hypothesis yields that
+          $f~\sigma~[v/x] \in \mathcal{R}_{\tau}$.
+
+        \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\alpha}
+          \sigma' : t \cdot \Gamma + \Theta$:
+          $$\textbf{let-cobind}~x = e \ \tin \ f \sigma \sim_{\alpha \cdot (t
+          \cdot \Gamma + \Theta)} \textbf{let-cobind}~x = e \ \tin \ f \sigma' :
+          \tau$$
+          By Lemma $\ref{thm:sub-decomp}$ (substitution decomposition) we have
+          substitutions 
+          $\sigma_{\gamma} \sim_{\alpha} \sigma'_{\gamma} : \Gamma$
+          and $\sigma_{\theta} \sim_{\alpha} \sigma'_{\theta} : \Theta$.
+          By application of the inductive hypothesis, we know that:
+          $$
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
+          e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0
+          $$
+          where 
+          $$
+          e~\sigma_{\gamma} = [v_0]
+          $$
+          and
+          $$
+          e~\sigma'_{\gamma} \ : \> !_{s}~\tau_0 = [v_1]
+          $$
+          for some $v_0, v_1$ so therefore by inspection of the relation:
+          $$
+          s \cdot \mathcal{SD}_{\tau_0}(v_0, v_1) =  
+          \mathcal{SD}_{!_s~\tau_0}([v_0], [v_1])
+          $$
+          Let $\mathcal{SD}_{\tau_0}(v_0, v_1) = c$. Importantly, note that 
+          \begin{equation} \label{eq:lcb-zero-sub}
+            s \cdot c = \alpha \cdot \Gamma
+          \end{equation}
+          Then, we apply our inductive hypothesis once more and we extend the
+          $\theta$ substutitons and to obtain:
+          $$
+          f~\sigma_{\theta}[\sigma_{\gamma}/x] 
+          \sim_{\alpha \cdot \Theta + t \cdot s \cdot c}
+          f~\sigma'_{\theta}[\sigma'_{\gamma}/x] : \tau
+          $$
+          Note that the distance $\sim$ is obtained via the inductive hypothesis
+          and the fact that it is in $R_{M_{s \cdot r + q}}$ is obtained from
+          our proof of \textbf{\underline{Property 1}}.
+          Substituting by Equation~\ref{eq:lcb-zero-sub} we complete the case:
+          $$
+          f~\sigma_{\theta}[\sigma_{\gamma}/x] 
+          \sim_{\alpha \cdot \Theta + t \cdot \alpha \cdot \Gamma}
+          f~\sigma'_{\theta}[\sigma'_{\gamma}/x] : \tau
+          $$
+      \end{description}
+
+    \item[Case (let).] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}. By symmetry, it suffices to
+          only prove one side. Follows by application of our inductive
+          hypothesis and some stepping.
+        \item[\underline{Property 2.}]
+          We need to show that for all substitutions $\sigma \sim_{\alpha} \sigma' :
+          s \cdot \Gamma + \Theta$:
+          $$
+          \textbf{let} \ x = e \ \tin \ f \sigma 
+            \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+          \textbf{let} \ x = e \ \tin \ f \sigma' :
+          \tau
+          $$
+          By Lemma~\ref{thm:sub-decomp} we have substitutions $\sigma_{\gamma}
+          \sim_\alpha \sigma'_{\gamma} : \Gamma$ and $\sigma_{\theta}
+          \sim_\alpha \sigma'_{\gamma} : \Theta$. By applying our inductive
+          hypothesis, we know that 
+          $$
+          e~\sigma_{\gamma} \sim_{\alpha \cdot \Gamma}
+          e~\sigma'_{\gamma} \ : \tau_0
+          $$
+          So we can extend our pair of $\Theta$ subsitutions by these two terms
+          respsectively and apply our inductive hypothesis yielding:
+          $$
+          \textbf{let} \ x = e \ \tin \ f \sigma 
+            \sim_{(\alpha \cdot s \cdot \Gamma) + (\alpha \cdot \Theta)}
+          \textbf{let} \ x = e \ \tin \ f \sigma' :
+          \tau
+          $$
+          which is equivalent to what we wanted to show.
+
+      \end{description}
+
+    \item[Case factor.] 
+      By Lemma \ref{thm:ctx-stepping}, it suffices to prove this case for 
+      $\mathbf{factor}~((v_1, v_2), (v_3, v_4))$,  
+
+      $\mathbf{factor}~((v'_1, v'_2), (v'_3, v'_4))$. 
+      Unfolding our inductive hypothesis, we have that for substitutions
+      $\sigma \sim_{\gamma} \sigma' : \Gamma$, that 
+      $$
+      \textbf{factor} \ ((v_1, v_2), (v_3, v_4))~\sigma 
+      \sim_{\gamma \cdot \Gamma} 
+      \textbf{factor} \ ((v'_1, v'_2), (v'_3, v'_4))~\sigma' 
+      : (M_q~\tau_0) \times (M_r~\tau_1)
+      $$
+      Unfolding, we get:
+      $$
+      \textbf{factor} \ ((v_1~\sigma, v_2~\sigma), (v_3~\sigma, v_4~\sigma)) 
+      \sim_{\gamma \cdot \Gamma} 
+      \textbf{factor} \ ((v'_1~\sigma', v'_2~\sigma'), (v'_3~\sigma', v'_4~\sigma')) 
+      : (M_q~\tau_0) \times (M_r~\tau_1)
+      $$
+      So by stepping (and reassociating) we can see that the following logical
+      relation holds as distances between neighborhood monads are measured in
+      terms of the first components:
+      $$
+      ((v_1~\sigma, v_3~\sigma), (v_2~\sigma, v_4~\sigma)) 
+      \sim_{\gamma \cdot \Gamma} 
+      ((v'_1~\sigma', v'_3~\sigma'), (v'_2~\sigma', v'_4~\sigma')) 
+      : M_{max(r,q)}(\tau_0 \times \tau_1)
+      $$
+
+    \item[Case rnd.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}. The case holds under the
+          assumption the constant langauge parameter $u$ has the required
+          properties (see Definition~\ref{def:numfuzz-interface}, property a)
+          and application of our inductive hypothesis.
+        \item[\underline{Property 2.}]
+          Since distance is measured for the neighborhood monad on the first
+          component, which in our case is the ideal (not rounded) component (see
+          stepping rule), this holds trivially by application of the inductive
+          hypothesis.
+      \end{description}
+
+    \item[Case ret.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}. Holds trivially by application
+          of the inductive hypothesis.
+        \item[\underline{Property 2.}]
+          Since distance is measured for the neighborhood monad on the first
+          component, which in our case is the ideal (not rounded) component (see
+          stepping rule), this holds trivially by application of the inductive
+          hypothesis.
+      \end{description}
+
+    \item[Case op.] 
+      Both properties hold by our language interface
+      (Definition~\ref{def:numfuzz-interface}, property b) and application of
+      the inductive hypothesis.
+
+    \item[Case ! I.] Holds unfolding of our logical relations, and our inductive
+      hypothesis.
+
+    \item[Case $\times$ I.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          Holds by application of the inductive hypothesis and unfolding of the
+          definition of $\mathcal{R}_{\tau_0 \times \tau_1}$.
+        \item[\underline{Property 2.}]
+          We have 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$ 
+          and wish to show that
+          $$(e, f)~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (e, f)~\sigma'$$
+
+          By Lemma~\ref{thm:sub-decomp}, we know that there exists substitutions
+          $\sigma_{\Gamma} \sim_{\alpha} \sigma'_{\Gamma} : \Gamma$
+          and
+          $\sigma_{\Theta} \sim_{\alpha} \sigma'_{\Theta} : \Theta$.
+          So by definition unfolding we have that:
+          $$
+          (v~\sigma_{\Gamma}, w~\sigma_{\Theta}) 
+            \sim_{(\alpha \cdot \Gamma + \alpha \cdot \Theta)} 
+          (v~\sigma'_{\Gamma}, w~\sigma'_{\Theta})
+          : \tau_0 \times \tau_1
+          $$
+          so therefore by an analysis of free variables and subsitution
+          $$
+          (v, w)~\sigma 
+            \sim_{(\alpha \cdot \Gamma + \alpha \cdot \Theta)} 
+          (v, w)~\sigma'
+          : \tau_0 \times \tau_1
+          $$
+
+          To complete the proof case, it suffices to prove:
+          $$\alpha \cdot (\Gamma + \Theta) \geq \alpha \cdot \Gamma + \alpha \cdot \Theta$$
+
+          which holds by construction (via our substitution decomposition lemma).
+      \end{description}
+
+    \item[Case $\times$ E.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}. The case holds by application
+          of the inductive hypothesis and stepping once.
+        \item[\underline{Property 2.}]
+          It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
+          if $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma' : \tau_1 \times \tau_2$
+          then:
+          $$
+          \pi_i~e~\sigma \sim_{\gamma \cdot \Gamma} \pi_i~e~\sigma' : \tau_i
+          $$
+          which holds by stepping and some unfolding of the logical relation.
+      \end{description}
+
+    \item[Case $\otimes$ I.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}.
+          The case holds by application of the inductive hypothesis.
+        \item[\underline{Property 2.}]
+          It suffices to show that for all 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma + \Theta$:
+          $$
+          (e, f)~\sigma \sim_{\alpha \cdot (\Gamma + \Theta)} (e, f)~\sigma' :
+          \tau_0 \otimes \tau_1
+          $$
+          By Lemma~\ref{thm:sub-decomp}, we know that 
+          $\sigma \sim_{\alpha} \sigma' : \Gamma$ and
+          $\sigma \sim_{\alpha} \sigma' : \Theta$.
+          Appying our inductive hypothesis, we get that
+          $e~\sigma \sim_{\alpha \cdot \Gamma} e~\sigma' : \tau_0$ and
+          $e~\sigma \sim_{\alpha \cdot \Theta} e~\sigma' : \tau_1$
+          so by unfolding our logical relation we obtain
+          $$
+          (e, f)~\sigma \sim_{\alpha \cdot \Gamma + \alpha \cdot \Theta} (e, f)~\sigma' :
+          \tau_0 \otimes \tau_1
+          $$
+          which is equivalent to what we wanted to show.
+      \end{description}
+
+    \item[Case $\otimes$ E.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}.
+          We again only need to prove one side due to symmetry. Let our bound
+          expression be some value $w$. By our inductive hypothesis $w = (v_0,
+          v_1)$ for some $v_0$ and $v_1$. Stepping and applying our inductive
+          hypothesis yields that $f~\sigma~[v_0/x][v_1/x] \in
+          \mathcal{R}(\tau)$ for any $\sigma$ compatible with $\Theta$.
+        \item[\underline{Property 2.}]
+          This case mirrors the proof for \textbf{\underline{Property 2}} of the
+          $\textbf{let}$ case.
+      \end{description}
+
+    \item[Case $+$ I.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}.
+          Holds by application of the inductive hypothesis.
+        \item[\underline{Property 2.}]
+          It suffices to show that for all $\sigma \sim_{\gamma} \sigma' : \Gamma$
+          if $e~\sigma \sim_{\gamma \cdot \Gamma} e~\sigma' : \tau_0 + \tau_1$
+          then:
+          $$
+          \tin_i~e~\sigma \sim_{\gamma \cdot \Gamma} \tin_i~e~\sigma' : \tau_0 +
+          \tau_1
+          $$
+          which holds by stepping and some unfolding of the logical relation.
+      \end{description}
+
+    \item[Case $+$ E.] 
+      We prove each property separately.
+      \begin{description}
+        \item[\underline{Property 1.}]
+          We apply Lemma~\ref{thm:ctx-stepping}. We again only need to prove one
+          side due to symmetry. Let our bound expression be some value
+          $\textbf{in}_i ~ v$. Stepping and applying our inductive hypothesis
+          finishes this case.
+        \item[\underline{Property 2.}]
+          We wish to show that for all 
+          $\sigma \sim_{\alpha} \sigma': s \cdot \Gamma + \Theta$ 
+          that:
+          $$
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)~\sigma
+          \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)~\sigma'
+          : \tau
+          $$
+          By Lemma~\ref{thm:sub-decomp} we have substitutions
+          $$
+          \sigma_{\Gamma} \sim_{\alpha} \sigma'_{\Gamma} : \Gamma
+          $$
+          $$
+          \sigma_{\Theta} \sim_{\alpha} \sigma'_{\Theta} : \Theta
+          $$
+          that we can plug into our inductive hypothesis. Plugging in, we
+          know that: $e~\sigma \mapsto \mathbf{in}_i~v$ 
+          and $e~\sigma' \mapsto \mathbf{in}_j~v'$ where
+          $\mathcal{SD}(\mathbf{in}_i~v, \mathbf{in}_j~v') 
+          \leq \gamma \cdot \Gamma$.
+          We now case over the following two scenarios:
+          \begin{description}
+            \item[Subcase $i = j$.] This subcase mirrors the proof for
+              \textbf{\underline{Property 2}} of the $\textbf{let}$ case.
+            \item[Subcase $i \not= j$.] In this case, we have:
+              $\mathcal{SD}(\mathbf{in}_i~v, \mathbf{in}_j~v') = \infty \leq
+              \alpha \cdot \Gamma$. Stepping and applying the inductive
+              hypothesis, we obtain:
+              $$
+              f_i [v/x]\sigma 
+              \sim_{\alpha \cdot (s \cdot \Gamma + \Theta)}
+              f_j [v'/x]\sigma'
+              : \tau
+              $$
+              Since $s$ is non-zero, by applying our inductive hypothesis we
+              know that $f_i$ and $f_j$ are non-zero sensitive in $x$ and since
+              positive $s \cdot \infty = \infty$, we know that $\alpha \cdot (s
+              \cdot \Gamma + \Theta) = \infty$. Therefore this subcase holds.
+              Note that it is essential in this case that $s$ is non-zero; If
+              $s$ is allowed to be zero, this would be a problem because $0
+              \cdot \infty = 0$.
+          \end{description}
+
+    \end{description}
+
+  \end{description}
+  The remaining cases in this proof deal with bound polymorphism:
+  \begin{description}
+    \item[Case \textbf{bop}.] Holds by the spec on our language interface and
+      from the fact that any differring $\Delta$-substitutions must be $\infty$
+      apart.
+
+    \item[Case $\forall$ I.] We need to show that for any substitutions:
+
+      $$\sigma \sim_{\alpha} \sigma' : \Delta \ | \ \Gamma$$
+
+      that 
+
+      $\Lambda \epsilon . e~\sigma \sim_{\alpha \cdot (\Delta \ | \ \Gamma)}
+      \Lambda \epsilon . e~\sigma : \forall \epsilon . \tau$. Similarly to the
+      above cases, we observe that if the $\Delta$-substitutions in $\sigma$ and
+      $\sigma'$ are different, the distance is $\infty$ and we are done. In the
+      case that the $\Delta$-substitutions are the same, we unfold our
+      definition of $\mathcal{R}_{\forall \epsilon . \tau}$ and observe that
+      since $\epsilon \not\in FTV(\Gamma)$, we can apply our inductive
+      hypothesis.
+
+    \item[Case $\forall$ E.] We similarly observe that if the
+      $\Delta$-substitutions in $\sigma$ and $\sigma'$ are different, the
+      distance is $\infty$ and we are done. Unfolding our logical relation and
+      applying our inductive hypothesis finishes the case.
+  \end{description}
+\end{proof}
+
+\section{Appendix: Proof that Negative Fuzz adheres to the modular interface} 
+\subsubsection{Property A: The \textit{num} and distance function
+$d_\textbf{num}$ form a metric space.} \label{sec:prop-a}
+\begin{lemma}[Metric space]
+  $\mathbb{P}$ forms a metric space under $d_\mathbb{P}$.
+\end{lemma}
+\begin{proof}
+Symmetry and reflexivity hold trivially. Triangle inequality holds by unfolding
+and application of triangle inequality with respect to $d_{\mathbb{R}}$.
+\end{proof}
+
+Our operations and bounds operate over the paired representation
+$\mathbb{P}$. In this manner, subtraction and negative numbers can be encoded
+using bounded-sensitivity operations over the non-negative reals, avoiding the
+problem of infinite sensitivity.
+
+
+\subsubsection{Property B: Property of $u$ and rounding function $\rho$.}
+
+% TODO: keep the below
+To show a correspondance with the constants for $u$ given in Numerical Fuzz and
+Negative Fuzz, we show that it is sound to use the same round-off error bound
+$u$ associated with $\rho_\mathbb{R}$ for $\rho_\mathbb{P}$.
+In other words, we wish to show that the translated rounding function can share
+the same round-off constant as the grade used in Numerical Fuzz over an unpaired
+representation.
+
+Given a rounding function $\rho_\mathbb{R}$ over the real with up to $u$
+round-off error, recall that we define a ``simulated" rounding function
+$\rho_{\mathbb{P}}$ over the paired representation
+(Definition~\ref{def:rounding-p})
+which satisfies the constraint that $r = a - b$ at all times. We need to show
+that our round-off constants $u$ still work for our new paired representation
+and paired rounding function $\rho_{\mathbb{P}}$.
+\begin{lemma}[Property of rounding and constant parameter $u$]
+We wish to show that given a unit round-off bound $u$ and $\rho_{\mathbb{R}}$ such that 
+$\forall r \in \mathbb{R}, d_\mathbb{R} (\rho(r), r) \leq u$, then
+    $\forall e \in \mathcal{R}_{num}, \mathcal{SD}_{\mathbf{num}}(\rho_{\mathbb{P}}(e), e)
+    \leq u$. 
+\end{lemma}
+\begin{proof}
+$(\rho_{\mathbb{P}}((r, a, b)), (r, a, b)) = 
+(\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r})$. 
+So, 
+$
+d_{\mathbb{P}}((\rho_{\mathbb{R}}(r), a
+\cdot \frac{\rho_{\mathbb{R}}(r)}{r}, b \cdot \frac{\rho_{\mathbb{R}}(r)}{r}), (r, a, b)) = max(\rho_{\mathbb{R}}(r), \rho_{\mathbb{R}}(r)) = \rho_{\mathbb{R}} (r)
+$.
+\end{proof}
+
+\subsubsection{Property C: Property of $\mathbf{op} \in \Sigma$: metric preservation.}
+Our operations satisfy metric preservation.
+% TODO: elaborate some more?
+
+\begin{lemma}[Operations satisfy metric preservation]
+Each $\textbf{op} \in \Sigma$ satisfies metric preservation.
+\end{lemma}
+\begin{proof}
+Holds by a case analysis for each operation in $\Sigma$ and unfolding the
+definition of our metric function.
+\end{proof}
+
+\subsubsection{Property D: Partial order of bounds.}
+\begin{lemma}[Partial order of $\bnd{\mathbb{B}}$.]
+  $(\mathbb{B}, \leq)$ form a partial order.
+\end{lemma}
+\begin{proof}
+  Follows from the fact that $\subseteq$ forms a partial order over
+  $\mathbb{Set}$.
+\end{proof}
+
+\subsubsection{Property E: Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$:
+closure over bounds ($\bnd{\mathbb{B}}$).} \label{sec:prop-e}
+
+\begin{lemma}[Closure over bounds]
+For every operation $\mathbf{bop}(b_0, \ldots, b_n) : \Sigma_\textbf{num}$, we
+have that if $c_0, \ldots, c_n \in \mathbb{B}$ are $\textit{bop}(c_0, \ldots,
+c_n) = c' : \textbf{bnd}$ holds.
+\end{lemma}
+\begin{proof}
+  Follows by inspection of the definition of our three supported operations.
+\end{proof}
+
+\section{Appendix: Error bound translation theorems}
+\begin{theorem}[Paired error theorem; relative]
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
+  the following bounds
+  \begin{multicols}{2}
+    \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r \in [r^{\downarrow}, r^{\uparrow}]$ and $0 < r^{\downarrow}$
+    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
+    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
+    \end{enumerate}
+  \end{multicols}
+  we have that $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+  following bounds: 
+\begin{enumerate}
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+\end{enumerate} 
+\end{theorem}
+\begin{proof}
+  Our error metric is symmetric so for this theorem we wish to prove a bound on
+  $d_{\mathbb{R}}(r', r)$. We prove each bound and, for each bound, split into
+  two cases: $r \leq r'$ or $r > r'$. In the first case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+  1 \leq 
+  \frac{r'}{r} \leq
+  \frac{a' - be^{-q}}{a - b} =
+  \frac{a' - be^{-q} + ae^{-q} - ae^{-q}}{a - b} \\ =
+  e^{-q} + \frac{a' - ae^{-q}}{a - b} \leq
+  e^{-q} + \frac{ae^{q} - ae^{-q}}{a - b} =
+  e^{-q} + \frac{a}{a - b}(e^{q} - e^{-q}) \\ \leq
+  e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}) 
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-priori-bnd-a-pos}
+  \begin{aligned}[c]
+  0 \leq ln(\frac{r'}{r}) \leq 
+  ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))
+  \end{aligned}
+  \end{equation}
+  In the second case, we have:
+  \begin{equation}
+  \begin{aligned}[c]
+    1 \geq
+    \frac{r'}{r} \geq
+    \frac{a' - be^{q}}{a - b} = 
+    \frac{a' - be^{q} + ae^{q} - ae^{q}}{a - b} \\ =
+    e^{q} + \frac{a' - ae^{q}}{a - b} \geq
+    e^{q} + \frac{ae^{-q} - ae^{q}}{a - b} = 
+    e^{q} + \frac{a}{a-b}(e^{-q} - e^{q}) \\ \geq
+    e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q})
+  \end{aligned}
+  \end{equation}
+  Therefore, 
+  \begin{equation} \label{eq:a-priori-bnd-a-neg}
+  \begin{aligned}[c]
+    0 \geq ln(\frac{r'}{r}) \geq
+    ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))
+  \end{aligned}
+  \end{equation}
+
+  A sound bound for both cases is the maximum of the absolute value of
+  Equation~\ref{eq:a-priori-bnd-a-pos} and Equation~\ref{eq:a-priori-bnd-a-neg},
+  which is exactly our first bound (a). The proof strategy for the second bound
+  (b) mirrors that of the first bound.
+\end{proof}
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, $e
+  \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than
+  or equal to all of the following bounds: 
+\begin{enumerate}
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+\end{enumerate} 
+\end{corollary} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
+  theorem proves the corollary.
+\end{proof}
+
+\begin{theorem}[Paired error theorem; absolute] 
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  \begin{multicols}{2}
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r \in [r^{\downarrow}, r^{\uparrow}]$
+    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
+    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
+  \end{enumerate}
+  \end{multicols}
+  we have that $|r - r'|$ is less than or equal to the maximum of the following
+  \begin{multicols}{2}
+\begin{enumerate}
+  \item[(a)] $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item[(b)] $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item[(c)] $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item[(d)] $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+\end{enumerate} 
+  \end{multicols}
+\end{theorem} 
+\begin{proof}
+  We case into whether $r \geq r'$ (or not) and $r \geq 0$ (or not). This
+  produces four cases:
+  \begin{description}
+    \item [Case $r \geq r'$ and $r \geq 0$.] We have that:
+      \begin{equation}
+        \begin{aligned}
+          (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
+                              &= a(1-e^{-q}) - b(1 - e^q)
+                              &= a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r \geq r'$ and $r < 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a - b) - (a' - b') &\leq (a - b) - (ae^{-q} - be^{q}) \\
+                              &= a(1-e^{-q}) - b(1 - e^q)
+                              &= a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r < r'$ and $r \geq 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
+                              &= a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)
+        \end{aligned}
+      \end{equation}
+    \item [Case $r < r'$ and $r < 0$.]
+      \begin{equation}
+        \begin{aligned}
+          (a' - b') - (a - b) &\leq ((ae^q - be^{-q}) - (a - b)) \\
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
+                              &= a(e^{q}-1) - b(e^{-q} - 1)
+        \end{aligned}
+      \end{equation}
+  \end{description}
+  By taking the maximum of all possible cases, we can obtain a sound a priori
+  absolute error bound.
+\end{proof}
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, 
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is
+  less than or equal to the maximum of the following:
+  \begin{multicols}{2}
+\begin{enumerate}
+  \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+\end{enumerate} 
+  \end{multicols}
+\end{corollary} 
+\begin{proof}
+  By our logical relation and metric preservation theorem (Theorem
+  \ref{thm:metric-preservation}), we know that $e \mapsto ((r, a, b), (r', a',
+  b'))$ such that $d_{\mathbb{P}}((r, a, b), (r', a', b')) \leq q$. Therefore,
+  $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$. Applying the previous
+  theorem proves the corollary.
+\end{proof}
+
+\section{Appendix: Helper functions for defining type inference.}
+\begin{figure}
+% TODO: make this more concise
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
+\AXC{}
+\UIC{$I(\textbf{unit}^{\bnd{\bullet}}) \to \textbf{unit}; .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+% \AXC{$\epsilon \not \in FTV(\Gamma) \cup DOM(\Delta)$}
+\AXC{$\epsilon \text{ globally fresh}$}
+\UIC{$ I(\textbf{num}^{\bnd{\bullet}}) \to \textbf{num}_{\epsilon};
+\epsilon $}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \times \tau_1)^{\bnd{\bullet}}) \to \tau_0 \times
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \otimes \tau_1)^{\bnd{\bullet}}) \to \tau_0 \otimes
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 + \tau_1)^{\bnd{\bullet}}) \to \tau_0 + \tau_1; \alpha,
+\beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau_0^{\bnd{\bullet}}) \to \tau_0; \alpha$}
+\AXC{$I(\tau_1^{\bnd{\bullet}}) \to \tau_1; \beta$}
+\BIC{$I((\tau_0 \multimap \tau_1)^{\bnd{\bullet}}) \to \tau_0 \multimap
+\tau_1; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(!_s (\tau^{\bnd{\bullet}})) \to !_s \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$I(\tau^{\bnd{\bullet}}) \to \tau; \beta$}
+\UIC{$I(M_u (\tau^{\bnd{\bullet}})) \to M_u \tau ; \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\end{subfigure}
+
+\vskip 3em
+
+\begin{subfigure}[t]{1.0\textwidth}
+\centering
+\AXC{}
+\UIC{$E(\textbf{unit}) \to .$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{}
+\UIC{$E(\textbf{num}_i) \to i$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \times \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \otimes \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 + \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau_0) \to \alpha$}
+\AXC{$E(\tau_1) \to \beta$}
+\BIC{$E((\tau_0 \multimap \tau_1)) \to \alpha, \beta$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(!_s (\tau)) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(M_u (\tau)) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.2em
+\AXC{$E(\tau) \to \beta$}
+\UIC{$E(\forall \epsilon. \tau) \to \beta$}
+\bottomAlignProof
+\DisplayProof
+\end{subfigure}
+
+    \caption{Ancillary functions defining algorithmic type inference. I creates
+      bounds for an type with erased bounds. E extracts the bounds used in an
+      unerased type. For type checking to succeed on many real-world programs,
+      it is important for I and E to align in the production and extraction of
+    bound variables.}
+    \label{fig:helper_type_inference}
+\end{figure}
+
+\newpage
+
+
+\section{Appendix: Soundness proof for algorithmic type inference} 
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ and $\multimap E$ cases for the type inference soundness
+proof.
+\begin{lemma}[Free vars in $\Gamma$.] \label{thm:free-var-gamma}
+  For any typing derivation for some $\Delta \ | \ \Gamma \vdash e : \tau$,
+  $FTV(\Gamma) \subseteq \Delta$ and $FTV(\tau) \subseteq \Delta$.
+\end{lemma}
+\begin{proof}
+  By induction over the $\vdash$ relation.
+\end{proof}
+
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap I$ case for the type inference soundness proof.
+\begin{lemma}[Free vars in I.] \label{thm:free-var-i}
+  For any type $\tau$, $I(\tau) = \tau'; \epsilon_0 \ldots \epsilon_n$, we have
+  that $FTV(\tau') = \{ \epsilon_0, \ldots, \epsilon_n \}$.
+\end{lemma}
+\begin{proof}
+  By induction over the definition of $I$.
+\end{proof}
+
+We use the following lemma for reasoning about the bound polymorphism variables
+in the $\multimap E$ case for the type inference soundness proof.
+\begin{lemma}[Well-formedness of bounds produced by $E$.] \label{thm:wff-var-e}
+  For any types $\tau$, $E(\tau) \to i_0, \ldots, i_n$ means that for every
+  $i_j$, if $FTV(\tau) \subseteq \Delta$ then $\Delta \vdash i_j$.
+\end{lemma}
+\begin{proof}
+  We apply weakening (over bound contexts, Lemma~\ref{thm:weakening-bnd}) to the
+  conclusion. So it suffices to prove that $FTV(\tau) \vdash i_j$. We complete
+  the proof by induction over $\tau$.
+\end{proof}
+
+Now we are able to prove the soundness of our type inference algorithm. 
+% Note that if the ordering of the variables produced by the I and E helper
+% functions do not align, the equality check in the $\multimap$ E case will fail.
+% This means that the choice of ordering is not essential for our soundness proof
+% but would be relevant for a completeness argument.
+% TODO: prove that we infer the tighest possible sens + round-off error grades
+% (or provide counterexample).
+\begin{theorem}[Algorithmic Soundness] 
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
+\end{theorem}
+
+\begin{theorem}[Algorithmic Soundness] \label{thm:algo-soundness}
+If $\Gamma^{\bullet}; e^{\bullet} \implies \Gamma'; e'; \tau$ then there exists
+some $\Delta$ such that $\Delta \ | \ \Gamma' \vdash e' : \tau$ has a typing
+derivation where $\Gamma^{\bullet} = \Gamma'^{\bullet}$ and $e^{\bnd{\bullet}} =
+e'^{\bnd{\bullet}}$.
+\end{theorem}
+\begin{proof}
+We induct over each typing / case in the type inference algorithm. 
+\begin{description}
+  \item[$\textbf{unit}$.] Holds trivially.
+  \item[Var.] Let $\Delta$ contain all the bound variables mentioned by $\Gamma$
+    and $\tau$. Then we trivially have a typing derivation for $\bnd{\Delta \ |
+    \ } \Gamma, x : \tau \vdash x : \tau$.
+  \item[Const.] Holds trivially. 
+  % TODO: spell out delta
+  \item[! I.] Holds trivially. Note that our sensitivity scaling factor
+    $\annotate{s}$ is user-annotated.
+  \item[$\multimap$ I.] By our inductive hypothesis, we know that there exists a
+    $\Delta'$ such that we have a typing derivation $d$ for 
+    $\Delta' \ | \ \Gamma', x:_s \tau_0 \vdash e' : \tau$. 
+    We wish for each $\epsilon_0, \ldots , \epsilon_n$ to apply our
+    $\forall$ I rule to $d$. 
+    \par\bigskip
+    For each application of our $\forall$ I rule using variable $\epsilon_i$, we
+    must satisfy, from the premisses, that:
+    (1) $\epsilon_i \in \Delta'$ and (2) $\epsilon_i \not\in FTV(\Gamma)$:
+    \bigskip
+
+    Let $\Delta = FTV(\tau_0) = \{\epsilon_0, \ldots, \epsilon_n\}$ by
+    Lemma~\ref{thm:free-var-i}. 
+    Then, we have that $\Delta \subseteq \Delta'$ by
+    Lemma~\ref{thm:free-var-gamma} and therefore each $\epsilon_0, \ldots,
+    \epsilon_n \not\in \Delta'$.
+    We further have that $FTV(\Gamma) \cap \Delta = \emptyset$ as $I$ only
+    generates fresh vars. 
+    So both of our two conditions have been satisifed for all $\epsilon_i$.
+  \item[$\multimap$ E.] By our inductive hypothesis, we know that there exist
+    derivations:
+    \begin{itemize}
+      \item $d_0$ where $\Delta' \ | \ \Gamma' \vdash f : \forall
+        \epsilon_0, \ldots, \epsilon_n, \tau_0 \multimap \tau$
+      \item $d_1$ where $\Delta'' \ | \ \Theta \vdash e : \tau_0'$
+    \end{itemize}
+    Note that $\epsilon_0, \ldots, \epsilon_n$ are fresh from $\Delta''$ as each
+    $\epsilon$ generated is globally fresh in our type inference algorithm.
+    \par\bigskip
+  % TODO: spell out delta
+
+    By weakening on our inductive hypothesis, there exists a $\Delta$ such that
+    we have a derivation for $\Delta \ | \ \Theta \vdash e : \tau_0[\epsilon_0 /
+    i_0, \ldots, \epsilon_n / i_n]$.
+    Then we are able to iteratively apply the $\forall \text{ E}$ typing rule to
+    our derivation $d_0$ for each
+    $\epsilon_0, \ldots, \epsilon_n$, obtaining
+    us the following intermediate typing derivation $d_3$: 
+    $\Delta' - \{\epsilon_0, \ldots, \epsilon_n\} \cup \Delta'' \ | \ \Gamma'
+    \vdash f' \ \{i_0\} \ldots \{i_n\} : 
+    (\tau_0 \multimap \tau) [\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ 
+    whose type is the same as the following
+    $\tau_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n] \multimap \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$.
+    \par\bigskip
+
+    Note that the $\Delta \vdash i : \textbf{bnd}$ condition in each application
+    of the $\forall E$ rule is satisfied by applying Lemma~\ref{thm:wff-var-e}
+    and Lemma~\ref{thm:free-var-gamma} on the polymorphic bound judgements.
+    In particular, by Lemma~\ref{thm:free-var-gamma}, we have that
+    $FTV(\tau'_0[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]) \subseteq FTV(\tau'_0)
+    \subseteq FTV(\Theta) \subseteq \Delta''$. 
+    Applying Lemma~\ref{thm:wff-var-e} and our inductive hypothesis finishes
+    each proof obligation.
+    Now we are ready to apply our $\multimap E$ typing rule with derivation
+    $d_1$ to obtain a dervation for: $\Delta' \cup \Delta'' \vdash (f' \ \{i_0\}
+    \ldots \{i_n\}) e' : \tau[\epsilon_0 / i_0, \ldots, \epsilon_n / i_n]$ which completes the case.
+  \item[Op.] Holds trivially.
+  \item[Factor.] Holds trivially.
+  \item[Ret.] Holds trivially.
+  \item[Rnd.] Holds trivially.
+  \item[$\times$ I.] Like Numerical Fuzz, we define \text{max} as the least
+    upper bound of $\Gamma_0$ and $\Gamma_1$. Let $\Delta_0$ and $\Delta_1$ be
+    the (implicit) polymorphic bound contexts generated by our inductive
+    hypothesis.
+    By weakening, we can produce a typing derivation for the following
+    judgement:
+    $\Delta_0 \cup \Delta_1 \ | \ \text{max}(\Gamma_0, \Gamma_1) \vdash \langle
+    f', e' \rangle; \tau_0 \times \tau_1$ which completes the case.
+  \item[$\times$ E.] Holds trivially.
+  \item[$\otimes$ I.] Holds trivially.
+  \item[Let.] Holds trivially.
+  \item[Let-pair.] Holds by applying weakening to the second inductive
+    hypothesis to obtain a derivation $\Delta \ | \ \Gamma, x :_{\text{max}(s,
+    s')} \tau_0, y :_{\text{max}(s, s')} \tau_1 \vdash f' : \tau$ and applying
+    the corresponding $\otimes \text{ E}$ rule to complete the case.
+  \item[Let-bind.] Holds trivially.
+  \item[$\otimes$ E.] We finish by applying our $\otimes$ E typing rule.
+\end{description}
+\end{proof}

@@ -1,0 +1,128 @@
+\section{Implementation and evaluation} \label{sec:eval}
+To evaluate our approach, we implement our type inference algorithm in Rust.
+We evaluate the speed and precision of our implementation against existing
+tools on the FPBench \cite{fpbench} and Satire \cite{satire} benchmark suite.
+We only include FPBench programs that are newly supported, e.g. contain
+subtraction or range over negative numbers.
+While the programs in the FPBench benchmark suite are useful for evaluating
+precision, many are too small to draw conclusions about the scalability of our
+approach. Therefore, we draw upon
+larger programs from the Satire benchmark suite \cite{satire}, which are taken
+from real-world programs. Due to the sheer size of the programs in the Satire
+suite and the need to hand-translate into Negative Fuzz, we focused on a subset
+of three program schemas (with and without \textbf{factor}) in our evaluation.
+
+For each benchmark, we set the precision to \textsc{binary64} and the rounding
+mode to round towards infinity.
+We convert all bounds to absolute error for an apples-to-apples comparison
+against competing tools.
+We run our benchmarks on an AWS c5.metal instance (96 vCPU, 192 GiB RAM).
+Each timing benchmark result reported is the median of 6 benchmark runs.
+Our approach has several assumptions and limitations. Like Numerical Fuzz, we
+assume that there is no underflow or overflow in the program. We do not support
+recursion, division, or square roots.
+
+% TODO: mention relative error
+
+% TODO: orphaned
+% One might wonder if using a paired representation, then running a bounds
+% analysis to recover the error on the original unpaired representation hurts the
+% precision of our analysis on programs. Interestingly, we do not lose any
+% precision. We provide several examples showing that our bounds analysis is
+% capable of reasoning that programs containing only-growing functions on
+% non-negative numbers can only produce non-negative numbers. Therefore, on the
+% programs supported by both Negative Fuzz and Numerical Fuzz, the maximum
+% round-off error obtained by Negative Fuzz is simply the inferred grade of the
+% monad and is no looser than the bound obtained by Numerical Fuzz. Negative Fuzz
+% is therefore a strict improvement on Numerical Fuzz: our approach can analyze
+% more programs with possibly tighter bounds on previously supported programs.
+
+\paragraph{Small benchmark programs.}
+We compare the precision and performance of our approach on small benchmark
+programs from FPBench against two alternative approaches: FPTaylor \cite{fptaylor} and Gappa
+\cite{gappa}.\footnote{%
+  The add-assoc benchmark is not from FPBench and is instead taken from our
+running example of pairwise summation on $w,x,y,z \in [-1, 1]$.} 
+FPTaylor and Gappa occupy a different part of the performance-precision design
+space compared to Negative Fuzz: both FPTaylor and Gappa aim for precise, sound
+floating-point analyses via global optimization or rewriting rather than speed
+or scalability.
+We observe that Negative Fuzz (with \textbf{factor}) obtains competitive bounds
+within an order of magnitude with Gappa and FPTaylor.
+We also observe that our NegFuzz implementation is often orders of magnitude
+faster than Gappa and FPTaylor (Table~\ref{tab:small-timing}).
+
+\input{../plots/small-benchmarks-tables.tex}
+
+\paragraph{Large benchmark programs.}
+To understand how Negative Fuzz scales, we run three large parameterized
+benchmarks, which we plot in Figure~\ref{fig:large-plots} and discuss below.
+Our large-scale comparisons are primarily intended to compare against Satire,
+which is intended to be scalable by taking a global optimization approach that
+allows users to trade-off precision for analysis time. We include Gappa and
+FPTaylor to show how they scale against Negative Fuzz and Satire.
+We run each benchmark until a 450 second timeout or over 64 GB of RAM is used.
+Both the Horner and summation benchmarks have a fixed evaluation order that
+makes \textbf{factor} unhelpful, so we do not attempt to use \textbf{factor}.
+Each column represents a set of parameterized benchmarks. The top row represents
+the absolute error bound achieved by each tool. The bottom row represents the
+median execution time of each program (across 6 runs). If any of the 6 runs
+failed due to timeout or OOM, we mark the result as a failure on the uppermost
+edge of each plot. We discuss the benchmarks below:
+\begin{enumerate}
+  \item We evaluate the polynomials of degree $2^2$ to $2^{11}$ using Horner's
+    scheme and we observe that Negative Fuzz has comparable precision at
+    significantly faster performance.
+  \item We evaluate matrix multiplication on inputs from $2^2 \times 2^2 $ to
+    $2^7 \times 2^7$. On large inputs, we observe that Negative Fuzz (without
+    \textbf{factor}) has comparable precision at significantly faster performance.
+    Rewriting the program with \textbf{factor} allows Negative Fuzz to achieve
+    significantly better precision on large inputs than competing tools.
+  \item We evaluate iterative summation (discussed in
+    Section~\ref{sec:overview}) on sequences of addition from $2^2$ to $2^7$.
+    Negative Fuzz has comparable precision at significantly faster performance.
+\end{enumerate}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{../plots/figures/large_benchmarks_combined.pdf}
+\caption{
+  Log-scale growth plots of absolute error and execution time of Negative Fuzz
+  (with and without \textbf{factor}), Gappa, FPTaylor, and Satire on large
+  benchmarks. For all plots, smaller is better.
+}
+\label{fig:large-plots}
+\end{figure}
+
+\paragraph{Factor ablation.}
+To understand how \textbf{factor} contributes to the precision of our approach, we
+perform a simple ablation by manually translating each benchmark from FPBench
+into Negative Fuzz with and without the \textbf{factor} primitive. We also
+translate one benchmark from the Satire suite. In all of the examples in
+Table~\ref{tab:small-precision-abs} and Figure~\ref{fig:large-plots}, we can see
+that using the \textbf{factor} strictly improves the precision of our analysis. 
+We also observe that using \textbf{factor} only improved the monadic grade while
+keeping the bound analysis the same.
+Note that we did not specifically optimize our implementation of \textbf{factor}
+so it is difficult to draw any conclusions about \textbf{factor}'s runtime
+performance overhead.
+% This makes sense because for a program of type $M_q \ \textbf{num}_{\bnd{b}}$,
+% our analysis depends on two parts of our type: 
+% \begin{enumerate}
+%   \item The grade on the monad $q$. In our evaluation benchmarks
+%     (Section~\ref{sec:eval}), we observe that rewriting a program with
+%     \textbf{factor} only reduces the inferred monadic grade.
+%   \item The result of the bound analysis $\bnd{b}$, which is entirely orthogonal
+%     to the usage of \textbf{factor}. In fact, we observe that for each benchmark
+%     in our evaluation rewritten to use \textbf{factor}, the inferred bounds
+%     subscript on $\textbf{num}$ remains unchanged.
+% \end{enumerate}
+% Our error theorems
+% (Theorem~\ref{thm:paired-a-priori-abs} and
+% Theorem~\ref{thm:paired-a-priori-rel}) ensure that if a program is rewritten to
+% a lower monadic grade $q$, all else equal, the final error bound will improve.
+
+\paragraph{Evaluation takeaways.}
+From all our evaluation tables and figures, we conclude that when compared with
+Gappa, FPTaylor, and Satire: our type-based approach (1) yields useful and
+competitive error bounds, (2) achieves good performance, and (3) benefits from
+using the \textbf{factor} primitive.

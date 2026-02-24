@@ -1,0 +1,869 @@
+\section{Language} \label{sec:lang}
+Our language is an extension of the Numerical Fuzz \cite{numfuzz} family of
+call-by-value affine lambda calculi.
+We first describe the terms (Section~\ref{sec:terms}), types and static
+semantics (Section~\ref{sec:static-semantics}), operational semantics
+(Section~\ref{sec:dynamic-semantics}), and a modular interface for soundly
+instantiating the language. Finally, we define a logical relation and prove
+soundness (Metric Preservation; Theorem~\ref{thm:metric-preservation}).
+
+% and logical relation for the family of
+% languages (Section~\ref{sec:logical-relation}). Finally, using our logical relation
+% to precisely specify the required invariants for instantiating our language, we
+% define a modular interface for instantiating the language as well as prove
+% soundness for any interface-conforming instantiation of the language
+% (Section~\ref{sec:interface}). 
+% We extend the Numerical Fuzz family of languages to support two key features:
+% \begin{enumerate}
+%   \item Error and sensitivity sharing between terms, through the addition of a
+%   \textbf{factor} primitive (Section~\ref{sec:error-sharing}). This enables more
+%   programs to be typed with tighter error bounds.
+%   % todo: add section ref
+%   \item Interval analysis, through the incorporation of \textit{bound
+%   polymorphism} (Section~\ref{sec:bound-poly}). In
+%   (Section~\ref{sec:tightness}), we will prove that this will result in error
+%   bounds no looser than prior type-based approaches for forwards analysis.
+% \end{enumerate}
+% Finally, we
+% provide a formal specification for soundly instantiating a particular
+% language and prove soundness via a logical relations argument.
+%
+% \subsection{Sharing Error} \label{sec:error-sharing}
+%
+% \subsection{Type-based Interval Analysis and Bound Polymorphism} \label{sec:bound-poly}
+
+\subsection{Terms} \label{sec:terms}
+We present the full syntax for values and terms in Figure~\ref{fig:syntax}.
+We introduce a new language for bounds as
+well as explicit terms to represent polymorphic abstraction $\bnd{(\Lambda
+\epsilon. e)}$ and instantiation $\bnd{(e \bnd{\{b\}})}$. 
+Like many lambda calculi for linear type systems, Numerical Fuzz supports
+variables, cartesian and tensor pairing, $\pi_i$ for projection, $in_i$ for
+injection, and function abstraction and application.
+Our term syntax has terms to perform effectful computation ($\textbf{rnd}~e$ and
+$\textbf{ret}~e$) and coeffects ($[e]$). 
+We have \textbf{let-bind} and \textbf{let-cobind} for sequencing and structuring
+monadic and comonadic computation respectively. We also have \textbf{case \ldots
+of \ldots} for conditional reasoning on sum types.
+
+\begin{figure}
+  \begin{alignat*}{2}
+    &\bnd{\text{Bounds } b, b_0, b_1} &::=~ &\bnd{\epsilon}
+    \mid \bnd{c \in \mathbb{B}}
+         \mid \bnd{\mathbf{bop_c(b_0, \ldots, b_c)}} \\
+         &\text{Types } \tau, \tau_0, \tau_1 &::=~ &\mathbf{unit}
+         \mid \num_{\bnd{b}}
+         \mid \tau_0 \times \tau_1
+         \mid \tau_0 \otimes \tau_1
+         \mid \tau_0 + \tau_1
+         \mid \tau_0 \multimap \tau_1
+         \mid {\bang{s} \tau}
+         \mid {M_u \tau}
+         \mid \bnd{\textbf{bnd}}
+         \mid \forall \epsilon . \tau
+         \\
+         &\text{Values } v, w \ &::=~ &\langle \rangle
+         \mid k \in \textit{num}
+         \mid \langle x,y \rangle 
+         \mid (x, y)
+         \mid \tin_i \ x
+         \mid \lambda x.~e
+         \mid \bnd{\Lambda \epsilon . e} \\
+         % \mid \mathbf{op}(x) \\
+         % & & & \mid [v]
+         % \mid\rnd v
+         % \mid {\ret v} 
+         % \mid \factor v
+         % \mid \letbind x = v \ \tin \ f 
+         \\
+         &\text{Terms } e, f, g &::=~ &v
+         \mid x
+         % \mid (b_0, b_1)
+         \mid \mathbf{op} ~ e
+         \mid e~f
+         \mid \bnd{e~\{i\}}
+         \mid {\pi}_i\ e
+         \mid \langle e,f \rangle 
+         \mid (e, f)
+         \mid \tin_i \ e \\
+         & & & \mid \letpair \ (x,y) = e \ \tin \ f
+         \mid \letassign x  = e \ \tin \ f 
+         \mid [e] \\
+         & & & 
+         \mid 
+          \mathbf{case} \ e \ \mathbf{of} \ (\tin_1 \ x.f_1 \ | \ \tin_2 \ x.f_2)
+         \mid \rnd e
+         \mid {\ret e} 
+         \mid \factor e \\
+         & & & 
+         \mid {\letbind x = e \ \tin \ f}
+         \mid \letcobind x = e \ \tin \ f
+  \end{alignat*}
+  \caption{
+    Types, values, and terms. $\mathbf{op} \in \mathcal{O}$. $i \in \{1, 2\}$.
+    $\textbf{op}$ and $\textbf{bop}$ are syntactic metavars representing
+    functions of arbitrary arity.
+    $\textit{num}$ is a parameter in the programming language representing the
+    set of numbers the language computes over.
+  }
+  \label{fig:syntax}
+\end{figure}
+
+\subsection{Types and static semantics}  \label{sec:static-semantics}
+Following Numerical Fuzz, our typing judgements incorporate a graded effect and
+co-effect type system to simultaneously track round-off error and function
+sensitivity. We have graded monad types $M_q \tau$ for bounding the round-off
+error in $\tau$ by a real, non-negative grade $q$. We also have graded comonadic
+types $!_s \tau$ for scaling sensitivity of a type $\tau$ by a real,
+non-negative factor $s$. Our language also supports linear function types
+$\tau_0 \multimap \tau$ corresponding to 1-sensitive functions.
+
+Typing contexts have the following grammar: 
+$\Gamma ::= . \ | \ \Gamma, x :_s \tau$.
+We treat contexts $\Gamma$ as a partial map from variables $x$ to pairs of
+sensitivities and types $(s, \tau)$. Similarly to Numerical Fuzz, we can sum and
+scale typing contexts. We represent context summing as $\Gamma + \Delta$ and
+scaling by a real $s$ as $s \cdot \Gamma$. We define pair context and scaling
+and then context summing and scaling below.
+
+\begin{definition}[Pair summing]
+  We can sum a pair of sensitivities and types $(s, \tau) + (s', \tau) = (s +
+  s', \tau)$. Note that this is only well-defined if the added types are
+  syntactically equal.
+\end{definition}
+
+\begin{definition}[Context summing]
+  A context $\Theta = \Gamma + \Gamma'$ if and only if $\forall x, \theta(x) =
+  \Gamma(x) + \Gamma'(x)$ and is well defined.
+\end{definition}
+
+\begin{definition}[Pair scaling]
+  We can scale a pair of sensitivities and types 
+  $s' \cdot (s, \tau) =  (s' \cdot s, \tau)$. 
+\end{definition}
+
+\begin{definition}[Context scaling]
+  A context $\Gamma' = s \cdot \Gamma$ if and only if $\forall x, \Gamma'(x) = s
+  \cdot \Gamma(x)$
+\end{definition}
+
+We define our typing rules in Figure~\ref{fig:typing_rules}.
+The introduction and elimination rules for $\otimes$, $\times$, and $\multimap$
+mirror Numerical Fuzz and correspond to the standard introduction and
+elimination rules in linear logic.
+We are also able to scale typing contexts through the (! I) rule. This is useful
+for instantiating functions with finitely scaled sensitivity.
+% todo: check that we can't be infinite and that this is up-to-date everywhere
+
+For a typing judgement $x :_s \tau_0 \vdash e : M_q \tau_1$, our variable $s$
+bounds the sensitivity of $x$ in $e$ and $q$ bounds the maximum round-off error
+observable by the expression $e$.
+Most of the rules for controlling the error grade and sensitivity, (Ret), (Rnd),
+($M_u$ E), (Subsumption), and ($!$ S) are taken from Numerical Fuzz and are our
+core reasoning principles for reasoning about round-off error. Intuitively,
+(Ret) introduces no round-off error and (Rnd) introduces round-off error $u$
+corresponding to the unit round-off constant. $M_u E$ is the
+characteristic rule for \textbf{let-bind} that incorporates sensitivity and
+round-off information. Our language also introduces a new (Factor) rule for
+reasoning about monadic computations with round-off error, which allows for
+tighter error analyses. We detail the (Factor) rule and walk through an example
+in Section~\ref{sec:structure}.
+
+In this paper, we use the color $\bnd{\textit{blue}}$ to denote bound
+polymorphism. 
+Bound contexts have the grammar $\bnd{\Delta} ::= \bnd{. \ | \ \Delta, b : \textbf{bnd}}$
+and can be viewed as a set whose membership indicates whether the variable is in
+our bound context. Bound contexts can't be scaled. Adding two bound contexts is
+then union.
+We have a \bnd{inj} function for mapping constants $k$ into the
+corresponding interval that contains a single point. In the (\bnd{Widen}),
+(\bnd{Bvar}), (\bnd{Bop}), (\bnd{$\forall$ I}), and (\bnd{$\forall$ E}) rules,
+we further extend Numerical Fuzz's type system with an abstract
+interpretation-style analysis by annotating $\textbf{num}_{\bnd{i}}$ types with
+a subscript bound with the grammar $\bnd{b}$ shown in Figure~\ref{fig:syntax}.
+Our type system is parametric in $\bnd{\mathbb{B}}$, which is a set of bounds
+equipped with a partial order $\leq$.
+In Definition~\ref{def:bound-exp-eval}, we define the $\bnd{\llbracket} -
+\bnd{\rrbracket}$ relation interpreting bound expressions $\bnd{b}$ to a subset
+of $\bnd{\mathbb{B}}$.
+
+We additionally extend Numerical Fuzz by adding expressions in more places (e.g.
+the application rule) and a $\textbf{factor}$ primitive to enable tighter error
+bounds. To support operations that have polymorphic bounds, we additionally
+modify our (Op) typing rule from Numerical Fuzz.
+% For presentational purposes, we present a restricted form of the
+% typing rule to make the modular interface easier to follow.
+
+\begin{figure}[hbtp]
+\vskip 5em
+%% ROW1
+\begin{center}
+%% unit
+\AXC{}
+\RightLabel{(Unit)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \langle \rangle : \mathbf{unit}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% var
+\AXC{$s \ge 1$}
+\RightLabel{(Var)}
+  \UIC{$\bnd{\Delta \ |} \ \Gamma, x:_s \tau, \Theta \vdash x : \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% fun
+\AXC{$\bnd{\Delta \ |} \ \Gamma, x:_1 \tau_0 \vdash e : \tau$}
+\RightLabel{($\multimap$ I)}
+\UnaryInfC{$\bnd{\Delta \ |} \ \Gamma \vdash \lambda x. e : \tau_0 \multimap \tau $}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%% app
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0 \multimap \tau$}
+\AXC{$\bnd{\Delta \ |} \ \Theta \vdash f : \tau_0 $}
+\RightLabel{($\multimap$ E)}
+\BinaryInfC{$\bnd{\Delta \ |} \ \Gamma + \Theta \vdash ef : \tau $}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% dep prod intro
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0$}
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash f : \tau_1$}
+\RightLabel{($\times$ I)}
+\BinaryInfC{$\bnd{\Delta \ |} \ \Gamma \vdash \langle e, f \rangle: \tau_0 \times \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+%%
+
+
+%% ROW2
+%% dep prod elim
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_1 \times \tau_2$}
+\RightLabel{($\times$ E)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash {\pi}_i \ e : \tau_i$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% ind prod intro
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0 $}
+\AXC{$\bnd{\Delta \ |} \ \Theta \vdash f : \tau_1$}
+\RightLabel{($\tensor$ I)}
+\BIC{$\bnd{\Delta \ |} \ \Gamma + \Theta \vdash (e, f) : \tau_0 \tensor \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%% ind prod elim
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0 \tensor \tau_1$ }
+\AXC{$\bnd{\Delta \ |} \ \Theta,x:_s \tau_0,y:_s\tau_1 \vdash f: \tau $}
+\RightLabel{($\tensor$ E)}
+\BIC{$\bnd{\Delta \ |} \ s * \Gamma + \Theta \vdash \letpair (x,y) \ = \ e \ \tin \ f : \tau $}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% ind sum intro
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0$ }
+\RightLabel{($+$ $\text{I}_i$)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \mathbf{in}_i \ e : \tau_0 + \tau_1$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+% sum elim
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau_0+\tau_1$}
+\AXC{$\bnd{\Delta \ |} \ \Theta, x:_s \tau_0 \vdash f_1 : \tau$ \qquad
+$\Delta \ | \ \Theta, x:_s \tau_1 \vdash f_2: \tau$}
+\RightLabel{($+$ E)}
+\AXC{$s > 0$}
+\TIC{$\bnd{\Delta \ |} \ s * \Gamma + \Theta \vdash \mathbf{case} \ e \ \mathbf{of} \ (\mathbf{in}_1 x.f_1 \ | \ \mathbf{in}_2 x.f_2) : \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+% box elim
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : {!_s \tau_0}$}
+\AXC{$\bnd{\Delta \ |} \ \Theta, x:_{t*s} \tau_0 \vdash f : \tau$}
+\RightLabel{($!$ E)}
+\BIC{$\bnd{\Delta \ |} \ t * \Gamma + \Theta \vdash \letcobind x = e \ \tin \ f : \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+% ops
+\AXC{$\{ \mathbf{op} : \bnd{\forall \epsilon_0, \epsilon_1,} \tau_0 \multimap \tau_1 \} \in \Sigma$}
+\RightLabel{(Op)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \mathbf{op} : \bnd{\forall \epsilon_0, \epsilon_1,} \tau_0 \multimap \tau_1 $}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+%%
+
+
+%% ROW 5
+
+%%% ROW 6
+
+% let 
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  \tau_0$}
+\AXC{$\bnd{\Delta \ |} \ \Theta, x:_{s} \tau \vdash f : \tau$}
+\RightLabel{(Let)}
+\BIC{$\bnd{\Delta \ |} \ s * \Gamma + \Theta \vdash \letassign x = e \ \tin \ f : \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% const
+% TODO: need to describe inj function to some degree here, I suppose
+\AXC{$k \in \textit{num}$}
+\RightLabel{(Const)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash k : \num_{\bnd{inj(k)}}$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%% widen
+\AXC{$\bnd{\llbracket b_0 \rrbracket} \leq \bnd{\llbracket b_1 \rrbracket}$}
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{b_0}}$}
+\RightLabel{(\bnd{Widen})}
+\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{b_1}}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+% box intro
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau$ }
+\RightLabel{($!$ I)}
+\UIC{$\bnd{\Delta \ |} \ s * \Gamma \vdash [e] : {!_s \tau}$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+%%% ROW 7
+
+%% subsumption
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  M_q \tau$}
+\AXC{$r \ge q$}
+\RightLabel{(Subsumption)}
+\BIC{$\bnd{\Delta \ |} \ \Gamma \vdash e :  M_{r} \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+% factor
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : (M_q \tau_0) \times (M_r \tau_1)$}
+\RightLabel{(Factor)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \factor \ e : M_{max(q,r)} (\tau_0 \times \tau_1)$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+%% return
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \tau$}
+\RightLabel{(Ret)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \ret e : M_0 \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+%% RND
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : \num_{\bnd{i}}$}
+\RightLabel{(Rnd)}
+\UIC{$\bnd{\Delta \ |} \ \Gamma \vdash \rnd \ e : M_u \ \num_{\bnd{i}}$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+
+%%% ROW 8
+
+
+% let-bind
+\AXC{$\bnd{\Delta \ |} \ \Gamma \vdash e : M_r \tau_0$}
+\AXC{$\bnd{\Delta \ |} \ \Theta, x:_{s} \tau_0 \vdash f : M_{q} \tau$}
+\RightLabel{($M_u$ E)}
+\BIC{$\bnd{\Delta \ |} \ s * \Gamma + \Theta \vdash \letbind x = e \ \tin \ f : M_{s*r+q} \tau$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+% bvar
+\AXC{}
+\RightLabel{($\bnd{\text{Bvar}}$)}
+\UIC{$\Delta, \epsilon : \textbf{bnd} \vdash \epsilon : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$\Delta \ \bdash \ b_0 : \textbf{bnd}$}
+\AXC{$\ldots$}
+\AXC{$\Delta \ \bdash \ b_n : \textbf{bnd}$}
+\AXC{$\textbf{bop} \in \Sigma_{\textbf{bnd}}$}
+\RightLabel{(\bnd{\text{Bop}})}
+\QIC{$\Delta \bdash \bnd{\textbf{bop}}(b_0, \ldots, b_n) : \textbf{bnd}$}
+\bottomAlignProof
+\DisplayProof
+\vskip 1em
+
+\AXC{$\Delta, \epsilon : \textbf{bnd} \ | \ \Gamma \vdash e : \tau$}
+\AXC{$\epsilon \not\in FTV(\Gamma)$}
+\RightLabel{(\bnd{$\forall$-I})}
+\BIC{$\Delta \ | \ \Gamma \vdash \Lambda \epsilon . e : \forall \epsilon . \tau$}
+\bottomAlignProof
+\DisplayProof
+\hskip 0.5em
+\AXC{$\Delta \ | \ \Gamma \vdash e : \forall \epsilon . \tau$}
+\AXC{$\Delta \bdash i : \textbf{bnd}$}
+\RightLabel{(\bnd{$\forall$-E})}
+\BIC{$\Delta \ | \ \Gamma \vdash e~\{i\} : \tau[i/\epsilon]$}
+\bottomAlignProof
+\DisplayProof
+
+\vskip 5em
+
+\end{center}
+    \caption{Typing rules for \Lang, with $s,t,q,r,u \in \NNR \cup \{\infty\}$
+      and for $i \in \{ 1, 2 \}$ where $u$ is a fixed constant parameter (see
+      Definition~\ref{def:numfuzz-interface} for details on picking an adequate
+      constant). $FTV(\Gamma)$ refers to all the free type variables (e.g.
+    $\epsilon_0, \epsilon_1$) in $\Gamma$.}
+    \label{fig:typing_rules}
+\end{figure}
+
+\subsection{Operational Semantics} \label{sec:dynamic-semantics}
+In Figure~\ref{fig:sub_eval_rules}, we define the operational semantics rewrite
+relation $\mapsto$ to map from closed terms in \Lang to closed terms in \Lang.
+We only define our language over closed terms. We also define
+evaluation contexts in the standard way in Figure~\ref{fig:eval-contexts} to
+make our rules more concise and easy to reason about. Our stepping rules are
+standard with the exception of \textbf{factor}, which we can view as a
+reassociation of the underlying ideal and approximate terms. We defer detailed
+discussion about \textbf{factor} to a dedicated Section~\ref{sec:structure}.
+
+\begin{figure}
+  \begin{alignat*}{2}
+         &\text{Evaluation contexts } C &::=~ &[.] 
+         \mid \mathbf{op}(C) 
+         \mid C~e 
+         \mid v~C 
+         \mid C~\bnd{\{b\}}
+         \mid \pi_i~C 
+         \mid \langle C, e \rangle
+         \mid \mathbf{in}_i~C \\
+         & & &
+         \mid \langle v, C \rangle
+         \mid (C, e)
+         \mid (v, C)
+         \mid [ C ]
+         \mid \mathbf{rnd}~C 
+         \mid \mathbf{ret}~C 
+         \mid \mathbf{factor}~C \\ 
+         & & &
+         \mid \letassign x = C \ \tin \ f
+         \mid \letpair x = C \ \tin \ f \\
+         & & &
+         \mid \letbind x = C \ \tin \ f
+         \mid \letcobind x = C \ \tin \ f \\
+  \end{alignat*}
+  \caption{Grammar for evaluation contexts.}
+  \label{fig:eval-contexts}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{equation*}
+\begin{aligned}[c]
+  \mathbf{op} \ \bnd{\{b_0\}} \ \bnd{\{b_1\}} \ v &\mapsto op \ \bnd{\{b_0\}} \
+    \bnd{\{b_1\}} \ v \\
+	\pi_i\langle v_1,v_2 \rangle &\mapsto v_i \\
+	(\lambda x.e) \ v &\mapsto e[v/x] \\
+  \rnd k &\mapsto (k, \rho(k))
+\end{aligned}
+\quad
+\begin{aligned}[c]
+	\letassign x = v \ \tin \ e &\mapsto e[v/x] \\
+  \letpair (x, y) = (v, w) \ \tin \ e &\mapsto e[v/x][w/y] \\
+  \letcobind x = [v] \ \tin \ e &\mapsto e[v/x] \\
+  \ret v &\mapsto (v, v)
+\end{aligned}
+\end{equation*}
+\vskip -1em
+\begin{align*}
+	\mathbf{case} \ (\mathbf{in}_i \ v) \ \mathbf{of} \ (\mathbf{in}_1 \ x.e_1 \ | \ \mathbf{in}_2 \ x.e_2 )  &\mapsto e_i[v/x]
+   \\
+  \factor ((v_1, v_2), (v_3, v_4)) &\mapsto ((v_1, v_3), (v_2, v_4)) \\
+  \textbf{bop}(c_0, \ldots, c_n) &\mapsto \textit{bop}(c_0, \ldots, c_n)
+  \\
+  \Lambda \epsilon . e~{c} &\mapsto e[c /\epsilon] \\
+\end{align*}
+  \vskip -0.75em
+  \AXC{$f[v_1/x] \mapsto^* (v_3, v_4)$}
+  \AXC{$f[v_2/x] \mapsto^* (v_5, v_6)$}
+  \BIC{$\letbind x = (v_1, v_2) \ \tin \ f \mapsto (v_3, v_6)$}
+  \DisplayProof
+	
+  \vskip 0.4em
+  \RightLabel{(Context Rule)}
+  \AXC{$e \mapsto e'$}
+  \UIC{$C[e] \mapsto C[e']$}
+	\DisplayProof
+\end{center}
+    \caption{Substitution-style evaluation rules for \Lang. Parameterized for $i
+    \in \{1, 2 \}$. $op$ is a higher-order metavar. When bolded \textbf{op}
+    refers to the syntax and when italicized $op$ refers to the corresponding
+    function on syntactic values (it may be a constant function).}
+    \label{fig:sub_eval_rules}
+\end{figure}
+
+% \subsection{Equivalence class of interval expressions.}
+\subsection{Modular Interface} \label{sec:interface}
+Like Numerical Fuzz, our work is a modular family of programming languages
+parameterized by the appropriate $\rho$, constant parameter $u$, and the
+appropriate set of numeric computations $\Sigma$.  
+It is the proof obligation for any language designer instantiating the language
+to demonstrate that these properties hold in order for our parameterized
+soundness theorems to follow.
+
+Before we specify the modular interface, we need to define bound evaluation and
+distances between terms.
+We first define evaluation ($\bnd{\llbracket - \rrbracket}$) of our bound expressions to $\bnd{\mathbb{B}}$ which
+we call our \textit{concrete bounds}.
+Each bound operation $\bnd{\textbf{bop}}$ of arity $n$ has a corresponding
+mathematical function $\bnd{\textit{bop}} : \bnd{\mathbb{B}}^n \to
+\bnd{\mathbb{B}}$. 
+We can now define closed \textit{bound expressions}, which we will use to define
+the evaluation function used in the definition of our logical relations.
+
+\begin{definition}[Closed bound expressions]
+  A bound expression $b$ is a closed bound expression iff either:
+  \begin{itemize}
+    \item $b = c \in \bnd{\mathbb{B}}$. In other words, $b$ is a constant.
+    \item $b = \bnd{\textbf{bop}}(b_0, \ldots, b_n)$ where $b_0, \ldots, b_n$
+      are all closed bound expressions. $b$ is made up of constants.
+  \end{itemize}
+\end{definition}
+
+\begin{definition}[Evaluation of closed bound expressions]
+  \label{def:bound-exp-eval}
+  For a bound expression $b$,
+  \begin{equation*}
+    \begin{aligned}[c]
+      \bnd{\llbracket} c \bnd{\rrbracket} &\triangleq c \\
+      \bnd{\llbracket} \bnd{\textbf{bop}}(b_0, \ldots, b_n) \bnd{\rrbracket} &\triangleq \textit{bop}(b_0, \ldots, b_n)
+    \end{aligned}
+  \end{equation*}
+\end{definition}
+
+% \begin{definition}[Bound expression equivalence class]
+%   We inductively define our equivalence relation $\sim$ over closed bound
+%   expressions $\bnd{b, b_0, b_1 \in \mathbb{B}_{\text{exp}}}$ based upon the
+%   underlying equality of the sets $b_0 \sim b_1 \iff \bnd{\llbracket} b_0
+%   \bnd{\rrbracket} = \bnd{\llbracket} b_0 \bnd{\rrbracket}$.
+% \end{definition}
+%
+% \begin{lemma}
+%   $\bnd{\mathbb{B}_{\text{exp}}}, \sim$ form an equivalence class
+% \end{lemma}
+% \begin{proof}
+%   $\sim$ obeys symmetry, reflexivity, and transitivity by inspection of the
+%   underlying equality.
+% \end{proof}
+%
+% We are now ready to define a lattice structure over our the quotient space
+% formed by our interval equivalence class $\bnd{\mathbb{B}_{\text{exp}}} / \sim$. We will later use this to
+% define our logical relation over these interval bound equivalence classes.
+%
+% \begin{definition}[Bound expression partial order]
+%   $b_0 \subseteq b_1 \iff \llbracket b_0 \rrbracket \subseteq \llbracket b_1
+%   \rrbracket$.
+%   The $\subseteq$ relation clearly respects our equivalence relation $\sim$ by
+%   inspection of the underlying equality on sets used in the construction.
+% \end{definition}
+
+We proceed to define distances between bounds and expressions.
+Our syntactic definition for distance, $d_\tau$ and the distance between
+syntactic values $\mathcal{SD}_\tau$ (for $\mathcal{S}$yntactic
+$\mathcal{D}$istance) and $\mathcal{SDV}_\tau$ (for $\mathcal{S}$yntactic
+$\mathcal{D}$istance for $\mathcal{V}$alues) are closely related. Some care is
+needed to ensure that the relation is well-founded. We define our distance over
+syntactic values as follows:
+
+\begin{definition}[Distance between closed syntactic terms]
+  \begin{equation*}
+  \begin{aligned}[c]
+    \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \mathcal{SDV}_{\tau}(v_0, v_1)
+    &\text{ if } e_0 \mapsto^{*} v_0 \text{ and } e_1 \mapsto^{*} v_1 \\
+    \mathcal{SD_{\tau}}(e_0, e_1) &\triangleq \infty &\text{ otherwise } \\
+    \mathcal{SDV_{\mathbf{unit}}}(v, w) &\triangleq 0 &\text{ for } v, w =
+      \langle \rangle \\
+    \mathcal{SDV}_{\mathbf{num_{b}}}(c_0, c_1) &\triangleq 
+      d_\mathbf{num} &\text{ for } c_0, c_1 \in \llbracket b \rrbracket \\
+    \mathcal{SDV}_{\tau_0 \times \tau_1}((v_0, v_1), (w_0, w_1)) 
+      &\triangleq max(\mathcal{SDV}_{\tau_0}(v_0, w_0),~\mathcal{SDV}_{\tau_1}(v_1, w_1))
+    \\
+    \mathcal{SDV}_{\tau_0 \otimes \tau_1}((v_0, v_1), (w_0, w_1)) 
+      &\triangleq \mathcal{SDV}_{\tau_0}(v_0, w_0) + \mathcal{SDV}_{\tau_1}(v_1, w_1)
+    \\
+    \mathcal{SDV}_{\tau_0 + \tau_1}(\tin_i~v, \tin_i~w) 
+      &\triangleq \mathcal{SDV}_{\tau_i}(v, w)
+    \\
+    \mathcal{SDV}_{\tau_0 \multimap \tau_1}(v_0, v_1) 
+      &\triangleq \text{sup}_{w \in \mathcal{VR}_{\tau_0}} \mathcal{SD}_{\tau_1}(v_0~w,~v_1~w)
+    \\
+    % max: double check
+    \mathcal{SDV}_{!_s \tau}([v], [w]) 
+      &\triangleq s \cdot \mathcal{SDV}_{\tau}(v, w)
+    \\
+    \mathcal{SDV}_{M_q~\tau}((v_0, v_1), (w_0, w_1)) 
+      &\triangleq \mathcal{SDV}_{\tau}(v_0, w_0)
+    \\
+    \mathcal{SDV}_{\textbf{bnd}}(\bnd{b_0}, \bnd{b_1}) 
+      &\triangleq 0 &\text{ for } \bnd{\llbracket b_0 \rrbracket = \llbracket b_1 \rrbracket} 
+    \\
+    \mathcal{SDV}_{\textbf{bnd}}(\bnd{b_0}, \bnd{b_1}) 
+      &\triangleq \infty &\text{ for } \bnd{\llbracket b_0 \rrbracket \not= \llbracket b_1 \rrbracket} 
+    \\
+    \mathcal{SDV}_{\forall \epsilon . \tau}(v_0, v_1) 
+      &\triangleq \text{sup}_{c \in \mathbb{B}} 
+      \mathcal{SD}_{\tau[c / \epsilon]}(v_0~\{c\},~v_1~\{c\})
+    \\
+    \mathcal{SDV_{\tau}}(v, w) &\triangleq \infty &\text{ otherwise } \\
+  \end{aligned}
+  \end{equation*}
+\end{definition}
+
+\begin{definition}[Distance between expressions.]
+For any two closed expressions $e_0, e_1$ falling in same type relation $e_0,
+e_1 \in R_\tau$ (where $\tau$ is a closed type), we can write $e_0 \sim_r e_1 :
+\tau$ where $\mathcal{SD}_{\tau}(e_0, e_1) \leq r$. 
+\end{definition}
+
+Now, we can state our interface:
+\begin{samepage}
+\begin{definition}[Interface for instantiating Negative Fuzz.]
+  \label{def:numfuzz-interface}
+  The interface for Negative Fuzz consists of a metric space with carrier set
+  $\textit{num}$ equipped with $d_\textbf{num}$, rounding
+  $\rho$ mapping $\textit{num} \to \textit{num}$, real constant $u$ representing
+  the unit of least precision, a set of supported arithmetic operations
+  $\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and set of supported bound
+  operations $\Sigma_{\bnd{bnd}}$ such that the following properties hold: 
+\begin{description}
+  \item[a) The \textit{num} and distance function $d_\textbf{num}$ form a
+  metric space.]
+  \item[b) Property of $u$ and rounding function $\rho$.] We assume that the
+    $\forall k \in \textit{num}, d_{\mathbf{num}}(\rho(k), k)
+    \leq u$ where $u$ is the grade in the $\mathbf{rnd}$ typing rule.
+  \item[c) Property of $\mathbf{op} \in \Sigma$: metric preservation.] 
+    The bolded \textbf{op} is our syntactic metavariable for our supported
+    operations (e.g. \textbf{add}, \textbf{sub}, \textbf{mul}).
+    The italicized $\textit{op}$ is a metavariable representing the corresponding
+    function mapping values to values.
+    We require that \textit{op} is 1-sensitive as measured by $\mathcal{SD}$.
+    To simplify our presentation, we also assume that every operation has the following
+    shape with no free type variables:
+    $\textbf{op} : \forall \epsilon_0, \epsilon_1 . \tau_0 \multimap \tau_1 \in
+    \ \Sigma$.\footnote{%
+      Note that we could make this portion of the interface more general
+    by defining it in terms of the logical relation in
+    Section~\ref{def:logical-relation}. We have opted to keep the interface
+    minimal for presentational purposes.}
+  \item[d) Partial order of bounds.] The set of bounds and binary relation
+    $(\bnd{\mathbb{B}}, \leq)$ form a partial order.
+  \item[e) Property of $\mathbf{bop} \in \Sigma_{\bnd{bnd}}$: closure over bounds ($\bnd{\mathbb{B}}$).] 
+    Our bound operations mirror the notational convention that a \textbf{bop}
+    corresponds to the syntax whereas \textit{bop} represents a function mapping
+    $\mathbb{B}^n \to \mathbb{B}$ for some arity $n$.
+    We further need to assume that for every operation $\mathbf{bop}(b_0,
+    \ldots, b_n) : \Sigma_\textbf{num}$, we have that if $c_0, \ldots, c_n \in
+    \mathbb{B}$ then the corresponding
+    $\textit{bop}(c_0, \ldots, c_n) \in \mathbb{B}$
+    holds.
+\end{description}
+\end{definition}
+\end{samepage}
+
+\subsection{Type Soundness} \label{sec:soundness}
+In our language, we only reason about closed terms with no free program
+variables and closed types with no free polymorphic bound variables. 
+Let $CV(\tau)$ be the closed values of type $\tau$ and $CE(\tau)$ be the closed
+expressions of type $\tau$. Then we can define a unary logical relation over
+types which capture the core information needed to prove our error soundness
+theorem (Metric Preservation, Theorem~\ref{thm:metric-preservation}).
+
+\begin{definition}[Logical relation] \label{def:logical-relation}
+  \begin{equation*}
+  \begin{aligned}[c]
+    \mathcal{R_{\tau}} &\triangleq 
+      \{ e \ | \ e \in CE(\tau) \text{ and } \exists v
+        \in CV(\tau) \text{ s.t. } e \mapsto^{*} v \text{ and } v \in \mathcal{VR_{\tau}} 
+      \} \\
+    \mathcal{VR_{\mathbf{unit}}} &\triangleq \{ \langle \rangle \} \\
+    \mathcal{VR}_{\mathbf{num}_{b}} &\triangleq \bnd{\llbracket b \rrbracket} \\
+    % \mathcal{VR}_{\mathbf{num}_{(k_0, k_1)}} &\triangleq 
+    %   \{ r \ | \ r \in \mathit{num} \text{ and } k_0 \leq r \leq k_1 \} \\
+    \mathcal{VR_{\mathbf{\tau_0 \times \tau_1}}} &\triangleq 
+      \{ \langle v, w \rangle \ | 
+        \ v \in \mathcal{R}_{\tau_0} \text{ and } w \in \mathcal{R}_{\tau_1}
+      \} \\
+    \mathcal{VR_{\mathbf{\tau_0 \otimes \tau_1}}} &\triangleq 
+      \{ ( v, w ) \ | 
+        \ v \in \mathcal{R}_{\tau_0} \text{ and } w \in \mathcal{R}_{\tau_1}
+      \} \\
+    \mathcal{VR_{\mathbf{\tau_0 + \tau_1}}} &\triangleq 
+      \{ \mathbf{inl}~v \ | \ v \in \mathcal{R}_{\tau_0} \} 
+      \cup
+      \{ \mathbf{inr}~v \ | \ v \in \mathcal{R}_{\tau_1} \} \\
+    \mathcal{VR_{\mathbf{\tau_0 \multimap \tau_1}}} &\triangleq 
+      \{ \lambda x . e \ | \ \forall w_0, w_1 \in \mathcal{VR}_{\tau_0}, \\ & \quad \quad \ (\lambda x.e)~w_0, (\lambda x . e)~w_1 \in
+      \mathcal{R}_{\tau_1} \text{ and } \mathcal{SD}_{\tau_1}((\lambda x . e)~w_0, (\lambda x . e)~w_1) \leq
+      \mathcal{SD}_{\tau_0}(w_0, w_1) \} \\
+    \mathcal{VR_{\mathbf{!_s \tau}}} &\triangleq 
+      \{ [~v~] \ | \ v \in \mathcal{R}_{\tau} \} \\
+    % spicy hot new stuff
+    \mathcal{VR_{\mathbf{M_q \tau}}} &\triangleq 
+      \{ (v, w) \ | \ v, w \in \mathcal{R}_{\tau} \text{ and } \mathcal{SDV}_{\tau}(v, w)
+      \leq q \} \\
+    % \mathcal{VR}_{\textbf{bnd}} &\triangleq \{ (k_0, k_1) \ | \ k_0 \leq k_1 \ \forall k_0, k_1 \in
+    % \textit{ num } \} \\
+    \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
+    \{ \Lambda \epsilon . v \ | \ \forall \bnd{c} \in \bnd{\mathbb{B}}, \ v ~ 
+      \{\bnd{c}\} \in
+      \mathcal{R}_{\tau[\bnd{c} / \epsilon]}\} \\
+    % \mathcal{VR_{\forall \epsilon. \tau}} &\triangleq 
+    %   \{ (\llbracket b \rrbracket, v) \ | \ \forall (k_0, k_1) \in
+    %   \mathcal{VR}_{\textbf{bnd}} \text{ s.t. } v ~ \{(k_0, k_1)\} \in
+    %   \mathcal{R}_{\tau[(k_0, k_1) / \epsilon]}\} \\
+  \end{aligned}
+  \end{equation*}
+\end{definition}
+
+\begin{lemma}[$\mathcal{SD}$ is a metric]
+  $\mathcal{SD}$ forms a metric over our syntactic terms; in particular it
+  satisfies:
+  \begin{enumerate}
+    \item Distance from any point to itself is zero: $\forall x,~\mathcal{SD}(x,
+      x) = 0$.
+    \item Positivity: $\forall x, y,~\mathcal{SD}(x, y) \geq 0$.
+    \item Symmetry: $\forall x, y,~\mathcal{SD}(x, y) = \mathcal{SD}(y, x)$.
+    \item Triangle inequality: $\forall x, y, z,~\mathcal{SD}(x, z) \leq
+      \mathcal{SD}(x, y) + \mathcal{SD}(y, z)$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  The properties holds for the base cases of $\mathcal{SDV}$ and follow for the
+  remaining cases by our inductive hypothesis. Since our operational semantics is
+  deterministic, the properties follow for $\mathcal{SD}$.
+\end{proof}
+
+\begin{lemma}[$\mathcal{SD}$ is preserved under stepping]
+  If $e_0 \mapsto e'_0$, then for any $e_1$, $\mathcal{SD}(e_0, e_1) =
+  \mathcal{SD}(e'_0, e_1)$. By metric symmetry, $\mathcal{SD}$ is preserved
+  under stepping on both sides.
+\end{lemma}
+\begin{proof}
+  Holds by inspection of the definition of $\mathcal{SD}$.
+\end{proof}
+
+Following Fuzz, we prove the following syntactic properties relating our type
+system and operational semantics. These syntactic properties will be useful for
+reasoning about type inference in Section~\ref{sec:inference}.
+
+\begin{lemma}[Admissibility of weakening]\label{thm:weakening}
+  If $\Delta \ | \ \Gamma \vdash e : \tau$, then 
+  $\Delta + \Delta' \ | \ \Gamma + \Sigma \vdash e : \tau$.
+\end{lemma}
+\begin{proof}
+  We induct over our typing derivation. 
+  Most of the cases are immediate.
+  For the \textbf{!E}, \textbf{$\otimes$ E}, \textbf{+ E}, \textbf{$M_u$~E}, and
+  \textbf{$\otimes$ I} rules, the environment must be split into a $\Gamma$
+  (which can in some cases be scaled) and $\Delta$ (which does not ever get
+  scaled); for each of these cases we choose to push unused variables into
+  $\Delta$. 
+\end{proof}
+
+\begin{lemma}[Admissibility of weakening (on bound contexts)]\label{thm:weakening-bnd}
+  If $\Delta \bdash i : \bnd{\textbf{bnd}}$ and $\Delta \subseteq \Delta'$, then
+  $\Delta' \bdash i : \bnd{\textbf{bnd}}$. 
+\end{lemma}
+\begin{proof}
+  $\Delta$ tracks the free type variables in $i$. 
+  We induct over our typing derivation. The base cases hold. For the inductive
+  cases, we induct over the size of $\Delta' - \Delta$.
+  Our proof is complete.
+\end{proof}
+
+We now define vectors of expressions, and substitutions which will also be
+useful later for stating and proving our main type soundness proof (Metric
+Preservation, Theorem~\ref{thm:metric-preservation}). We proceed to
+incrementally build up to the definition of distance between substitutions
+below.
+
+\begin{definition}[Distance between expression vectors.]
+    We write vectors of expressions $\sigma$, $\sigma'$ are $\gamma$ apart for a
+    given typing context $\Delta \ | \ \Gamma$ like so 
+    $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$
+    if and only if
+    $\gamma = r_0, r_1, \ldots$
+    where
+    $\sigma = \sigma_{\Delta}, e_0,~\ldots,~e_n$ 
+    and 
+    $\sigma' = \sigma_{\Delta}, e'_0,~\ldots,~e'_n$ 
+    such that:
+    $$
+    e_0 \sim_{r_0} e'_0 : \tau_0~[\sigma_{\Delta}],
+    ~\ldots,
+    ~e_n \sim_{r_n} e'_n : \tau_n~[\sigma_{\Delta}]
+    $$
+    where $\sigma_{\Delta}$ is a bound vector with no free variables.
+    Note that the distance between expression vectors is undefined when the
+    bound vector $\sigma_{\Delta}$ differs between substitutions.
+\end{definition}
+
+\begin{definition}[Environment compatibility.]
+We also say that a substitution vector 
+$$\sigma_{\Delta}, [e_0/x_0, \ldots, e_n/x_n]$$
+is \textit{compatible} with a typing context 
+$x_0 : \tau_0, \ldots, x_n : \tau_n$
+if each term 
+$e_0 \in \mathcal{R}_{\tau_0~[\sigma_{\Delta}]}, 
+\ldots,
+e_n \in \mathcal{R}_{\tau_n~[\sigma_{\Delta}]}$ where all types are closed by
+the bound vector $\sigma_{\Delta}$.
+\end{definition}
+
+\begin{definition}[Dot product of distance vectors.]
+Our definition for the dot product of a distance vector $\gamma = r_0, \ldots,
+r_n$ with respect to a context $\Gamma$ with sensitivities $s_0, \ldots, s_n$ is
+the same as Fuzz \cite{fuzz}: $\gamma \cdot \Gamma = \Sigma_{i = 1}^n r_i s_i$.
+\end{definition}
+
+% TODO: check that we properly handle the not zero and intersection condition
+% everywhere this is used
+Now that we can talk about substitutions, we follow Fuzz and state a
+$r$-sensitive substitution lemma with the proof in the appendix. Note that the
+$r=0$ restriction helps the $\otimes E$ case to go through.
+\begin{lemma}[$r$-sensitive substitution]\label{thm:substitution}
+  Let $\Delta_0 \ | \ \Gamma \vdash e : \tau$ and $\Delta_1 \ | \ \Theta, x :_r
+  \tau \vdash e' : \tau'$ and $r \not= 0$ and $\Delta_0 \cap \Delta_1 =
+  \emptyset$, then $\Delta_0 + \Delta_1 \ | \ r \cdot \Gamma + \Theta \vdash
+  e'[e/x] : \tau'$.
+\end{lemma}
+
+% todo: put it in here
+
+% Max: Theorem statement is not interesting when stepping is only over closed
+% terms.
+% \begin{lemma}[Subsitution is invariant under stepping]
+%   \label{thm:sub-stepping}
+%   For any substitution $\sigma$ and program $e$ such that $e~\sigma \mapsto
+%   e_1$, if $e \mapsto e_2$ then $e_2~\sigma \mapsto^{*} v \iff e_1 \mapsto^{*} v$.
+% \end{lemma}
+% \begin{proof}
+%   TODO
+% \end{proof}
+%
+Finally, we can state our main error soundness theorem, which we prove and
+provide lemmas for in the appendix.
+\begin{theorem}[Metric preservation]
+  For any $\Delta \ | \ \Gamma \vdash e : \tau$ and substitutions $\sigma, \sigma'$ such that
+  $\sigma \sim_{\gamma} \sigma' : \Delta \ | \ \Gamma$, then 
+  $e~\sigma \sim_{\gamma \cdot (\Delta \ | \ \Gamma)} e~\sigma' : \tau$.
+\label{thm:metric-preservation}
+\end{theorem} 

@@ -1,0 +1,372 @@
+\section{A Paired Model of Negative Fuzz} \label{sec:encoding}
+In this section, we will instantiate our family of languages and demonstrate how
+to obtain a usable floating-point error bound from a program type.
+Numerical Fuzz's error analysis relies on bounding Lipschitz function
+sensitivity with respect to the relative precision metric. However, subtraction,
+and by extension addition with negative numbers, has unbounded Lipschitz
+sensitivity with respect to the relative precision metric over the reals. This
+poses a challenge to a compositional type-based analysis of programs involving
+subtraction and negative numbers.
+
+To avoid this problem, we translate our semantics to a \textit{paired
+representation} where we associate for each real $r \in \mathbb{R}$ a lattice of
+triples $(r, a, b) \in \mathbb{R} \times \mathbb{R}^+ \times \mathbb{R}^+ $ under the $\leq$ relation over the first
+component such that $r = a - b$. 
+We write the set modeling our paired representation as $\mathbb{P}$.
+Accordingly, we equip our set $\mathbb{P}$ with a distance function
+$d_{\textit{num}}((r, a, b), (r', a', b'))$ defined as the maximum distance over
+the paired components.
+Instead of reasoning over the real component, we instantiate our graded type
+system to track distances and error over the always-growing paired components.
+We then instantiate our bounds analysis and apply our main error theorem to
+translate our error bound back over the unpaired component of the triple.
+
+The remainder of this section is organized as follows. In
+Section~\ref{sec:instantiation}, we instantiate Negative Fuzz's modular
+interface (Definition~\ref{def:numfuzz-interface}) with our $\textit{paired
+model}$. In particular, we define and type our supported operations
+including subtraction under the paired model. We describe our bounds
+analysis setup and provide intuition for our choice of domain. In
+Section~\ref{sec:application}, we use the results of our automatic type-based
+bounds analysis to translate the monadic grade over the paired components into
+useful bounds over the underlying unpaired real. We present our main error
+theorem over the unpaired real. 
+
+\subsection{Instantiating the modular interface} \label{sec:instantiation}
+In the subsequent subsections, we instantiate the interface with the appropriate
+rounding functions and round-off parameters (Section~\ref{sec:rho-and-u}),
+supported arithmetic operations (Section~\ref{sec:paired-ops}), bounds domain
+and bounds operations (Section~\ref{sec:bnd-domain-and-op}). Finally, we prove
+that our instantiation adheres to the specification demanded by Negative Fuzz's
+modular interface in Definition~\ref{def:numfuzz-interface}.
+
+\subsubsection{Defining the rounding function and round-off parameters for the
+paired model.} \label{sec:rho-and-u}
+We set $\textit{num} = \mathbb{P}$ equipped with $\leq$ defined above.
+Importantly, we can ``simulate" round-off error over the reals in our paired
+model by defining a paired version of our rounding function $\rho$:
+\begin{definition}[Rounding over pairs] \label{def:rounding-p}
+$\rho_{\mathbb{P}}((r, a, b)) = 
+\begin{cases}
+  (0, a, b)  & r = 0\\
+(\rho_{\mathbb{R}}(r), a \cdot \frac{\rho_{\mathbb{R}}(r)}{r},  b \cdot
+  \frac{\rho_{\mathbb{R}}(r)}{r}), & r \not=0 \\
+\end{cases}$
+\end{definition}
+which satisfies the constraint that $r = a - b$ at all times.
+This constraint is useful for letting us relate error over the unpaired
+components to error on the paired component.
+Our choice of $u$ depends on the format and rounding mode used. 
+It is sound to use the corresponding choices for $u$ and $\rho$ from Numerical
+Fuzz for each floating-point format and rounding mode shown in
+Table~\ref{tab:formats} and Table~\ref{tab:rnd_modes} respectively. 
+We define our operations $\Sigma$, bound domain $(\bnd{\mathbb{B}}, \leq)$, and
+bound operations $\Sigma_{\bnd{bnd}}$ below.
+
+\begin{table}
+\caption{Parameters for floating-point number sets in the IEEE 754-2008
+standard.}
+\label{tab:formats}
+\begin{tabular}{ c c c c }
+ \hline
+ \textbf{Parameter}& \textbf{\textsc{binary32}} & \textbf{\textsc{binary64}} &\textbf{\textsc{binary128}} \\
+ \hline
+ $p$   & 24    & 53 & 113     \\
+ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+  \caption{Common Rounding Functions (modes). $\mathbb{F}$ represents the set of
+  floats for a floating-point number set.}
+\label{tab:rnd_modes}
+\begin{tabular}{ c c c c }
+ \hline
+\textbf{Rounding mode} & \textbf{Behavior} & \textbf{Unit Roundoff ($u$)} \\
+\hline
+ Round towards $+\infty$   & $\min\{y \in \F \mid y \ge x \}$  & $2^{1-p}$   \\
+ Round towards $-\infty$   & $\max\{y \in \F \mid y \le x \}$  & $2^{1-p}$ \\
+ Round towards $0$   & round towards $+\infty$ if $x < 0 $, otherwise $-\infty$ &
+ $2^{1-p} $ \\
+ Round towards nearest\footnote{%
+   For round towards nearest, there 
+	are several possible tie-breaking choices.}   & $\{y \in \F \mid \forall z \in \F,  |x - y| \le |x-z| \} 
+	 $   & $\frac{1}{2}2^{1-p}  $    \\
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Defining our operations over the paired model}
+\label{sec:paired-ops}
+We define $\Sigma = \{ \textbf{add}, \ \textbf{sub}, \ \textbf{mul} \}$, which
+compute and can be typed in our paired model. Addition is defined as addition
+over each of the components in the pair. Subtraction is defined by swapping the
+paired components. Multiplication is defined by distributing each of the paired
+components.
+Importantly, each operation maintains the invariant of the paired representation
+that $r=a-b$.
+\begin{equation}
+\begin{aligned}[c]
+  &\textit{add} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 + \epsilon_2} \\
+  &\textit{add} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a,
+  b), (r', a', b') \rangle) \mapsto (r + r', a + a', b + b') \\
+  \\
+  &\textit{sub} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 - \epsilon_2} \\
+  &\textit{sub} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (\langle (r, a, b),
+  (r', a', b') \rangle ) \mapsto (r - r', a + b', b + a') \\
+  \\
+  &\textit{mul} : \forall \epsilon_1, \epsilon_2, \mathbf{num}_{\epsilon_1} \times
+  \mathbf{num}_{\epsilon_2} \multimap \mathbf{num}_{\epsilon_1 \cdot \epsilon_2} \\
+  &\textit{mul} \ \bnd{\{\epsilon_1\}} \ \bnd{\{\epsilon_2\}} \ (((r, a, b), (r', a',
+  b'))) \mapsto (r * r', a * a' + b * b', b * a' + a * b') \\
+\end{aligned}
+\end{equation}
+
+
+% TODO: now we describe / define bounds and bound ops. make sure that the
+% lettering of each of the props are ok
+\subsubsection{Defining our bounds domain and bound operations}
+\label{sec:bnd-domain-and-op}
+Our bounds analysis is inspired by interval analysis. For each component in our
+triple, we track the lower bound and upper bound. For example, for a pair $(1,
+2, 3)$ we might track that $r^{\downarrow}$ (pronounced ``r lower bound") and
+$r^{\uparrow}$ (pronounced ``r upper bound") and $a^{\downarrow}, a^{\uparrow},
+b^{\downarrow}, b^{\uparrow}$ each bound their respective components. 
+To improve the precision of our bounds analysis, we observe that frequently only
+one of the paired components is greater than zero. In fact, an inspection of our
+supported operations shows that $a > 0 \land b > 0$ can only be true when
+either: (1) the program contains subtraction, or (2) the program contains
+negative numbers. Further, we observe that when the ($a > 0 \land b > 0$)
+condition holds, our interval bound for multiplication drastically tightens.
+% TODO: brag about Horner being much tighter (do we foreshadow or just drop some
+% random eval claim here?)
+
+% TODO: intuition on the bit, why we have it and what it tracks. emp on common
+% case
+Our bound domain $\bnd{\mathbb{B}} \triangleq (\mathbb{R} \times \mathbb{R})
+\times (\mathbb{R}^+ \times \mathbb{R}^+) \times (\mathbb{R}^+ \times
+\mathbb{R}^+) \times \textbf{Bool}$ where each element of
+$\bnd{\mathbb{B}}$, written
+$((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}),
+(b^{\downarrow}, b^{\uparrow}), d)$ represents a set of tuples 
+$(r, a, b) \in \mathbb{P}$
+such that following constraints hold:
+(1) $r^{\downarrow} \leq r \leq r^{\uparrow}$;
+(2) $a^{\downarrow} \leq a \leq a^{\uparrow}$;
+(3) $b^{\downarrow} \leq b \leq b^{\uparrow}$; and
+(4) $d = a > 0 \land b > 0$.
+To define $\leq$ over our bounds domain, we first define a mapping of bounds to
+sets:
+\begin{definition}[Mapping of bounds to sets.]
+Our mapping from bounds to sets $\textbf{toSet} : \bnd{\mathbb{B}} \to
+\mathbf{Set}$ is defined as follows:
+\begin{equation}
+  \begin{aligned}[c]
+   \textbf{toSet} ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) 
+    = \\ \{ (r, a, b) \ | \
+    (r^{\downarrow} \leq r \leq r^{\uparrow}) \land
+      (a^{\downarrow} \leq a \leq a^{\uparrow}) 
+      \land (b^{\downarrow} \leq b \leq b^{\uparrow})
+      \land ((a > 0 \land b > 0) = d) \}
+  \end{aligned}
+\end{equation}
+\end{definition}
+
+Then, our $\leq$ relation over $\bnd{\mathbb{B}}$ is simply the $\subseteq$
+relation over the \textbf{toSet} interpretation of each bound:
+\begin{definition}[$\leq$ over $\bnd{\mathbb{B}}$.]
+  $b_0 \leq b_1 \triangleq \textbf{toSet} (b_0) \subseteq \textbf{toSet} (b_1)$.
+\end{definition}
+
+Finally, we define our bound operations $\Sigma_{\bnd{bnd}} = \{+, -, \cdot \}$
+mapping $\bnd{\mathbb{B}} \times \bnd{\mathbb{B}} \to \bnd{\mathbb{B}}$.
+Each bound operation corresponds to the primitive operation in the surface
+syntax of the language. The correctness of the definition of each bound
+operation is ensured by the interface requirement that each primitive
+operation's corresponding type obeys metric preservation.
+Importantly, we case our analysis for the multiplication operation depending on
+whether the boolean condition is true for both input numbers. This can
+dramatically improve our analysis precision; on one of our large-scale
+benchmarks, final error bound reduced from $1.11 \times 10^{139}$ to $5.66
+\times 10^{-13}$.
+\begin{equation}
+  \begin{aligned}[c]
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
+      \hfill &+ \hfill \\ 
+      ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    \end{aligned}
+    \hfill
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{add}, 
+    r^{\uparrow}_{add}) \\
+      (a^{\downarrow} + a'^{\downarrow}, 
+      a^{\uparrow} + a'^{\uparrow}) \\
+      (b^{\downarrow} + b'^{\downarrow},
+      b^{\uparrow} + b'^{\uparrow}) \\
+      d \land d' \land 
+      (0 \leq r^{\downarrow} \land 0 \leq r'^{\downarrow}) 
+        \lor
+    (r^{\uparrow} \leq 0 \land r'^{\uparrow} \leq 0)
+    \end{cases} \\
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d) \\
+    \hfill &- \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d')
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{sub}, r^{\uparrow}_{sub}) \\
+    (a^{\downarrow} + b'^{\downarrow}, a^{\uparrow} + b'^{\uparrow}) \\
+    (b^{\downarrow} + a'^{\downarrow}, b^{\uparrow} + a'^{\uparrow}) \\
+      d \land d' \land 
+      (0 \leq r^{\downarrow} \land r'^{\uparrow} \leq 0) 
+        \lor
+    (r^{\uparrow} \leq 0 \land 0 \leq r'^{\downarrow})
+    \end{cases} \\ 
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, a^{\uparrow}&), (b^{\downarrow}, b^{\uparrow}), \textbf{True})  \\
+    \hfill &\cdot \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, a'^{\uparrow}&), (b'^{\downarrow}, b'^{\uparrow}), \textbf{True}) 
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{mul}, r^{\uparrow}_{mul}) \\
+    (
+    \text{min}(a^{\downarrow} a'^{\downarrow}, b^{\downarrow} b'^{\downarrow})
+    , 
+    \text{min}(a^{\uparrow} a'^{\uparrow}, b^{\uparrow} b'^{\uparrow})
+    ) \\
+    (
+    \text{max}(a^{\downarrow} b'^{\downarrow}, b^{\downarrow} a'^{\downarrow})
+    , 
+    \text{max}(a^{\uparrow} b'^{\uparrow}, b^{\uparrow} a'^{\uparrow})  \\
+    \textbf{True}
+    \end{cases} \\
+    \begin{aligned}[c]
+      ((r^{\downarrow}, r^{\uparrow}), (a^{\downarrow}, &a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)  \\
+    \hfill &\cdot \hfill \\
+    ((r'^{\downarrow}, r'^{\uparrow}), (a'^{\downarrow}, &a'^{\uparrow}), (b'^{\downarrow}, b'^{\uparrow}), d') 
+    \end{aligned}
+    &= 
+    \begin{cases}
+    (r^{\downarrow}_{mul}, r^{\uparrow}_{mul}) \\
+    a^{\downarrow} a'^{\downarrow} + b^{\downarrow} b'^{\downarrow}, 
+    a^{\uparrow} a'^{\uparrow} + b^{\uparrow} b'^{\uparrow} \\
+    a^{\downarrow} b'^{\downarrow} + b^{\downarrow} a'^{\downarrow}, 
+    a^{\uparrow} b'^{\uparrow} + b^{\uparrow} a'^{\uparrow} \\
+    \textbf{False}
+    \end{cases}
+  \end{aligned}
+\end{equation}
+where 
+\begin{equation*}
+  \begin{aligned}[c]
+r^{\downarrow}_{add} = min(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{add} = max(\{x + y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\downarrow}_{sub} = min(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{sub} = max(\{x - y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\downarrow}_{mul} = min(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+r^{\uparrow}_{mul} = max(\{x \cdot y \ | \ \forall x \in [r^{\downarrow}, r^{\uparrow}] \ \forall y \in [r'^{\downarrow}, r'^{\uparrow}]\}) \\
+\end{aligned}
+\end{equation*}
+% TODO: do we need more intuition here? maybe connect to abstract transformers?
+% TODO: add intuition on logic for the bit, maybe break up and define each op
+% one-by-one? maybe also tease horner pathological example?
+
+We prove in the appendix that our instantiation ($\mathbb{P}, d_{\mathbb{P}},
+\rho_{\mathbb{P}}, u, \Sigma, (\mathbb{B}, \leq), \Sigma_{\mathbf{num}}$)
+satisfies the spec for instantiating Negative Fuzz specified in
+Definition~\ref{def:numfuzz-interface}.
+
+\subsection{Translating our error bounds from the paired to the unpaired
+representation} \label{sec:application} 
+% TODO: completed up to here
+For a given $. \vdash e : M_q \textbf{num}_{\bnd{b}}$, we wish to bound the
+error between $e$ computed ideally over the reals versus the floating-point
+approximation. 
+To do this, we prove our paired error theorems
+(Theorem~\ref{thm:paired-a-priori-rel},
+Theorem~\ref{thm:paired-a-priori-abs}), which for a triple $(r, a, b)$
+relates error on the paired components $a, b$ with error on $r$. By plugging in
+the theorems proved below, we are able obtain useful bounds over the unpaired
+representation for a given typed program.
+We have two main error theorems in this paper, stated below with proof in the
+appendix: a relative error theorem (Theorem~\ref{thm:paired-a-priori-rel}) and
+an absolute error theorem (Theorem~\ref{thm:paired-a-priori-abs}).
+
+Note that for the below theorem we have the condition $0 < r^{\downarrow}$. This
+can be generalized to $r^{\downarrow}$ and $r^{\uparrow}$ having the same sign
+by a mirrored proof. When the lower and upper bounds on $r$ straddle zero, we
+cannot produce a relative error bound.
+\begin{theorem}[Paired error theorem; relative] \label{thm:paired-a-priori-rel}
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  $r^{\downarrow}, r^{\uparrow}, a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$
+  the following bounds
+  \begin{multicols}{2}
+    \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r \in [r^{\downarrow}, r^{\uparrow}]$ and $0 < r^{\downarrow}$
+    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
+    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
+    \end{enumerate}
+  \end{multicols}
+  we have that $d_{\mathbb{R}}(r, r')$ is less than or equal to all of the
+  following bounds: 
+\begin{enumerate}
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+\end{enumerate} 
+\end{theorem}
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, $e
+  \mapsto ((r, a, b), (r', a', b'))$ where $d_{\mathbb{R}}(r, r')$ is less than
+  or equal to all of the following bounds: 
+\begin{enumerate}
+  \item[(a)] $max(|ln(e^{-q} + \frac{a^{\uparrow}}{r^{\downarrow}}(e^{q} - e^{-q}))|, |ln(e^{q} + \frac{a^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+  \item[(b)] $max(|ln(e^q + \frac{b^{\uparrow}}{r^{\downarrow}}(e^q - e^{-q}))|,|ln(e^{-q} + \frac{b^{\downarrow}}{r^{\uparrow}}(e^{-q} - e^{q}))|)$
+\end{enumerate} 
+\end{corollary} 
+
+\begin{theorem}[Paired error theorem; absolute] \label{thm:paired-a-priori-abs}
+  For any numbers $((r, a, b), (r', a', b')) \in \mathbb{P}^2$ and where we have
+  the following bounds for $r^{\downarrow}, r^{\uparrow} \in \mathbb{R}$, 
+  $a^{\downarrow}, a^{\uparrow}, b^{\downarrow}, b^{\uparrow} \in \mathbb{R}^{+}$:
+  \begin{multicols}{2}
+  \begin{enumerate}
+    \item $d_{\mathbb{R}}(a, a'), d_{\mathbb{R}}(b, b') \leq q$
+    \item $r \in [r^{\downarrow}, r^{\uparrow}]$
+    \item $a \in [a^{\downarrow}, a^{\uparrow}]$
+    \item $b \in [b^{\downarrow}, b^{\uparrow}]$
+  \end{enumerate}
+  \end{multicols}
+  we have that $|r - r'|$ is less than or equal to the maximum of the following:
+  \begin{multicols}{2}
+\begin{enumerate}
+  \item[(a)] $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item[(b)] $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item[(c)] $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item[(d)] $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+\end{enumerate} 
+  \end{multicols}
+\end{theorem} 
+
+\begin{corollary}
+  For $. \vdash e : M_q~\mathbf{num}_{((r^{\downarrow}, r^{\uparrow}),
+  (a^{\downarrow}, a^{\uparrow}), (b^{\downarrow}, b^{\uparrow}), d)}$, 
+  we know that $e \mapsto^{*} ((r, a, b), (r', a', b'))$ where $|r - r'|$ is
+  less than or equal to the maximum of the following:
+  \begin{multicols}{2}
+\begin{enumerate}
+  \item $a^{\uparrow}(1-e^{-q}) - b^{\downarrow}(1 - e^q)$
+  \item $a^{\downarrow}(1-e^{-q}) - b^{\uparrow}(1 - e^q)$
+  \item $a^{\uparrow}(e^{q}-1) - b^{\downarrow}(e^{-q} - 1)$
+  \item $a^{\downarrow}(e^{q}-1) - b^{\uparrow}(e^{-q} - 1)$
+\end{enumerate} 
+  \end{multicols}
+\end{corollary} 
